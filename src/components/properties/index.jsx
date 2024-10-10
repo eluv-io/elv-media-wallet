@@ -105,8 +105,16 @@ const PropertyWrapper = observer(({children}) => {
         }}
         loadingClassName="page-loader content"
       >
-        <PreviewPasswordGate id={parentProperty?.mediaPropertyId} digest={parentProperty?.metadata?.preview_password_digest}>
-          <PreviewPasswordGate id={mediaProperty?.mediaPropertyId} digest={mediaProperty?.metadata?.preview_password_digest}>
+        <PreviewPasswordGate
+          id={parentProperty?.mediaPropertyId}
+          name={parentProperty?.metadata?.title || parentProperty?.metadata?.name}
+          digest={parentProperty?.metadata?.preview_password_digest}
+        >
+          <PreviewPasswordGate
+            id={mediaProperty?.mediaPropertyId}
+            name={mediaProperty?.metadata?.title || mediaProperty?.metadata?.name}
+            digest={mediaProperty?.metadata?.preview_password_digest}
+          >
             <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
               <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
                 <PurchaseGate id={page?.id} permissions={page?.permissions}>

@@ -15,7 +15,7 @@ const SHA512 = async (str) => {
 };
 
 const urlParams = new URLSearchParams(window.location.search);
-const PreviewPasswordGateComponent = observer(({id, digest, children, backPath="/"}) => {
+const PreviewPasswordGateComponent = observer(({id, name, digest, children, backPath="/"}) => {
   const passwordKey = `preview-password-${id}`;
 
   const [password, setPassword] = useState(rootStore.GetLocalStorage(passwordKey) || urlParams.get("pw") || "");
@@ -73,13 +73,17 @@ const PreviewPasswordGateComponent = observer(({id, digest, children, backPath="
       size="auto"
       centered
       opened
-      onClose={() => history.push(backPath || "/")}
-      withCloseButton={rootStore.pageWidth < 800}
-      header="Enter preview password to continue"
+      header="Preview Password"
+      withCloseButton={false}
     >
       <div className={S("preview-password")}>
+        <label className={S("preview-password__label")}>
+          Please enter the preview password for {name || "this property"}
+        </label>
         <PasswordInput
           error={error}
+          align="center"
+          textAlign="center"
           placeholder="Password"
           type="password"
           autoFocus
@@ -108,7 +112,7 @@ const PreviewPasswordGateComponent = observer(({id, digest, children, backPath="
   );
 });
 
-const PreviewPasswordGate = observer(({id, digest, backPath, children}) => {
+const PreviewPasswordGate = observer(({id, name, digest, backPath, children}) => {
   if(EluvioConfiguration.mode === "production" || !id || !digest) {
     return children;
   }
@@ -116,6 +120,7 @@ const PreviewPasswordGate = observer(({id, digest, backPath, children}) => {
   return (
     <PreviewPasswordGateComponent
       id={id}
+      name={name}
       digest={digest}
       backPath={backPath}
     >

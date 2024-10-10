@@ -85,7 +85,7 @@
     background: linear-gradient(#272727, #1b1b1b);
     color: var(--property-text-secondary);
     display: flex;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     height: 60px;
     justify-content: center;
@@ -947,8 +947,25 @@
 }
 
 .preview-password {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 400px;
+  min-width: 400px;
+  width: 100%;
+
+  &__label {
+    color: var(--property-text-secondary);
+    font-size: 14px;
+    text-align: center;
+  }
+
   &__input {
     height: 45px;
+
+    * {
+      text-align: center;
+    }
   }
 
   &__actions {
@@ -956,10 +973,16 @@
     display: flex;
     gap: 10px;
     justify-content: flex-end;
-    margin-top: 20px;
   }
 
   &__action {
     flex: 1 1 0;
+  }
+
+  @media screen and (width <= 600px) {
+    height: calc(50 * var(--vh));
+    justify-content: center;
+    margin: 0 auto;
+    min-width: 100%;
   }
 }
