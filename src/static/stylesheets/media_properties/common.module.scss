@@ -90,6 +90,7 @@
     height: 60px;
     justify-content: center;
     left: 0;
+    padding-inline: 15px;
     position: sticky;
     top: 0;
     width: 100%;
@@ -942,5 +943,23 @@
     &__attribute--image {
       height: 75px;
     }
+  }
+}
+
+.preview-password {
+  &__input {
+    height: 45px;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  &__action {
+    flex: 1 1 0;
   }
 }

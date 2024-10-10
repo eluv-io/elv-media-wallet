@@ -5,7 +5,6 @@ import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
-import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 import Modal from "Components/common/Modal";
 import {RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
@@ -134,14 +133,6 @@ const MarketplaceWrapper = observer(({children}) => {
             }
 
             setRedirect(MediaPropertyBasePath({mediaPropertySlugOrId}));
-          }
-
-          const passwordDigest = marketplace?.preview_password_digest;
-          if(passwordDigest && (rootStore.walletClient.mode === "staging" || match.params.marketplaceId === rootStore.previewMarketplaceId)) {
-            await PreviewPasswordPrompt({
-              marketplaceId: match.params.marketplaceId,
-              passwordDigest
-            });
           }
         }}
         loadingClassName="page-loader content"

@@ -27,11 +27,11 @@ import SanitizeHTML from "sanitize-html";
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
 
-import CheckoutStore from "Stores/Checkout";
-import TransferStore from "Stores/Transfer";
-import CryptoStore from "Stores/Crypto";
-import NotificationStore from "Stores/Notification";
-import MediaPropertyStore from "Stores/MediaProperty";
+import CheckoutStore from "Stores/CheckoutStore";
+import TransferStore from "Stores/TransferStore";
+import CryptoStore from "Stores/CryptoStore";
+import NotificationStore from "Stores/NotificationStore";
+import MediaPropertyStore from "Stores/MediaPropertyStore";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
@@ -489,15 +489,26 @@ class RootStore {
           ?.property_slug;
 
         if(propertySlugOrId) {
-          const properties = yield this.mediaPropertyStore.LoadMediaProperties();
+          yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
-          const property = properties.find(property =>
-            property.propertyId === propertySlugOrId ||
-            property.slug === propertySlugOrId
-          );
+          const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[propertySlugOrId];
 
-          this.domainProperty = property?.propertyId;
-          this.domainPropertySlug = property?.slug;
+          const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+            .find(key =>
+              key &&
+              !key.startsWith("iq") &&
+              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+            );
+
+          const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+            .find(key =>
+              key &&
+              key.startsWith("iq") &&
+              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+            );
+
+          this.domainProperty = propertyId;
+          this.domainPropertySlug = propertySlug;
         }
       }
 

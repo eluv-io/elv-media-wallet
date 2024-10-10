@@ -614,7 +614,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
               S(
                 "section__logo-container",
                 section.display.logo_text ? "section__logo-container--with-text" : "",
-                section.display.display_format === "grid" ? `section__logo-container--${section.logo_alignment || "top"}` : ""
+                section.display.display_format === "grid" ? `section__logo-container--${section?.display?.logo_alignment || "top"}` : ""
               )
             }
           >

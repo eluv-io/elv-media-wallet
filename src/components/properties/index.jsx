@@ -12,13 +12,14 @@ import {LoginGate} from "Components/common/LoginGate";
 import {PurchaseGate} from "Components/properties/Common";
 import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "../../utils/Utils";
+import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
   const [itemLoaded, setItemLoaded] = useState(!match.params.propertyItemContractId);
   const [redirect, setRedirect] = useState(false);
 
-  const { mediaPropertySlugOrId, pageSlugOrId } = match.params;
+  const { parentMediaPropertySlugOrId, mediaPropertySlugOrId, pageSlugOrId } = match.params;
   const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
 
   useEffect(() => {
@@ -66,6 +67,7 @@ const PropertyWrapper = observer(({children}) => {
 
   if(mediaPropertySlugOrId) {
     const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+    const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
     const page = mediaPropertyStore.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId});
 
     return (
@@ -80,6 +82,10 @@ const PropertyWrapper = observer(({children}) => {
           const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
 
           if(!property) { return; }
+
+          if(parentMediaPropertySlugOrId) {
+            await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
+          }
 
           SetHTMLMetaTags({
             metaTags: property.metadata?.meta_tags
@@ -99,15 +105,19 @@ const PropertyWrapper = observer(({children}) => {
         }}
         loadingClassName="page-loader content"
       >
-        <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
-          <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
-            <PurchaseGate id={page?.id} permissions={page?.permissions}>
-              <div className={PropertyStyles["property"]}>
-                { children }
-              </div>
-            </PurchaseGate>
-          </PurchaseGate>
-        </LoginGate>
+        <PreviewPasswordGate id={parentProperty?.mediaPropertyId} digest={parentProperty?.metadata?.preview_password_digest}>
+          <PreviewPasswordGate id={mediaProperty?.mediaPropertyId} digest={mediaProperty?.metadata?.preview_password_digest}>
+            <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
+              <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
+                <PurchaseGate id={page?.id} permissions={page?.permissions}>
+                  <div className={PropertyStyles["property"]}>
+                    { children }
+                  </div>
+                </PurchaseGate>
+              </PurchaseGate>
+            </LoginGate>
+          </PreviewPasswordGate>
+        </PreviewPasswordGate>
       </AsyncComponent>
     );
   }
