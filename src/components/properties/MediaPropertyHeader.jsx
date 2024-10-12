@@ -7,7 +7,7 @@ import {rootStore, mediaPropertyStore, notificationStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
-import {Autocomplete, Checkbox, Drawer, Group, Select, TextInput} from "@mantine/core";
+import {Autocomplete, Checkbox, Combobox, Drawer, Group, Select, TextInput, useCombobox} from "@mantine/core";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 import {Linkish} from "Components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
@@ -22,6 +22,7 @@ import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import SelectIcon from "Assets/icons/select";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -429,6 +430,129 @@ const discoverDisabled = rootStore.domainSettings?.settings?.features?.discover 
   }
 });
 
+const PropertySelector = observer(({logo, basePath, mobile=false}) => {
+  const history = useHistory();
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  let parentProperty = mediaProperty;
+  if(rootStore.routeParams.parentMediaPropertySlugOrId) {
+    parentProperty = mediaPropertyStore.MediaProperty({
+      mediaPropertySlugOrId: rootStore.routeParams.parentMediaPropertySlugOrId
+    });
+  }
+
+  const combobox = useCombobox();
+
+  if(!mediaProperty) { return null; }
+
+  if(!parentProperty?.metadata?.show_property_selection) {
+    return (
+      <Link
+        to={basePath}
+        className={S("logo-container")}
+      >
+        <ImageIcon icon={logo} className={S("logo")} />
+        {
+          !mediaPropertyStore.previewAll && mediaPropertyStore.previewPropertyId !== mediaProperty.mediaPropertyId ? null :
+            <div className={S("preview-indicator")}>
+              PREVIEW
+            </div>
+        }
+      </Link>
+    );
+  }
+
+  const options = parentProperty.metadata.property_selection || [];
+  const selectedOption = options.find(option => option.property_id === mediaProperty.mediaPropertyId);
+
+  const Option = ({option, selected=false}) => (
+    <>
+      <img
+        src={option?.icon?.url}
+        className={S("property-selector__option-icon")}
+      />
+      {
+        selected && mobile ? null :
+          option?.logo ?
+            <img
+              src={option.logo.url}
+              className={S("property-selector__option-logo")}
+            /> :
+            <div className={S("property-selector__option-title")}>
+              { option.title }
+            </div>
+      }
+    </>
+  );
+
+  return (
+    <Combobox
+      store={combobox}
+      width={250}
+      position="bottom-start"
+      onOptionSubmit={propertyId => {
+        const hash = mediaPropertyStore.mediaPropertyHashes[propertyId];
+        const slug = Object.keys(mediaPropertyStore.mediaPropertyHashes).find(key =>
+          key &&
+          !key.startsWith("iq__") &&
+          mediaPropertyStore.mediaPropertyHashes[key] === hash
+        );
+
+        let path;
+        if(propertyId === parentProperty.mediaPropertyId) {
+          path = MediaPropertyBasePath({mediaPropertySlugOrId: slug || propertyId});
+        } else {
+          path = MediaPropertyBasePath({
+            parentMediaPropertySlugOrId: parentProperty.mediaPropertySlug || parentProperty.mediaPropertyId,
+            mediaPropertySlugOrId: slug || propertyId
+          });
+        }
+
+        history.push(path);
+        combobox.closeDropdown();
+      }}
+      offset={mobile ? 7 : 0}
+      className={S("property-selector", mobile ? "property-selector--mobile" : "")}
+      classNames={{
+        dropdown: S("property-selector__dropdown", mobile ? "property-selector__dropdown--mobile" : ""),
+        option: S("property-selector__option", mobile ? "property-selector__option--mobile" : ""),
+      }}
+    >
+      <Combobox.Target>
+        <button
+          onClick={() => combobox.toggleDropdown()}
+          aria-label={selectedOption.title}
+          className={S("property-selector__select", combobox.dropdownOpened ? "property-selector__select--active" : "", mobile ? "property-selector__select--mobile" : "")}
+        >
+          <Option option={selectedOption} selected />
+          <div className={S("property-selector__select-icon-container")}>
+            <ImageIcon icon={SelectIcon} className={S("property-selector__select-icon")} />
+          </div>
+        </button>
+      </Combobox.Target>
+
+      <Combobox.Dropdown>
+        <Combobox.Options>
+          {
+            (parentProperty.metadata.property_selection || [])
+              .filter(option => option.property_id !== mediaProperty.mediaPropertyId)
+              .map((option, index) =>
+                <Combobox.Option
+                  title={option.title}
+                  value={option.property_id}
+                  key={option.property_id}
+                  autoFocus={index === 0}
+                >
+                  <Option option={option} />
+                </Combobox.Option>
+              )
+          }
+        </Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
+  );
+});
+
 const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
@@ -452,14 +576,9 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
+        <PropertySelector logo={logo} basePath={basePath} mobile />
         {
-          searchDisabled ?
-            <Link
-              to={basePath}
-              className={S("logo-container")}
-            >
-              <ImageIcon icon={logo} className={S("logo")} />
-            </Link> :
+          searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>
               <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </button>
@@ -509,18 +628,7 @@ const MediaPropertyHeader = observer(() => {
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
-        <Link
-          to={basePath}
-          className={S("logo-container")}
-        >
-          <ImageIcon icon={logo} className={S("logo")} />
-          {
-            !mediaPropertyStore.previewAll && mediaPropertyStore.previewPropertyId !== mediaProperty.mediaPropertyId ? null :
-              <div className={S("preview-indicator")}>
-                PREVIEW
-              </div>
-          }
-        </Link>
+        <PropertySelector logo={logo} basePath={basePath} />
       </div>
       {
         searchDisabled ?

@@ -737,11 +737,11 @@ class MediaPropertyStore {
             section.permissions?.secondary_market_purchase_option
           ) || secondaryPurchaseOption;
 
-        if(authorized && sectionItemId) {
+        if(sectionItemId) {
           const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
-          if(sectionItem) {
+          if(sectionItem && !authorized) {
             behavior = sectionItem.permissions?.behavior || behavior;
             permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
             authorized = sectionItem.authorized;
@@ -757,6 +757,12 @@ class MediaPropertyStore {
                 sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
                 sectionItem.permissions?.secondary_market_purchase_option
               ) || secondaryPurchaseOption;
+          }
+
+          // Section item 'disabled' option - apply regardless of authorization status but don't override 'hide'
+          if(sectionItem && sectionItem.disabled && !(!authorized && behavior === this.PERMISSION_BEHAVIORS.HIDE)) {
+            authorized = false;
+            behavior = this.PERMISSION_BEHAVIORS.DISABLE;
           }
         }
       }
@@ -1381,6 +1387,7 @@ class MediaPropertyStore {
 
               if(!contractAddress) {
                 this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
+                permissionItems[permissionItemId].purchaseable = false;
                 return;
               }
 
@@ -1389,6 +1396,8 @@ class MediaPropertyStore {
               }
 
               permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
+
+              permissionItems[permissionItemId].purchaseable = !marketplaceItem?.requires_permissions || marketplaceItem?.authorized;
             })
           );
 
