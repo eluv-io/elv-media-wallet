@@ -574,6 +574,12 @@ const MediaCard = observer(({
     return () => clearInterval(previewUpdateInterval);
   }, []);
 
+  if((sectionItem || mediaItem)?.resolvedPermissions?.hide) {
+    rootStore.Log("Warning: Media card with 'hide' permissions - should be truncated earlier", "warn");
+    rootStore.Log(sectionItem || mediaItem, "warn");
+    return null;
+  }
+
   if(!display) {
     mediaPropertyStore.Log("Invalid section item", true);
     mediaPropertyStore.Log(sectionItem);

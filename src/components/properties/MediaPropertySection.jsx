@@ -749,7 +749,7 @@ const MediaPropertySectionPage = observer(() => {
   }, []);
 
   if(!section) {
-    return <Redirect to={backPath} />;
+    return <Redirect to={rootStore.backPath} />;
   }
 
   let sectionPermissions = mediaPropertyStore.ResolvePermission({...match.params});

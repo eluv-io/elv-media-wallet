@@ -170,30 +170,23 @@ class MediaPropertyStore {
         }));
     }
 
-    const permissionBehavior = mediaProperty.metadata.permissions.search_permissions_behavior || "hide";
-    if(permissionBehavior === "hide") {
-      results = results.filter(({mediaItem}) => mediaItem?.authorized || mediaItem?.public);
-    }
-
-    results = results.map(result => {
-      const authorized = result.mediaItem?.authorized || result.mediaItem?.public;
-
-      return {
-        ...result,
-        mediaItem: {
-          ...result.mediaItem,
-          resolvedPermissions: {
-            authorized,
-            disable: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.DISABLE,
-            showAlternatePage: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
-            alternatePageId: mediaProperty.metadata.permissions.search_permissions_alternate_page_id,
-            purchaseGate: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
-            secondaryPurchaseOption: mediaProperty.metadata.permissions.search_permissions_secondary_market_purchase_option,
-            permissionItemIds: result.mediaItem?.permissions?.map(permission => permission.permission_item_id) || []
+    results = results
+      .map(result => {
+        return {
+          ...result,
+          mediaItem: {
+            ...result.mediaItem,
+            resolvedPermissions: this.ResolvePermission({
+              mediaPropertySlugOrId,
+              mediaCollectionSlugOrId: result.mediaItem.type === "collection" && result.mediaItem.id,
+              mediaListSlugOrId: result.mediaItem.type === "list" && result.mediaItem.id,
+              mediaItemSlugOrId: result.mediaItem.type === "media" && result.mediaItem.id,
+              search: true
+            })
           }
-        }
-      };
-    });
+        };
+      })
+      .filter(result => !result?.mediaItem?.resolvedPermissions?.hide);
 
     // Filter
     const hasDateFilter = !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
@@ -683,7 +676,8 @@ class MediaPropertyStore {
     sectionItemId,
     mediaCollectionSlugOrId,
     mediaListSlugOrId,
-    mediaItemSlugOrId
+    mediaItemSlugOrId,
+    search=false
   }) {
     // Resolve permissions from top down
     let authorized = true;
@@ -722,7 +716,7 @@ class MediaPropertyStore {
 
       if(section) {
         behavior = section.permissions?.behavior || behavior;
-        authorized = section.authorized;
+        authorized = section.authorized || false;
         cause = !authorized && "Section permissions";
         permissionItemIds = section.permissions?.permission_item_ids || [];
         alternatePageId =
@@ -738,14 +732,14 @@ class MediaPropertyStore {
           ) || secondaryPurchaseOption;
 
         if(sectionItemId) {
-          const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
+          const sectionItem = section?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
-          if(sectionItem && !authorized) {
+          if(sectionItem) {
             behavior = sectionItem.permissions?.behavior || behavior;
             permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
-            authorized = sectionItem.authorized;
-            cause = cause || !authorized && "Section item permissions";
+            authorized = authorized && sectionItem.authorized || false;
+            cause = (!authorized && "Section item permissions") || cause;
             alternatePageId =
               (
                 sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
@@ -763,9 +757,16 @@ class MediaPropertyStore {
           if(sectionItem && sectionItem.disabled && !(!authorized && behavior === this.PERMISSION_BEHAVIORS.HIDE)) {
             authorized = false;
             behavior = this.PERMISSION_BEHAVIORS.DISABLE;
+            cause = "Section item disabled";
           }
         }
       }
+    }
+
+    if(search) {
+      behavior = mediaProperty.metadata.permissions.search_permissions_behavior || behavior;
+      alternatePageId = mediaProperty.metadata.permissions.search_permissions_alternate_page_id || alternatePageId;
+      secondaryPurchaseOption = mediaProperty.metadata.permissions.search_permissions_secondary_market_purchase_option || secondaryPurchaseOption;
     }
 
     if(authorized && mediaCollectionSlugOrId) {
@@ -812,8 +813,20 @@ class MediaPropertyStore {
       }
     }
 
+    const purchasable = !secondaryPurchaseOption || permissionItemIds.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.purchasable
+    );
+
+    if(!authorized && !purchasable) {
+      authorized = false;
+      behavior = this.PERMISSION_BEHAVIORS.HIDE;
+      cause = `${cause} and not purchasable`;
+      showAlternatePage = false;
+    }
+
     return {
       authorized,
+      purchasable: !!purchasable,
       behavior,
       // Hide by default, or if behavior is hide, or if no purchasable permissions are available
       hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
@@ -1387,7 +1400,7 @@ class MediaPropertyStore {
 
               if(!contractAddress) {
                 this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
-                permissionItems[permissionItemId].purchaseable = false;
+                permissionItems[permissionItemId].purchasable = false;
                 return;
               }
 
@@ -1397,7 +1410,7 @@ class MediaPropertyStore {
 
               permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
 
-              permissionItems[permissionItemId].purchaseable = !marketplaceItem?.requires_permissions || marketplaceItem?.authorized;
+              permissionItems[permissionItemId].purchasable = !marketplaceItem?.requires_permissions || marketplaceItem?.authorized;
             })
           );
 
