@@ -1408,10 +1408,6 @@ class RootStore {
         }
       }
 
-      if(marketplace?.default_display_currency) {
-        this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
-      }
-
       // Give locationType time to settle if path changed
       setTimeout(() => this.SetCustomizationOptions(marketplace, disableTenantStyling), 100);
 
@@ -1466,9 +1462,6 @@ class RootStore {
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
-
-    const defaultCurrency = this.GetLocalStorage(`preferred-currency-${marketplaceId}`) || this.marketplaces[marketplaceId].default_display_currency || "USD";
-    yield this.checkoutStore.SetCurrency({currency: defaultCurrency});
 
     if(marketplaceId === this.specifiedMarketplaceId) {
       this.InitializeAnalytics(this.marketplaces[marketplaceId]);

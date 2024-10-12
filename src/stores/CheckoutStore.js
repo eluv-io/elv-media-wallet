@@ -60,12 +60,12 @@ class CheckoutStore {
   }
 
   SetCurrency = flow(function * ({currency}) {
+    this.currency = currency;
+
     try {
       if(currency !== "USD") {
         this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
       }
-
-      this.currency = currency;
     } catch(error) {
       this.Log(error, true);
     }
@@ -722,7 +722,7 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: "USD",
+        currency: this.currency,
         email,
         client_reference_id: checkoutId,
         elv_addr: address || (isGift && this.client.utils.nullAddress),

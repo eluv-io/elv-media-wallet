@@ -390,14 +390,17 @@ const Payment = observer(({item, Back}) => {
                 {rootStore.l10n.purchase.purchase_methods.pix}
               </Button>
           }
-          <Button
-            variant="option"
-            active={paymentMethod.type === "balance"}
-            className={S("button")}
-            onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
-          >
-            { rootStore.l10n.purchase.purchase_methods.wallet_balance }
-          </Button>
+          {
+            checkoutStore.currency !== "USD" ? null :
+              <Button
+                variant="option"
+                active={paymentMethod.type === "balance"}
+                className={S("button")}
+                onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
+              >
+                { rootStore.l10n.purchase.purchase_methods.wallet_balance }
+              </Button>
+          }
         </div>;
   }
 
@@ -438,7 +441,14 @@ const Payment = observer(({item, Back}) => {
             {
               LocalizeString(
                 rootStore.l10n.media_properties.purchase.select,
-                {price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
+                {price: FormatPriceString(
+                    item.price,
+                    {
+                      additionalFee: page === "balance" ? fee : 0,
+                      stringOnly: true
+                    }
+                  )
+                },
                 {stringOnly: true}
               )
             }
@@ -621,7 +631,9 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     showPrimary,
     showSecondary,
     secondaryPurchaseOption,
-    price: itemInfo.price || marketplaceItem.price,
+    price: item.listingId ?
+      { USD: itemInfo.price } :
+      marketplaceItem.price,
     imageUrl: item.use_custom_image ?
       item.image?.url :
       itemInfo?.mediaInfo?.imageUrl,

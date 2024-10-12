@@ -239,49 +239,46 @@ export const ConvertCurrency = (amount, originalCurrency, targetCurrency, rounde
   return Money.fromDecimal(amount.multiply(rate, Math[rounder]).toString(), targetCurrency, rounder);
 };
 
-export const ToUSD = (amount, rounder="round") => {
-  return ConvertCurrency(amount, checkoutStore.currency, "USD", rounder);
-};
-
-export const FromUSD = (amount, rounder="round") => {
-  return ConvertCurrency(amount, "USD", checkoutStore.currency, rounder);
-};
-
-window.ToUSD = ToUSD;
-window.FromUSD = FromUSD;
-window.ParseMoney = ParseMoney;
-
 export const FormatPriceString = (
   price,
   options= {
+    additionalFee: 0,
     quantity: 1,
     trimZeros: false,
     includeCurrency: false,
     useCurrencyIcon: false,
     includeUSDCIcon: false,
     prependCurrency: false,
-    excludeAlternateCurrency: false,
     stringOnly: false,
     noConversion: false,
     className: ""
   }
 ) => {
-  if((typeof price !== "number" || isNaN(price)) && (typeof price?.amount === "undefined")) { return; }
-
-  let currency = checkoutStore.currency || "USD";
-  if(checkoutStore.currency === "USD" || options.excludeAlternateCurrency) {
-    // Work in USD exclusively
-    price = ParseMoney(price, "USD");
-    currency = "USD";
-  } else if(options.noConversion) {
-    // Work in alternate currency exclusively
-    price = ParseMoney(price, checkoutStore.currency);
+  let currency = "USD";
+  if(typeof price === "object") {
+    if(price[checkoutStore.currency]) {
+      price = price[checkoutStore.currency];
+      currency = checkoutStore.currency;
+    } else {
+      price = price.USD;
+      currency = "USD";
+    }
   } else {
-    // Convert price from USD to alternate currency
-    price = FromUSD(price);
+    price = parseFloat(price);
   }
 
+  if(typeof price === "undefined" || isNaN(price)) {
+    return "";
+  }
+
+  price = ParseMoney(price, currency);
+
+
   price = price.multiply(options.quantity || 1);
+
+  if(options.additionalFee) {
+    price += options.additionalFee;
+  }
 
   let formattedPrice = new Intl.NumberFormat(rootStore.preferredLocale, { style: "currency", currency}).format(price.toString());
 
@@ -344,8 +341,6 @@ export const FormatPriceString = (
 
   return priceString;
 };
-
-window.FormatPriceString = FormatPriceString;
 
 export const RichText = ({richText, className=""}) => {
   const ref = useRef();
