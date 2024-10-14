@@ -100,7 +100,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                     {
                       !item.secondaryDisabled && secondaryPurchaseOption === "only" ? null :
                         <Button
-                          disabled={item.outOfStock}
+                          disabled={!item.purchasable}
                           onClick={async () => await Select(item.id)}
                           className={S("button")}
                         >
@@ -612,6 +612,7 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     editionName,
     listingPath,
     outOfStock,
+    purchasable: itemInfo?.marketplacePurchaseAvailable,
     secondaryDisabled,
     showPrimary,
     showSecondary,

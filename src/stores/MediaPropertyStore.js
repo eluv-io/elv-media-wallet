@@ -3,6 +3,7 @@ import MiniSearch from "minisearch";
 import {MediaItemScheduleInfo} from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
+import {NFTInfo} from "../utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -813,7 +814,7 @@ class MediaPropertyStore {
       }
     }
 
-    const purchasable = !secondaryPurchaseOption || permissionItemIds.find(permissionItemId =>
+    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchasable
     );
 
@@ -1400,7 +1401,6 @@ class MediaPropertyStore {
 
               if(!contractAddress) {
                 this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
-                permissionItems[permissionItemId].purchasable = false;
                 return;
               }
 
@@ -1410,7 +1410,9 @@ class MediaPropertyStore {
 
               permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
 
-              permissionItems[permissionItemId].purchasable = !marketplaceItem?.requires_permissions || marketplaceItem?.authorized;
+              permissionItems[permissionItemId].purchasable = NFTInfo({
+                item: marketplaceItem
+              })?.marketplacePurchaseAvailable;
             })
           );
 
