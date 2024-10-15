@@ -250,8 +250,8 @@ export const PriceCurrency = prices => {
       price = prices[checkoutStore.currency];
       currency = checkoutStore.currency;
     } else {
-      price = prices.USD;
-      currency = "USD";
+      currency = Object.keys(prices).find(currencyCode => prices[currencyCode]);
+      price = prices[currency];
     }
   } else {
     price = parseFloat(prices);

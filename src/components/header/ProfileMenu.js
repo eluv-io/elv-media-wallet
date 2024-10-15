@@ -27,14 +27,8 @@ const ProfileMenu = observer(({Hide}) => {
   const userInfo = rootStore.walletClient.UserInfo();
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false ||
     fullMarketplace?.branding?.disable_secondary_market;
-  /*
-  const discoverDisabled = rootStore.domainSettings?.settings?.features?.discover === false ||
-    rootStore.hideGlobalNavigation ||
-    (marketplaceId && rootStore.hideGlobalNavigationInMarketplace);
 
-   */
-
-  const discoverDisabled = false;
+  const discoverDisabled = rootStore.isCustomDomain;
 
   useEffect(() => {
     window.__headerSubmenuActive = showPreferencesMenu;

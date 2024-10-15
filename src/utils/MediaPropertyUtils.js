@@ -1,4 +1,4 @@
-import {LinkTargetHash, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
+import {LinkTargetHash, NFTInfo, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
 import {mediaPropertyStore, rootStore} from "Stores";
 
@@ -135,7 +135,19 @@ export const PurchaseParamsToItems = (params) => {
     }
   }
 
-  return purchaseItems.filter(item => item.purchasable);
+  return (
+    purchaseItems
+      // Filter non-purchasable items
+      .filter(item => {
+        const marketplaceItem = rootStore.marketplaces[item.marketplace?.marketplace_id]?.items
+          ?.find(marketplaceItem => marketplaceItem.sku === item.marketplace_sku);
+
+        return (
+          marketplaceItem &&
+          NFTInfo({item: marketplaceItem}).marketplacePurchaseAvailable
+        );
+      })
+  );
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {

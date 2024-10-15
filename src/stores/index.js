@@ -384,7 +384,7 @@ class RootStore {
         let oryUrl = EluvioConfiguration.ory_configuration.url;
         if(this.isCustomDomain) {
           const parsedUrl = parseDomain(window.location.hostname);
-          if(parsedUrl.type !== "INVALID") {
+          if(parsedUrl.type !== "INVALID" && parsedUrl.type !== "RESERVED") {
             oryUrl = new URL(`https://ory.svc.${parsedUrl.domain}.${parsedUrl.topLevelDomains.join(".")}`).toString();
           }
         }
@@ -2857,7 +2857,7 @@ class RootStore {
   }
 
   SetBackPath(backPath) {
-    if(!backPath) {
+    if(!backPath || (this.isCustomDomain && backPath === "/")) {
       this.backPath = undefined;
       return;
     }

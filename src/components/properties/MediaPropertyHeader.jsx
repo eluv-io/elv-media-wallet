@@ -379,15 +379,8 @@ const SearchBar = observer(({autoFocus}) => {
 const HeaderLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
-  /*
-const discoverDisabled = rootStore.domainSettings?.settings?.features?.discover === false ||
-  rootStore.hideGlobalNavigation ||
-  (marketplaceId && rootStore.hideGlobalNavigationInMarketplace);
 
- */
-
-  const discoverDisabled = false;
-
+  const discoverDisabled = rootStore.isCustomDomain;
 
   if(!rootStore.loggedIn) {
     return (
