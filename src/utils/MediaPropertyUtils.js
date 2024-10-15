@@ -88,6 +88,56 @@ export const CreateRedeemableParams = ({
   );
 };
 
+export const PurchaseParamsToItems = (params) => {
+  if(!params || params.type !== "purchase") {
+    return [];
+  }
+
+  let purchaseItems = [];
+  if(params.permissionItemIds) {
+    purchaseItems = (
+      params.permissionItemIds
+        .map(permissionItemId => mediaPropertyStore.PermissionItem({permissionItemId}))
+        .filter(item => item)
+    );
+  } else if(params.sectionItemId) {
+    const section = mediaPropertyStore.MediaPropertySection({...rootStore.routeParams, sectionSlugOrId: params.sectionSlugOrId});
+
+    if(section?.type === "hero") {
+      const matchingItem = section.hero_items?.find(heroItem => heroItem.id === params.sectionItemId);
+      const action = matchingItem?.actions?.find(action => action.id === params.actionId);
+
+      if(action) {
+        purchaseItems = (
+          (action.items || [])
+            .map(item => ({
+              ...item,
+              ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
+              id: item.id
+            }))
+            .filter(item => item)
+        );
+      }
+    } else if(section) {
+      const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
+
+      if(matchingItem) {
+        purchaseItems = (
+          (matchingItem.items || [])
+            .map(item => ({
+              ...item,
+              ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
+              id: item.id
+            }))
+            .filter(item => item)
+        );
+      }
+    }
+  }
+
+  return purchaseItems.filter(item => item.purchasable);
+};
+
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
   if(sectionItem?.type === "visual_only") {
     return {

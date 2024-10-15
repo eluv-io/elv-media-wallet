@@ -114,9 +114,7 @@ const MediaCardWithButtonVertical = observer(({
             href={url}
             className={[S("media-card-button-vertical__action"), className].join(" ")}
           >
-            <ScaledText maxPx={22} minPx={18}>
-              {buttonText}
-            </ScaledText>
+            {buttonText}
           </Button>
         </div>
       </div>

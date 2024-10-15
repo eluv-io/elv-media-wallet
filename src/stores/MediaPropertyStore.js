@@ -1,6 +1,9 @@
 import {makeAutoObservable, flow, runInAction, toJS} from "mobx";
 import MiniSearch from "minisearch";
-import {MediaItemScheduleInfo} from "../utils/MediaPropertyUtils";
+import {
+  MediaItemScheduleInfo,
+  PurchaseParamsToItems
+} from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
 import {NFTInfo} from "../utils/Utils";
@@ -552,6 +555,15 @@ class MediaPropertyStore {
     }
 
     return content
+      .filter(sectionItem => (
+        // Filter purchase section items that have no purchasable items
+        sectionItem.type !== "item_purchase" ||
+        PurchaseParamsToItems({
+          type: "purchase",
+          sectionSlugOrId,
+          sectionItemId: sectionItem.id
+        }).length > 0
+      ))
       .map(sectionItem => ({
         ...sectionItem,
         resolvedPermissions: this.ResolvePermission({

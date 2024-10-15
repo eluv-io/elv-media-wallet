@@ -187,10 +187,15 @@
 
       &.section__content--center {
         justify-content: center;
+        margin-inline: auto;
+        width: max-content;
       }
 
       &.section__content--right {
         justify-content: flex-end;
+        margin-left: auto;
+        margin-right: 0;
+        width: max-content;
       }
     }
 

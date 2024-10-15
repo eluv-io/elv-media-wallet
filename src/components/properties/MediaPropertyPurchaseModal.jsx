@@ -12,7 +12,11 @@ import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
 import {LoginGate} from "Components/common/LoginGate";
-import {MediaPropertyBasePath, MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
+import {
+  MediaPropertyBasePath,
+  MediaPropertyPurchaseParams,
+  PurchaseParamsToItems
+} from "../../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
@@ -814,45 +818,8 @@ const MediaPropertyPurchaseModal = () => {
       });
 
       return;
-    } else if(params.permissionItemIds) {
-      newPurchaseItems = (
-        params.permissionItemIds
-          .map(permissionItemId => mediaPropertyStore.PermissionItem({permissionItemId}))
-          .filter(item => item)
-      );
-    } else if(params.sectionItemId) {
-      const section = mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: params.sectionSlugOrId});
-
-      if(section?.type === "hero") {
-        const matchingItem = section.hero_items?.find(heroItem => heroItem.id === params.sectionItemId);
-        const action = matchingItem?.actions?.find(action => action.id === params.actionId);
-
-        if(action) {
-          newPurchaseItems = (
-            (action.items || [])
-              .map(item => ({
-                ...item,
-                ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
-                id: item.id
-              }))
-              .filter(item => item)
-          );
-        }
-      } else if(section) {
-        const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
-
-        if(matchingItem) {
-          newPurchaseItems = (
-            (matchingItem.items || [])
-              .map(item => ({
-                ...item,
-                ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
-                id: item.id
-              }))
-              .filter(item => item)
-          );
-        }
-      }
+    } else {
+      newPurchaseItems = PurchaseParamsToItems(params);
     }
 
     if(!newPurchaseItems || newPurchaseItems.length === 0) {

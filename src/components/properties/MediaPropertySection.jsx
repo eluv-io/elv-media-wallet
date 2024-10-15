@@ -22,7 +22,9 @@ import {LoginGate} from "Components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
   MediaItemImageUrl,
-  MediaPropertyBasePath, MediaPropertyLink
+  MediaPropertyBasePath,
+  MediaPropertyLink,
+  PurchaseParamsToItems
 } from "../../utils/MediaPropertyUtils";
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
@@ -84,13 +86,19 @@ const Action = observer(({sectionId, sectionItemId, action}) => {
       break;
 
     case "show_purchase":
-      const params = new URLSearchParams(location.search);
-      params.set("p", CreateMediaPropertyPurchaseParams({
+      const purchaseParams = CreateMediaPropertyPurchaseParams({
         id: action.id,
         sectionSlugOrId: sectionId,
         sectionItemId,
         actionId: action.id
-      }));
+      });
+
+      if(PurchaseParamsToItems(purchaseParams).length === 0) {
+        return null;
+      }
+
+      const params = new URLSearchParams(location.search);
+      params.set("p", purchaseParams);
       buttonParams.to = location.pathname + "?" + params.toString();
       break;
 
