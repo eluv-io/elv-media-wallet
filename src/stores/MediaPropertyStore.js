@@ -818,9 +818,12 @@ class MediaPropertyStore {
       this.permissionItems[permissionItemId]?.purchasable
     );
 
+    // If not authorized and the user can't purchase access, hide or disable
     if(!authorized && !purchasable) {
       authorized = false;
-      behavior = this.PERMISSION_BEHAVIORS.HIDE;
+      behavior = behavior === this.PERMISSION_BEHAVIORS.DISABLE ?
+        behavior :
+        this.PERMISSION_BEHAVIORS.HIDE;
       cause = `${cause} and not purchasable`;
       showAlternatePage = false;
     }

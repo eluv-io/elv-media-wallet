@@ -443,7 +443,7 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
 
   const combobox = useCombobox();
 
-  if(!mediaProperty) { return null; }
+  if(!mediaProperty || !parentProperty) { return null; }
 
   let showPropertySelector = parentProperty?.metadata?.show_property_selection;
   let options = (parentProperty.metadata.property_selection || [])
