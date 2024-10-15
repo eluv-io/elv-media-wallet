@@ -145,7 +145,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
     if(page) {
       const pageSlugOrId = page?.slug || sectionItem.page_id;
-      linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId, pageSlugOrId});
+      linkPath = MediaPropertyBasePath({...match.params, pageSlugOrId});
       navContext = undefined;
     }
   } else if(sectionItem?.type === "property_link") {

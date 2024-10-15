@@ -378,13 +378,13 @@ class RootStore {
       if(window.sessionStorageAvailable) {
         let oryUrl = EluvioConfiguration.ory_configuration.url;
         if(this.isCustomDomain) {
-          const parsedUrl = parseDomain(oryUrl.replace("https://", "").replace("http://", ""));
+          const parsedUrl = parseDomain(window.location.hostname);
           if(parsedUrl.type !== "INVALID") {
             oryUrl = new URL(`https://ory.svc.${parsedUrl.domain}.${parsedUrl.topLevelDomains.join(".")}`).toString();
           }
         }
 
-        console.log(oryUrl)
+        console.log(oryUrl);
 
         // Initialize Ory client
         const {Configuration, FrontendApi} = yield import("@ory/client");
@@ -394,7 +394,7 @@ class RootStore {
               kratos_feature_flags_use_continue_with_transitions: true,
               use_continue_with_transitions: true
             },
-            basePath: EluvioConfiguration.ory_configuration.url,
+            basePath: oryUrl,
             // we always want to include the cookies in each request
             // cookies are used for sessions and CSRF protection
             baseOptions: {
