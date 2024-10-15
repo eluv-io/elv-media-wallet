@@ -366,14 +366,17 @@ const Payment = observer(({item, Back}) => {
     default:
       options =
         <div role="listbox" className={S("actions")}>
-          <Button
-            variant="option"
-            active={paymentMethod.type === "card"}
-            className={S("button")}
-            onClick={() => setPaymentMethod({...paymentMethod, type: "card", provider: !ebanxEnabled ? "stripe" : undefined})}
-          >
-            { rootStore.l10n.purchase.purchase_methods.credit_card }
-          </Button>
+          {
+            !(coinbaseEnabled || pixEnabled || ebanxEnabled || walletBalanceEnabled) ? null :
+              <Button
+                variant="option"
+                active={paymentMethod.type === "card"}
+                className={S("button")}
+                onClick={() => setPaymentMethod({...paymentMethod, type: "card", provider: !ebanxEnabled ? "stripe" : undefined})}
+              >
+                { rootStore.l10n.purchase.purchase_methods.credit_card }
+              </Button>
+          }
           {
             !coinbaseEnabled ? null :
               <Button
@@ -666,6 +669,12 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   const isListing = selectedItem?.listingId;
 
   useEffect(() => {
+    if(items.length === 1) {
+      setSelectedItemId(items[0].id);
+    }
+  }, []);
+
+  useEffect(() => {
     setLoaded(false);
 
     rootStore.GetWalletBalance();
@@ -741,7 +750,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         <div className="purchase">
           <Payment
             item={selectedItem}
-            Back={isListing ? Close : () => setSelectedItemId(undefined)}
+            Back={isListing || items.length === 1 ? Close : () => setSelectedItemId(undefined)}
           />
         </div>
       );
