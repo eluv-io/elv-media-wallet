@@ -653,6 +653,7 @@ class CheckoutStore {
     marketplaceId,
     sku,
     quantity=1,
+    currency,
     confirmationId,
     email,
     address,
@@ -752,7 +753,7 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: this.currency,
+        currency: currency || this.currency,
         email,
         client_reference_id: checkoutId,
         elv_addr: address || (isGift && this.client.utils.nullAddress),

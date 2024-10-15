@@ -7,7 +7,7 @@ import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
@@ -212,12 +212,14 @@ const Purchase = async ({item, paymentMethod, history}) => {
       cancelUrl
     });
   } else {
+    const { currency } = PriceCurrency(item.price);
     result = await checkoutStore.CheckoutSubmit({
       provider: paymentMethod.provider,
       tenantId: rootStore.marketplaces[item.marketplace?.marketplace_id]?.tenant_id,
       marketplaceId: item.marketplace.marketplace_id,
       sku: item.marketplace_sku,
       quantity: 1,
+      currency,
       successUrl,
       cancelUrl
     });
