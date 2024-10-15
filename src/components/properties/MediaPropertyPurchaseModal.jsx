@@ -188,8 +188,8 @@ const Purchase = async ({item, paymentMethod, history}) => {
   params.itemId = item.id;
   successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
 
-  if(item.redirect_page) {
-    successUrl.searchParams.set("page", item.redirect_page);
+  if(item.purchaseRedirectPage) {
+    successUrl.searchParams.set("page", item.purchaseRedirectPage);
   }
 
   const cancelUrl = new URL(location.href);
@@ -239,6 +239,8 @@ const Payment = observer(({item, Back}) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
+  const {currency} = PriceCurrency(item.price);
+
   let paymentOptions = { stripe: { enabled: true } };
 
   const isListing = item?.listingId;
@@ -254,6 +256,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
+  const walletBalanceEnabled = paymentOptions?.wallet_balance?.enabled !== false;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
@@ -393,7 +396,7 @@ const Payment = observer(({item, Back}) => {
               </Button>
           }
           {
-            checkoutStore.currency !== "USD" ? null :
+            !walletBalanceEnabled || currency !== "USD" ? null :
               <Button
                 variant="option"
                 active={paymentMethod.type === "balance"}
@@ -622,8 +625,19 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
 
   const showPrimary = !outOfStock && secondaryPurchaseOption !== "only";
 
+  const mediaPropertyRedirect = mediaPropertyStore.MediaProperty({...rootStore.routeParams})
+    ?.metadata?.purchase_settings?.purchase_redirect;
+  let purchaseRedirectPage = item.redirect_page || mediaPropertyRedirect;
+  purchaseRedirectPage = purchaseRedirectPage === "_none" ? undefined : purchaseRedirectPage;
+
+  if(purchaseRedirectPage) {
+    purchaseRedirectPage = mediaPropertyStore.MediaPropertyPage({...rootStore.routeParams, pageSlugOrId: purchaseRedirectPage})
+      ?.slug || purchaseRedirectPage;
+  }
+
   return {
     ...item,
+    purchaseRedirectPage,
     itemName,
     editionName,
     listingPath,

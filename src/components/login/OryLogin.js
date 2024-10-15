@@ -6,6 +6,7 @@ import {Loader} from "Components/common/Loaders";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import {ValidEmail} from "../../utils/Utils";
 import {Redirect} from "react-router-dom";
+import {PasswordInput} from "@mantine/core";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
@@ -544,6 +545,21 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
                       </button>
                     );
                   default:
+                    if(attributes.type === "password") {
+                      return (
+                        <PasswordInput
+                          key={`input-${key}`}
+                          {...attributes}
+                          classNames={{
+                            root: "login-page__input-container",
+                            wrapper: "login-page__input-wrapper",
+                            input: "login-page__input",
+                            visibilityToggle: "login-page__input-visibility-toggle"
+                          }}
+                        />
+                      );
+                    }
+
                     return (
                       <input key={`inputs-${key}`} {...attributes} />
                     );

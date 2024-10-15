@@ -113,6 +113,21 @@
     background-color: transparent;
   }
 
+  &__input-container,
+  &__input-wrapper,
+  &__input {
+    height: 50px;
+    background: 0;
+    border: 0;
+  }
+
+  &__input-visibility-toggle {
+    * {
+      color: var(--login-input--color);
+      opacity: 0.75;
+    }
+  }
+
   input {
     background: var(--login-input--background);
     border: 1px solid var(--login-input--border-color);
