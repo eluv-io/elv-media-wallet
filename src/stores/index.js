@@ -23,6 +23,7 @@ import {ElvClient, ElvWalletClient} from "@eluvio/elv-client-js";
 import SiteConfiguration from "@eluvio/elv-client-js/src/walletClient/Configuration";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
+import {parseDomain} from "parse-domain";
 
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
@@ -57,22 +58,6 @@ try {
 } catch(error) {
   storageSupported = false;
 }
-
-
-if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
-  if(location.hostname === "ris.euro2024.com") {
-    EluvioConfiguration.ory_configuration = {
-      "url": "https://auth.euro2024.com",
-      "jwt_template": "jwt_uefa_template1"
-    };
-  } else {
-    EluvioConfiguration.ory_configuration = {
-      "url": "https://auth.mw.app",
-      "jwt_template": "jwt_uefa_template1"
-    };
-  }
-}
-
 
 class RootStore {
   siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
@@ -391,6 +376,16 @@ class RootStore {
       this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
+        let oryUrl = EluvioConfiguration.ory_configuration.url;
+        if(this.isCustomDomain) {
+          const parsedUrl = parseDomain(oryUrl.replace("https://", "").replace("http://", ""));
+          if(parsedUrl.type !== "INVALID") {
+            oryUrl = new URL(`https://ory.svc.${parsedUrl.domain}.${parsedUrl.topLevelDomains.join(".")}`).toString();
+          }
+        }
+
+        console.log(oryUrl)
+
         // Initialize Ory client
         const {Configuration, FrontendApi} = yield import("@ory/client");
         this.oryClient = new FrontendApi(
