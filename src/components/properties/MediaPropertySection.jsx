@@ -571,10 +571,14 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
-  const showAllLink = section.display.display_format?.toLowerCase() !== "banner" &&
-    allContentLength > parseInt(section.display.display_limit || 5);
-
   let displayLimit = section.display?.display_limit;
+  let showAllLink = false;
+  if(section.display.display_format === "grid") {
+    showAllLink = allContentLength > parseInt(displayLimit || 1000);
+  } else if(section.display.display_format === "carousel") {
+    showAllLink = allContentLength > parseInt(displayLimit || 5);
+  }
+
   if(
     displayLimit &&
     ContentComponent === SectionContentGrid &&
