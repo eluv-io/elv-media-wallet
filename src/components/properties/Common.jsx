@@ -265,7 +265,17 @@ export const ScaledText = observer(({
   );
 });
 
-export const Modal = observer(({noBackground=false, header, ...args}) => {
+export const Modal = observer(({
+  noBackground=false,
+  header,
+  rootClassName,
+  overlayClassName,
+  innerClassName,
+  contentClassName,
+  headerClassName,
+  bodyClassName,
+  ...args
+}) => {
   const showCloseButton = args.fullScreen ||
     (typeof args.withCloseButton === "undefined" ?
       rootStore.pageWidth < 600 : args.withCloseButton);
@@ -290,12 +300,12 @@ export const Modal = observer(({noBackground=false, header, ...args}) => {
       withCloseButton={false}
       transitionProps={args.transitionProps || {duration: 0}}
       classNames={{
-        root: [S("modal", noBackground ? "modal--no-background" : ""), args.rootClassName || ""].join(" "),
-        overlay: [S("modal__overlay"), args.overlayClassName || ""].join(" "),
-        inner: [S("modal__inner"), args.innerClassName || ""].join(" "),
-        content: [S("modal__container"), args.contentClassName || ""].join(" "),
-        header: [S("modal__header"), args.headerClassName || ""].join(" "),
-        body: [S("modal__content"), args.bodyClassName || ""].join(" ")
+        root: [S("modal", noBackground ? "modal--no-background" : ""), rootClassName || ""].join(" "),
+        overlay: [S("modal__overlay"), overlayClassName || ""].join(" "),
+        inner: [S("modal__inner"), innerClassName || ""].join(" "),
+        content: [S("modal__container"), contentClassName || ""].join(" "),
+        header: [S("modal__header"), headerClassName || ""].join(" "),
+        body: [S("modal__content"), bodyClassName || ""].join(" ")
       }}
     >
       {

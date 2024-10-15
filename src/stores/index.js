@@ -384,8 +384,6 @@ class RootStore {
           }
         }
 
-        console.log(oryUrl);
-
         // Initialize Ory client
         const {Configuration, FrontendApi} = yield import("@ory/client");
         this.oryClient = new FrontendApi(

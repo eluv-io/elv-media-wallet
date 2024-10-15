@@ -445,7 +445,18 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
 
   if(!mediaProperty) { return null; }
 
-  if(!parentProperty?.metadata?.show_property_selection) {
+  let showPropertySelector = parentProperty?.metadata?.show_property_selection;
+  let options = (parentProperty.metadata.property_selection || [])
+    .filter(option => (
+      option.property_id === parentProperty.mediaPropertyId ||
+      !option.permission_item_ids ||
+      option.permission_item_ids.length === 0 ||
+      option.permission_item_ids.find(permissionItemId =>
+        mediaPropertyStore.permissionItems[permissionItemId]?.authorized
+      )
+    ));
+
+  if(!showPropertySelector || options.length <= 1) {
     return (
       <Link
         to={basePath}
@@ -462,7 +473,6 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
     );
   }
 
-  const options = parentProperty.metadata.property_selection || [];
   const selectedOption = options.find(option => option.property_id === mediaProperty.mediaPropertyId);
 
   const Option = ({option, selected=false}) => (
@@ -534,7 +544,7 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
       <Combobox.Dropdown>
         <Combobox.Options>
           {
-            (parentProperty.metadata.property_selection || [])
+            options
               .filter(option => option.property_id !== mediaProperty.mediaPropertyId)
               .map((option, index) =>
                 <Combobox.Option
