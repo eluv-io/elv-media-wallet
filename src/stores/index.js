@@ -63,6 +63,7 @@ class RootStore {
   siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
   preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
   language = this.GetLocalStorage("lang");
+  geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
@@ -275,6 +276,10 @@ class RootStore {
       this.SetSessionStorage("live-url", this.liveAppUrl);
     }
 
+    if(this.geo) {
+      this.SetSessionStorage("geo", this.geo);
+    }
+
     this.resizeHandler = new ResizeObserver(elements => {
       const {width, height} = elements[0].contentRect;
 
@@ -379,7 +384,7 @@ class RootStore {
         let oryUrl = EluvioConfiguration.ory_configuration.url;
         if(this.isCustomDomain) {
           const parsedUrl = parseDomain(window.location.hostname);
-          if(parsedUrl.type !== "INVALID") {
+          if(parsedUrl.type !== "INVALID" && parsedUrl.type !== "RESERVED") {
             oryUrl = new URL(`https://ory.svc.${parsedUrl.domain}.${parsedUrl.topLevelDomains.join(".")}`).toString();
           }
         }
@@ -1378,8 +1383,6 @@ class RootStore {
       this.RemoveSessionStorage("marketplace");
     }
 
-    this.checkoutStore.SetCurrency({currency: "USD"});
-
     // Give locationType time to settle if path changed
     setTimeout(() => this.SetCustomizationOptions("default"), 100);
   }
@@ -1406,10 +1409,6 @@ class RootStore {
         if(marketplace.branding?.disable_usdc) {
           this.usdcDisabled = true;
         }
-      }
-
-      if(marketplace?.default_display_currency) {
-        this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
       }
 
       // Give locationType time to settle if path changed
@@ -1463,15 +1462,25 @@ class RootStore {
       this.walletClient.marketplacesLoaded = true;
     }
 
-    this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
+    if(!this.marketplaces[marketplaceId]) {
+      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
-    yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
+      yield this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+      yield this.checkoutStore.MarketplacePrices({tenantId: marketplace.tenant_id});
 
-    const defaultCurrency = this.GetLocalStorage(`preferred-currency-${marketplaceId}`) || this.marketplaces[marketplaceId].default_display_currency || "USD";
-    yield this.checkoutStore.SetCurrency({currency: defaultCurrency});
+      marketplace.items = marketplace.items.map(item => {
+        if(this.checkoutStore.priceInfo[item.sku]) {
+          item.price = {
+            ...(item.price || {}),
+            ...(this.checkoutStore.priceInfo[item.sku].allin_price_map || {}),
+            USD: item.price.USD
+          };
+        }
 
-    if(marketplaceId === this.specifiedMarketplaceId) {
-      this.InitializeAnalytics(this.marketplaces[marketplaceId]);
+        return item;
+      });
+
+      this.marketplaces[marketplaceId] = marketplace;
     }
 
     return this.marketplaces[marketplaceId];
@@ -2848,7 +2857,7 @@ class RootStore {
   }
 
   SetBackPath(backPath) {
-    if(!backPath) {
+    if(!backPath || (this.isCustomDomain && backPath === "/")) {
       this.backPath = undefined;
       return;
     }

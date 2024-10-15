@@ -2,9 +2,9 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Confirm from "Components/common/Confirm";
 import {OffersTable} from "Components/listings/TransferTables";
-import {checkoutStore, rootStore} from "Stores";
+import {rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
-import {FormatPriceString, ParseMoney, FromUSD, LocalizeString, ToUSD} from "Components/common/UIComponents";
+import {FormatPriceString, ParseMoney, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
 import {roundToDown} from "round-to";
@@ -26,14 +26,15 @@ const OfferModal = observer(({nft, offer, Close}) => {
   const match = useRouteMatch();
 
   const [price, setPrice] = useState(
-    offer?.price ? FromUSD(offer.price).toString() :
+    offer?.price ? ParseMoney(offer.price, "USD").toString() :
       nft.details.Price ?
-        FromUSD(nft.details.Price).toString() : FromUSD("10")
+        ParseMoney(nft.details.Price, "USD").toString() :
+        ParseMoney("10", "USD")
   );
 
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const priceCeiling = FromUSD(10000).toDecimal();
+  const priceCeiling = ParseMoney(10000, "USD").toDecimal();
   const [priceFloor, setPriceFloor] = useState(0);
   const [offerDuration, setOfferDuration] = useState("7");
   const [feeRate, setFeeRate] = useState(0.065);
@@ -41,15 +42,14 @@ const OfferModal = observer(({nft, offer, Close}) => {
   const offerId = offer?.id;
 
   // If editing, add the current offer price to the available balance
-  let availableBalance = FromUSD(rootStore.availableWalletBalance);
+  let availableBalance = ParseMoney(rootStore.availableWalletBalance || 0, "USD");
   if(offer) {
-    availableBalance = availableBalance.add(FromUSD(offer.price)).add(FromUSD(offer.fee));
+    availableBalance = availableBalance.add(ParseMoney(offer.price, "USD")).add(ParseMoney(offer.fee, "USD"));
   }
 
-  const inputPrice = ParseMoney(price, checkoutStore.currency);
-  const parsedPrice = checkoutStore.currency === "USD" ? inputPrice : FromUSD(ToUSD(inputPrice, "floor"));
+  const parsedPrice = ParseMoney(price, "USD");
   const floatPrice = parsedPrice.toDecimal();
-  const fee = ParseMoney(Math.max(1, roundToDown(floatPrice * feeRate, 2)), checkoutStore.currency);
+  const fee = ParseMoney(Math.max(1, roundToDown(floatPrice * feeRate, 2)), "USD");
   const insufficientBalance = availableBalance - parsedPrice - fee < 0;
 
   useEffect(() => {
@@ -65,11 +65,11 @@ const OfferModal = observer(({nft, offer, Close}) => {
 
         if(!config["min-list-price"]) { return; }
 
-        const floor = FromUSD(parseFloat(config["min-list-price"]) || 0).toDecimal();
+        const floor = ParseMoney(parseFloat(config["min-list-price"]) || 0, "USD").toDecimal();
         setPriceFloor(floor);
 
         if(floatPrice < floor) {
-          setPrice(ParseMoney(Math.max(floatPrice. floor), checkoutStore.currency));
+          setPrice(ParseMoney(Math.max(floatPrice. floor), "USD"));
         }
       });
   }, []);
@@ -102,7 +102,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   className={`offer-modal__form__price-input ${floatPrice > priceCeiling ? "offer-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                  onBlur={() => setPrice(inputPrice.toString())}
+                  onBlur={() => setPrice(parsedPrice.toString())}
                 />
                 <div className="offer-modal__form__price-input-label">
                   <ImageIcon icon={USDIcon} />
@@ -153,10 +153,10 @@ const OfferModal = observer(({nft, offer, Close}) => {
             <div className="offer-modal__order-details">
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  { checkoutStore.currency === "USD" ? rootStore.l10n.offers.offer : rootStore.l10n.purchase.conversion_amount }
+                  { rootStore.l10n.offers.offer }
                 </div>
                 <div className="offer-modal__order-price">
-                  { FormatPriceString(parsedPrice, {noConversion: true}) }
+                  { FormatPriceString(parsedPrice.toDecimal(), {noConversion: true}) }
                 </div>
               </div>
               <div className="offer-modal__order-line-item">
@@ -164,7 +164,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   { rootStore.l10n.purchase.service_fee }
                 </div>
                 <div className="offer-modal__order-price">
-                  { FormatPriceString(fee, {noConversion: true}) }
+                  { FormatPriceString(fee.toDecimal(), {noConversion: true}) }
                 </div>
               </div>
               <div className="offer-modal__order-separator" />
@@ -173,7 +173,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   { rootStore.l10n.purchase.total_amount }
                 </div>
                 <div className="offer-modal__order-price">
-                  { FormatPriceString(parsedPrice.add(fee), {noConversion: true}) }
+                  { FormatPriceString(parsedPrice.add(fee).toDecimal(), {noConversion: true}) }
                 </div>
               </div>
             </div>
@@ -183,7 +183,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   { LocalizeString(rootStore.l10n.purchase.available_balance, {balanceType: rootStore.l10n.purchase.wallet_balance}) }
                 </div>
                 <div className="offer-modal__order-price">
-                  {FormatPriceString(availableBalance, {vertical: true, noConversion: true})}
+                  {FormatPriceString(availableBalance.toDecimal(), {vertical: true, noConversion: true})}
                 </div>
               </div>
               <div className="offer-modal__order-line-item">
@@ -191,7 +191,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   { rootStore.l10n.purchase.current_purchase_amount }
                 </div>
                 <div className="offer-modal__order-price">
-                  {FormatPriceString(parsedPrice.add(fee), {vertical: true, noConversion: true})}
+                  {FormatPriceString(parsedPrice.add(fee).toDecimal(), {vertical: true, noConversion: true})}
                 </div>
               </div>
               <div className="offer-modal__order-separator"/>
@@ -200,16 +200,10 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   { LocalizeString(rootStore.l10n.purchase.remaining_balance, {balanceType: rootStore.l10n.purchase.wallet_balance}) }
                 </div>
                 <div className="offer-modal__order-price">
-                  {FormatPriceString(Math.max(0, availableBalance.subtract(parsedPrice).subtract(fee)), {vertical: true, noConversion: true})}
+                  {FormatPriceString(Math.max(0, availableBalance.subtract(parsedPrice).subtract(fee).toDecimal()), {vertical: true, noConversion: true})}
                 </div>
               </div>
             </div>
-            {
-              checkoutStore.currency === "USD" ? null :
-                <div className="offer-modal__order-note">
-                  { rootStore.l10n.purchase.conversion_note }
-                </div>
-            }
             <div className="offer-modal__actions">
               <Button
                 disabled={!parsedPrice || parsedPrice.toDecimal() <= 0 || insufficientBalance || floatPrice > priceCeiling || (priceFloor && floatPrice < priceFloor)}
@@ -221,7 +215,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
                       offerId,
-                      price: ToUSD(parsedPrice, "floor").toDecimal(),
+                      price: ParseMoney(parsedPrice, "floor", "USD").toDecimal(),
                       expiresAt: Date.now() + parseInt(offerDuration) * 24 * 60 * 60 * 1000
                     });
 

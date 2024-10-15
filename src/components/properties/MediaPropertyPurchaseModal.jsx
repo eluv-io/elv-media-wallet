@@ -7,7 +7,7 @@ import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {LocalizeString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
@@ -188,8 +188,8 @@ const Purchase = async ({item, paymentMethod, history}) => {
   params.itemId = item.id;
   successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
 
-  if(item.redirect_page) {
-    successUrl.searchParams.set("page", item.redirect_page);
+  if(item.purchaseRedirectPage) {
+    successUrl.searchParams.set("page", item.purchaseRedirectPage);
   }
 
   const cancelUrl = new URL(location.href);
@@ -212,12 +212,14 @@ const Purchase = async ({item, paymentMethod, history}) => {
       cancelUrl
     });
   } else {
+    const { currency } = PriceCurrency(item.price);
     result = await checkoutStore.CheckoutSubmit({
       provider: paymentMethod.provider,
       tenantId: rootStore.marketplaces[item.marketplace?.marketplace_id]?.tenant_id,
       marketplaceId: item.marketplace.marketplace_id,
       sku: item.marketplace_sku,
       quantity: 1,
+      currency,
       successUrl,
       cancelUrl
     });
@@ -237,6 +239,8 @@ const Payment = observer(({item, Back}) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
+  const {currency} = PriceCurrency(item.price);
+
   let paymentOptions = { stripe: { enabled: true } };
 
   const isListing = item?.listingId;
@@ -252,6 +256,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
+  const walletBalanceEnabled = paymentOptions?.wallet_balance?.enabled !== false;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
@@ -390,14 +395,17 @@ const Payment = observer(({item, Back}) => {
                 {rootStore.l10n.purchase.purchase_methods.pix}
               </Button>
           }
-          <Button
-            variant="option"
-            active={paymentMethod.type === "balance"}
-            className={S("button")}
-            onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
-          >
-            { rootStore.l10n.purchase.purchase_methods.wallet_balance }
-          </Button>
+          {
+            !walletBalanceEnabled || currency !== "USD" ? null :
+              <Button
+                variant="option"
+                active={paymentMethod.type === "balance"}
+                className={S("button")}
+                onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
+              >
+                { rootStore.l10n.purchase.purchase_methods.wallet_balance }
+              </Button>
+          }
         </div>;
   }
 
@@ -438,7 +446,14 @@ const Payment = observer(({item, Back}) => {
             {
               LocalizeString(
                 rootStore.l10n.media_properties.purchase.select,
-                {price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
+                {price: FormatPriceString(
+                    item.price,
+                    {
+                      additionalFee: page === "balance" ? fee : 0,
+                      stringOnly: true
+                    }
+                  )
+                },
                 {stringOnly: true}
               )
             }
@@ -610,8 +625,19 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
 
   const showPrimary = !outOfStock && secondaryPurchaseOption !== "only";
 
+  const mediaPropertyRedirect = mediaPropertyStore.MediaProperty({...rootStore.routeParams})
+    ?.metadata?.purchase_settings?.purchase_redirect;
+  let purchaseRedirectPage = item.redirect_page || mediaPropertyRedirect;
+  purchaseRedirectPage = purchaseRedirectPage === "_none" ? undefined : purchaseRedirectPage;
+
+  if(purchaseRedirectPage) {
+    purchaseRedirectPage = mediaPropertyStore.MediaPropertyPage({...rootStore.routeParams, pageSlugOrId: purchaseRedirectPage})
+      ?.slug || purchaseRedirectPage;
+  }
+
   return {
     ...item,
+    purchaseRedirectPage,
     itemName,
     editionName,
     listingPath,
@@ -621,7 +647,9 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     showPrimary,
     showSecondary,
     secondaryPurchaseOption,
-    price: itemInfo.price || marketplaceItem.price,
+    price: item.listingId ?
+      { USD: itemInfo.price } :
+      marketplaceItem.price,
     imageUrl: item.use_custom_image ?
       item.image?.url :
       itemInfo?.mediaInfo?.imageUrl,

@@ -87,6 +87,12 @@ const PropertyWrapper = observer(({children}) => {
             await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
           }
 
+          const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
+
+          rootStore.checkoutStore.SetCurrency({
+            currency: property?.metadata?.currency || parentProperty?.metadata?.currency || "USD"
+          });
+
           SetHTMLMetaTags({
             metaTags: property.metadata?.meta_tags
           });

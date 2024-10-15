@@ -14,6 +14,7 @@ const PUBLIC_KEYS = {
 
 class CheckoutStore {
   currency = "USD";
+  preferredCurrency = "USD";
   exchangeRates = {
     USD: {
       rate: 1
@@ -23,6 +24,7 @@ class CheckoutStore {
   submittingOrder = false;
 
   stock = {};
+  priceInfo = {};
 
   purchaseStatus = {};
 
@@ -59,17 +61,10 @@ class CheckoutStore {
     }
   }
 
-  SetCurrency = flow(function * ({currency}) {
-    try {
-      if(currency !== "USD") {
-        this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
-      }
-
-      this.currency = currency;
-    } catch(error) {
-      this.Log(error, true);
-    }
-  });
+  SetCurrency({currency, preferredCurrency}) {
+    this.currency = currency || this.currency || "USD";
+    this.preferredCurrency = preferredCurrency || this.preferredCurrency || "USD";
+  }
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
@@ -89,6 +84,41 @@ class CheckoutStore {
       return this.stock;
     } catch(error) {
       this.rootStore.Log("Failed to retrieve marketplace stock", true);
+      this.rootStore.Log(error, true);
+    }
+  });
+
+  MarketplacePrices = flow(function * ({tenantId}) {
+    if(this.priceInfo[tenantId]) { return; }
+
+    try {
+      const priceInfo = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "checkout", "prices"),
+          queryParams: {
+            tenant: tenantId,
+            email: this.rootStore.walletClient.UserInfo()?.email,
+            country_code: this.rootStore.geo
+          }
+        })
+      );
+
+      this.SetCurrency({preferredCurrency: priceInfo.detected_currency || "USD"});
+
+      // Keep all retrieved stock across marketplaces
+      let updatedPrices = {
+        ...this.priceInfo,
+      };
+
+      Object.keys((priceInfo.prices || {})).map(sku =>
+        updatedPrices[sku] = priceInfo.prices[sku]
+      );
+
+      this.priceInfo = updatedPrices;
+
+      return this.priceInfo;
+    } catch(error) {
+      this.rootStore.Log("Failed to retrieve marketplace prices", true);
       this.rootStore.Log(error, true);
     }
   });
@@ -623,6 +653,7 @@ class CheckoutStore {
     marketplaceId,
     sku,
     quantity=1,
+    currency,
     confirmationId,
     email,
     address,
@@ -722,7 +753,7 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: "USD",
+        currency: currency || this.currency,
         email,
         client_reference_id: checkoutId,
         elv_addr: address || (isGift && this.client.utils.nullAddress),
@@ -731,6 +762,10 @@ class CheckoutStore {
         cancel_url: cancelUrl,
         ...(additionalParameters || {})
       };
+
+      if(this.rootStore.geo) {
+        requestParams.country_code = this.rootStore.geo;
+      }
 
       if(isGift) {
         let redemptionUrl = new URL(
