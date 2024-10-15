@@ -63,6 +63,7 @@ class RootStore {
   siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
   preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
   language = this.GetLocalStorage("lang");
+  geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
@@ -273,6 +274,10 @@ class RootStore {
 
     if(this.liveAppUrl) {
       this.SetSessionStorage("live-url", this.liveAppUrl);
+    }
+
+    if(this.geo) {
+      this.SetSessionStorage("geo", this.geo);
     }
 
     this.resizeHandler = new ResizeObserver(elements => {
@@ -1378,8 +1383,6 @@ class RootStore {
       this.RemoveSessionStorage("marketplace");
     }
 
-    this.checkoutStore.SetCurrency({currency: "USD"});
-
     // Give locationType time to settle if path changed
     setTimeout(() => this.SetCustomizationOptions("default"), 100);
   }
@@ -1459,12 +1462,25 @@ class RootStore {
       this.walletClient.marketplacesLoaded = true;
     }
 
-    this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
+    if(!this.marketplaces[marketplaceId]) {
+      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
-    yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
+      yield this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+      yield this.checkoutStore.MarketplacePrices({tenantId: marketplace.tenant_id});
 
-    if(marketplaceId === this.specifiedMarketplaceId) {
-      this.InitializeAnalytics(this.marketplaces[marketplaceId]);
+      marketplace.items = marketplace.items.map(item => {
+        if(this.checkoutStore.priceInfo[item.sku]) {
+          item.price = {
+            ...(item.price || {}),
+            ...(this.checkoutStore.priceInfo[item.sku].allin_price_map || {}),
+            USD: item.price.USD
+          };
+        }
+
+        return item;
+      });
+
+      this.marketplaces[marketplaceId] = marketplace;
     }
 
     return this.marketplaces[marketplaceId];

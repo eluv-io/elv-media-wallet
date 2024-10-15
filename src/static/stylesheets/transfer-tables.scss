@@ -30,6 +30,8 @@
   }
 
   &--active-listings {
+    border-radius: 0;
+
     .transfer-table__table__header {
       border: 0;
 

@@ -7,7 +7,7 @@ import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {LocalizeString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";

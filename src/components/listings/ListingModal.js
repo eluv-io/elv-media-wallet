@@ -2,14 +2,12 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {checkoutStore, cryptoStore, rootStore} from "Stores";
+import {cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {
   FormatPriceString,
-  FromUSD,
   LocalizeString,
-  ParseMoney,
-  ToUSD
+  ParseMoney
 } from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
@@ -20,10 +18,10 @@ import {Loader} from "Components/common/Loaders";
 import {Button, Modal} from "Components/properties/Common";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
-  const [price, setPrice] = useState(nft.details.Price ? FromUSD(nft.details.Price).toString() : "");
+  const [price, setPrice] = useState(nft.details.Price ? ParseMoney(nft.details.Price, "USD").toString() : "");
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const priceCeiling = FromUSD(10000).toDecimal();
+  const priceCeiling = ParseMoney(10000, "USD").toDecimal();
   const [priceFloor, setPriceFloor] = useState(0);
   const [royaltyRate, setRoyaltyRate] = useState(0);
 
@@ -36,7 +34,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
         if(config["min-list-price"]) {
           const floor = parseFloat(config["min-list-price"]) || 0;
-          setPriceFloor(FromUSD(floor).toDecimal());
+          setPriceFloor(ParseMoney(floor, "USD").toDecimal());
 
           const parsedPrice = ParseMoney(price);
           if(parsedPrice < floor) {
@@ -46,8 +44,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       });
   }, []);
 
-  const inputPrice = ParseMoney(price, checkoutStore.currency);
-  const parsedPrice = checkoutStore.currency === "USD" ? inputPrice : FromUSD(ToUSD(inputPrice, "floor"));
+  const parsedPrice = ParseMoney(price, "USD");
   const floatPrice = parsedPrice.toDecimal();
   const [payout, royaltyFee] = parsedPrice.allocate([100 - royaltyRate, royaltyRate]);
 
@@ -81,7 +78,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   className={`listing-modal__form__price-input ${floatPrice > priceCeiling || floatPrice < priceFloor ? "listing-modal__form__price-input-error" : ""}`}
                   value={parseFloat(price) === 0 ? "" : price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                  onBlur={() => setPrice(inputPrice.toString())}
+                  onBlur={() => setPrice(parsedPrice.toString())}
                 />
                 <div className="listing-modal__form__price-input-label">
                   <ImageIcon icon={USDIcon} />
@@ -103,18 +100,11 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
             <div className="listing-modal__details">
               {
-                checkoutStore.currency === "USD" ? null :
-                  <div className="listing-modal__detail listing-modal__detail-faded">
-                    <label>{ rootStore.l10n.purchase.conversion_amount }</label>
-                    {FormatPriceString(parsedPrice, { noConversion: true })}
-                  </div>
-              }
-              {
                 royaltyRate ?
                   <>
                     <div className="listing-modal__detail listing-modal__detail-faded">
                       <label>{ rootStore.l10n.purchase.creator_royalty }</label>
-                      {FormatPriceString(royaltyFee, { noConversion: true })}
+                      {FormatPriceString(royaltyFee.toDecimal(), { noConversion: true })}
                     </div>
                     <div className="listing-modal__detail listing-modal__detail--bold">
                       <label>{ rootStore.l10n.purchase.total_payout }</label>
@@ -124,12 +114,6 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                       </div>
                     </div>
                   </> : <Loader/>
-              }
-              {
-                checkoutStore.currency === "USD" ? null :
-                  <div className="listing-modal__order-note">
-                    { rootStore.l10n.purchase.conversion_note }
-                  </div>
               }
             </div>
             {
@@ -148,7 +132,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     const listingId = await rootStore.walletClient.CreateListing({
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
-                      price: ToUSD(inputPrice, "floor"),
+                      price: parsedPrice.toDecimal(),
                       listingId: nft.details.ListingId
                     });
 

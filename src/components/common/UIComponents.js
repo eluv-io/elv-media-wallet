@@ -256,7 +256,10 @@ export const FormatPriceString = (
 ) => {
   let currency = "USD";
   if(typeof price === "object") {
-    if(price[checkoutStore.currency]) {
+    if(price[checkoutStore.preferredCurrency]) {
+      price = price[checkoutStore.preferredCurrency];
+      currency = checkoutStore.preferredCurrency;
+    } else if(price[checkoutStore.currency]) {
       price = price[checkoutStore.currency];
       currency = checkoutStore.currency;
     } else {
