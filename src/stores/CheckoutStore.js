@@ -763,6 +763,10 @@ class CheckoutStore {
         ...(additionalParameters || {})
       };
 
+      if(this.rootStore.geo) {
+        requestParams.country_code = this.rootStore.geo;
+      }
+
       if(isGift) {
         let redemptionUrl = new URL(
           this.rootStore.FlowURL({
