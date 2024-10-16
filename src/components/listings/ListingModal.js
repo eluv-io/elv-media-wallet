@@ -146,7 +146,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   }
                 }}
               >
-                { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice, {stringOnly: true, noConversion: true})})}
+                { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice.toString(), {stringOnly: true, noConversion: true})})}
               </Button>
               {
                 nft.details.ListingId ?
