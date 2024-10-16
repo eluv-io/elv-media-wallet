@@ -88,7 +88,7 @@ export const CreateRedeemableParams = ({
   );
 };
 
-export const PurchaseParamsToItems = (params) => {
+export const PurchaseParamsToItems = (params, secondaryEnabled) => {
   if(!params || params.type !== "purchase") {
     return [];
   }
@@ -139,6 +139,8 @@ export const PurchaseParamsToItems = (params) => {
     purchaseItems
       // Filter non-purchasable items
       .filter(item => {
+        if(secondaryEnabled) { return true; }
+
         const marketplaceItem = rootStore.marketplaces[item.marketplace?.marketplace_id]?.items
           ?.find(marketplaceItem => marketplaceItem.sku === item.marketplace_sku);
 

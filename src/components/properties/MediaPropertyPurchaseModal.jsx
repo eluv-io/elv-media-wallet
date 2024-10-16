@@ -669,7 +669,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   const isListing = selectedItem?.listingId;
 
   useEffect(() => {
-    if(items.length === 1) {
+    if(items.length === 1 && !secondaryPurchaseOption) {
       setSelectedItemId(items[0].id);
     }
   }, []);
@@ -750,7 +750,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         <div className="purchase">
           <Payment
             item={selectedItem}
-            Back={isListing || items.length === 1 ? Close : () => setSelectedItemId(undefined)}
+            Back={isListing || (items.length === 1 && !secondaryPurchaseOption) ? Close : () => setSelectedItemId(undefined)}
           />
         </div>
       );
@@ -856,7 +856,7 @@ const MediaPropertyPurchaseModal = () => {
 
       return;
     } else {
-      newPurchaseItems = PurchaseParamsToItems(params);
+      newPurchaseItems = PurchaseParamsToItems(params, params.secondaryPurchaseOption);
     }
 
     if(!newPurchaseItems || newPurchaseItems.length === 0) {
