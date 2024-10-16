@@ -57,7 +57,13 @@ const FilteredView = ({
     setLoading(true);
 
     const start = (page - 1) * perPage;
-    Method({...filters, start, limit: perPage})
+    Method({
+      ...filters,
+      tenantId: rootStore.isCustomDomain ?
+        rootStore.domainPropertyTenantId : filters.tenantId,
+      start,
+      limit: perPage
+    })
       .then(({results, paging}) => {
         setEntries(results);
         setPaging(paging);

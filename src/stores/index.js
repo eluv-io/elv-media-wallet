@@ -69,6 +69,7 @@ class RootStore {
   alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
   domainPropertySlug = this.GetSessionStorage("domain-property-slug");
+  domainPropertyTenantId = this.GetSessionStorage("domain-property-tenant-id");
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -507,12 +508,15 @@ class RootStore {
 
           this.domainProperty = propertyId;
           this.domainPropertySlug = propertySlug;
+          this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
         }
       }
 
       if(this.domainProperty) {
         this.SetSessionStorage("domain-property", this.domainProperty);
         this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
+        this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
+
         this.SetDomainCustomization();
 
         if(this.isCustomDomain && window.location.pathname === "/") {
@@ -896,7 +900,9 @@ class RootStore {
 
     if(mediaPropertyId) {
       this.domainProperty = mediaPropertyId;
+      this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: mediaPropertyId});
       this.SetSessionStorage("domain-property", this.domainProperty);
+      this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
     }
 
     const options = yield this.LoadPropertyCustomization(this.domainProperty);
@@ -914,6 +920,7 @@ class RootStore {
     this.SetCustomCSS("");
     this.RemoveSessionStorage("domain-property");
     this.RemoveSessionStorage("domain-property-slug");
+    this.RemoveSessionStorage("domain-property-tenant-id");
   }
 
   SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
