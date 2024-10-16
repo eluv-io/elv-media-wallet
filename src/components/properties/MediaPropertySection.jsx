@@ -70,7 +70,7 @@ const ActionVisible = ({permissions, behavior, visibility}) => {
   }
 };
 
-const Action = observer(({sectionId, sectionItemId, action}) => {
+const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
   const match = useRouteMatch();
   let buttonParams = {};
 
@@ -93,7 +93,13 @@ const Action = observer(({sectionId, sectionItemId, action}) => {
         actionId: action.id
       });
 
-      if(PurchaseParamsToItems(purchaseParams).length === 0) {
+      if(
+        // Purchase action but can't purchase
+        PurchaseParamsToItems(
+          purchaseParams,
+          sectionItem?.permissions?.secondaryPurchaseOption
+        ).length === 0
+      ) {
         return null;
       }
 
@@ -136,7 +142,7 @@ const Action = observer(({sectionId, sectionItemId, action}) => {
   );
 });
 
-const Actions = observer(({sectionId, sectionItemId, actions}) => {
+const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
   actions = (actions || [])
     .filter(action => ActionVisible({
       visibility: action.visibility,
@@ -156,6 +162,7 @@ const Actions = observer(({sectionId, sectionItemId, actions}) => {
             action={action}
             sectionId={sectionId}
             sectionItemId={sectionItemId}
+            sectionItem={sectionItem}
           />
         )
       }
@@ -231,6 +238,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
                 actions={heroItem?.actions}
                 sectionId={section.id}
                 sectionItemId={heroItem.id}
+                sectionItem={heroItem}
               />
             </PageHeader>
             {
@@ -646,10 +654,13 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
           url.searchParams.delete("ctx");
           //history.replaceState(undefined, undefined, url);
 
+          /*
           setTimeout(() => {
             // Scroll to section
             ScrollTo(-150, element);
           }, 150);
+          
+           */
         }}
         className={S(
           "section",

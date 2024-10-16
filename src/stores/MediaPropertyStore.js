@@ -555,15 +555,6 @@ class MediaPropertyStore {
     }
 
     return content
-      .filter(sectionItem => (
-        // Filter purchase section items that have no purchasable items
-        sectionItem.type !== "item_purchase" ||
-        PurchaseParamsToItems({
-          type: "purchase",
-          sectionSlugOrId,
-          sectionItemId: sectionItem.id
-        }).length > 0
-      ))
       .map(sectionItem => ({
         ...sectionItem,
         resolvedPermissions: this.ResolvePermission({
@@ -575,6 +566,18 @@ class MediaPropertyStore {
           mediaItemSlugOrId: sectionItem.mediaItem?.id
         })
       }))
+      .filter(sectionItem => (
+        // Filter purchase section items that have no purchasable items
+        sectionItem.type !== "item_purchase" ||
+        PurchaseParamsToItems(
+          {
+            type: "purchase",
+            sectionSlugOrId,
+            sectionItemId: sectionItem.id
+          },
+          sectionItem?.resolvedPermissions?.secondaryPurchaseOption
+        ).length > 0
+      ))
       .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
@@ -729,9 +732,13 @@ class MediaPropertyStore {
 
       if(section) {
         behavior = section.permissions?.behavior || behavior;
-        authorized = section.authorized || false;
-        cause = !authorized && "Section permissions";
-        permissionItemIds = section.permissions?.permission_item_ids || [];
+
+        if(!section.authorized) {
+          authorized = false;
+          permissionItemIds = section.permissions?.permission_item_ids || [];
+          cause = "Section permissions";
+        }
+
         alternatePageId =
           (
             section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
@@ -749,10 +756,14 @@ class MediaPropertyStore {
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
           if(sectionItem) {
+            if(!sectionItem.authorized) {
+              authorized = false;
+              permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
+              cause = "Section item permissions";
+            }
+
             behavior = sectionItem.permissions?.behavior || behavior;
-            permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
-            authorized = authorized && sectionItem.authorized || false;
-            cause = (!authorized && "Section item permissions") || cause;
+
             alternatePageId =
               (
                 sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
@@ -784,23 +795,32 @@ class MediaPropertyStore {
 
     if(authorized && mediaCollectionSlugOrId) {
       const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
-      authorized = mediaCollection?.authorized || false;
-      permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
-      cause = !authorized && "Media collection permissions";
+
+      if(!mediaCollection.authorized) {
+        authorized = false;
+        permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
+        cause = "Media collection permissions";
+      }
     }
 
     if(authorized && mediaListSlugOrId) {
       const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
-      authorized = mediaList?.authorized || false;
-      permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
-      cause = !authorized && "Media list permissions";
+
+      if(!mediaList.authorized) {
+        authorized = false;
+        permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
+        cause = "Media list permissions";
+      }
     }
 
     if(authorized && mediaItemSlugOrId) {
       const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
-      authorized = mediaItem?.authorized || false;
-      permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
-      cause = !authorized && "Media permissions";
+
+      if(!mediaItem.authorized) {
+        authorized = false;
+        permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
+        cause = "Media permissions";
+      }
     }
 
     if(behavior === this.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED) {
@@ -831,7 +851,7 @@ class MediaPropertyStore {
     );
 
     // If not authorized and the user can't purchase access, hide or disable
-    if(!authorized && !purchasable) {
+    if(!authorized && (!purchasable || permissionItemIds.length === 0)) {
       authorized = false;
       behavior = behavior === this.PERMISSION_BEHAVIORS.DISABLE ?
         behavior :
