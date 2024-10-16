@@ -288,7 +288,7 @@ export const FormatPriceString = (
   price = price.multiply(options.quantity || 1);
 
   if(options.additionalFee) {
-    price += options.additionalFee;
+    price.add(options.additionalFee);
   }
 
   let formattedPrice = new Intl.NumberFormat(rootStore.preferredLocale, { style: "currency", currency}).format(price.toString());

@@ -50,7 +50,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
   const parsedPrice = ParseMoney(price, "USD");
   const floatPrice = parsedPrice.toDecimal();
   const fee = ParseMoney(Math.max(1, roundToDown(floatPrice * feeRate, 2)), "USD");
-  const insufficientBalance = availableBalance - parsedPrice - fee < 0;
+  const insufficientBalance = availableBalance - floatPrice - fee < 0;
 
   useEffect(() => {
     rootStore.GetWalletBalance();
@@ -215,7 +215,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
                       offerId,
-                      price: ParseMoney(parsedPrice, "floor", "USD").toDecimal(),
+                      price: ParseMoney(parsedPrice, "USD").toDecimal(),
                       expiresAt: Date.now() + parseInt(offerDuration) * 24 * 60 * 60 * 1000
                     });
 
@@ -230,7 +230,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   }
                 }}
               >
-                { LocalizeString(rootStore.l10n.actions.offers.confirm, { price: FormatPriceString(parsedPrice, {stringOnly: true, noConversion: true}) }) }
+                { LocalizeString(rootStore.l10n.actions.offers.confirm, { price: FormatPriceString(floatPrice, {stringOnly: true, noConversion: true}) }) }
               </Button>
               {
                 offerId ?
