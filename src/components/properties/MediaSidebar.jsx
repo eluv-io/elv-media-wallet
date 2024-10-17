@@ -17,7 +17,7 @@ import ChevronLeft from "Assets/icons/left-arrow.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
-export const SidebarContent = async ({match, mediaItem}) => {
+export const SidebarContent = async ({match}) => {
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const sidebarOptions = mediaProperty.metadata.media_sidebar || {};
   const currentNavContext = new URLSearchParams(window.location.search).get("ctx");
@@ -36,9 +36,6 @@ export const SidebarContent = async ({match, mediaItem}) => {
     });
 
     content = content
-      .filter(result =>
-        result.id !== mediaItem.id
-      )
       .map(result => ({
         ...result,
         scheduleInfo: MediaItemScheduleInfo(result.mediaItem)
@@ -71,9 +68,6 @@ export const SidebarContent = async ({match, mediaItem}) => {
     });
 
     content = content
-      .filter(result =>
-        result?.mediaItem?.id !== mediaItem.id
-      )
       .map(result => ({
         ...result,
         scheduleInfo: MediaItemScheduleInfo(result.mediaItem)
@@ -119,7 +113,7 @@ const SidebarItem = observer(({item, aspectRatio, showActions, secondaryMediaSet
   const { linkPath } = MediaPropertyLink({match, mediaItem: mediaItem, navContext}) || "";
 
   return (
-    <Linkish to={linkPath} className={S("item")}>
+    <Linkish to={linkPath} className={S("item", item.id === match.params.mediaItemSlugOrId ? "item--active" : "")}>
       {
         !(itemIsLive || itemIsVod) ? null :
           <div className={S("item__image-container", aspectRatio ? `item__image-container--${aspectRatio.toLowerCase()}` : "")}>
@@ -140,7 +134,7 @@ const SidebarItem = observer(({item, aspectRatio, showActions, secondaryMediaSet
         </div>
       </div>
       {
-        !showActions || !itemIsLive ? null :
+        !showActions || !itemIsLive || item.id === match.params.mediaItemSlugOrId ? null :
           <div className={S("item__actions")}>
             <button
               onClick={event => {

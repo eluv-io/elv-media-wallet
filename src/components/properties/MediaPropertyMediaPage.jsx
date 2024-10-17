@@ -427,7 +427,7 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   useEffect(() => {
-    SidebarContent({match, mediaItem})
+    SidebarContent({match})
       .then(setSidebarContent);
   }, []);
 
