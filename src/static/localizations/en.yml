@@ -131,10 +131,10 @@ errors:
 profile:
   media_wallet: Media Wallet
   media_wallet_details: Media Wallet Details
-  address: Eluvio Content Blockchain Address
+  address: Eluvio Content Fabric Address
   set_profile_image: You can set your profile image from any of your owned items!
   set_username: Set Your Username
-  do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
+  do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Fabric address and is not a payment address.
   connected_accounts: Connected Accounts
   add_funds: Add Funds
   withdraw_funds: Withdraw Funds

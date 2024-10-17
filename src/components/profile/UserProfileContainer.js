@@ -113,17 +113,16 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
       });
   }, [match.params.userId]);
 
-  let backgroundImage = ProfileBackground;
+  let backgroundImage;
   if(rootStore.routeParams.mediaPropertySlugOrId) {
-    const page = rootStore.mediaPropertyStore.MediaPropertyPage({
+    const property = rootStore.mediaPropertyStore.MediaProperty({
       ...rootStore.routeParams
     });
 
-    if(page) {
-      backgroundImage =
-        (rootStore.pageWidth <= 800 && page.layout?.background_image_mobile?.url) ||
-        page.layout?.background_image?.url ||
-        backgroundImage;
+    if(property) {
+      backgroundImage = rootStore.pageWidth <= 800 ?
+        property?.metadata?.styling?.profile?.background_image_mobile?.url :
+        property?.metadata?.styling?.profile?.background_image?.url;
     }
   }
 
@@ -170,8 +169,13 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           /> : null
       }
       <div className={S("profile-container", rootStore.routeParams.mediaPropertySlugOrId ? "profile-container--property" : "")}>
-        <img src={backgroundImage} alt="Background" className={S("profile-container__background", backgroundImage !== ProfileBackground ? "profile-container__background--custom" : "")} />
-        <div className={S("profile-container__gradient")} />
+        {
+          !backgroundImage ? null :
+            <>
+              <img src={backgroundImage} alt="Background" className={S("profile-container__background", backgroundImage !== ProfileBackground ? "profile-container__background--custom" : "")} />
+              <div className={S("profile-container__gradient")} />
+            </>
+        }
         <div className={S("profile")}>
           <div className={S("profile__image-container")}>
             <ImageIcon
