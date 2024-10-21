@@ -17,7 +17,7 @@ import {
 } from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import {ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
@@ -659,7 +659,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             // Scroll to section
             ScrollTo(-150, element);
           }, 150);
-          
+
            */
         }}
         className={S(

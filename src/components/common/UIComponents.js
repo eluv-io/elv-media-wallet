@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, forwardRef} from "react";
 import SVG from "react-inlinesvg";
 import {observer} from "mobx-react";
 import {checkoutStore, rootStore} from "Stores";
@@ -111,23 +111,33 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
-export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, exact, onClick, disabled, ...props}) => {
+export const Linkish = forwardRef(function Linkish({
+  to,
+  href,
+  target="_blank",
+  rel="noopener",
+  useNavLink,
+  exact,
+  onClick,
+  disabled,
+  ...props
+}, ref) {
   if(!disabled) {
     if(href) {
-      return <a href={href} target={target} rel={rel} onClick={onClick} {...props} />;
+      return <a href={href} target={target} rel={rel} onClick={onClick} ref={ref} {...props} />;
     } else if(to) {
       if(useNavLink) {
-        return <NavLink to={to} exact={exact} onClick={onClick} {...props} />;
+        return <NavLink to={to} exact={exact} onClick={onClick} ref={ref} {...props} />;
       } else {
-        return <Link to={to} onClick={onClick} {...props} />;
+        return <Link to={to} onClick={onClick} ref={ref} {...props} />;
       }
     } else if(onClick) {
-      return <button onClick={onClick} {...props} />;
+      return <button onClick={onClick} ref={ref} {...props} />;
     }
   }
 
-  return <div {...props} />;
-};
+  return <div ref={ref} {...props} />;
+});
 
 export const Copy = async (value) => {
   try {

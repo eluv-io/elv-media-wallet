@@ -93,7 +93,13 @@ export const SidebarContent = async ({match}) => {
   }
 };
 
-const SidebarItem = observer(({item, aspectRatio, showActions, secondaryMediaSettings, setSecondaryMediaSettings}) => {
+const SidebarItem = observer(({
+  item,
+  aspectRatio,
+  showActions,
+  secondaryMediaSettings,
+  setSecondaryMediaSettings
+}) => {
   const match = useRouteMatch();
   const mediaItem = item.mediaItem;
 
@@ -113,7 +119,26 @@ const SidebarItem = observer(({item, aspectRatio, showActions, secondaryMediaSet
   const { linkPath } = MediaPropertyLink({match, mediaItem: mediaItem, navContext}) || "";
 
   return (
-    <Linkish to={linkPath} className={S("item", item.id === match.params.mediaItemSlugOrId ? "item--active" : "")}>
+    <Linkish
+      to={linkPath}
+      className={S("item", item.id === match.params.mediaItemSlugOrId ? "item--active" : "")}
+      ref={element => {
+        // Scroll selected item into view
+        if(!element || item.id !== match.params.mediaItemSlugOrId) {
+          return;
+        }
+
+        const parentDimensions = element.parentElement.getBoundingClientRect();
+        const elementDimensions = element.getBoundingClientRect();
+
+        if(elementDimensions.top + elementDimensions.height <= parentDimensions.top + parentDimensions.height) {
+          // Element already visible
+          return;
+        }
+
+        element.parentElement.scrollTop = elementDimensions.top - parentDimensions.top;
+      }}
+    >
       {
         !(itemIsLive || itemIsVod) ? null :
           <div className={S("item__image-container", aspectRatio ? `item__image-container--${aspectRatio.toLowerCase()}` : "")}>
