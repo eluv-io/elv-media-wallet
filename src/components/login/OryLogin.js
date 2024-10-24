@@ -207,7 +207,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     ((rootStore.loggedIn && ["/login"].includes(location.pathname)) ||
     (verificationRequired && verificationSucceeded))
   ) {
-    return <Redirect to="/" />;
+    return <Redirect to={searchParams.get("next") || "/"} />;
   }
 
   const LogOut = async () => {
@@ -365,10 +365,11 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
-          await rootStore.AuthenticateOry({userData});
+          await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true});
           break;
         case "recovery":
           response = await rootStore.oryClient.updateRecoveryFlow({flow: flow.id, updateRecoveryFlowBody: body});
+          //await rootStore.SendLoginEmail({email: body.email, type: "reset_password"});
           setFlows({...flows, [flowType]: response.data});
 
           if(response.data.state === "passed_challenge") {

@@ -153,7 +153,7 @@ const SidebarItem = observer(({
         <div className={S("item__subtitle")}>
           {
             item.scheduleInfo?.isLiveContent ?
-              `${ item.scheduleInfo.displayStartDateLong } @ ${ item.scheduleInfo.displayStartTime }` :
+              `${ item.scheduleInfo.displayStartDateLong } at ${ item.scheduleInfo.displayStartTime }` :
               mediaItem.subtitle
           }
         </div>

@@ -226,6 +226,7 @@
 
 @media screen and (width <= 800px) {
   .sidebar {
+    border-radius: 0;
     margin-inline: auto;
     max-width: 500px;
     min-width: unset;

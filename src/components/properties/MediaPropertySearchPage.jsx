@@ -12,6 +12,7 @@ import {
 } from "Components/properties/Common";
 import {SectionResultsGroup} from "Components/properties/MediaPropertySection";
 import Filters from "Components/properties/Filters";
+import {PageLoader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
@@ -35,7 +36,7 @@ const MediaPropertySearchPage = observer(() => {
 
 
   if(!searchResults) {
-    return null;
+    return <PageLoader className={S("search__loader")} />;
   }
 
   let groups = Object.keys(searchResults || {}).filter(attr => attr !== "__other");
@@ -45,15 +46,17 @@ const MediaPropertySearchPage = observer(() => {
 
   return (
     <PageContainer className={S("search")}>
-      <Filters
-        filterSettings={mediaProperty.metadata.search}
-        activeFilters={mediaPropertyStore.searchOptions}
-        SetActiveFilters={filters => {
-          Object.keys(filters).forEach(field =>
-            mediaPropertyStore.SetSearchOption({field, value: filters[field]})
-          );
-        }}
-      />
+      <div className={S("search__filters")}>
+        <Filters
+          filterSettings={mediaProperty.metadata.search}
+          activeFilters={mediaPropertyStore.searchOptions}
+          SetActiveFilters={filters => {
+            Object.keys(filters).forEach(field =>
+              mediaPropertyStore.SetSearchOption({field, value: filters[field]})
+            );
+          }}
+        />
+      </div>
       <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
           groups.map(attribute =>

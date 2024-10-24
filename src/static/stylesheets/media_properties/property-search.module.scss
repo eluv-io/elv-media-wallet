@@ -18,6 +18,14 @@
     width: 100%;
   }
 
+  &__filters {
+    margin-bottom: 50px;
+  }
+
+  &__loader {
+    height: var(--property-full-content-height);
+  }
+
   @media screen and (width <= 800px) {
     padding-inline: 25px;
 

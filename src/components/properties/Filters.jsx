@@ -40,7 +40,7 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
     variant: selectedPrimaryOption.secondary_filter_style || "text",
     value: selectedSecondaryValue,
     filterOptions:
-      selectedPrimaryOption.secondary_filter_spec === "manual" ?
+      selectedPrimaryOption.secondary_filter_options.length > 0 ?
         selectedPrimaryOption.secondary_filter_options?.map(option => ({
           value: option.secondary_filter_value || "",
           image: option.secondary_filter_image
@@ -105,6 +105,7 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
     <>
       <AttributeFilter
         {...primaryFilterOptions}
+        level="primary"
         activeFilters={activeFilters}
         SetActiveFilters={SetActiveFilters}
         dependentAttribute={secondaryFilterOptions?.attributeKey}
@@ -114,6 +115,8 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
         primaryOnly ? null :
           <AttributeFilter
             {...secondaryFilterOptions}
+            key={`secondary-filter-${primaryFilterOptions.value}`}
+            level="secondary"
             activeFilters={activeFilters}
             SetActiveFilters={SetActiveFilters}
             className={className}

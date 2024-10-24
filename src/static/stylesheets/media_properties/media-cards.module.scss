@@ -68,7 +68,7 @@
 
   display: block;
   flex: 1 1 100%;
-  max-width: min(90vw, var(--max-card-width));
+  max-width: min(calc(100vw - 50px), var(--max-card-width));
   word-break: break-word;
 
   &__image-container {
@@ -155,7 +155,7 @@
   }
 
   &--landscape {
-    max-width: min(90vw, var(--max-card-width));
+    max-width: min(calc(100vw - 50px), var(--max-card-width));
 
     .media-card-vertical__image-container,
     .media-card-vertical__image {
@@ -164,7 +164,7 @@
   }
 
   &--square {
-    max-width: min(90vw, var(--max-card-width-square));
+    max-width: min(calc(100vw - 50px), var(--max-card-width-square));
 
     .media-card-vertical__image-container,
     .media-card-vertical__image {
@@ -173,7 +173,7 @@
   }
 
   &--portrait {
-    max-width: min(90vw, var(--max-card-width-portrait));
+    max-width: min(calc(100vw - 50px), var(--max-card-width-portrait));
 
     .media-card-vertical__image-container,
     .media-card-vertical__image {

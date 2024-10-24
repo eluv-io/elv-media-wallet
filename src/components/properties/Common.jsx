@@ -603,6 +603,7 @@ export const AttributeFilter = observer(({
   filterOptions,
   dependentAttribute,
   variant="box",
+  level="primary",
   activeFilters,
   SetActiveFilters,
   className="",
@@ -617,7 +618,7 @@ export const AttributeFilter = observer(({
   return (
     <Carousel
       content={filterOptions}
-      className={[S("attribute-filter", `attribute-filter--${variant}`), className].join(" ")}
+      className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
       swiperOptions={{
         threshold: 0,
         spaceBetween: variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 15 : 30,
@@ -673,14 +674,17 @@ export const AttributeFilter = observer(({
           >
             {
               image ?
-                <LoaderImage
-                  src={image?.url}
-                  loaderHeight={100}
-                  alt={value || "All"}
-                  width={300}
-                  loaderAspectRatio={1}
-                  className={S("attribute-filter__attribute-image")}
-                /> :
+                <div className={S("attribute-filter__attribute-image-container")}>
+                  <LoaderImage
+                    src={image?.url}
+                    loaderHeight={100}
+                    alt={value || "All"}
+                    lazy={false}
+                    width={300}
+                    loaderAspectRatio={1}
+                    className={S("attribute-filter__attribute-image")}
+                  />
+                </div> :
                 value || "All"
             }
           </button>

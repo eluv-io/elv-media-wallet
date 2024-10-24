@@ -1319,11 +1319,12 @@ class MediaPropertyStore {
     if(force || !this._resources[key][id]) {
       if(this.logTiming) {
         this._resources[key][id] = (async (...args) => {
+          let start = Date.now();
           // eslint-disable-next-line no-console
-          console.time(`${key} - ${id}`);
+          console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
           const result = await Load(...args);
           // eslint-disable-next-line no-console
-          console.timeEnd(`${key} - ${id}`);
+          console.log(`End Timing ${key.split("-").join(" ")} - ${id} - ${(Date.now() - start)}ms`);
 
           return result;
         })();

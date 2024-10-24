@@ -35,11 +35,11 @@ const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
   if(cardFormat === "button_vertical") {
-    return Math.round(pageWidth / 375);
+    return Math.round(pageWidth / 175);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
   } if(aspectRatio?.toLowerCase() === "landscape") {
-    return Math.round(pageWidth / 435);
+    return Math.round(pageWidth / 400);
   } else {
     return Math.round(pageWidth / 300);
   }
@@ -467,27 +467,25 @@ export const SectionResultsGroup = observer(({groupBy, label, results, isSection
   });
 
   // Sort results by start time
-  if(groupBy === "__date") {
-    results = results.sort((a, b) => {
-      if(a?.mediaItem?.start_time) {
-        if(b?.mediaItem?.start_time) {
-          if(a.mediaItem.start_time !== b.mediaItem.start_time) {
-            return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
-          } else {
-            // Equal start times - sort by catalog title
-            return a.catalog_title > b.catalog_title ? -1 : 1;
-          }
+  results = results.sort((a, b) => {
+    if(a?.mediaItem?.start_time) {
+      if(b?.mediaItem?.start_time) {
+        if(a.mediaItem.start_time !== b.mediaItem.start_time) {
+          return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
         } else {
-          return -1;
+          // Equal start times - sort by catalog title
+          return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
         }
-      } else if(b?.mediaItem?.start_time) {
-        return 1;
       } else {
-        // No start times - sort by catalog title
-        return a.catalog_title > b.catalog_title ? 1 : -1;
+        return -1;
       }
-    });
-  }
+    } else if(b?.mediaItem?.start_time) {
+      return 1;
+    } else {
+      // No start times - sort by catalog title
+      return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
+    }
+  });
 
   return (
     <div className={S("section", "section--page", "section__group")}>

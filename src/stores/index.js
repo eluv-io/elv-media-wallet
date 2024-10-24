@@ -300,7 +300,7 @@ class RootStore {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         // Only update VH if height has changed significantly enough
-        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 25) {
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 100) {
           SetVH();
           this.originalViewportHeight = window.innerHeight;
         }
@@ -602,7 +602,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({userData, force=false}={}) {
+  AuthenticateOry = flow(function * ({userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
     let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
@@ -627,6 +627,14 @@ class RootStore {
           userData
         }
       });
+
+      if(sendWelcomeEmail) {
+        this.SendLoginEmail({email, type: "send_welcome_email"});
+      }
+
+      if(sendVerificationEmail) {
+        this.SendLoginEmail({email, type: "request_email_verification"});
+      }
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
@@ -1464,9 +1472,14 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
-    if(!this.walletClient.marketplacesLoaded) {
+    if(!this.walletClient.marketplaceLoadingStarted) {
+      this.walletClient.marketplaceLoadingStarted = true;
       yield this.walletClient.LoadAvailableMarketplaces();
       this.walletClient.marketplacesLoaded = true;
+    }
+
+    while(!this.walletClient.marketplacesLoaded) {
+      yield new Promise(resolve => setTimeout(resolve, 100));
     }
 
     if(!this.marketplaces[marketplaceId]) {
@@ -2481,6 +2494,43 @@ class RootStore {
       this.Log(error, true);
       Respond({error: Utils.MakeClonable(error)});
     }
+  });
+
+  // Auth
+  SendLoginEmail = flow(function * ({tenantId, email, type}) {
+    if(!tenantId) {
+      const propertyId = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+      tenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+    }
+
+    let path = !this.routeParams.mediaPropertySlugOrId ? "/" :
+      MediaPropertyBasePath({
+        parentMediaPropertySlugOrId: this.routeParams.parentMediaPropertySlugOrId,
+        mediaPropertySlugOrId: this.routeParams.mediaPropertySlugOrId
+      });
+
+    let callbackUrl = new URL(window.location.origin);
+    callbackUrl.pathname = path;
+
+    switch(type) {
+      case "confirm_email":
+        callbackUrl.pathname = UrlJoin(callbackUrl.pathname, "login");
+        callbackUrl.searchParams.set("next", path);
+        break;
+    }
+
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "ory", type),
+      method: "POST",
+      body: {
+        tenant: tenantId,
+        email,
+        callback_url: callbackUrl.toString()
+      },
+      headers: type === "reset_password" ?
+        {} :
+        { Authorization: `Bearer ${this.authToken}` }
+    });
   });
 
   AuthStorageKey() {

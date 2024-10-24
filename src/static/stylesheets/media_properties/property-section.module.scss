@@ -285,17 +285,12 @@
 
     &__content--grid {
       gap: 30px 10px;
-      justify-content: center;
       margin: auto;
       width: max-content;
     }
 
     &__content--carousel {
       --max-card-width: 275px;
-    }
-
-    &__group-title {
-      text-align: center;
     }
   }
 

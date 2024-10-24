@@ -27,9 +27,9 @@ const LoaderComponent = ({loader}) => {
   }
 };
 
-export const PageLoader = ({loader="default"}) => {
+export const PageLoader = ({loader="default", className=""}) => {
   return (
-    <div className="loader page-loader page-container">
+    <div className={`loader page-loader page-container ${className}`}>
       <div className="main-content-container loader-component">
         <LoaderComponent loader={loader} />
       </div>
