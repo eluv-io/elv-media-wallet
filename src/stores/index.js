@@ -664,7 +664,8 @@ class RootStore {
         "data",
         "state",
         "auth",
-        "authorization"
+        "authorization",
+        "next"
       ];
 
       const url = new URL(window.location.href);
@@ -2497,7 +2498,9 @@ class RootStore {
   });
 
   // Auth
-  SendLoginEmail = flow(function * ({tenantId, email, type}) {
+  SendLoginEmail = flow(function * ({tenantId, email, type, code}) {
+    email = email || rootStore.walletClient.UserInfo()?.email;
+
     if(!tenantId) {
       const propertyId = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
       tenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
@@ -2513,24 +2516,39 @@ class RootStore {
     callbackUrl.pathname = path;
 
     switch(type) {
-      case "confirm_email":
-        callbackUrl.pathname = UrlJoin(callbackUrl.pathname, "login");
+      case "request_email_verification":
+        callbackUrl.pathname = UrlJoin(callbackUrl.pathname, "verify");
         callbackUrl.searchParams.set("next", path);
         break;
     }
 
-    yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "ory", type),
-      method: "POST",
-      body: {
-        tenant: tenantId,
-        email,
-        callback_url: callbackUrl.toString()
-      },
-      headers: type === "reset_password" ?
-        {} :
-        { Authorization: `Bearer ${this.authToken}` }
-    });
+    try {
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "ory", type),
+        method: "POST",
+        queryParams: code ? { code } : {},
+        body: {
+          tenant: tenantId,
+          email,
+          callback_url: callbackUrl.toString()
+        },
+        headers: type === "reset_password" ?
+          {} :
+          { Authorization: `Bearer ${this.authToken}` }
+      });
+
+      if(type === "confirm_email") {
+        this.SetAlertNotification(this.l10n.login.email_confirmed);
+      }
+    } catch(error) {
+      this.Log(error, true);
+
+      if(type === "confirm_email") {
+        this.SetAlertNotification(this.l10n.login.errors.email_confirmation_failed);
+      } else {
+        throw error;
+      }
+    }
   });
 
   AuthStorageKey() {

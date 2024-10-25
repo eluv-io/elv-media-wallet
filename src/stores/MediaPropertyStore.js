@@ -1301,7 +1301,10 @@ class MediaPropertyStore {
         !this.rootStore.loaded ||
         this.rootStore.authenticating ||
         // Auth0 login - wait for completion
-        (!this.rootStore.loggedIn && new URLSearchParams(decodeURIComponent(window.location.search)).has("code"))
+        (
+          !this.rootStore.loggedIn &&
+          (!window.location.pathname.endsWith("/verify") && new URLSearchParams(decodeURIComponent(window.location.search)).has("code"))
+        )
       ) {
         yield new Promise(resolve => setTimeout(resolve, 500));
       }

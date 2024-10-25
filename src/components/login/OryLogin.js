@@ -248,7 +248,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
     if(!flow.refresh && flow.requested_aal !== "aal2") {
       // TODO: Remove
-      if(!customizationOptions.disable_registration) {
+      if(!customizationOptions?.disable_registration) {
         additionalContent.push(
           <button
             key="registration-link"
@@ -365,7 +365,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
-          await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true});
+          await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true, sendVerificationEmail: true});
           break;
         case "recovery":
           response = await rootStore.oryClient.updateRecoveryFlow({flow: flow.id, updateRecoveryFlowBody: body});

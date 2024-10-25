@@ -346,6 +346,12 @@ em {
     width: 100%;
   }
 
+  &.property-page {
+    .page-loader {
+      height: var(--property-full-content-height);
+    }
+  }
+
   .page-header,
   .page-subheader,
   .content-header,
