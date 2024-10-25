@@ -284,6 +284,7 @@ export const FormatPriceString = (
     includeUSDCIcon: false,
     prependCurrency: false,
     stringOnly: false,
+    numberOnly: false,
     noConversion: false,
     className: ""
   }
@@ -299,6 +300,10 @@ export const FormatPriceString = (
 
   if(options.additionalFee) {
     price.add(options.additionalFee);
+  }
+
+  if(options.numberOnly) {
+    return price.toDecimal();
   }
 
   let formattedPrice = new Intl.NumberFormat(rootStore.preferredLocale, { style: "currency", currency}).format(price.toString());

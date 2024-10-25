@@ -57,7 +57,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
 
     return (
       <div className={S("media__error", "media__error--countdown")}>
-        <LoaderImage src={backgroundImage || imageUrl} className={S("media__error-image")} />
+        <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         {
           icons.length === 0 ? null :
@@ -97,7 +97,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
     return (
       <div onClick={onClick} className={[S("media__error"), className].join(" ")}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
-        <ImageIcon icon={imageUrl} className={S("media__error-image")} />
+        <img src={imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         <div className={S("media__error-message")}>
           {
@@ -377,6 +377,7 @@ const Media = observer(({mediaItem, display, sidebarContent}) => {
         <LoaderImage
           src={imageUrl}
           lazy={false}
+          alt={mediaItem?.thumbnail_alt_text || mediaItem?.title}
           loaderHeight="100%"
           loaderWidth="100%"
           className={S("media__image")}
@@ -452,7 +453,7 @@ const MediaPropertyMediaPage = observer(() => {
     content = (
       <div className={S("media-page")}>
         <div className={S("media__error")}>
-          <ImageIcon icon={imageUrl} className={S("media__error-image")} />
+          <img src={imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem?.title} className={S("media__error-image")} />
           <div className={S("media__error-cover")} />
           {
             permissions.purchaseGate ? null :

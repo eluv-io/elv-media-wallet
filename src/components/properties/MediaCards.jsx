@@ -9,12 +9,13 @@ import {
 } from "../../utils/MediaPropertyUtils";
 import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "Components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
-import {Linkish} from "Components/common/UIComponents";
+import {FormatPriceString, Linkish} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
 const MediaCardWithButtonVertical = observer(({
   display,
+  price,
   imageContainerRef,
   imageUrl,
   livePreviewUrl,
@@ -51,7 +52,7 @@ const MediaCardWithButtonVertical = observer(({
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
-          alt={display.title}
+          alt={display.thumbnail_alt_text || display.title}
           width={600}
           showWithoutSource
           className={S("media-card-button-vertical__image")}
@@ -85,6 +86,12 @@ const MediaCardWithButtonVertical = observer(({
           !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
             <div className={S("media-card-button-vertical__subtitle")}>
               { display.subtitle }
+            </div>
+        }
+        {
+          !price ? null :
+            <div className={S("media-card-button-vertical__price")}>
+              {price}
             </div>
         }
           <ExpandableDescription
@@ -124,6 +131,7 @@ const MediaCardWithButtonVertical = observer(({
 
 const MediaCardWithButtonHorizontal = observer(({
   display,
+  price,
   imageContainerRef,
   imageUrl,
   livePreviewUrl,
@@ -159,7 +167,7 @@ const MediaCardWithButtonHorizontal = observer(({
           src={livePreviewUrl || imageUrl}
           loaderAspectRatio={aspectRatio}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
-          alt={display.title}
+          alt={display.thumbnail_alt_text || display.title}
           width={600}
           showWithoutSource
           className={S("media-card-button-horizontal__image")}
@@ -195,9 +203,16 @@ const MediaCardWithButtonHorizontal = observer(({
               { display.subtitle }
             </div>
         }
+        {
+          !price ? null :
+            <div className={S("media-card-button-horizontal__price")}>
+              {price}
+            </div>
+        }
         <ExpandableDescription
           description={display.description}
           descriptionRichText={display.description_rich_text}
+          maxLines={3}
           onClick={() => {
             setShowModal(true);
 
@@ -211,15 +226,13 @@ const MediaCardWithButtonHorizontal = observer(({
             aria-label={display.title}
             onClick={async event => {
               setShowModal && setShowModal(false);
-              return await onClick(event);
+              return onClick && await onClick(event);
             }}
             to={linkPath}
             href={url}
             className={[S("media-card-button-horizontal__action"), className].join(" ")}
           >
-            <ScaledText maxPx={22} minPx={18}>
-              {buttonText}
-            </ScaledText>
+            {buttonText}
           </Button>
         </div>
       </div>
@@ -248,7 +261,9 @@ const ButtonCard = observer(({orientation="vertical", ...args}) => {
               }}
               className={S("button-card-modal-container")}
             >
-              <MediaCardWithButtonVertical {...args} isModal setShowModal={setShowModal} />
+              <div className={S("button-card-modal-wrapper")}>
+                <MediaCardWithButtonVertical {...args} isModal setShowModal={setShowModal} />
+                </div>
             </div>
           </Modal>
       }
@@ -282,7 +297,7 @@ const MediaCardBanner = observer(({
             lazy={lazy}
             showWithoutSource
             src={imageUrl}
-            alt={display.title}
+            alt={display.banner_alt_text || display.title}
             loaderAspectRatio={10}
             width={mediaPropertyStore.rootStore.fullscreenImageWidth}
             className={S("media-card-banner__image")}
@@ -382,7 +397,7 @@ const MediaCardVertical = observer(({
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
-          alt={display.title}
+          alt={display.thumbnail_alt_text || display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
           showWithoutSource
@@ -462,7 +477,7 @@ const MediaCardHorizontal = observer(({
             lazy={lazy}
             src={livePreviewUrl || imageUrl}
             alternateSrc={livePreviewUrl ? imageUrl : undefined}
-            alt={display.title}
+            alt={display.thumbnail_alt_text || display.title}
             width={600}
             className={S("media-card-horizontal__image")}
           />
@@ -509,7 +524,7 @@ const MediaCardHorizontal = observer(({
             }
             <Description
               description={display.description}
-              maxLines={textDisplay === "all" ? 3 : 4}
+              maxLines={textDisplay === "all" ? 2 : 4}
               onClick={event => event.stopImmediatePropagation()}
               className={S("media-card-horizontal__description")}
             />
@@ -603,16 +618,40 @@ const MediaCard = observer(({
 
   disabled = disabled || (sectionItem || mediaItem)?.resolvedPermissions?.disable;
 
-  let linkPath, url, authorized;
+  let linkPath, url, authorized, price;
   if(!disabled) {
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
     linkPath = linkInfo?.linkPath;
     url = linkInfo?.url;
     authorized = linkInfo?.authorized;
+
+    if(sectionItem?.display?.show_price && linkInfo.purchaseItems && linkInfo.purchaseItems.length > 0) {
+      const prices = linkInfo.purchaseItems
+        .map(item => {
+          if(!item.marketplaceItem) { return; }
+
+          return {
+            string: FormatPriceString(item.marketplaceItem.price, {stringOnly: true}),
+            value: FormatPriceString(item.marketplaceItem.price, {numberOnly: true})
+          };
+        })
+        .filter(price => price)
+        .sort((a, b) => a.value < b.value ? -1 : 1);
+
+      const minPrice = prices[0].string;
+      const maxPrice = prices.slice(-1)[0].string;
+
+      if(minPrice === maxPrice) {
+        price = minPrice;
+      } else {
+        price = `${minPrice} - ${maxPrice}`;
+      }
+    }
   }
 
   let args = {
     display,
+    price,
     imageUrl,
     livePreviewUrl,
     textDisplay,

@@ -138,15 +138,21 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
   return (
     purchaseItems
       // Filter non-purchasable items
-      .filter(item => {
-        if(secondaryEnabled) { return true; }
-
+      .map(item => {
         const marketplaceItem = rootStore.marketplaces[item.marketplace?.marketplace_id]?.items
           ?.find(marketplaceItem => marketplaceItem.sku === item.marketplace_sku);
 
+        return {
+          ...item,
+          marketplaceItem
+        };
+      })
+      .filter(item => {
+        if(secondaryEnabled) { return true; }
+
         return (
-          marketplaceItem &&
-          NFTInfo({item: marketplaceItem}).marketplacePurchaseAvailable
+          item.marketplaceItem &&
+          NFTInfo({item: item.marketplaceItem}).marketplacePurchaseAvailable
         );
       })
   );
@@ -168,7 +174,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url;
+  let url, purchaseItems;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
       linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
@@ -199,11 +205,19 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = match.url;
     // Preserve params
     params = new URLSearchParams(location.search);
-    params.set("p", CreateMediaPropertyPurchaseParams({
+    const purchaseParams = {
+      type: "purchase",
       id: sectionItem.id,
       sectionSlugOrId: sectionItem?.sectionId || match.params.sectionSlugOrId,
       sectionItemId: sectionItem.id
-    }));
+    };
+
+    purchaseItems = PurchaseParamsToItems(
+      purchaseParams,
+      sectionItem?.resolvedPermissions?.secondaryPurchaseOption
+    );
+
+    params.set("p", CreateMediaPropertyPurchaseParams(purchaseParams));
   } else if(sectionItem?.type === "page_link") {
     const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
 
@@ -273,6 +287,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   return {
     linkPath,
     url,
+    purchaseItems: purchaseItems || [],
     authorized: permissions?.authorized
   };
 };
@@ -465,6 +480,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
 
   return {
     imageUrl,
-    imageAspectRatio
+    imageAspectRatio,
+    altText: display.thumbnail_alt_text
   };
 };

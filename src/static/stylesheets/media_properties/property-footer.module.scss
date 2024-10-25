@@ -23,6 +23,10 @@
     }
   }
 
+  &__item-image {
+    height: 50px;
+  }
+
   &__separator {
     background: linear-gradient(90deg, #000, #202023, #323232, #202023, #000);
     height: 1px;
@@ -38,6 +42,13 @@
     height: 85vh;
     max-width: 1200px;
     width: 100%;
+  }
+
+  &__modal {
+    &--rich-text {
+      border-radius: 5px;
+      padding: 15px;
+    }
   }
 
   @media screen and (width <= 800px) {

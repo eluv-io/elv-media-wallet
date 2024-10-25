@@ -447,14 +447,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 30px 20px 20px;
+    padding: 20px 25px;
   }
 
   &__headers {
     color: var(--property-text-secondary);
-    font-size: 0.9em;
+    font-size: 14px;
     gap: 1.3em;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: pre;
@@ -477,13 +477,24 @@
 
   &__subtitle {
     color: var(--property-text-secondary);
+    margin-top: 5px;
     min-height: 1.4em;
   }
 
+  &__price {
+    color: var(--property-text-primary);
+    font-size: 28px;
+    font-weight: 600;
+    margin: 10px 0 0;
+  }
+
   &__description {
-    color: var(--property-text-secondary);
     font-size: 16px;
-    margin-top: 20px;
+    margin: 10px 0;
+
+    * {
+      color: var(--property-text-faded);
+    }
 
     p {
       font-size: 16px;
@@ -501,6 +512,7 @@
   }
 
   &__action {
+    font-size: 18px;
     font-weight: 600;
     height: 50px;
     width: 100%;
@@ -599,9 +611,9 @@
 
   &__headers {
     color: var(--property-text-secondary);
-    font-size: 0.9em;
+    font-size: 14px;
     gap: 1.3em;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: pre;
@@ -625,13 +637,25 @@
 
   &__subtitle {
     color: var(--property-text-secondary);
+    margin-top: 5px;
     min-height: 1.4em;
+  }
+
+  &__price {
+    color: var(--property-text-primary);
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 5px;
   }
 
   &__description {
     color: var(--property-text-secondary);
-    font-size: 16px;
-    margin-top: 20px;
+    font-size: 14px;
+    margin: 10px 0;
+
+    * {
+      color: var(--property-text-faded);
+    }
 
     p {
       font-size: 16px;
@@ -649,6 +673,7 @@
   }
 
   &__action {
+    font-size: 18px;
     font-weight: 600;
     height: 50px;
     width: 100%;

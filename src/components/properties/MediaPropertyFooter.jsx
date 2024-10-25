@@ -36,6 +36,7 @@ const FooterContentModal = observer(({footerItem, Close}) => {
           size="xl"
           padding="xl"
           onClose={Close}
+          contentClassName={S("footer__modal--rich-text")}
         >
           <RichText richText={footerItem.content_rich_text} className={S("footer__rich-text")} />
         </Modal>
@@ -87,7 +88,11 @@ const MediaPropertyFooter = observer(() => {
                     onClick={footerItem.type === "link" ? undefined : () => setModalItem(footerItem)}
                     className={S("footer__item")}
                   >
-                    { footerItem.text }
+                    {
+                      footerItem.link_image ?
+                        <img src={footerItem.link_image?.url} alt={footerItem.image_alt || footerItem.text} className={S("footer__item-image")} /> :
+                        footerItem.text
+                    }
                   </Linkish>
                 )
               }

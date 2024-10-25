@@ -48,6 +48,7 @@
 }
 
 .item-image {
+  box-shadow: 0 0 30px rgb(0 0 0 / 50%);
   object-fit: contain;
   object-position: top;
   width: 100%;
@@ -65,7 +66,7 @@
   }
 
   &__title {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   &__details {

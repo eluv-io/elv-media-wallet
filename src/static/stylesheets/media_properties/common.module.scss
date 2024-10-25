@@ -359,6 +359,12 @@
     padding-bottom: 30px;
   }
 
+  &:not(.expandable-description--toggleable) {
+    .expandable-description__overlay {
+      display: none;
+    }
+  }
+
   &--contracted {
     overflow: hidden;
 

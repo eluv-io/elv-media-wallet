@@ -144,7 +144,7 @@ header,
 
   &--main-content {
     flex: 1 1 auto;
-    min-height: 50vh;
+    min-height: var(--property-full-content-height);
   }
 
   &--global-header {

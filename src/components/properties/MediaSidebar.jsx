@@ -121,7 +121,11 @@ const SidebarItem = observer(({
   return (
     <Linkish
       to={linkPath}
-      className={S("item", item.id === match.params.mediaItemSlugOrId ? "item--active" : "")}
+      className={S(
+        "item",
+        (itemIsLive || itemIsVod) ? "item--live" : "",
+          item.id === match.params.mediaItemSlugOrId ? "item--active" : ""
+      )}
       ref={element => {
         // Scroll selected item into view
         if(!element || item.id !== match.params.mediaItemSlugOrId) {
@@ -143,20 +147,30 @@ const SidebarItem = observer(({
         !(itemIsLive || itemIsVod) ? null :
           <div className={S("item__image-container", aspectRatio ? `item__image-container--${aspectRatio.toLowerCase()}` : "")}>
             { itemIsLive ? <div className={S("live-badge")}>Live</div> : null }
-            <LoaderImage loaderAspectRatio={16 / 9} className={S("item__image")} src={imageUrl}/>
+            <LoaderImage
+              loaderAspectRatio={16 / 9}
+              alt={mediaItem.thumbnail_alt_text || mediaItem.title}
+              className={S("item__image")}
+              src={imageUrl}
+            />
           </div>
       }
       <div className={S("item__text")}>
         <div className={S("item__title")}>
-          { mediaItem.title }
+          {mediaItem.title}
         </div>
-        <div className={S("item__subtitle")}>
-          {
-            item.scheduleInfo?.isLiveContent ?
-              `${ item.scheduleInfo.displayStartDateLong } at ${ item.scheduleInfo.displayStartTime }` :
-              mediaItem.subtitle
-          }
-        </div>
+        {
+          !mediaItem.subtitle ? null :
+            <div className={S("item__subtitle")}>
+              {mediaItem.subtitle}
+            </div>
+        }
+        {
+          !item.scheduleInfo?.isLiveContent ? null :
+            <div className={S("item__date")}>
+              { item.scheduleInfo.displayStartDateLong } at { item.scheduleInfo.displayStartTime }
+            </div>
+        }
       </div>
       {
         !showActions || !itemIsLive || item.id === match.params.mediaItemSlugOrId ? null :
