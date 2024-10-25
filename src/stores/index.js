@@ -2523,23 +2523,27 @@ class RootStore {
     }
 
     try {
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "ory", type),
-        method: "POST",
-        queryParams: code ? { code } : {},
-        body: {
-          tenant: tenantId,
-          email,
-          callback_url: callbackUrl.toString()
-        },
-        headers: type === "reset_password" ?
-          {} :
-          { Authorization: `Bearer ${this.authToken}` }
-      });
+      const result = yield this.client.utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "ory", type),
+          method: "POST",
+          queryParams: code ? { code } : {},
+          body: {
+            tenant: tenantId,
+            email,
+            callback_url: callbackUrl.toString()
+          },
+          headers: type === "reset_password" ?
+            {} :
+            { Authorization: `Bearer ${this.authToken}` }
+        })
+      );
 
       if(type === "confirm_email") {
         this.SetAlertNotification(this.l10n.login.email_confirmed);
       }
+
+      return result;
     } catch(error) {
       this.Log(error, true);
 

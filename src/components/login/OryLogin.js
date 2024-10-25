@@ -17,8 +17,31 @@ const PasswordResetForm = ({OrySubmit, nodes}) => {
   return (
     <>
       <input name="csrf_token" type="hidden" required value={csrfToken} />
-      <input name="password" type="password" required autoComplete="new-password" placeholder="Password" />
-      <input name="password_confirmation" type="password" required  placeholder="Password Confirmation" />
+      <PasswordInput
+        name="password"
+        type="password"
+        required
+        autoComplete="new-password"
+        placeholder="Password"
+        classNames={{
+          root: "login-page__input-container",
+          wrapper: "login-page__input-wrapper",
+          input: "login-page__input",
+          visibilityToggle: "login-page__input-visibility-toggle"
+        }}
+      />
+      <PasswordInput
+        name="password_confirmation"
+        type="password"
+        required
+        placeholder="Password Confirmation"
+        classNames={{
+          root: "login-page__input-container",
+          wrapper: "login-page__input-wrapper",
+          input: "login-page__input",
+          visibilityToggle: "login-page__input-visibility-toggle"
+        }}
+      />
       <input name="method" type="hidden" placeholder="Save" value="password" />
       <ButtonWithLoader onClick={OrySubmit} type="submit" action={false} className="login-page__button login-page__button--primary">
         { rootStore.l10n.login.ory.actions.update_password }
@@ -47,51 +70,38 @@ const LoginLimitedForm = observer(({Submit, Cancel}) => {
   );
 });
 
-const SubmitVerificationCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
-  if(submitting) { return; }
-
-  submitting = true;
-
-  try {
-    const createResponse = await rootStore.oryClient.getVerificationFlow({id: searchParams.get("flow")});
-
-    if(searchParams.has("code")) {
-      try {
-        const updateResponse = await rootStore.oryClient.updateVerificationFlow({
-          flow: searchParams.get("flow"),
-          updateVerificationFlowBody: {
-            code: searchParams.get("code"),
-            method: "code"
-          }
-        });
-
-        // Code redemption succeeded
-        setFlowType("verification");
-        setFlows({...flows, verification: updateResponse.data});
-        return true;
-      } catch(error) {
-        // Code redemption failed
-        rootStore.Log(error, true);
-        setFlows({...flows, verification: createResponse.data});
-        setFlowType("verification");
-        setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
-      }
-    } else {
-      // Flow initialized
-      setFlowType("verification");
-      setFlows({...flows, verification: createResponse.data});
-    }
-  } catch(error) {
-    // Flow initialization failed
-    rootStore.Log(error, true);
-    setFlowType("login");
-  } finally {
-    submitting = false;
-  }
+const ForgotPasswordForm = ({OrySubmit, Cancel}) => {
+  return (
+    <>
+      <input
+        name="email"
+        type="email" required=""
+        placeholder="Email"
+        autoFocus
+      />
+      <ButtonWithLoader
+        onClick={OrySubmit}
+        type="submit"
+        action={false}
+        className="login-page__button login-page__button--primary"
+      >
+        Submit
+      </ButtonWithLoader>
+      <button
+        key="back-link"
+        onClick={Cancel}
+        className="login-page__button login-page__button--link"
+      >
+        {rootStore.l10n.login.ory.actions.back_to_sign_in}
+      </button>
+    </>
+  );
 };
 
 const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
-  if(submitting) { return; }
+  if(submitting) {
+    return;
+  }
 
   submitting = true;
 
@@ -149,10 +159,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const [verificationSucceeded, setVerificationSucceeded] = useState(false);
   const formRef = useRef();
-
-  const verificationRequired = location.pathname.endsWith("/verification") && searchParams.has("flow");
 
   useEffect(() => {
     if(!rootStore.oryClient) { return; }
@@ -169,17 +176,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         // Recovery flow - try and submit code
         if(location.pathname.endsWith("/login") && !flows.recovery) {
           SubmitRecoveryCode({flows, setFlows, setFlowType, setErrorMessage});
-          break;
-        } else if(verificationRequired) {
-          if(!rootStore.loggedIn) {
-            setFlowType("login");
-          } else {
-            SubmitVerificationCode({flows, setFlows, setFlowType, setErrorMessage})
-              .then(result => setVerificationSucceeded(!!result));
-          }
-          break;
-        } else {
-          setFlowType("login");
+
         }
 
         break;
@@ -191,10 +188,6 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         rootStore.oryClient.createBrowserRegistrationFlow({returnTo: window.location.origin})
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
-      case "recovery":
-        rootStore.oryClient.createBrowserRecoveryFlow()
-          .then(({data}) => setFlows({...flows, [flowType]: data}));
-        break;
       case "settings":
         rootStore.oryClient.createBrowserSettingsFlow()
           .then(({data}) => setFlows({...flows, [flowType]: data}));
@@ -204,10 +197,9 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
   if(
     !codeAuth &&
-    ((rootStore.loggedIn && ["/login"].includes(location.pathname)) ||
-    (verificationRequired && verificationSucceeded))
+    (rootStore.loggedIn && ["/login"].includes(location.pathname))
   ) {
-    return <Redirect to={searchParams.get("next") || "/"} />;
+    return <Redirect to="/" />;
   }
 
   const LogOut = async () => {
@@ -264,8 +256,9 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         <button
           key="recovery-link"
           onClick={() => {
-            setFlowType("recovery");
-            setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 250);
+            setFlows({...flows, recovery_email: {}});
+            setFlowType("recovery_email");
+            setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 100);
           }}
           className="login-page__button login-page__button--link"
         >
@@ -311,8 +304,6 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
     );
-  } else if(flowType === "verification") {
-    title = rootStore.l10n.login.ory.verification;
   } else if(flowType === "settings") {
     title = rootStore.l10n.login.ory.update_password;
   }
@@ -350,37 +341,32 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
           await rootStore.AuthenticateOry({userData});
 
-          if(verificationRequired) {
-            setFlowType("initializeFlow");
-          }
-
           break;
         case "login_limited":
           await rootStore.AuthenticateOry({userData, force: true});
-
-          if(verificationRequired) {
-            setFlowType("initializeFlow");
-          }
 
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
           await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true, sendVerificationEmail: true});
           break;
+
+        case "recovery_email":
+          const flowInfo = await rootStore.SendLoginEmail({type: "reset_password", email: body.email});
+          response = await rootStore.oryClient.getRecoveryFlow({id: flowInfo.flow});
+          setFlows({...flows, recovery: response.data});
+          setFlowType("recovery");
+          setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_code_prompt), 100);
+
+          break;
         case "recovery":
           response = await rootStore.oryClient.updateRecoveryFlow({flow: flow.id, updateRecoveryFlowBody: body});
-          //await rootStore.SendLoginEmail({email: body.email, type: "reset_password"});
           setFlows({...flows, [flowType]: response.data});
 
           if(response.data.state === "passed_challenge") {
             setFlowType("settings");
           }
 
-          break;
-        case "verification":
-          response = await rootStore.oryClient.updateVerificationFlow({flow: flow.id, updateVerificationFlowBody: body});
-          setFlows({...flows, [flowType]: response.data});
-          setVerificationSucceeded(response.data.state === "passed_challenge");
           break;
         case "settings":
           response = await rootStore.oryClient.updateSettingsFlow({flow: flow.id, updateSettingsFlowBody: body});
@@ -436,7 +422,6 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
             setErrorMessage(rootStore.l10n.login.ory.errors.invalid_credentials);
             break;
           case "recovery":
-          case "verification":
             setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code);
             break;
         }
@@ -464,10 +449,9 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
       >
         {
           flowType === "login_limited" ?
-            <LoginLimitedForm
-              Submit={OrySubmit}
-              Cancel={LogOut}
-            /> :
+            <LoginLimitedForm Submit={OrySubmit} Cancel={LogOut} /> :
+            flowType === "recovery_email" ?
+              <ForgotPasswordForm OrySubmit={OrySubmit} Cancel={() => setFlowType("login")} /> :
             flowType === "settings" ?
               <PasswordResetForm nodes={flow.ui.nodes} OrySubmit={OrySubmit} /> :
               flow.ui.nodes.map(node => {

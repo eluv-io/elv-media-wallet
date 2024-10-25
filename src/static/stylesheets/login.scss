@@ -133,7 +133,7 @@
     border: 1px solid var(--login-input--border-color);
     border-radius: var(--login-input--border-radius);
     color: var(--login-input--color);
-    font-size: 18px;
+    font-size: 16px;
     height: 50px;
 
     &::placeholder {
@@ -257,7 +257,7 @@
     justify-content: center;
     max-width: 265px;
     min-height: 50px;
-    padding: 10px 50px;
+    padding: 10px 20px;
     position: relative;
     white-space: pre-wrap;
     width: 100%;
@@ -553,7 +553,7 @@
       height: 100%;
       max-width: unset;
       min-height: 100vh;
-      padding: 125px 20px 100px;
+      padding: 50px 20px 100px;
       width: 100%;
     }
 

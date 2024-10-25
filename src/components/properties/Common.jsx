@@ -734,16 +734,18 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
       {...a11yOptions}
       style={componentStyle}
       onClick={
-        !props.onClick ? undefined :
-          async () => {
-            try {
-              setIsLoading(true);
+        (props.type === "submit" && !props.onClick) ?
+          event => event.preventDefault() :
+          !props.onClick ? undefined :
+            async () => {
+              try {
+                setIsLoading(true);
 
-              await props.onClick();
-            } finally {
-              setIsLoading(loading);
+                await props.onClick();
+              } finally {
+                setIsLoading(loading);
+              }
             }
-          }
       }
       className={[
         S(
