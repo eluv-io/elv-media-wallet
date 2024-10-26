@@ -790,7 +790,27 @@ const MediaPropertySectionPage = observer(() => {
     let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
     if(groupBy === "__date") {
       groups = groups.sort();
+    } else if(groupBy !== "__media-type") {
+      const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
+
+      groups = groups.sort((a, b) => {
+        const indexA = tags.indexOf(a);
+        const indexB = tags.indexOf(b);
+
+        if(indexA >= 0) {
+          if(indexB >= 0) {
+            return indexA < indexB ? -1 : 1;
+          }
+
+          return -1;
+        } else if(indexB >= 0) {
+          return 1;
+        }
+
+        return a < b ? -1 : 1;
+      });
     }
+
 
     sectionItems = (
       <div className={S("section__groups")}>

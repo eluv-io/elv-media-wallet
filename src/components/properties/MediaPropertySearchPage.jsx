@@ -22,6 +22,7 @@ const MediaPropertySearchPage = observer(() => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const query = mediaPropertyStore.searchOptions.query;
+  const groupBy = mediaProperty?.metadata?.search?.group_by;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.query);
@@ -31,7 +32,7 @@ const MediaPropertySearchPage = observer(() => {
 
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
-      .then(results => setSearchResults(mediaPropertyStore.GroupContent({content: results, groupBy: mediaProperty?.metadata?.search?.group_by})));
+      .then(results => setSearchResults(mediaPropertyStore.GroupContent({content: results, groupBy})));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
 
@@ -40,8 +41,27 @@ const MediaPropertySearchPage = observer(() => {
   }
 
   let groups = Object.keys(searchResults || {}).filter(attr => attr !== "__other");
-  if(mediaProperty?.metadata?.search?.group_by === "__date") {
+  if(groupBy === "__date") {
     groups = groups.sort();
+  } else if(groupBy !== "__media-type") {
+    const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
+
+    groups = groups.sort((a, b) => {
+      const indexA = tags.indexOf(a);
+      const indexB = tags.indexOf(b);
+
+      if(indexA >= 0) {
+        if(indexB >= 0) {
+          return indexA < indexB ? -1 : 1;
+        }
+
+        return -1;
+      } else if(indexB >= 0) {
+        return 1;
+      }
+
+      return a < b ? -1 : 1;
+    });
   }
 
   return (
@@ -62,7 +82,7 @@ const MediaPropertySearchPage = observer(() => {
           groups.map(attribute =>
             <SectionResultsGroup
               key={`results-${attribute}`}
-              groupBy={mediaProperty?.metadata?.search?.group_by}
+              groupBy={groupBy}
               label={Object.keys(searchResults).length > 1 ? attribute : ""}
               results={searchResults[attribute]}
               navContext="search"

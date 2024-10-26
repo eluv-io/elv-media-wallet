@@ -87,11 +87,26 @@ class MediaPropertyStore {
 
     associatedCatalogIds.map(mediaCatalogId =>
       Object.keys(this.mediaCatalogs[mediaCatalogId]?.attributes || {})
-        .forEach(attributeId =>
-          attributes[attributeId] = {
-            ...this.mediaCatalogs[mediaCatalogId].attributes[attributeId]
+        .forEach(attributeId => {
+          const attribute = this.mediaCatalogs[mediaCatalogId].attributes[attributeId];
+
+          if(attributes[attributeId]) {
+            // Already exists, merge
+            attributes[attributeId] = {
+              ...attribute,
+              tags: [
+                ...(attribute.tags || []),
+                ...(attributes[attributeId].tags || [])
+              ]
+                .filter((value, index, array) => array.indexOf(value) === index)
+            };
+          } else {
+            // New
+            attributes[attributeId] = {
+              ...attribute
+            };
           }
-        )
+        })
     );
 
     return attributes;
@@ -1355,6 +1370,7 @@ class MediaPropertyStore {
           versionHash: mediaCatalogHash,
           metadataSubtree: "/public/asset_metadata/info",
           select: [
+            "name",
             "permission_sets",
             "media",
             "media_collections",
@@ -1377,6 +1393,7 @@ class MediaPropertyStore {
 
         runInAction(() => {
           this.mediaCatalogs[mediaCatalogId] = {
+            name: metadata.name,
             versionHash: mediaCatalogHash,
             tags: metadata.tags || [],
             attributes: metadata.attributes || []
