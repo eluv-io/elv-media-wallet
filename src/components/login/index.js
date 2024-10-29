@@ -21,7 +21,7 @@ const searchParams = new URLSearchParams(decodeURIComponent(window.location.sear
 const useOry = searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
-  isAuth0Callback: searchParams.has("code"),
+  isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
 
   // Origin URL of the opener
   origin: searchParams.get("origin"),

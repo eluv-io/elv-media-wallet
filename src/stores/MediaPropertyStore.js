@@ -12,6 +12,7 @@ class MediaPropertyStore {
   allMediaProperties;
   mediaPropertyHashes;
   mediaPropertyIds;
+  mediaPropertySlugs;
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
@@ -918,6 +919,7 @@ class MediaPropertyStore {
 
         let mediaPropertyHashes = {};
         let mediaPropertyIds = {};
+        let mediaPropertySlugs = {};
         Object.keys(metadata).forEach(mediaPropertySlug => {
           const mediaPropertyHash = metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
 
@@ -929,11 +931,15 @@ class MediaPropertyStore {
 
             mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
             mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
+
+            mediaPropertySlugs[mediaPropertySlug] = mediaPropertySlug;
+            mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
           }
         });
 
         this.mediaPropertyHashes = mediaPropertyHashes;
         this.mediaPropertyIds = mediaPropertyIds;
+        this.mediaPropertySlugs = mediaPropertySlugs;
       }
     });
   });
@@ -1085,6 +1091,8 @@ class MediaPropertyStore {
           this.client.utils.B64(JSON.stringify(metadata))
         );
 
+        metadata.mediaPropertyId = this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId;
+
         return metadata;
       }
     });
@@ -1117,7 +1125,6 @@ class MediaPropertyStore {
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
 
-
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
     force = force || (yield this.MediaPropertyShouldReload({mediaPropertySlugOrId}));
 
@@ -1147,6 +1154,8 @@ class MediaPropertyStore {
           metadataSubtree: "/public/asset_metadata/info",
           produceLinkUrls: true
         });
+
+        metadata.mediaPropertyId = mediaPropertyId;
 
         const provider = this.rootStore.AuthInfo()?.provider || "external";
         const propertyProvider = metadata?.login?.settings?.provider || "auth0";
@@ -1318,7 +1327,8 @@ class MediaPropertyStore {
         // Auth0 login - wait for completion
         (
           !this.rootStore.loggedIn &&
-          (!window.location.pathname.endsWith("/verify") && new URLSearchParams(decodeURIComponent(window.location.search)).has("code"))
+          new URLSearchParams(decodeURIComponent(window.location.search)).has("code") &&
+          !["/verify", "/register"].find(path => window.location.pathname.endsWith(path))
         )
       ) {
         yield new Promise(resolve => setTimeout(resolve, 500));

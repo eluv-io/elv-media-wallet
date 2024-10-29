@@ -68,8 +68,8 @@ class RootStore {
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
-  domainPropertySlug = this.GetSessionStorage("domain-property-slug");
-  domainPropertyTenantId = this.GetSessionStorage("domain-property-tenant-id");
+  domainPropertySlug = this.GetSessionStorage("domain-property-slug") || "";
+  domainPropertyTenantId = this.GetSessionStorage("domain-property-tenant-id") || "";
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -801,16 +801,10 @@ class RootStore {
           walletName: walletMethods.name
         });
       } else if(idToken) {
-        let tenantId;
-
-        if(this.specifiedMarketplaceHash) {
-          tenantId = (yield this.LoadLoginCustomization(this.specifiedMarketplaceHash))?.tenant_id;
-        }
-
         const tokens = yield this.walletClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
-          tenantId,
+          tenantId: this.domainPropertyTenantId,
           shareEmail: user?.userData?.share_email,
           extraData: user?.userData || {},
           signerURIs,
@@ -907,10 +901,14 @@ class RootStore {
       return;
     }
 
+    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+
     if(mediaPropertyId) {
       this.domainProperty = mediaPropertyId;
       this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: mediaPropertyId});
+      this.domainPropertySlug = this.mediaPropertyStore.mediaPropertySlugs[mediaPropertyId];
       this.SetSessionStorage("domain-property", this.domainProperty);
+      this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
       this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
     }
 
@@ -925,6 +923,8 @@ class RootStore {
 
   ClearDomainCustomization() {
     this.domainProperty = undefined;
+    this.domainPropertySlug = undefined;
+    this.domainPropertyTenantId = undefined;
     this.domainSettings = undefined;
     this.SetCustomCSS("");
     this.RemoveSessionStorage("domain-property");
@@ -1011,7 +1011,7 @@ class RootStore {
     });
 
     return {
-      mediaPropertyId: this.domainProperty,
+      mediaPropertyId: metadata.mediaPropertyId,
       tenant: metadata?.tenant,
       login: metadata?.login,
       styling: metadata.styling,
@@ -1030,8 +1030,9 @@ class RootStore {
       return this.client;
     };
 
-    if(this.domainProperty) {
-      return yield this.LoadPropertyCustomization(this.domainProperty);
+    const property = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+    if(property) {
+      return yield this.LoadPropertyCustomization(property);
     }
 
     let marketplaceId;
@@ -2498,18 +2499,21 @@ class RootStore {
   });
 
   // Auth
-  SendLoginEmail = flow(function * ({tenantId, email, type, code}) {
+  SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
     email = email || rootStore.walletClient.UserInfo()?.email;
 
+    mediaPropertySlugOrId = mediaPropertySlugOrId || this.domainPropertySlug || this.routeParams.mediaPropertySlugOrId;
+
     if(!tenantId) {
-      const propertyId = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+      const propertyId = this.mediaPropertyStore.mediaPropertyIds[mediaPropertySlugOrId];
       tenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
     }
 
-    let path = !this.routeParams.mediaPropertySlugOrId ? "/" :
+    let path = !mediaPropertySlugOrId ? "/" :
       MediaPropertyBasePath({
         parentMediaPropertySlugOrId: this.routeParams.parentMediaPropertySlugOrId,
-        mediaPropertySlugOrId: this.routeParams.mediaPropertySlugOrId
+        mediaPropertySlugOrId: mediaPropertySlugOrId
       });
 
     let callbackUrl = new URL(window.location.origin);
@@ -2519,6 +2523,11 @@ class RootStore {
       case "request_email_verification":
         callbackUrl.pathname = UrlJoin(callbackUrl.pathname, "verify");
         callbackUrl.searchParams.set("next", path);
+        break;
+      case "create_account":
+        callbackUrl.pathname = "/register";
+        callbackUrl.searchParams.set("next", path);
+        callbackUrl.searchParams.set("pid", mediaPropertySlugOrId);
         break;
     }
 

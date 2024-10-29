@@ -8,6 +8,12 @@ import {LoaderImage, Modal, RichText} from "Components/properties/Common";
 
 const S = (...classes) => classes.map(c => FooterStyles[c] || "").join(" ");
 
+const eluvioFooterItems = [
+  { type: "link", text: "Get Support", url: "https://eluviolive.zendesk.com/hc/en-us/requests/new" },
+  { type: "link", text: "Eluvio Terms", url: "https://eluv.io/terms" },
+  { type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" },
+];
+
 const FooterContentModal = observer(({footerItem, Close}) => {
   switch(footerItem.type) {
     case "image":
@@ -68,9 +74,9 @@ const MediaPropertyFooter = observer(() => {
 
   if(!mediaProperty) { return null; }
 
-  const {items, rich_text} = mediaProperty.metadata.footer || {};
+  let {items, rich_text} = mediaProperty.metadata.footer || {};
 
-  if((!items || items.length === 0) && !rich_text) { return null; }
+  items = [...(items || []), ...eluvioFooterItems];
 
   return (
     <>

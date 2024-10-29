@@ -364,7 +364,14 @@ export const MediaGrid = observer(({
 
 const SectionContentBanner = observer(({section, sectionContent, navContext}) => {
   return (
-    <div className={S("section__content", "section__content--banner", `section__content--${section.display.justification || "left"}`)}>
+    <div
+      className={S(
+        "section__content",
+        "section__content--banner",
+        `section__content--${section.display.justification || "left"}`,
+        `section__content--banner--spacing-${section.display.gap || "md"}`
+      )}
+    >
       {
         sectionContent.map(sectionItem =>
           <MediaCard

@@ -98,6 +98,7 @@ const ForgotPasswordForm = ({OrySubmit, Cancel}) => {
   );
 };
 
+let submitting = false;
 const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
   if(submitting) {
     return;
@@ -106,6 +107,13 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
   submitting = true;
 
   const RecoveryFailed = async () => {
+    if(searchParams.get("code")) {
+      setFlowType("login");
+
+      setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_recovery_email), 250);
+      return;
+    }
+
     // Code redemption failed
     const newFlow = await rootStore.oryClient.createBrowserRecoveryFlow();
 
@@ -134,31 +142,36 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
         // Code redemption succeeded
         setFlowType(updateResponse.data.state === "passed_challenge" ? "settings" : "recovery");
         setFlows({...flows, recovery: updateResponse.data});
+
+        return true;
       } catch(error) {
         rootStore.Log(error, true);
         await RecoveryFailed();
+        return false;
       }
     } else {
       // Flow initialized
       setFlowType("recovery");
       setFlows({...flows, recovery: createResponse.data});
+      return true;
     }
   } catch(error) {
     // Flow initialization failed
     rootStore.Log(error, true);
     await RecoveryFailed();
+    return false;
   } finally {
     submitting = false;
   }
 };
 
-let submitting = false;
 const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing}) => {
   const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [redirect, setRedirect] = useState(undefined);
   const formRef = useRef();
 
   useEffect(() => {
@@ -174,9 +187,15 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     switch(flowType) {
       case "initializeFlow":
         // Recovery flow - try and submit code
-        if(location.pathname.endsWith("/login") && !flows.recovery) {
-          SubmitRecoveryCode({flows, setFlows, setFlowType, setErrorMessage});
-
+        if(location.pathname.endsWith("/register") && !flows.recovery) {
+          SubmitRecoveryCode({flows, setFlows, setFlowType, setErrorMessage})
+            .then(success => {
+              if(success) {
+                setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.set_password), 100);
+              } else {
+                rootStore.SignOut({reload: false});
+              }
+            });
         }
 
         break;
@@ -200,6 +219,10 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     (rootStore.loggedIn && ["/login"].includes(location.pathname))
   ) {
     return <Redirect to="/" />;
+  }
+
+  if(redirect) {
+    return <Redirect to={redirect} />;
   }
 
   const LogOut = async () => {
@@ -336,19 +359,24 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         return;
       }
 
+      let next = false;
       switch(flowType) {
         case "login":
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
           await rootStore.AuthenticateOry({userData});
+          next = true;
 
           break;
         case "login_limited":
           await rootStore.AuthenticateOry({userData, force: true});
+          next = true;
 
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
           await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true, sendVerificationEmail: true});
+          next = true;
+
           break;
 
         case "recovery_email":
@@ -377,7 +405,12 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           }
 
           setFlows({...flows, [flowType]: response.data});
+          next = true;
           break;
+      }
+
+      if(next && searchParams.get("next")) {
+        setRedirect(searchParams.get("next"));
       }
     } catch(error) {
       if(error.login_limited) {

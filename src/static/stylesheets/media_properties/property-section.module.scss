@@ -221,7 +221,18 @@
 
     &--banner {
       display: grid;
-      gap: 50px;
+
+      &--spacing-sm {
+        gap: 25px;
+      }
+
+      &--spacing-md {
+        gap: 50px
+      }
+
+      &--spacing-lg {
+        gap: 100px;
+      }
     }
   }
 
