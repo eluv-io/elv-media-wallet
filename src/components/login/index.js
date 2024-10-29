@@ -184,6 +184,22 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
   return (
     <div className="login-page__text-section">
+      { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
+
+      {
+        !customizationOptions.terms_document?.terms_document ? null :
+          <div className="login-page__terms login-page__terms-link-container">
+            <a
+              href={customizationOptions.terms_document.terms_document.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="login-page__terms-link"
+            >
+              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
+            </a>
+          </div>
+      }
+
       {
         customizationOptions?.custom_consent?.type === "Checkboxes" && customizationOptions.custom_consent.enabled ?
           customizationOptions.custom_consent.options.map((option, index) =>
@@ -215,7 +231,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
       {
         // Allow the user to opt out of sharing email
-        customizationOptions?.require_consent ?
+        !customizationOptions?.require_consent ? null :
           <div className="login-page__consent">
             <input
               name="consent"
@@ -237,24 +253,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
             >
 
             </RichText>
-          </div> : null
-      }
-
-
-      { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
-
-      {
-        customizationOptions.terms_document?.terms_document ?
-          <div className="login-page__terms login-page__terms-link-container">
-            <a
-              href={customizationOptions.terms_document.terms_document.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="login-page__terms-link"
-            >
-              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
-            </a>
-          </div>: null
+          </div>
       }
     </div>
   );
