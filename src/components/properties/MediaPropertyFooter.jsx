@@ -5,6 +5,8 @@ import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {Linkish} from "Components/common/UIComponents";
 import {LoaderImage, Modal, RichText} from "Components/properties/Common";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => FooterStyles[c] || "").join(" ");
 
@@ -91,6 +93,7 @@ const MediaPropertyFooter = observer(() => {
                     href={footerItem.type === "link" ? footerItem.url : undefined}
                     rel="noopener"
                     target="_blank"
+                    to={footerItem.type === "faq" ? UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "faq") : undefined}
                     onClick={footerItem.type === "link" ? undefined : () => setModalItem(footerItem)}
                     className={S("footer__item")}
                   >

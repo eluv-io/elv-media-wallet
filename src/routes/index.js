@@ -43,6 +43,7 @@ import ItemDetailsPage from "Components/properties/ItemDetailsPage";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 import EmailVerification from "Components/login/EmailVerification";
+import FAQ from "Components/properties/FAQ";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -190,6 +191,14 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
       path: UrlJoin(basePath, path, "verify"),
       backPath: UrlJoin(basePath, path),
       Component: EmailVerification
+    })),
+
+    // Email Verification
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "faq"),
+      backPath: UrlJoin(basePath, path),
+      Component: FAQ
     })),
 
     // Listings

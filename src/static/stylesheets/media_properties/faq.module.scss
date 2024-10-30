@@ -1,0 +1,42 @@
+.container {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding-inline: 3px;
+}
+
+.description {
+  margin: 10px 0;
+  padding-inline: 3px;
+}
+
+.questions {
+  font-size: 20px;
+  margin-top: 30px;
+}
+
+.question {
+  background-color: var(--property-background-secondary)!important;
+  border: 0;
+
+  &__label {
+    cursor: pointer;
+  }
+}
+
+.answer {
+  border-top: 1px solid var(--property-border-color);
+  font-size: 14px;
+  padding-top: 10px;
+}
+
+@media screen and (width > 800px) {
+  .container {
+    padding-top: 30px;
+  }
+}
