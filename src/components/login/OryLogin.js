@@ -401,7 +401,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
           if(response.data.state === "success") {
             setStatusMessage(rootStore.l10n.login.ory.messages.password_updated);
-            await rootStore.AuthenticateOry({userData});
+            await rootStore.AuthenticateOry({userData, sendVerificationEmail: location.pathname.endsWith("/register")});
           }
 
           setFlows({...flows, [flowType]: response.data});

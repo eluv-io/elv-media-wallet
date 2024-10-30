@@ -2502,7 +2502,7 @@ class RootStore {
   SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
     email = email || rootStore.walletClient.UserInfo()?.email;
 
-    mediaPropertySlugOrId = mediaPropertySlugOrId || this.domainPropertySlug || this.routeParams.mediaPropertySlugOrId;
+    mediaPropertySlugOrId = mediaPropertySlugOrId || this.domainProperty || this.routeParams.mediaPropertySlugOrId;
 
     if(!tenantId) {
       yield this.mediaPropertyStore.LoadMediaPropertyHashes();

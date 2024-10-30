@@ -16,7 +16,7 @@ const FAQPage = observer(() => {
 
   if(!mediaProperty) { return null; }
 
-  const faq = mediaProperty.metadata?.faq;
+  const faq = mediaProperty.metadata?.faq || {};
 
   if((faq.questions || []).length === 0) {
     return <Redirect to={MediaPropertyBasePath(match.params)} />;

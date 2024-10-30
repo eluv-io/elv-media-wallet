@@ -449,7 +449,9 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
       )
     ));
 
-  if(!showPropertySelector || options.length <= 1) {
+  const selectedOption = options.find(option => option.property_id === mediaProperty.mediaPropertyId);
+
+  if(!showPropertySelector || options.length <= 1 || !selectedOption) {
     return (
       <Link
         to={basePath}
@@ -465,8 +467,6 @@ const PropertySelector = observer(({logo, basePath, mobile=false}) => {
       </Link>
     );
   }
-
-  const selectedOption = options.find(option => option.property_id === mediaProperty.mediaPropertyId);
 
   const Option = ({option, selected=false}) => (
     <>
