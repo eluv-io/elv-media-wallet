@@ -97,7 +97,7 @@ const MediaCardWithButtonVertical = observer(({
           <ExpandableDescription
             description={display.description}
             descriptionRichText={display.description_rich_text}
-            maxLines={isModal ? 1000 : undefined}
+            maxLines={isModal ? 1000 : 6}
             onClick={
               isModal ? undefined :
                 () => {

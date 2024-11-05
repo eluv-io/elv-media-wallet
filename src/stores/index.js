@@ -613,12 +613,6 @@ class RootStore {
         idToken: jwtToken,
         force,
         provider: "ory",
-        // TODO: Change
-        signerURIs: [
-          this.network === "demo" ?
-            "https://wlt.dv3.svc.eluv.io" :
-            "https://wlt.stg.svc.eluv.io"
-        ],
         user: {
           name: email,
           email,
@@ -2628,12 +2622,6 @@ class RootStore {
     if(Utils.EqualAddress(address, this.AuthInfo()?.address)) {
       this.Log("Ignoring auth info from authorization param - Already logged in with this param");
       return;
-    }
-
-    if(!signerURIs && provider === "ory") {
-      signerURIs = this.network === "demo" ?
-        ["https://wlt.dv3.svc.eluv.io"] :
-        ["https://wlt.stg.svc.eluv.io"];
     }
 
     switch(provider) {
