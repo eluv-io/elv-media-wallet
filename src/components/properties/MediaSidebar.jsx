@@ -1,7 +1,7 @@
 import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
@@ -212,20 +212,15 @@ const MediaSidebar = observer(({
   sidebarContent,
   showActions,
   secondaryMediaSettings,
-  setSecondaryMediaSettings
+  setSecondaryMediaSettings,
+  showSidebar,
+  setShowSidebar
 }) => {
-  const [hidden, setHidden] = useState(false);
   const {content, section} = sidebarContent || {};
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
   const aspectRatio = section?.display?.aspect_ratio;
-
-  useEffect(() => {
-    if(!rootStore.pageWidth <= 800){
-      setHidden(false);
-    }
-  }, [rootStore.pageWidth]);
 
   if(!content || content.length === 0) { return; }
 
@@ -233,10 +228,10 @@ const MediaSidebar = observer(({
   const upcomingContent = content.filter(item => item.scheduleInfo.isLiveContent && !item.scheduleInfo.started);
   const vodContent = content.filter(item => !item.scheduleInfo.isLiveContent);
 
-  if(hidden) {
+  if(!showSidebar || rootStore.pageWidth < 800) {
     return (
       <div className={S("hidden-sidebar")}>
-        <button onClick={() => setHidden(false)} className={S("show-button")}>
+        <button onClick={() => setShowSidebar(true)} className={S("show-button")}>
           <ImageIcon icon={ChevronLeft} />
         </button>
       </div>
@@ -245,7 +240,7 @@ const MediaSidebar = observer(({
 
   return (
     <div className={S("sidebar", secondaryMediaSettings?.display === "side-by-side" ? "sidebar--overlay" : "")}>
-      <button onClick={() => setHidden(true)} className={S("hide-button")}>
+      <button onClick={() => setShowSidebar(false)} className={S("hide-button")}>
         <ImageIcon icon={XIcon} />
       </button>
       <div className={S("header")}>

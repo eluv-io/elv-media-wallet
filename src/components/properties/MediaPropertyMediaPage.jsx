@@ -154,11 +154,12 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
   );
 });
 
-const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent}) => {
+const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
   const [secondaryMediaSettings, setSecondaryMediaSettings] = useState(undefined);
   const [primaryPlayerActive, setPrimaryPlayerActive] = useState(false);
   const [primaryMenuActive, setPrimaryMenuActive] = useState(false);
   const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true);
 
   useEffect(() => {
     if(rootStore.pageWidth < 800) {
@@ -221,7 +222,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent}) =>
     />;
 
   return (
-    <div className={S("media-with-sidebar")}>
+    <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
         <div className={S("media-with-sidebar__media-container")}>
           {
@@ -236,6 +237,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent}) =>
               </>
           }
         </div>
+        { textContent }
       </div>
       <MediaSidebar
         sidebarContent={sidebarContent}
@@ -244,6 +246,8 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent}) =>
         display={display}
         secondaryMediaSettings={secondaryMediaSettings}
         setSecondaryMediaSettings={setSecondaryMediaSettings}
+        showSidebar={showSidebar}
+        setShowSidebar={setShowSidebar}
       />
     </div>
   );
@@ -355,12 +359,12 @@ const MediaGallery = observer(({mediaItem}) => {
   );
 });
 
-const Media = observer(({mediaItem, display, sidebarContent}) => {
+const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
     if(sidebarContent?.content?.length > 0) {
-      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} />;
+      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} textContent={textContent} />;
     } else {
       return <MediaVideo mediaItem={mediaItem} display={display}/>;
     }
@@ -438,8 +442,8 @@ const MediaPropertyMediaPage = observer(() => {
   const hasText = !isUpcoming && !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
   const showSidebar = sidebarContent?.content?.length > 0;
-  const showText = hasText && !isUpcoming && !sidebarContent;
-  const showDetails = (hasText || hasDescription) && !sidebarContent;
+  const showText = hasText && !isUpcoming;
+  const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
   const permissions = mediaPropertyStore.ResolvePermission({
@@ -465,6 +469,58 @@ const MediaPropertyMediaPage = observer(() => {
       </div>
     );
   } else {
+    const textContent = (
+      !(hasText || !hasDescription) ? null :
+        <div className={S("media-info")}>
+          {
+            !showText ? null :
+              <div className={S("media-text")}>
+                {
+                  !display.title ? null :
+                    <h1 className={[S("media-text__title"), "_title"].join(" ")}>
+                      {
+                        icons.length === 0 ? null :
+                          <div className={S("media-text__icons")}>
+                            {icons.map(({icon, alt_text}, index) =>
+                              <img
+                                key={`icon-${index}`}
+                                src={icon.url}
+                                alt={alt_text}
+                                className={S("media-text__icon")}
+                              />
+                            )}
+                          </div>
+                      }
+                      {display.title}
+                    </h1>
+                }
+                {
+                  (display.headers || []).length === 0 ? null :
+                    <div className={S("media-text__headers")}>
+                      {display.headers.map((header, index) =>
+                        <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
+                      )}
+                    </div>
+                }
+                {
+                  !display.subtitle ? null :
+                    <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+                }
+              </div>
+          }
+          {
+            !display.description && !display.description_rich_text ? null :
+              <div className={S("media-text__description-container")}>
+                <ExpandableDescription
+                  description={display.description}
+                  descriptionRichText={display.description_rich_text}
+                  className={S("media-text__description")}
+                />
+              </div>
+          }
+        </div>
+    );
+
     content = (
       <div className={S("media-page", showSidebar ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
         <div className={S("media-container")}>
@@ -472,59 +528,13 @@ const MediaPropertyMediaPage = observer(() => {
             mediaItem={mediaItem}
             display={display}
             sidebarContent={sidebarContent}
+            textContent={textContent}
           />
+          {
+            showSidebar ? null :
+              textContent
+          }
         </div>
-        {
-          !(hasText || !hasDescription) ? null :
-            <div className={S("media-info")}>
-              {
-                !showText ? null :
-                  <div className={S("media-text")}>
-                    {
-                      !display.title ? null :
-                        <h1 className={[S("media-text__title"), "_title"].join(" ")}>
-                          {
-                            icons.length === 0 ? null :
-                              <div className={S("media-text__icons")}>
-                                {icons.map(({icon, alt_text}, index) =>
-                                  <img
-                                    key={`icon-${index}`}
-                                    src={icon.url}
-                                    alt={alt_text}
-                                    className={S("media-text__icon")}
-                                  />
-                                )}
-                              </div>
-                          }
-                          {display.title}
-                        </h1>
-                    }
-                    {
-                      (display.headers || []).length === 0 ? null :
-                        <div className={S("media-text__headers")}>
-                          {display.headers.map((header, index) =>
-                            <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
-                          )}
-                        </div>
-                    }
-                    {
-                      !display.subtitle ? null :
-                        <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
-                    }
-                  </div>
-              }
-              {
-                !display.description && !display.description_rich_text ? null :
-                  <div className={S("media-text__description-container")}>
-                    <ExpandableDescription
-                      description={display.description}
-                      descriptionRichText={display.description_rich_text}
-                      className={S("media-text__description")}
-                    />
-                  </div>
-              }
-            </div>
-        }
       </div>
     );
   }

@@ -49,6 +49,10 @@
       }
     }
   }
+
+  @media screen and (width <= 800px) {
+    display: none;
+  }
 }
 
 .hide-button {
