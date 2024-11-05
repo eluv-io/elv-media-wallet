@@ -111,7 +111,7 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
                 loaderHeight={200}
                 loaderWidth={400}
                 alt={display.logo_alt || display.title || "Logo"}
-                src={SetImageUrlDimensions({url: display.logo?.url, width: 1200})}
+                src={display.logo?.url}
                 className={S("page-header__logo")}
               />
           }
