@@ -299,7 +299,6 @@ const MediaCardBanner = observer(({
             src={imageUrl}
             alt={display.banner_alt_text || display.title}
             loaderAspectRatio={10}
-            width={mediaPropertyStore.rootStore.fullscreenImageWidth}
             className={S("media-card-banner__image")}
           />
         }
