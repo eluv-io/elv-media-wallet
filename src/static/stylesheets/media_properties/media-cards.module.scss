@@ -47,17 +47,48 @@
   word-break: break-word;
 
   &__image-container,
-  &__image {
+  &__image,
+  &__video {
     border-radius: 5px;
+    max-width: 100%;
     width: 100%;
+  }
+
+  &__image-container {
+    display: flex;
+    height: max-content;
+    overflow: hidden;
+    position: relative;
+
+    &--full-bleed {
+      &,
+      .media-card-banner__image,
+      .media-card-banner__video {
+        border-radius: 0;
+      }
+    }
+  }
+
+  &__text {
+    padding: 10px 0;
+    
+    &--full-bleed {
+      padding: 10px 100px 10px 30px;
+    }
   }
 
   &__title {
     font-size: 20px;
+    margin-top: 10px;
   }
 
   &__subtitle {
     font-size: 14px;
+    margin-top: 5px;
+  }
+
+  &__description {
+    margin-top: 10px;
   }
 }
 

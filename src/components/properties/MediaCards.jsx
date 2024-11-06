@@ -10,6 +10,8 @@ import {
 import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "Components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
 import {FormatPriceString, Linkish} from "Components/common/UIComponents";
+import Video from "Components/properties/Video";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
@@ -272,6 +274,7 @@ const ButtonCard = observer(({orientation="vertical", ...args}) => {
 });
 
 const MediaCardBanner = observer(({
+  sectionItem,
   display,
   imageContainerRef,
   imageUrl,
@@ -280,9 +283,14 @@ const MediaCardBanner = observer(({
   linkPath="",
   url,
   lazy=true,
+  fullBleed,
   onClick,
   className=""
 }) => {
+  const animation = rootStore.pageWidth < 800 ?
+    sectionItem.banner_animation_mobile :
+    sectionItem.banner_animation;
+
   return (
     <Linkish
       aria-label={display.title}
@@ -291,16 +299,38 @@ const MediaCardBanner = observer(({
       href={url}
       className={[S("media-card-banner"), className].join(" ")}
     >
-      <div ref={imageContainerRef} className={S("media-card-banner__image-container")}>
-        { !imageUrl ? null :
-          <LoaderImage
-            lazy={lazy}
-            showWithoutSource
-            src={imageUrl}
-            alt={display.banner_alt_text || display.title}
-            loaderAspectRatio={10}
-            className={S("media-card-banner__image")}
-          />
+      <div
+        ref={imageContainerRef}
+        className={S(
+          "media-card-banner__image-container",
+          fullBleed ? "media-card-banner__image-container--full-bleed" : ""
+        )}
+      >
+        {
+          animation ?
+            <Video
+              link={animation}
+              mute
+              hideControls
+              posterImage={imageUrl}
+              playerOptions={{
+                loop: EluvioPlayerParameters.loop.ON,
+                autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
+                backgroundColor: "transparent",
+                showLoader: EluvioPlayerParameters.showLoader.OFF,
+                capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
+              }}
+              className={S("media-card-banner__video")}
+            /> :
+            imageUrl ?
+              <LoaderImage
+                lazy={lazy}
+                showWithoutSource
+                src={imageUrl}
+                alt={display.banner_alt_text || display.title}
+                loaderAspectRatio={10}
+                className={S("media-card-banner__image")}
+              /> : null
         }
         {
           // Schedule indicator
@@ -318,7 +348,12 @@ const MediaCardBanner = observer(({
       {
         // Text
         textDisplay === "none" ? null :
-          <div className={S("media-card-banner__text")}>
+          <div
+            className={S(
+              "media-card-banner__text",
+              fullBleed ? "media-card-banner__text--full-bleed" : ""
+            )}
+          >
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
               <div className={S("media-card-banner__headers")}>
                 { display.headers?.map((header, index) =>
@@ -546,6 +581,7 @@ const MediaCard = observer(({
   buttonText,
   navContext,
   size,
+  fullBleed=false,
   lazy=true,
   onClick,
   className=""
@@ -665,6 +701,7 @@ const MediaCard = observer(({
     lazy,
     buttonText,
     authorized,
+    fullBleed,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?
@@ -683,7 +720,7 @@ const MediaCard = observer(({
     case "button_horizontal":
       return <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
     case "banner":
-      return <MediaCardBanner {...args} />;
+      return <MediaCardBanner sectionItem={sectionItem} {...args} />;
     default:
       return <MediaCardVertical {...args} />;
   }

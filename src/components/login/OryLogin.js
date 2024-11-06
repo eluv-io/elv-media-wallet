@@ -421,7 +421,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
       rootStore.Log(error, true);
 
-      const errors = error?.response.data?.ui?.messages
+      const errors = error?.response?.data?.ui?.messages
         ?.map(message => message.text)
         ?.filter(message => message)
         ?.join("\n");
@@ -431,7 +431,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         return;
       }
 
-      const fieldErrors = error.response.data?.ui?.nodes
+      const fieldErrors = error.response?.data?.ui?.nodes
         ?.map(node =>
           node.messages
             ?.filter(message => message.type === "error")
@@ -446,7 +446,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         return;
       }
 
-      if(error.response.status === 400) {
+      if(error?.response?.status === 400) {
         switch(flowType) {
           case "login":
             setErrorMessage(rootStore.l10n.login.ory.errors.invalid_credentials);

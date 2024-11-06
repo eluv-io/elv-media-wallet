@@ -383,6 +383,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
             textJustification={section.display.text_justification}
             buttonText={sectionItem?.card_button_text || section.display.card_default_button_text}
             navContext={navContext}
+            fullBleed={section.display.full_bleed}
           />
         )
       }
@@ -629,7 +630,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       className={[S(
         "section-container",
         `section-container--${section.display?.display_format || "grid"}`,
-        `section-container--${section.display.justification || "left"}`
+        `section-container--${section.display.justification || "left"}`,
+        section.display.full_bleed ? "section-container--full-bleed" : ""
       ), className].join(" ")}
     >
       {

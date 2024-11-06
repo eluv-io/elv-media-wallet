@@ -45,6 +45,10 @@
     }
   }
 
+  &--full-bleed {
+    padding-inline: 0;
+  }
+
   @media screen and (width <= 800px) {
     gap: 30px;
   }
