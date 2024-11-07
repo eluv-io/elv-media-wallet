@@ -437,12 +437,9 @@ const MediaPropertyMediaPage = observer(() => {
   }, []);
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
-  const scheduleInfo = MediaItemScheduleInfo(mediaItem);
-  const isUpcoming = scheduleInfo?.isLiveContent && !scheduleInfo?.started;
-  const hasText = !isUpcoming && !!(display.title || display.subtitle || display.headers.length > 0);
+  const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
   const showSidebar = sidebarContent?.content?.length > 0;
-  const showText = hasText && !isUpcoming;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
@@ -473,7 +470,7 @@ const MediaPropertyMediaPage = observer(() => {
       !(hasText || !hasDescription) ? null :
         <div className={S("media-info")}>
           {
-            !showText ? null :
+            !hasText ? null :
               <div className={S("media-text")}>
                 {
                   !display.title ? null :
