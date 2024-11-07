@@ -30,7 +30,7 @@ const PurchaseAction = observer(({parameters}) => {
       rootStore.LoadMarketplace(marketplaceId);
       rootStore.SetMarketplace({marketplaceId});
     } else {
-      rootStore.ClearMarketplace();
+      rootStore.ClearCustomizationOptions();
     }
 
     if(parameters.listingId) {

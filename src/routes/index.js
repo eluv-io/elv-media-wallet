@@ -235,8 +235,7 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
     }))),
   ].map(route => ({
     ...route,
-    noBlock: route.noBlock || !route.includePageBlock,
-    clearMarketplace: true
+    noBlock: route.noBlock || !route.includePageBlock
   }));
 };
 

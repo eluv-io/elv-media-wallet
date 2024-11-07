@@ -96,7 +96,7 @@ const MarketplaceWrapper = observer(({children}) => {
     if(match.params.marketplaceId) {
       rootStore.SetMarketplace({marketplaceId: match.params.marketplaceId});
     } else {
-      rootStore.ClearMarketplace();
+      rootStore.ClearCustomizationOptions();
     }
   }, [match.url, rootStore.marketplaces[match.params.marketplaceId], rootStore.navigationInfo.locationType]);
 

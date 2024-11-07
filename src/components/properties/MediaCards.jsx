@@ -287,9 +287,17 @@ const MediaCardBanner = observer(({
   onClick,
   className=""
 }) => {
+  const [animationState, setAnimationState] = useState("loading");
   const animation = rootStore.pageWidth < 800 ?
     sectionItem.banner_animation_mobile :
     sectionItem.banner_animation;
+
+  const hasText = textDisplay !== "none" &&
+    display?.title?.trim() ||
+    display?.subtitle?.trim() ||
+    display?.description?.trim() ||
+    display?.title?.trim() ||
+    display?.headers?.length > 0;
 
   return (
     <Linkish
@@ -307,21 +315,34 @@ const MediaCardBanner = observer(({
         )}
       >
         {
-          animation ?
-            <Video
-              link={animation}
-              mute
-              hideControls
-              posterImage={imageUrl}
-              playerOptions={{
-                loop: EluvioPlayerParameters.loop.ON,
-                autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
-                backgroundColor: "transparent",
-                showLoader: EluvioPlayerParameters.showLoader.OFF,
-                capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
-              }}
-              className={S("media-card-banner__video")}
-            /> :
+          animation && animationState !== "error" ?
+            <>
+              <Video
+                link={animation}
+                mute
+                hideControls
+                posterImage={imageUrl}
+                readyCallback={() => setAnimationState("ready")}
+                errorCallback={() => setAnimationState("error")}
+                playerOptions={{
+                  loop: EluvioPlayerParameters.loop.ON,
+                  autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
+                  backgroundColor: "transparent",
+                  showLoader: EluvioPlayerParameters.showLoader.OFF,
+                  capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
+
+                }}
+                className={S("media-card-banner__video", animationState === "loading" ? "media-card-banner__video--loading" : "media-card-banner__video")}
+              />
+              {
+                animationState !== "loading" ? null :
+                  <LoaderImage
+                    showWithoutSource
+                    lazy={false}
+                    className={S("media-card-banner__video-loader")}
+                  />
+              }
+            </> :
             imageUrl ?
               <LoaderImage
                 lazy={lazy}
@@ -347,7 +368,7 @@ const MediaCardBanner = observer(({
       </div>
       {
         // Text
-        textDisplay === "none" ? null :
+        !hasText ? null :
           <div
             className={S(
               "media-card-banner__text",

@@ -1,12 +1,11 @@
 import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
 
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {ButtonWithLoader, Linkish} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
-import PreferencesMenu from "Components/header/PreferencesMenu";
 import HoverMenu from "Components/common/HoverMenu";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
@@ -19,25 +18,14 @@ import MarketplaceIcon from "Assets/icons/marketplace.svg";
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
 const ProfileMenu = observer(({Hide}) => {
-  const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
-
-  const marketplaceId = rootStore.routeParams.marketplaceId;
-  const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
-  const tabs = fullMarketplace?.branding?.tabs || {};
   const userInfo = rootStore.walletClient.UserInfo();
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false ||
     fullMarketplace?.branding?.disable_secondary_market;
 
   const discoverDisabled = rootStore.isCustomDomain;
 
-  useEffect(() => {
-    window.__headerSubmenuActive = showPreferencesMenu;
-  }, [showPreferencesMenu]);
-
-  let basePath = "/wallet";
-  if(marketplaceId) {
-    basePath = UrlJoin("/marketplace", marketplaceId);
-  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+  let basePath = "/";
+  if(rootStore.routeParams.mediaPropertySlugOrId) {
     basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
   }
 
@@ -58,7 +46,7 @@ const ProfileMenu = observer(({Hide}) => {
           className={S("profile-menu__link")}
         >
           <ImageIcon icon={ItemsIcon} label="Items" />
-          {tabs.my_items || rootStore.l10n.navigation.items }
+          { rootStore.l10n.navigation.items }
         </Linkish>
         <Linkish
           to={UrlJoin(basePath, "users", "me", "details")}
@@ -110,13 +98,6 @@ const ProfileMenu = observer(({Hide}) => {
           { rootStore.l10n.login.sign_out }
         </ButtonWithLoader>
       </div>
-      {
-        showPreferencesMenu ?
-          <PreferencesMenu
-            marketplaceId={marketplaceId}
-            Hide={() => setShowPreferencesMenu(false)}
-          /> : null
-      }
     </HoverMenu>
   );
 });

@@ -42,6 +42,7 @@
 .media-card-banner {
   display: block;
   flex: 1 0 100%;
+  height: max-content;
   max-width: unset;
   width: 100%;
   word-break: break-word;
@@ -52,6 +53,21 @@
     border-radius: 5px;
     max-width: 100%;
     width: 100%;
+  }
+
+  &__video {
+    &--loading {
+      aspect-ratio: 6.6;
+      max-height: 200px;
+    }
+  }
+
+  &__video-loader {
+    height: 300px;
+    inset: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
   }
 
   &__image-container {
@@ -71,7 +87,7 @@
 
   &__text {
     padding: 10px 0;
-    
+
     &--full-bleed {
       padding: 10px 100px 10px 30px;
     }
