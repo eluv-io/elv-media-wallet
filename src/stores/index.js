@@ -69,9 +69,13 @@ class RootStore {
   alertNotification = this.GetSessionStorage("alert-notification");
 
   customDomainPropertyId;
+  customDomainPropertySlug;
+  customDomainPropertyTenantId;
+
   currentPropertyId;
   currentPropertySlug;
   currentPropertyTenantId;
+
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -530,6 +534,8 @@ class RootStore {
           yield this.SetCurrentProperty(propertySlugOrId);
 
           this.customDomainPropertyId = this.currentPropertyId;
+          this.customDomainPropertySlug = this.currentPropertySlug;
+          this.customDomainPropertyTenantId = this.currentPropertyTenantId;
         }
       } else if(searchParams.get("pid")) {
         yield this.SetCurrentProperty(searchParams.get("pid"));
