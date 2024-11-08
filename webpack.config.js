@@ -8,6 +8,7 @@ module.exports = (env) => {
   const isDevelopment = !!env.WEBPACK_SERVE;
 
   let plugins = [
+    /*
     new HtmlWebpackPlugin({
       title: "Eluvio Media Wallet",
       template: Path.join(__dirname, "src", "index.html"),
@@ -15,6 +16,8 @@ module.exports = (env) => {
       favicon: Path.join(__dirname, "src", "static", "icons", "favicon.png"),
       inject: "body"
     })
+    
+     */
   ];
 
   if(isDevelopment) {
