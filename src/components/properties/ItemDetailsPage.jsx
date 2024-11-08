@@ -3,7 +3,7 @@ import ItemDetailStyles from "Assets/stylesheets/media_properties/item-details.m
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {checkoutStore, rootStore, transferStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import {Button, Description, LoaderImage, PageContainer} from "Components/properties/Common";
 import {NFTImage} from "Components/common/Images";
@@ -940,7 +940,20 @@ const ItemDetailsPage = observer(() => {
 
   // Owned item has bundled media - navigate to property page
   if(match.params.contractId && nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
-    return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId, new URLSearchParams(window.location.search).get("page") === "details" ? "details" : "")} />;
+    return (
+      <Redirect
+        to={
+          UrlJoin(
+            "/m",
+            match.params.contractId,
+            match.params.tokenId,
+            "p",
+            mediaPropertyStore.MediaPropertyIdToSlug(nftInfo.bundledPropertyId) || nftInfo.bundledPropertyId,
+            new URLSearchParams(window.location.search).get("page") === "details" ? "details" : ""
+          )
+        }
+      />
+    );
   }
 
   return (

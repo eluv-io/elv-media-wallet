@@ -75,6 +75,25 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  MediaPropertyIdToSlug(mediaPropertyId) {
+    const propertyHash = this.mediaPropertyHashes[mediaPropertyId];
+
+    return Object.keys(this.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          !key.startsWith("iq") &&
+          this.mediaPropertyHashes[key] === propertyHash
+      );
+  }
+
+  MediaPropertySlugToId(mediaPropertySlug) {
+    const propertyHash = this.mediaPropertyHashes[mediaPropertySlug];
+
+    if(mediaPropertySlug) {
+      return this.client.utils.DecodeVersionHash(propertyHash)?.objectId;
+    }
+  }
+
   GetMediaPropertyAttributes({mediaPropertySlugOrId}) {
     const associatedCatalogIds = this.MediaProperty({mediaPropertySlugOrId})?.metadata.media_catalogs || [];
 
