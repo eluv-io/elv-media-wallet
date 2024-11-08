@@ -67,9 +67,11 @@ class RootStore {
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
-  domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
-  domainPropertySlug = this.GetSessionStorage("domain-property-slug") || "";
-  domainPropertyTenantId = this.GetSessionStorage("domain-property-tenant-id") || "";
+
+  customDomainPropertyId;
+  currentPropertyId;
+  currentPropertySlug;
+  currentPropertyTenantId;
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -376,6 +378,37 @@ class RootStore {
     this.headerText = text;
   }
 
+  SetCurrentProperty = flow(function * (mediaPropertySlugOrId) {
+    if(!mediaPropertySlugOrId) {
+      this.currentPropertyId = undefined;
+      this.currentPropertySlug = undefined;
+      this.currentPropertyTenantId = undefined;
+      return;
+    }
+
+    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+
+    const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId];
+
+    const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          !key.startsWith("iq") &&
+          this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+      );
+
+    const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          key.startsWith("iq") &&
+          this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+      );
+
+    this.currentPropertyId = propertyId;
+    this.currentPropertySlug = propertySlug;
+    this.currentPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+  });
+
   Initialize = flow(function * () {
     try {
       this.loaded = false;
@@ -476,7 +509,7 @@ class RootStore {
       });
 
       // Load domain map
-      if(this.isCustomDomain && !this.domainProperty) {
+      if(this.isCustomDomain) {
         let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
           libraryId: this.walletClient.mainSiteLibraryId,
           objectId: this.walletClient.mainSiteId,
@@ -488,39 +521,17 @@ class RootStore {
           ?.property_slug;
 
         if(propertySlugOrId) {
-          yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+          yield this.SetCurrentProperty(propertySlugOrId);
 
-          const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[propertySlugOrId];
-
-          const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
-            .find(key =>
-              key &&
-              !key.startsWith("iq") &&
-              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
-            );
-
-          const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
-            .find(key =>
-              key &&
-              key.startsWith("iq") &&
-              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
-            );
-
-          this.domainProperty = propertyId;
-          this.domainPropertySlug = propertySlug;
-          this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+          this.customDomainPropertyId = this.currentPropertyId;
         }
+      } else if(searchParams.get("pid")) {
+        yield this.SetCurrentProperty(searchParams.get("pid"));
       }
 
-      if(this.domainProperty) {
-        this.SetSessionStorage("domain-property", this.domainProperty);
-        this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
-        this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
-
-        this.SetDomainCustomization();
-
+      if(this.customDomainPropertyId) {
         if(this.isCustomDomain && window.location.pathname === "/") {
-          this.routeChange = UrlJoin("/", this.domainPropertySlug || this.domainProperty);
+          this.routeChange = UrlJoin("/", this.currentPropertySlug || this.currentPropertyId);
         }
       }
 
@@ -798,7 +809,7 @@ class RootStore {
         const tokens = yield this.walletClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
-          tenantId: this.domainPropertyTenantId,
+          tenantId: this.currentPropertyTenantId,
           shareEmail: user?.userData?.share_email,
           extraData: user?.userData || {},
           signerURIs,
@@ -891,39 +902,28 @@ class RootStore {
 
 
   SetDomainCustomization = flow(function * (mediaPropertyId) {
-    if(this.domainProperty === mediaPropertyId && this.domainSettings) {
+    if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
 
+    this.SetCurrentProperty(mediaPropertyId);
+
     yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
-    if(mediaPropertyId) {
-      this.domainProperty = mediaPropertyId;
-      this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: mediaPropertyId});
-      this.domainPropertySlug = this.mediaPropertyStore.mediaPropertySlugs[mediaPropertyId];
-      this.SetSessionStorage("domain-property", this.domainProperty);
-      this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
-      this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
-    }
-
-    const options = yield this.LoadPropertyCustomization(this.domainProperty);
+    const options = yield this.LoadPropertyCustomization(this.currentPropertyId);
 
     if(!options) { return; }
 
     this.domainSettings = options;
 
-    this.SetPropertyCustomization(this.domainProperty);
+    this.SetPropertyCustomization(this.currentPropertyId);
   });
 
   ClearDomainCustomization() {
-    this.domainProperty = undefined;
-    this.domainPropertySlug = undefined;
-    this.domainPropertyTenantId = undefined;
+    this.SetCurrentProperty();
+
     this.domainSettings = undefined;
     this.SetCustomCSS("");
-    this.RemoveSessionStorage("domain-property");
-    this.RemoveSessionStorage("domain-property-slug");
-    this.RemoveSessionStorage("domain-property-tenant-id");
   }
 
   SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
@@ -1020,7 +1020,7 @@ class RootStore {
       yield new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    const property = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+    const property = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
     if(property) {
       return yield this.LoadPropertyCustomization(property);
     }
@@ -1245,7 +1245,7 @@ class RootStore {
   }
 
   SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
-    if(!this.walletClient || this.domainProperty) { return; }
+    if(!this.walletClient || this.currentPropertyId) { return; }
 
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -2342,7 +2342,7 @@ class RootStore {
   SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
     email = email || rootStore.walletClient.UserInfo()?.email;
 
-    mediaPropertySlugOrId = mediaPropertySlugOrId || this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+    mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 
     if(!tenantId) {
       yield this.mediaPropertyStore.LoadMediaPropertyHashes();

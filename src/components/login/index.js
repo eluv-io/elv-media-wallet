@@ -222,7 +222,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
       }
 
       {
-        rootStore.domainProperty ? null :
+        rootStore.currentPropertyId ? null :
           <RichText
             className="login-page__terms login-page__eluvio-terms"
             richText={rootStore.l10n.login.terms}
@@ -784,6 +784,8 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization()
       .then(options => {
+        if(!options) { return; }
+
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
 
         if(options.mediaPropertyId) {
@@ -815,7 +817,7 @@ const Login = observer(({Close}) => {
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
-  }, [rootStore.routeParams.mediaPropertySlugOrId]);
+  }, [rootStore.currentPropertyId]);
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {

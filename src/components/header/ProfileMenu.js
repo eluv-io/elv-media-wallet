@@ -19,8 +19,7 @@ const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
 const ProfileMenu = observer(({Hide}) => {
   const userInfo = rootStore.walletClient.UserInfo();
-  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false ||
-    fullMarketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
 
   const discoverDisabled = rootStore.isCustomDomain;
 
