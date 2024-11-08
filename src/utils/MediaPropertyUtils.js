@@ -227,13 +227,16 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       navContext = undefined;
     }
   } else if(sectionItem?.type === "property_link") {
-    linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: sectionItem.property_id, pageSlugOrId: sectionItem.property_page_id});
+    linkPath = MediaPropertyBasePath({
+      mediaPropertySlugOrId: mediaPropertyStore.MediaPropertyIdToSlug(sectionItem.property_id) || sectionItem.property_id,
+      pageSlugOrId: sectionItem.property_page_id
+    });
   } else if(sectionItem?.type === "subproperty_link") {
     linkPath = MediaPropertyBasePath({
       ...match.params,
       parentMediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId || match.params.mediaPropertySlugOrId,
       parentPageId: typeof match.params.parentPageSlugOrId !== "undefined" ? match.params.parentPageSlugOrId : match.params.pageSlugOrId,
-      mediaPropertySlugOrId: sectionItem.subproperty_id,
+      mediaPropertySlugOrId: mediaPropertyStore.MediaPropertyIdToSlug(sectionItem.subproperty_id) || sectionItem.subproperty_id,
       pageSlugOrId: sectionItem.subproperty_page_id && sectionItem.subproperty_page_id !== "main" ? sectionItem.subproperty_page_id : ""
     });
   } else if(sectionItem?.type === "marketplace_link") {
