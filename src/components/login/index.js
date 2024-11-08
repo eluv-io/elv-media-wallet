@@ -222,7 +222,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
       }
 
       {
-        rootStore.domainProperty ? null :
+        rootStore.currentPropertyId ? null :
           <RichText
             className="login-page__terms login-page__eluvio-terms"
             richText={rootStore.l10n.login.terms}
@@ -491,7 +491,7 @@ const CustomConsentModal = ({customConsent}) => {
 export const SaveCustomConsent = async (userData) => {
   if(!rootStore.loggedIn || !rootStore.specifiedMarketplaceHash) { return; }
 
-  const customizationMetadata = await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash);
+  const customizationMetadata = await rootStore.LoadLoginCustomization();
 
   if(!customizationMetadata?.custom_consent?.enabled) { return; }
 
@@ -782,10 +782,10 @@ const Login = observer(({Close}) => {
       return;
     }
 
-    const marketplaceHash = rootStore.specifiedMarketplaceHash || params.marketplace || searchParams.get("mid");
-
-    rootStore.LoadLoginCustomization(marketplaceHash)
+    rootStore.LoadLoginCustomization()
       .then(options => {
+        if(!options) { return; }
+
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
 
         if(options.mediaPropertyId) {
@@ -817,21 +817,7 @@ const Login = observer(({Close}) => {
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
-  }, [rootStore.specifiedMarketplaceHash]);
-
-  useEffect(() => {
-    if(!rootStore.loaded) { return; }
-
-    // Ensure correct marketplace styling is used when login is visible
-    const originalMarketplaceId = rootStore.marketplaceId;
-    rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, disableTenantStyling: true});
-
-    return () => {
-      originalMarketplaceId ?
-        rootStore.SetMarketplace({marketplaceId: originalMarketplaceId}) :
-        rootStore.ClearMarketplace();
-    };
-  }, [rootStore.loaded]);
+  }, [rootStore.currentPropertyId, rootStore.loaded]);
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {

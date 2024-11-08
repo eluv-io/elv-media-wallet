@@ -60,7 +60,7 @@ const FilteredView = ({
     Method({
       ...filters,
       tenantId: rootStore.isCustomDomain ?
-        rootStore.domainPropertyTenantId : filters.tenantId,
+        rootStore.currentPropertyTenantId : filters.tenantId,
       start,
       limit: perPage
     })

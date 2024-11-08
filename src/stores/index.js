@@ -67,9 +67,11 @@ class RootStore {
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
-  domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
-  domainPropertySlug = this.GetSessionStorage("domain-property-slug") || "";
-  domainPropertyTenantId = this.GetSessionStorage("domain-property-tenant-id") || "";
+
+  customDomainPropertyId;
+  currentPropertyId;
+  currentPropertySlug;
+  currentPropertyTenantId;
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -376,6 +378,43 @@ class RootStore {
     this.headerText = text;
   }
 
+  SetCurrentProperty = flow(function * (mediaPropertySlugOrId) {
+    if(!mediaPropertySlugOrId) {
+      this.currentPropertyId = undefined;
+      this.currentPropertySlug = undefined;
+      this.currentPropertyTenantId = undefined;
+      return;
+    } else if(
+      this.currentPropertyId === mediaPropertySlugOrId ||
+      this.currentPropertySlug === mediaPropertySlugOrId
+    ) {
+      // Already set
+      return;
+    }
+
+    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+
+    const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId];
+
+    const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          !key.startsWith("iq") &&
+          this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+      );
+
+    const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          key.startsWith("iq") &&
+          this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+      );
+
+    this.currentPropertyId = propertyId;
+    this.currentPropertySlug = propertySlug;
+    this.currentPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+  });
+
   Initialize = flow(function * () {
     try {
       this.loaded = false;
@@ -477,7 +516,7 @@ class RootStore {
       });
 
       // Load domain map
-      if(this.isCustomDomain && !this.domainProperty) {
+      if(this.isCustomDomain) {
         let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
           libraryId: this.walletClient.mainSiteLibraryId,
           objectId: this.walletClient.mainSiteId,
@@ -489,39 +528,17 @@ class RootStore {
           ?.property_slug;
 
         if(propertySlugOrId) {
-          yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+          yield this.SetCurrentProperty(propertySlugOrId);
 
-          const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[propertySlugOrId];
-
-          const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
-            .find(key =>
-              key &&
-              !key.startsWith("iq") &&
-              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
-            );
-
-          const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
-            .find(key =>
-              key &&
-              key.startsWith("iq") &&
-              this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
-            );
-
-          this.domainProperty = propertyId;
-          this.domainPropertySlug = propertySlug;
-          this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+          this.customDomainPropertyId = this.currentPropertyId;
         }
+      } else if(searchParams.get("pid")) {
+        yield this.SetCurrentProperty(searchParams.get("pid"));
       }
 
-      if(this.domainProperty) {
-        this.SetSessionStorage("domain-property", this.domainProperty);
-        this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
-        this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
-
-        this.SetDomainCustomization();
-
+      if(this.customDomainPropertyId) {
         if(this.isCustomDomain && window.location.pathname === "/") {
-          this.routeChange = UrlJoin("/", this.domainPropertySlug || this.domainProperty);
+          this.routeChange = UrlJoin("/", this.currentPropertySlug || this.currentPropertyId);
         }
       }
 
@@ -799,7 +816,7 @@ class RootStore {
         const tokens = yield this.walletClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
-          tenantId: this.domainPropertyTenantId,
+          tenantId: this.currentPropertyTenantId,
           shareEmail: user?.userData?.share_email,
           extraData: user?.userData || {},
           signerURIs,
@@ -892,39 +909,28 @@ class RootStore {
 
 
   SetDomainCustomization = flow(function * (mediaPropertyId) {
-    if(this.domainProperty === mediaPropertyId && this.domainSettings) {
+    if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
 
+    this.SetCurrentProperty(mediaPropertyId);
+
     yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
-    if(mediaPropertyId) {
-      this.domainProperty = mediaPropertyId;
-      this.domainPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: mediaPropertyId});
-      this.domainPropertySlug = this.mediaPropertyStore.mediaPropertySlugs[mediaPropertyId];
-      this.SetSessionStorage("domain-property", this.domainProperty);
-      this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
-      this.SetSessionStorage("domain-property-tenant-id", this.domainPropertyTenantId);
-    }
-
-    const options = yield this.LoadPropertyCustomization(this.domainProperty);
+    const options = yield this.LoadPropertyCustomization(this.currentPropertyId);
 
     if(!options) { return; }
 
     this.domainSettings = options;
 
-    this.SetPropertyCustomization(this.domainProperty);
+    this.SetPropertyCustomization(this.currentPropertyId);
   });
 
   ClearDomainCustomization() {
-    this.domainProperty = undefined;
-    this.domainPropertySlug = undefined;
-    this.domainPropertyTenantId = undefined;
+    this.SetCurrentProperty();
+
     this.domainSettings = undefined;
     this.SetCustomCSS("");
-    this.RemoveSessionStorage("domain-property");
-    this.RemoveSessionStorage("domain-property-slug");
-    this.RemoveSessionStorage("domain-property-tenant-id");
   }
 
   SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
@@ -1015,95 +1021,16 @@ class RootStore {
     };
   });
 
-  LoadLoginCustomization = flow(function * (marketplaceHash) {
+  LoadLoginCustomization = flow(function * () {
     // Client may not be initialized yet but may not be needed
-    const Client = async () => {
-      while(!this.client) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+    while(!this.client) {
+      yield new Promise(resolve => setTimeout(resolve, 100));
+    }
 
-      return this.client;
-    };
-
-    const property = this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+    const property = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
     if(property) {
       return yield this.LoadPropertyCustomization(property);
     }
-
-    let marketplaceId;
-    if(marketplaceHash) {
-      marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
-    } else if(this.specifiedMarketplaceId) {
-      marketplaceId = this.specifiedMarketplaceId;
-      marketplaceHash = this.specifiedMarketplaceHash;
-    }
-
-    marketplaceId = marketplaceId || this.specifiedMarketplaceId;
-
-    if(!marketplaceId) {
-      return {};
-    }
-
-    if(!this.loginCustomization[marketplaceId]) {
-      const localStorageKey = `customization-${marketplaceId}`;
-      const fromLocalStorage = this.GetLocalStorageJSON(localStorageKey, true);
-
-      if(fromLocalStorage && fromLocalStorage.marketplaceHash === marketplaceHash) {
-        this.loginCustomization[localStorageKey] = fromLocalStorage;
-
-        return this.loginCustomization[localStorageKey];
-      }
-
-      let metadata = (
-        yield (yield Client()).ContentObjectMetadata({
-          versionHash: yield this.walletClient.LatestMarketplaceHash({
-            marketplaceParams: {
-              marketplaceId,
-              marketplaceHash
-            }
-          }),
-          metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
-          localizationSubtree: this.language ? UrlJoin("public", "asset_metadata", "localizations", this.language, "info") : "",
-          select: [
-            "branding",
-            "login_customization",
-            "tenant_id",
-            "terms",
-            "terms_document"
-          ],
-          produceLinkUrls: true
-        })
-      ) || {};
-
-      metadata = {
-        ...(metadata.login_customization || {}),
-        branding: metadata?.branding || {},
-        darkMode: metadata?.branding?.color_scheme === "Dark",
-        marketplaceId,
-        marketplaceHash,
-        tenant_id: metadata.tenant_id,
-        terms: metadata.terms,
-        terms_document: metadata.terms_document
-      };
-
-      if(metadata?.branding?.color_scheme === "Custom") {
-        metadata.sign_up_button = undefined;
-        metadata.log_in_button = undefined;
-      }
-
-      if(metadata.tenant_id) {
-        metadata.tenantConfig = yield this.walletClient.TenantConfiguration({tenantId: metadata.tenant_id});
-      }
-
-      this.loginCustomization[marketplaceId] = metadata;
-
-      this.SetLocalStorage(
-        localStorageKey,
-        Utils.B64(JSON.stringify(metadata))
-      );
-    }
-
-    return this.loginCustomization[marketplaceId];
   });
 
   SendEvent({event, data}) {
@@ -1313,94 +1240,19 @@ class RootStore {
     this.SetSessionStorage("custom-css", Utils.B64(css));
   }
 
-  SetCustomizationOptions(marketplace, disableTenantStyling=false) {
+  SetCustomizationOptions() {
     if(this.routeParams.mediaPropertySlugOrId) {
       this.SetPropertyCustomization(this.routeParams.mediaPropertySlugOrId);
     }
-
-    const useTenantStyling =
-      !disableTenantStyling &&
-      marketplace?.branding?.use_tenant_styling &&
-      this.navigationInfo.locationType !== "marketplace" &&
-      !window.location.pathname.startsWith("/login");
-    const customizationKey = marketplace === "default" ? "global" : `${marketplace.marketplaceId}-${useTenantStyling ? "tenant" : "marketplace"}`;
-
-    if(marketplace !== "default" && customizationKey === this.currentCustomization) {
-      return;
-    }
-
-    this.currentCustomization = customizationKey;
-
-    const desktopBackground = marketplace?.branding?.background?.url || "";
-    const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
-
-    const marketplaceBackground = marketplace?.storefront?.background?.url || "";
-    const marketplaceBackgroundMobile = marketplace?.storefront?.background_mobile?.url || "";
-
-    const tenantBackground = marketplace?.tenantBranding?.background?.url || "";
-    const tenantBackgroundMobile = marketplace?.tenantBranding?.background_mobile?.url || "";
-
-    this.appBackground = {
-      desktop: desktopBackground,
-      mobile: mobileBackground,
-      marketplaceDesktop: marketplaceBackground,
-      marketplaceMobile: marketplaceBackgroundMobile,
-      tenantDesktop: tenantBackground,
-      tenantMobile: tenantBackgroundMobile,
-      useTenantStyling: marketplace?.branding?.use_tenant_styling || false
-    };
-
-    this.SetSessionStorage("app-background", Utils.B64(JSON.stringify(this.appBackground)));
-
-    let options = { color_scheme: "Dark" };
-    if(marketplace && marketplace !== "default") {
-      options = {
-        ...options,
-        ...(marketplace.branding || {})
-      };
-    }
-
-    if(marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation) {
-      this.hideGlobalNavigation = true;
-    }
-
-    if(this.hideGlobalNavigationInMarketplace) {
-      this.SetSessionStorage("hide-global-navigation-in-marketplace", "true");
-    }
-
-    this.centerContent = marketplace?.branding?.text_justification === "Center";
-    this.centerItems = marketplace?.branding?.item_text_justification === "Center";
-
-    if(options.color_scheme === "Custom") {
-      if(useTenantStyling) {
-        this.walletClient.TenantCSS({tenantSlug: marketplace.tenant_slug || marketplace.tenantSlug})
-          .then(css => this.SetCustomCSS(css));
-      } else {
-        this.walletClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
-          .then(css => this.SetCustomCSS(css));
-      }
-    } else {
-      this.SetCustomCSS("");
-    }
   }
 
-  ClearMarketplace(clearSpecified=false) {
-    this.tenantSlug = undefined;
-    this.marketplaceSlug = undefined;
-    this.marketplaceId = undefined;
-
-    if(clearSpecified) {
-      this.specifiedMarketplaceId = undefined;
-      this.specifiedMarketplaceHash = undefined;
-      this.RemoveSessionStorage("marketplace");
-    }
-
-    // Give locationType time to settle if path changed
-    setTimeout(() => this.SetCustomizationOptions("default"), 100);
+  ClearCustomizationOptions() {
+    // Give route params time to settle if path changed
+    setTimeout(() => this.SetCustomizationOptions(), 100);
   }
 
   SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
-    if(!this.walletClient || this.domainProperty) { return; }
+    if(!this.walletClient || this.currentPropertyId) { return; }
 
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -2497,7 +2349,7 @@ class RootStore {
   SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
     email = email || rootStore.walletClient.UserInfo()?.email;
 
-    mediaPropertySlugOrId = mediaPropertySlugOrId || this.domainProperty || this.routeParams.mediaPropertySlugOrId;
+    mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 
     if(!tenantId) {
       yield this.mediaPropertyStore.LoadMediaPropertyHashes();

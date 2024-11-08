@@ -235,8 +235,7 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
     }))),
   ].map(route => ({
     ...route,
-    noBlock: route.noBlock || !route.includePageBlock,
-    clearMarketplace: true
+    noBlock: route.noBlock || !route.includePageBlock
   }));
 };
 
@@ -425,6 +424,10 @@ const GlobalWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
 
   const currentRoute = routes.find(route => match.path === route.path);
+
+  useEffect(() => {
+    rootStore.SetCurrentProperty(match.params.mediaPropertySlugOrId);
+  }, [match.params.mediaPropertySlugOrId]);
 
   if(currentRoute?.redirect) {
     return <Redirect to={UrlJoin(match.url, currentRoute.redirect)} />;

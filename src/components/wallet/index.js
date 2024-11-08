@@ -14,7 +14,7 @@ import Header from "Components/header/Header";
 
 const WalletWrapper = ({children}) => {
   useEffect(() => {
-    rootStore.ClearMarketplace();
+    rootStore.ClearCustomizationOptions();
   }, []);
 
   return children;
@@ -24,7 +24,7 @@ const GlobalWrapper = ({children}) => {
   const match = useRouteMatch();
 
   useEffect(() => {
-    rootStore.ClearMarketplace();
+    rootStore.ClearCustomizationOptions();
     rootStore.SetRouteParams(match.params);
   }, [match.params]);
 

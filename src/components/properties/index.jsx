@@ -40,7 +40,7 @@ const PropertyWrapper = observer(({children}) => {
   }, []);
 
   useEffect(() => {
-    // Property not loaded or acutally on custom domain
+    // Property not loaded or actually on custom domain
     if(!mediaProperty || rootStore.isCustomDomain) {
       return;
     }
