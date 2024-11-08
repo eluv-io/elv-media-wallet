@@ -425,6 +425,10 @@ const GlobalWrapper = observer(({routes, children}) => {
 
   const currentRoute = routes.find(route => match.path === route.path);
 
+  useEffect(() => {
+    rootStore.SetCurrentProperty(match.params.mediaPropertySlugOrId);
+  }, [match.params.mediaPropertySlugOrId]);
+
   if(currentRoute?.redirect) {
     return <Redirect to={UrlJoin(match.url, currentRoute.redirect)} />;
   }

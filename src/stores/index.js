@@ -384,6 +384,12 @@ class RootStore {
       this.currentPropertySlug = undefined;
       this.currentPropertyTenantId = undefined;
       return;
+    } else if(
+      this.currentPropertyId === mediaPropertySlugOrId ||
+      this.currentPropertySlug === mediaPropertySlugOrId
+    ) {
+      // Already set
+      return;
     }
 
     yield this.mediaPropertyStore.LoadMediaPropertyHashes();

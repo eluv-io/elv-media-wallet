@@ -817,7 +817,7 @@ const Login = observer(({Close}) => {
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
-  }, [rootStore.currentPropertyId]);
+  }, [rootStore.currentPropertyId, rootStore.loaded]);
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {
