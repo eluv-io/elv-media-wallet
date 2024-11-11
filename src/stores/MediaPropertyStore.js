@@ -362,6 +362,7 @@ class MediaPropertyStore {
     }
 
     let permissions = {
+      ...(page?.permissions) || {},
       authorized: true,
       behavior: page?.permissions?.behavior,
       alternatePageId: (
