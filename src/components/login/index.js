@@ -168,7 +168,7 @@ const Background = observer(({customizationOptions, Close}) => {
   if(backgroundUrl) {
     return (
       <div
-        className="login-page__background"
+        className="login-page__background login-page__background--custom"
         style={{backgroundImage: `url("${SetImageUrlDimensions({url: backgroundUrl, width: rootStore.fullscreenImageWidth})}")`}}
         onClick={Close}
       />

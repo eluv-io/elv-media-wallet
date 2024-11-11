@@ -407,12 +407,7 @@ class RootStore {
           this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
       );
 
-    const propertyId = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
-      .find(key =>
-          key &&
-          key.startsWith("iq") &&
-          this.mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
-      );
+    const propertyId = this.client.utils.DecodeVersionHash(propertyHash).objectId;
 
     this.currentPropertyId = propertyId;
     this.currentPropertySlug = propertySlug;

@@ -311,10 +311,12 @@ const Payment = observer(({item, Back}) => {
   }
 
   const canPurchase =
-    (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
-    (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
-    (paymentMethod.type === "balance" && !insufficientBalance) ||
-    paymentMethod.type === "pix";
+    item.purchasable && (
+      (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
+      (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
+      (paymentMethod.type === "balance" && !insufficientBalance) ||
+      paymentMethod.type === "pix"
+    );
 
 
   switch(page) {

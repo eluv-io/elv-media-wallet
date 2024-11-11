@@ -2,6 +2,10 @@
   &--disabled {
     opacity: 0.5!important;
     user-select: none;
+
+    button {
+      cursor: auto;
+    }
   }
 
   &__unauthorized-indicator {
@@ -474,6 +478,7 @@
 
   &--modal {
     box-shadow: 0 0 30px rgb(0 0 0 / 50%);
+    opacity: 1;
   }
 
   &__image-container {

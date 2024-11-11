@@ -601,18 +601,6 @@ class MediaPropertyStore {
           mediaItemSlugOrId: sectionItem.mediaItem?.id
         })
       }))
-      .filter(sectionItem => (
-        // Filter purchase section items that have no purchasable items
-        sectionItem.type !== "item_purchase" ||
-        PurchaseParamsToItems(
-          {
-            type: "purchase",
-            sectionSlugOrId,
-            sectionItemId: sectionItem.id
-          },
-          sectionItem?.resolvedPermissions?.secondaryPurchaseOption
-        ).length > 0
-      ))
       .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
@@ -735,6 +723,7 @@ class MediaPropertyStore {
     let behavior = this.PERMISSION_BEHAVIORS.HIDE;
     let cause;
     let permissionItemIds;
+    let sectionItem;
 
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
     behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
@@ -787,7 +776,7 @@ class MediaPropertyStore {
           ) || secondaryPurchaseOption;
 
         if(sectionItemId) {
-          const sectionItem = section?.content
+          sectionItem = section?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
           if(sectionItem) {
@@ -865,6 +854,27 @@ class MediaPropertyStore {
 
     permissionItemIds = permissionItemIds || [];
 
+    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.purchasable
+    );
+
+    if(sectionItem?.type === "item_purchase") {
+      if(
+         PurchaseParamsToItems(
+          {
+            type: "purchase",
+            sectionSlugOrId,
+            sectionItemId
+          },
+          sectionItem?.resolvedPermissions?.secondaryPurchaseOption
+        )
+           ?.filter(item => item.purchasable).length === 0
+      ) {
+        authorized = false;
+        cause = "No purchasable items";
+      }
+    }
+
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
     let showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
 
@@ -879,20 +889,6 @@ class MediaPropertyStore {
         this.Log(arguments, true);
         behavior = this.PERMISSION_BEHAVIORS.HIDE;
       }
-    }
-
-    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
-      this.permissionItems[permissionItemId]?.purchasable
-    );
-
-    // If not authorized and the user can't purchase access, hide or disable
-    if(!authorized && (!purchasable || permissionItemIds.length === 0)) {
-      authorized = false;
-      behavior = behavior === this.PERMISSION_BEHAVIORS.DISABLE ?
-        behavior :
-        this.PERMISSION_BEHAVIORS.HIDE;
-      cause = `${cause} and not purchasable`;
-      showAlternatePage = false;
     }
 
     return {
