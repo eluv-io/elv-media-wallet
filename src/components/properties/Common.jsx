@@ -134,6 +134,7 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
                 togglePosition={display.position?.toLowerCase() || "left"}
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
+                maxLines={rootStore.pageWidth < 800 ? 12 : 8}
                 className={S("page-header__description")}
               />
           }
