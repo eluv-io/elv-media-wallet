@@ -7,28 +7,20 @@ export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
 
   let parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
   if(parentPage) {
-    try {
-      parentPage = mediaPropertyStore.MediaPropertyPage({
-        mediaPropertySlugOrId: params.parentMediaPropertySlugOrId,
-        pageSlugOrId: parentPage,
-        permissionRedirect: false
-      })?.slug || parentPage;
-    } catch(error) {
-      console.log("Parent error", params, error);
-    }
+    parentPage = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.parentMediaPropertySlugOrId,
+      pageSlugOrId: parentPage,
+      permissionRedirect: false
+    })?.slug || parentPage;
   }
 
   let page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
   if(page) {
-    try {
-      page = mediaPropertyStore.MediaPropertyPage({
-        mediaPropertySlugOrId: params.mediaPropertySlugOrId,
-        pageSlugOrId: page,
-        permissionRedirect: false
-      })?.slug || page;
-    } catch(error) {
-      console.log("Page error", params, error);
-    }
+    page = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.mediaPropertySlugOrId,
+      pageSlugOrId: page,
+      permissionRedirect: false
+    })?.slug || page;
   }
   let path = params.parentMediaPropertySlugOrId ?
     UrlJoin("/", params.parentMediaPropertySlugOrId, parentPage, "p", params.mediaPropertySlugOrId, (includePage && page) || "") :
