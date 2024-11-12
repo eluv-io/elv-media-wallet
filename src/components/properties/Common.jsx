@@ -154,7 +154,19 @@ export const RichText = ({richText, ...props}) => {
   );
 };
 
-export const LoaderImage = observer(({src, alternateSrc, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, showWithoutSource=false, delay=25, ...props}) => {
+export const LoaderImage = observer(({
+  src,
+  alternateSrc,
+  width,
+  loaderHeight,
+  loaderWidth,
+  loaderAspectRatio,
+  lazy=true,
+  showWithoutSource=false,
+  delay=25,
+  loaderDelay=250,
+  ...props
+}) => {
   const [loaded, setLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [useAlternateSrc, setUseAlternateSrc] = useState(false);
@@ -163,7 +175,7 @@ export const LoaderImage = observer(({src, alternateSrc, width, loaderHeight, lo
     setLoaded(false);
     setShowLoader(false);
 
-    setTimeout(() => setShowLoader(true), 250);
+    setTimeout(() => setShowLoader(true), loaderDelay);
   }, []);
 
   if(!src && !showWithoutSource) {

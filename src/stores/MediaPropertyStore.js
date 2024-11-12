@@ -859,6 +859,11 @@ class MediaPropertyStore {
       this.permissionItems[permissionItemId]?.purchasable
     );
 
+    const purchaseAuthorized = permissionItemIds.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.purchaseAuthorized
+    );
+
+    const purchaseUnauthorizedBehavior = mediaProperty.metadata.permissions?.permission_items_unauthorized_permissions_behavior || behavior;
     if(sectionItem?.type === "item_purchase") {
       if(
          PurchaseParamsToItems(
@@ -874,6 +879,13 @@ class MediaPropertyStore {
         authorized = false;
         cause = "No purchasable items";
       }
+    } else if(!authorized && !purchaseAuthorized) {
+      cause = `${cause} and not purchasable`;
+      behavior = purchaseUnauthorizedBehavior;
+      alternatePageId = (
+        purchaseUnauthorizedBehavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+        mediaProperty.metadata.permissions?.permission_items_unauthorized_alternate_page_id
+      ) || alternatePageId;
     }
 
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
@@ -1492,9 +1504,12 @@ class MediaPropertyStore {
 
               permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
 
-              permissionItems[permissionItemId].purchasable = NFTInfo({
+              const itemInfo = NFTInfo({
                 item: marketplaceItem
-              })?.marketplacePurchaseAvailable;
+              });
+
+              permissionItems[permissionItemId].purchasable = itemInfo?.marketplacePurchaseAvailable;
+              permissionItems[permissionItemId].purchaseAuthorized = itemInfo?.marketplacePurchaseAuthorized;
             })
           );
 

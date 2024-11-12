@@ -61,7 +61,7 @@
 
   &__video {
     &--loading {
-      aspect-ratio: 6.6;
+      aspect-ratio: 5;
       max-height: 200px;
     }
   }
@@ -72,6 +72,12 @@
     position: absolute;
     width: 100%;
     z-index: 100;
+  }
+
+  &__video-cover {
+    inset: 0;
+    position: absolute;
+    z-index: 10;
   }
 
   &__image-container {
