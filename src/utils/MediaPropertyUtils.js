@@ -5,8 +5,23 @@ import {mediaPropertyStore, rootStore} from "Stores";
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
 
-  const parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
-  const page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
+  let parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
+  if(parentPage) {
+    parentPage = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.parentMediaPropertySlugOrId,
+      pageSlugOrId: parentPage,
+      permissionRedirect: false
+    })?.slug || parentPage;
+  }
+
+  let page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
+  if(page) {
+    page = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.mediaPropertySlugOrId,
+      pageSlugOrId: page,
+      permissionRedirect: false
+    })?.slug || page;
+  }
 
   let path = params.parentMediaPropertySlugOrId ?
     UrlJoin("/", params.parentMediaPropertySlugOrId, parentPage, "p", params.mediaPropertySlugOrId, (includePage && page) || "") :

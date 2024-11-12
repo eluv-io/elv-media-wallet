@@ -341,7 +341,7 @@ class MediaPropertyStore {
     return this.mediaProperties[propertyId];
   }
 
-  MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main"}) {
+  MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main", permissionRedirect=true}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
     if(!mediaProperty) { return; }
@@ -371,7 +371,7 @@ class MediaPropertyStore {
       )
     };
 
-    if(page.permissions?.page_permissions?.length > 0) {
+    if(permissionRedirect && page.permissions?.page_permissions?.length > 0) {
       const authorized = page.permissions.page_permissions.find(permissionItemId =>
         this.PermissionItem({permissionItemId})?.authorized
       );
