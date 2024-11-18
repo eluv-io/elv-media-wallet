@@ -9,7 +9,18 @@ import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
+
+export const EmbedMediaTypes = {
+  "v": "Video",
+  "lv": "Live Video",
+  "a": "Audio",
+  "mc": "Media Collection",
+  "g": "Gallery",
+  "i": "Image",
+  "h": "HTML",
+  "b": "EBook",
+  "l": "Link"
+};
 
 export const Slugify = str =>
   (str || "")
@@ -639,7 +650,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   imageUrl = selectedMedia.image;
   mediaType = (selectedMedia.media_type || "Image").toLowerCase();
 
-  const embedMediaTypeParameter = Object.keys(mediaTypes).find(key => mediaTypes[key].toLowerCase() === mediaType.toLowerCase());
+  const embedMediaTypeParameter = Object.keys(EmbedMediaTypes).find(key => EmbedMediaTypes[key].toLowerCase() === mediaType.toLowerCase());
   if(embedMediaTypeParameter) {
     embedUrl.searchParams.set("mt", embedMediaTypeParameter);
   }

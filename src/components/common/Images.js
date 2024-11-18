@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import SVG from "react-inlinesvg";
 import ImageIcon from "Components/common/ImageIcon";
-import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import Modal from "Components/common/Modal";
@@ -17,28 +16,8 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {LoaderImage} from "Components/properties/Common";
 
 export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
-  const [player, setPlayer] = useState(undefined);
-  const [targetElement, setTargetElement] = useState(undefined);
   const [fullscreen, setFullscreen] = useState(false);
   const media = NFTMedia({nft, item, width});
-
-  useEffect(() => () => player && player.Destroy(), []);
-
-  useEffect(() => {
-    if(!showVideo || !targetElement || !media.embedUrl) { return; }
-
-    Initialize({
-      client: rootStore.client,
-      target: targetElement,
-      url: media.embedUrl,
-      playerOptions: {
-        capLevelToPlayerSize: true,
-        playerCallback
-      }
-    }).then(player => setPlayer(player));
-
-    return () => player?.Destroy();
-  }, [targetElement]);
 
   const isFrameContent = ["html", "ebook", "gallery"].includes(media.mediaType);
   const isOwned = Utils.EqualAddress(nft?.details?.TokenOwner, rootStore.CurrentAddress());
@@ -58,13 +37,31 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
     />;
 
   if(media.mediaType !== "image" && media?.embedUrl && showVideo && (!isFrameContent || isOwned)) {
-    const content = isFrameContent ? image : <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame"/>;
+    const embedUrl = new URL(media.embedUrl);
+    embedUrl.searchParams.set("bg", "black");
 
     return (
       <>
         <div className="item-card__image-container" key={`media-${media.embedUrl}`}>
           <div className={`item-card__image item-card__image-video-embed ${className}`}>
-            { content }
+            <iframe
+              src={embedUrl}
+              allow="encrypted-media *"
+              allowFullScreen
+              sandbox={[
+                "allow-downloads",
+                "allow-scripts",
+                "allow-forms",
+                "allow-modals",
+                "allow-pointer-lock",
+                "allow-orientation-lock",
+                "allow-popups",
+                "allow-presentation",
+                "allow-same-origin",
+                "allow-downloads-without-user-activation"
+              ].join(" ")}
+              className="item-card__image-video-embed__frame"
+            />
           </div>
           <div className="item-card__image-container__actions">
             {
