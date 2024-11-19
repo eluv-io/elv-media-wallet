@@ -311,7 +311,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   const canPurchase =
-    item.purchasable && (
+    (item.purchasable || item.listingId) && (
       (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
       (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
       (paymentMethod.type === "balance" && !insufficientBalance) ||

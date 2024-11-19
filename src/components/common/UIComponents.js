@@ -299,7 +299,7 @@ export const FormatPriceString = (
   price = price.multiply(options.quantity || 1);
 
   if(options.additionalFee) {
-    price.add(options.additionalFee);
+    price.add(ParseMoney(options.additionalFee, currency));
   }
 
   if(options.numberOnly) {
