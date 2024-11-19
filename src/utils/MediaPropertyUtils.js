@@ -159,8 +159,11 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
         return {
           ...item,
           marketplaceItem,
-          purchasable: secondaryEnabled ||
+          purchasable: (
+            !!item.secondary_market_purchase_option ||
+            secondaryEnabled ||
             marketplaceItem && NFTInfo({item: marketplaceItem})?.marketplacePurchaseAvailable
+          )
         };
       })
   );

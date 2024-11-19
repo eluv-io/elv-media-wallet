@@ -102,7 +102,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                 return (
                   <>
                     {
-                      !item.secondaryDisabled && secondaryPurchaseOption === "only" ? null :
+                      !item.secondaryDisabled && (item?.secondaryPurchaseOption || secondaryPurchaseOption) === "only" ? null :
                         <Button
                           disabled={!item.purchasable}
                           onClick={async () => await Select(item.id)}
