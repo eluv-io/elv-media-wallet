@@ -1340,6 +1340,8 @@ class MediaPropertyStore {
           __permissionsLastChecked: Date.now(),
           __ownedItemCount: ownedItemCount
         };
+
+        this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
   });
@@ -1549,6 +1551,127 @@ class MediaPropertyStore {
       id: marketplaceId,
       force,
       Load: async () => await this.rootStore.LoadMarketplace(marketplaceId)
+    });
+  });
+
+  LoadAnalytics = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = yield this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    yield this.LoadResource({
+      key: "Analytics",
+      id: mediaProperty.mediaPropertyId,
+      Load: async () => {
+        const analyticsIds = mediaProperty.metadata.analytics_ids || [];
+
+        for(const entry of analyticsIds) {
+          try {
+            switch(entry.type) {
+              case "google_analytics_id":
+                this.Log("Initializing Google Analytics", "warn");
+
+                const s = document.createElement("script");
+                s.setAttribute("src", `https://www.googletagmanager.com/gtag/js?id=${entry.id}`);
+                s.async = true;
+                document.head.appendChild(s);
+
+                window.dataLayer = window.dataLayer || [];
+
+                // eslint-disable-next-line no-inner-declarations
+                function gtag() {
+                  window.dataLayer.push(arguments);
+                }
+
+                window.gtag = gtag;
+                gtag("js", new Date());
+                gtag("config", entry.id);
+
+                window.ac = {g: gtag};
+
+                break;
+
+              case "google_tag_manager_id":
+                this.Log("Initializing Google Tag Manager Analytics", "warn");
+
+                (function(w, d, s, l, i) {
+                  w[l] = w[l] || [];
+                  w[l].push({
+                    "gtm.start":
+                      new Date().getTime(), event: "gtm.js"
+                  });
+                  var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != "dataLayer" ? "&l=" + l : "";
+                  j.async = true;
+                  j.src =
+                    "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+                  f.parentNode.insertBefore(j, f);
+                })(window, document, "script", "dataLayer", entry.id);
+
+                break;
+
+              case "meta_pixel_id":
+                this.Log("Initializing Meta Analytics", "warn");
+
+                !function(f, b, e, v, n, t, s) {
+                  if(f.fbq) return;
+                  n = f.fbq = function() {
+                    n.callMethod ?
+                      n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                  };
+                  if(!f._fbq) f._fbq = n;
+                  n.push = n;
+                  n.loaded = !0;
+                  n.version = "2.0";
+                  n.queue = [];
+                  t = b.createElement(e);
+                  t.async = !0;
+                  t.src = v;
+                  s = b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t, s);
+                }(window, document, "script",
+                  "https://connect.facebook.net/en_US/fbevents.js");
+                fbq("init", entry.id);
+                fbq("track", "PageView");
+
+                break;
+
+              case "app_nexus_segment_id":
+                this.Log("Initializing App Nexus Analytics", "warn");
+
+                const pixel = document.createElement("img");
+
+                pixel.setAttribute("width", "1");
+                pixel.setAttribute("height", "1");
+                pixel.style.display = "none";
+                pixel.setAttribute("src", `https://secure.adnxs.com/seg?add=${entry.id}&t=2`);
+
+                document.body.appendChild(pixel);
+
+                break;
+
+              case "twitter_pixel_id":
+                this.Log("Initializing Twitter Analytics", "warn");
+
+                !function(e, t, n, s, u, a) {
+                  e.twq || (s = e.twq = function() {
+                    s.exe ? s.exe.apply(s, arguments) : s.queue.push(arguments);
+                  }, s.version = "1.1", s.queue = [], u = t.createElement(n), u.async = !0, u.src = "https://static.ads-twitter.com/uwt.js",
+                  a = t.getElementsByTagName(n)[0], a.parentNode.insertBefore(u, a));
+                }(window, document, "script");
+                twq("config", entry.id);
+
+                break;
+
+              default:
+                break;
+            }
+          } catch(error) {
+            this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+            this.Log(error, true);
+          }
+        }
+      }
     });
   });
 }
