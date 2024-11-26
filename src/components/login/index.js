@@ -784,7 +784,10 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization()
       .then(options => {
-        if(!options) { return; }
+        if(!options) {
+          setCustomizationOptions({});
+          return;
+        }
 
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
 
