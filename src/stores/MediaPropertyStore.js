@@ -1479,42 +1479,42 @@ class MediaPropertyStore {
           produceLinkUrls: true
         })) || {};
 
+        let permissionContracts = {};
+        await Promise.all(
+          Object.keys(permissionItems).map(async permissionItemId => {
+            const permissionItem = permissionItems[permissionItemId];
+            if(!permissionItem?.marketplace?.marketplace_id) {
+              return;
+            }
+
+            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
+
+            const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
+              ?.find(item => item.sku === permissionItem.marketplace_sku);
+
+            const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
+
+            if(!contractAddress) {
+              this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
+              return;
+            }
+
+            if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
+              permissionContracts[permissionItem.marketplace.marketplace_id] = {};
+            }
+
+            permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
+
+            const itemInfo = NFTInfo({
+              item: marketplaceItem
+            });
+
+            permissionItems[permissionItemId].purchasable = itemInfo?.marketplacePurchaseAvailable;
+            permissionItems[permissionItemId].purchaseAuthorized = itemInfo?.marketplacePurchaseAuthorized;
+          })
+        );
+
         if(this.rootStore.loggedIn) {
-          let permissionContracts = {};
-          await Promise.all(
-            Object.keys(permissionItems).map(async permissionItemId => {
-              const permissionItem = permissionItems[permissionItemId];
-              if(!permissionItem?.marketplace?.marketplace_id) {
-                return;
-              }
-
-              await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
-
-              const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
-                ?.find(item => item.sku === permissionItem.marketplace_sku);
-
-              const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
-
-              if(!contractAddress) {
-                this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
-                return;
-              }
-
-              if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
-                permissionContracts[permissionItem.marketplace.marketplace_id] = {};
-              }
-
-              permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
-
-              const itemInfo = NFTInfo({
-                item: marketplaceItem
-              });
-
-              permissionItems[permissionItemId].purchasable = itemInfo?.marketplacePurchaseAvailable;
-              permissionItems[permissionItemId].purchaseAuthorized = itemInfo?.marketplacePurchaseAuthorized;
-            })
-          );
-
           await Promise.all(
             Object.keys(permissionContracts).map(async marketplaceId => {
               const ownedItems = (await this.rootStore.walletClient.UserItems({
