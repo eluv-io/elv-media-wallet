@@ -149,24 +149,36 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
     }
   }
 
-  return (
+  let items = (
     purchaseItems
       // Filter non-purchasable items
       .map(item => {
         const marketplaceItem = rootStore.marketplaces[item.marketplace?.marketplace_id]?.items
           ?.find(marketplaceItem => marketplaceItem.sku === item.marketplace_sku);
 
+        const itemInfo = NFTInfo({item: marketplaceItem});
+
         return {
           ...item,
           marketplaceItem,
+          price: itemInfo.price,
           purchasable: (
             !!item.secondary_market_purchase_option ||
             secondaryEnabled ||
-            marketplaceItem && NFTInfo({item: marketplaceItem})?.marketplacePurchaseAvailable
+            marketplaceItem && itemInfo?.marketplacePurchaseAvailable
           )
         };
       })
   );
+
+  // For purchase gate, hide all non-purchasable items and sort by price
+  if(params.gate) {
+    items = items
+      .filter(item => !params.gate || item.purchasable)
+      .sort((a, b) => a.price < b.price ? -1 : 1);
+  }
+
+  return items;
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
