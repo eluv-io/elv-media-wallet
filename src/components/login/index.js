@@ -168,7 +168,7 @@ const Background = observer(({customizationOptions, Close}) => {
   if(backgroundUrl) {
     return (
       <div
-        className="login-page__background"
+        className="login-page__background login-page__background--custom"
         style={{backgroundImage: `url("${SetImageUrlDimensions({url: backgroundUrl, width: rootStore.fullscreenImageWidth})}")`}}
         onClick={Close}
       />
@@ -784,7 +784,10 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization()
       .then(options => {
-        if(!options) { return; }
+        if(!options) {
+          setCustomizationOptions({});
+          return;
+        }
 
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
 

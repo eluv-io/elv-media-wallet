@@ -85,6 +85,10 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
       buttonParams.onClick = () => setShowVideoModal(true);
       break;
 
+    case "page_link":
+      buttonParams.to = MediaPropertyBasePath({...match.params, pageSlugOrId: action.page_id});
+      break;
+
     case "show_purchase":
       const purchaseParams = CreateMediaPropertyPurchaseParams({
         id: action.id,

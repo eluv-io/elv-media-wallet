@@ -5,9 +5,23 @@ import {mediaPropertyStore, rootStore} from "Stores";
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
 
-  const parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
-  const page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
+  let parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
+  if(parentPage) {
+    parentPage = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.parentMediaPropertySlugOrId,
+      pageSlugOrId: parentPage,
+      permissionRedirect: false
+    })?.slug || parentPage;
+  }
 
+  let page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
+  if(page) {
+    page = mediaPropertyStore.MediaPropertyPage({
+      mediaPropertySlugOrId: params.mediaPropertySlugOrId,
+      pageSlugOrId: page,
+      permissionRedirect: false
+    })?.slug || page;
+  }
   let path = params.parentMediaPropertySlugOrId ?
     UrlJoin("/", params.parentMediaPropertySlugOrId, parentPage, "p", params.mediaPropertySlugOrId, (includePage && page) || "") :
     UrlJoin("/", params.mediaPropertySlugOrId, (includePage && page) || "");
@@ -135,27 +149,36 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
     }
   }
 
-  return (
+  let items = (
     purchaseItems
       // Filter non-purchasable items
       .map(item => {
         const marketplaceItem = rootStore.marketplaces[item.marketplace?.marketplace_id]?.items
           ?.find(marketplaceItem => marketplaceItem.sku === item.marketplace_sku);
 
+        const itemInfo = NFTInfo({item: marketplaceItem});
+
         return {
           ...item,
-          marketplaceItem
+          marketplaceItem,
+          price: itemInfo.price,
+          purchasable: (
+            !!item.secondary_market_purchase_option ||
+            secondaryEnabled ||
+            marketplaceItem && itemInfo?.marketplacePurchaseAvailable
+          )
         };
       })
-      .filter(item => {
-        if(secondaryEnabled) { return true; }
-
-        return (
-          item.marketplaceItem &&
-          NFTInfo({item: item.marketplaceItem}).marketplacePurchaseAvailable
-        );
-      })
   );
+
+  // For purchase gate, hide all non-purchasable items and sort by price
+  if(params.gate) {
+    items = items
+      .filter(item => !params.gate || item.purchasable)
+      .sort((a, b) => a.price < b.price ? -1 : 1);
+  }
+
+  return items;
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
@@ -227,13 +250,16 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       navContext = undefined;
     }
   } else if(sectionItem?.type === "property_link") {
-    linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: sectionItem.property_id, pageSlugOrId: sectionItem.property_page_id});
+    linkPath = MediaPropertyBasePath({
+      mediaPropertySlugOrId: mediaPropertyStore.MediaPropertyIdToSlug(sectionItem.property_id) || sectionItem.property_id,
+      pageSlugOrId: sectionItem.property_page_id
+    });
   } else if(sectionItem?.type === "subproperty_link") {
     linkPath = MediaPropertyBasePath({
       ...match.params,
       parentMediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId || match.params.mediaPropertySlugOrId,
       parentPageId: typeof match.params.parentPageSlugOrId !== "undefined" ? match.params.parentPageSlugOrId : match.params.pageSlugOrId,
-      mediaPropertySlugOrId: sectionItem.subproperty_id,
+      mediaPropertySlugOrId: mediaPropertyStore.MediaPropertyIdToSlug(sectionItem.subproperty_id) || sectionItem.subproperty_id,
       pageSlugOrId: sectionItem.subproperty_page_id && sectionItem.subproperty_page_id !== "main" ? sectionItem.subproperty_page_id : ""
     });
   } else if(sectionItem?.type === "marketplace_link") {

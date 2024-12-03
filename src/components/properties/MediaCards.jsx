@@ -330,7 +330,7 @@ const MediaCardBanner = observer(({
                   backgroundColor: "transparent",
                   showLoader: EluvioPlayerParameters.showLoader.OFF,
                   capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
-
+                  keyboardControls: EluvioPlayerParameters.keyboardControls.OFF
                 }}
                 className={S("media-card-banner__video", animationState === "loading" ? "media-card-banner__video--loading" : "media-card-banner__video")}
               />
@@ -339,9 +339,11 @@ const MediaCardBanner = observer(({
                   <LoaderImage
                     showWithoutSource
                     lazy={false}
+                    loaderDelay={0}
                     className={S("media-card-banner__video-loader")}
                   />
               }
+              <div onClick={event => event.stopPropagation()} className={S("media-card-banner__video-cover")} />
             </> :
             imageUrl ?
               <LoaderImage
@@ -694,8 +696,8 @@ const MediaCard = observer(({
         .filter(price => price)
         .sort((a, b) => a.value < b.value ? -1 : 1);
 
-      const minPrice = prices[0].string;
-      const maxPrice = prices.slice(-1)[0].string;
+      const minPrice = prices?.[0]?.string;
+      const maxPrice = prices?.slice(-1)?.[0]?.string;
 
       if(minPrice === maxPrice) {
         price = minPrice;

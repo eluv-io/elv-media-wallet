@@ -15,6 +15,7 @@
     max-width: unset;
     min-height: 100vh;
     overflow-y: auto;
+    overscroll-behavior-y: none;
     width: 100%;
   }
 
@@ -190,6 +191,10 @@
     position: fixed;
     top: 0;
     width: 100vw;
+
+    &--custom {
+      background-color: black;
+    }
   }
 
   h1 {

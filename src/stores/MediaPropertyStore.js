@@ -75,6 +75,25 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  MediaPropertyIdToSlug(mediaPropertyId) {
+    const propertyHash = this.mediaPropertyHashes[mediaPropertyId];
+
+    return Object.keys(this.mediaPropertyHashes)
+      .find(key =>
+          key &&
+          !key.startsWith("iq") &&
+          this.mediaPropertyHashes[key] === propertyHash
+      );
+  }
+
+  MediaPropertySlugToId(mediaPropertySlug) {
+    const propertyHash = this.mediaPropertyHashes[mediaPropertySlug];
+
+    if(mediaPropertySlug) {
+      return this.client.utils.DecodeVersionHash(propertyHash)?.objectId;
+    }
+  }
+
   GetMediaPropertyAttributes({mediaPropertySlugOrId}) {
     const associatedCatalogIds = this.MediaProperty({mediaPropertySlugOrId})?.metadata.media_catalogs || [];
 
@@ -322,7 +341,7 @@ class MediaPropertyStore {
     return this.mediaProperties[propertyId];
   }
 
-  MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main"}) {
+  MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main", permissionRedirect=true}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
     if(!mediaProperty) { return; }
@@ -343,6 +362,7 @@ class MediaPropertyStore {
     }
 
     let permissions = {
+      ...(page?.permissions) || {},
       authorized: true,
       behavior: page?.permissions?.behavior,
       alternatePageId: (
@@ -351,7 +371,7 @@ class MediaPropertyStore {
       )
     };
 
-    if(page.permissions?.page_permissions?.length > 0) {
+    if(permissionRedirect && page.permissions?.page_permissions?.length > 0) {
       const authorized = page.permissions.page_permissions.find(permissionItemId =>
         this.PermissionItem({permissionItemId})?.authorized
       );
@@ -582,18 +602,6 @@ class MediaPropertyStore {
           mediaItemSlugOrId: sectionItem.mediaItem?.id
         })
       }))
-      .filter(sectionItem => (
-        // Filter purchase section items that have no purchasable items
-        sectionItem.type !== "item_purchase" ||
-        PurchaseParamsToItems(
-          {
-            type: "purchase",
-            sectionSlugOrId,
-            sectionItemId: sectionItem.id
-          },
-          sectionItem?.resolvedPermissions?.secondaryPurchaseOption
-        ).length > 0
-      ))
       .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
@@ -716,6 +724,7 @@ class MediaPropertyStore {
     let behavior = this.PERMISSION_BEHAVIORS.HIDE;
     let cause;
     let permissionItemIds;
+    let sectionItem;
 
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
     behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
@@ -768,7 +777,7 @@ class MediaPropertyStore {
           ) || secondaryPurchaseOption;
 
         if(sectionItemId) {
-          const sectionItem = section?.content
+          sectionItem = section?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
           if(sectionItem) {
@@ -846,6 +855,39 @@ class MediaPropertyStore {
 
     permissionItemIds = permissionItemIds || [];
 
+    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.purchasable
+    );
+
+    const purchaseAuthorized = permissionItemIds.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.purchaseAuthorized
+    );
+
+    const purchaseUnauthorizedBehavior = mediaProperty.metadata.permissions?.permission_items_unauthorized_permissions_behavior || behavior;
+    if(sectionItem?.type === "item_purchase") {
+      if(
+         PurchaseParamsToItems(
+          {
+            type: "purchase",
+            sectionSlugOrId,
+            sectionItemId
+          },
+          sectionItem?.resolvedPermissions?.secondaryPurchaseOption
+        )
+           ?.filter(item => item.purchasable).length === 0
+      ) {
+        authorized = false;
+        cause = "No purchasable items";
+      }
+    } else if(!authorized && !purchaseAuthorized) {
+      cause = `${cause} and not purchasable`;
+      behavior = purchaseUnauthorizedBehavior;
+      alternatePageId = (
+        purchaseUnauthorizedBehavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+        mediaProperty.metadata.permissions?.permission_items_unauthorized_alternate_page_id
+      ) || alternatePageId;
+    }
+
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
     let showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
 
@@ -860,20 +902,6 @@ class MediaPropertyStore {
         this.Log(arguments, true);
         behavior = this.PERMISSION_BEHAVIORS.HIDE;
       }
-    }
-
-    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
-      this.permissionItems[permissionItemId]?.purchasable
-    );
-
-    // If not authorized and the user can't purchase access, hide or disable
-    if(!authorized && (!purchasable || permissionItemIds.length === 0)) {
-      authorized = false;
-      behavior = behavior === this.PERMISSION_BEHAVIORS.DISABLE ?
-        behavior :
-        this.PERMISSION_BEHAVIORS.HIDE;
-      cause = `${cause} and not purchasable`;
-      showAlternatePage = false;
     }
 
     return {
@@ -1312,6 +1340,8 @@ class MediaPropertyStore {
           __permissionsLastChecked: Date.now(),
           __ownedItemCount: ownedItemCount
         };
+
+        this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
   });
@@ -1449,39 +1479,42 @@ class MediaPropertyStore {
           produceLinkUrls: true
         })) || {};
 
+        let permissionContracts = {};
+        await Promise.all(
+          Object.keys(permissionItems).map(async permissionItemId => {
+            const permissionItem = permissionItems[permissionItemId];
+            if(!permissionItem?.marketplace?.marketplace_id) {
+              return;
+            }
+
+            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
+
+            const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
+              ?.find(item => item.sku === permissionItem.marketplace_sku);
+
+            const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
+
+            if(!contractAddress) {
+              this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
+              return;
+            }
+
+            if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
+              permissionContracts[permissionItem.marketplace.marketplace_id] = {};
+            }
+
+            permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
+
+            const itemInfo = NFTInfo({
+              item: marketplaceItem
+            });
+
+            permissionItems[permissionItemId].purchasable = itemInfo?.marketplacePurchaseAvailable;
+            permissionItems[permissionItemId].purchaseAuthorized = itemInfo?.marketplacePurchaseAuthorized;
+          })
+        );
+
         if(this.rootStore.loggedIn) {
-          let permissionContracts = {};
-          await Promise.all(
-            Object.keys(permissionItems).map(async permissionItemId => {
-              const permissionItem = permissionItems[permissionItemId];
-              if(!permissionItem?.marketplace?.marketplace_id) {
-                return;
-              }
-
-              await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
-
-              const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
-                ?.find(item => item.sku === permissionItem.marketplace_sku);
-
-              const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
-
-              if(!contractAddress) {
-                this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
-                return;
-              }
-
-              if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
-                permissionContracts[permissionItem.marketplace.marketplace_id] = {};
-              }
-
-              permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
-
-              permissionItems[permissionItemId].purchasable = NFTInfo({
-                item: marketplaceItem
-              })?.marketplacePurchaseAvailable;
-            })
-          );
-
           await Promise.all(
             Object.keys(permissionContracts).map(async marketplaceId => {
               const ownedItems = (await this.rootStore.walletClient.UserItems({
@@ -1518,6 +1551,127 @@ class MediaPropertyStore {
       id: marketplaceId,
       force,
       Load: async () => await this.rootStore.LoadMarketplace(marketplaceId)
+    });
+  });
+
+  LoadAnalytics = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = yield this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    yield this.LoadResource({
+      key: "Analytics",
+      id: mediaProperty.mediaPropertyId,
+      Load: async () => {
+        const analyticsIds = mediaProperty.metadata.analytics_ids || [];
+
+        for(const entry of analyticsIds) {
+          try {
+            switch(entry.type) {
+              case "google_analytics_id":
+                this.Log("Initializing Google Analytics", "warn");
+
+                const s = document.createElement("script");
+                s.setAttribute("src", `https://www.googletagmanager.com/gtag/js?id=${entry.id}`);
+                s.async = true;
+                document.head.appendChild(s);
+
+                window.dataLayer = window.dataLayer || [];
+
+                // eslint-disable-next-line no-inner-declarations
+                function gtag() {
+                  window.dataLayer.push(arguments);
+                }
+
+                window.gtag = gtag;
+                gtag("js", new Date());
+                gtag("config", entry.id);
+
+                window.ac = {g: gtag};
+
+                break;
+
+              case "google_tag_manager_id":
+                this.Log("Initializing Google Tag Manager Analytics", "warn");
+
+                (function(w, d, s, l, i) {
+                  w[l] = w[l] || [];
+                  w[l].push({
+                    "gtm.start":
+                      new Date().getTime(), event: "gtm.js"
+                  });
+                  var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != "dataLayer" ? "&l=" + l : "";
+                  j.async = true;
+                  j.src =
+                    "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+                  f.parentNode.insertBefore(j, f);
+                })(window, document, "script", "dataLayer", entry.id);
+
+                break;
+
+              case "meta_pixel_id":
+                this.Log("Initializing Meta Analytics", "warn");
+
+                !function(f, b, e, v, n, t, s) {
+                  if(f.fbq) return;
+                  n = f.fbq = function() {
+                    n.callMethod ?
+                      n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                  };
+                  if(!f._fbq) f._fbq = n;
+                  n.push = n;
+                  n.loaded = !0;
+                  n.version = "2.0";
+                  n.queue = [];
+                  t = b.createElement(e);
+                  t.async = !0;
+                  t.src = v;
+                  s = b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t, s);
+                }(window, document, "script",
+                  "https://connect.facebook.net/en_US/fbevents.js");
+                fbq("init", entry.id);
+                fbq("track", "PageView");
+
+                break;
+
+              case "app_nexus_segment_id":
+                this.Log("Initializing App Nexus Analytics", "warn");
+
+                const pixel = document.createElement("img");
+
+                pixel.setAttribute("width", "1");
+                pixel.setAttribute("height", "1");
+                pixel.style.display = "none";
+                pixel.setAttribute("src", `https://secure.adnxs.com/seg?add=${entry.id}&t=2`);
+
+                document.body.appendChild(pixel);
+
+                break;
+
+              case "twitter_pixel_id":
+                this.Log("Initializing Twitter Analytics", "warn");
+
+                !function(e, t, n, s, u, a) {
+                  e.twq || (s = e.twq = function() {
+                    s.exe ? s.exe.apply(s, arguments) : s.queue.push(arguments);
+                  }, s.version = "1.1", s.queue = [], u = t.createElement(n), u.async = !0, u.src = "https://static.ads-twitter.com/uwt.js",
+                  a = t.getElementsByTagName(n)[0], a.parentNode.insertBefore(u, a));
+                }(window, document, "script");
+                twq("config", entry.id);
+
+                break;
+
+              default:
+                break;
+            }
+          } catch(error) {
+            this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+            this.Log(error, true);
+          }
+        }
+      }
     });
   });
 }

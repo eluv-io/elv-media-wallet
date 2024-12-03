@@ -698,6 +698,7 @@ media_properties:
       claiming: Claiming Item
       info: This should take less than a minute...
     failed: Purchase failed
+    claim_failed: Claim failed. Please try again
     complete: Purchase Complete!
     claim_complete: Claimed Successfully!
   page:

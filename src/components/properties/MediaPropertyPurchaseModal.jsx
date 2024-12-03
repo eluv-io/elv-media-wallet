@@ -102,7 +102,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                 return (
                   <>
                     {
-                      !item.secondaryDisabled && secondaryPurchaseOption === "only" ? null :
+                      !item.secondaryDisabled && (item?.secondaryPurchaseOption || secondaryPurchaseOption) === "only" ? null :
                         <Button
                           disabled={!item.purchasable}
                           onClick={async () => await Select(item.id)}
@@ -311,10 +311,12 @@ const Payment = observer(({item, Back}) => {
   }
 
   const canPurchase =
-    (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
-    (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
-    (paymentMethod.type === "balance" && !insufficientBalance) ||
-    paymentMethod.type === "pix";
+    (item.purchasable || item.listingId) && (
+      (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
+      (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
+      (paymentMethod.type === "balance" && !insufficientBalance) ||
+      paymentMethod.type === "pix"
+    );
 
 
   switch(page) {
@@ -519,7 +521,7 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
     loading = false;
     content = (
       <div className={S("status__message", "status__error")}>
-        { rootStore.l10n.media_properties.purchase_status.failed }
+        { rootStore.l10n.media_properties.purchase_status?.[item.free ? "claim_failed" : "failed"] }
       </div>
     );
 
@@ -640,6 +642,7 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
 
   return {
     ...item,
+    free: marketplaceItem.free,
     purchaseRedirectPage,
     itemName,
     editionName,
@@ -732,9 +735,11 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
 
   let content, key;
   if(!loaded || (purchaseItems || []).length === 0) {
+    // Not loaded or no items
     key = 0;
     content = <Loader className={S("loader")}/>;
-  } else if(selectedItemId) {
+  } else if((selectedItemId && !selectedItem.free)  || confirmationId) {
+    // Purchased/claimed
     if(confirmationId) {
       key = 3;
       content = (
@@ -745,6 +750,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         />
       );
     } else {
+      // Purchase
       key = 2;
       content = (
         <div className="purchase">
@@ -756,6 +762,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
       );
     }
   } else {
+    // Item Selection / Claim
     key = 1;
     content = (
       <div className="purchase">

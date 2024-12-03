@@ -22,6 +22,14 @@ const PropertyWrapper = observer(({children}) => {
   const { parentMediaPropertySlugOrId, mediaPropertySlugOrId, pageSlugOrId } = match.params;
   const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
 
+  const isWrongPropertyInCustomDomain = (
+    rootStore.isCustomDomain &&
+    (
+      ![rootStore.customDomainPropertySlug, rootStore.customDomainPropertyId].includes(parentMediaPropertySlugOrId) &&
+        ![rootStore.customDomainPropertySlug, rootStore.customDomainPropertyId].includes(mediaPropertySlugOrId)
+    )
+  );
+
   useEffect(() => {
     if(match.params.propertyItemContractId) {
       rootStore.LoadNFTData({
@@ -40,8 +48,7 @@ const PropertyWrapper = observer(({children}) => {
   }, []);
 
   useEffect(() => {
-    // Property not loaded or actually on custom domain
-    if(!mediaProperty || rootStore.isCustomDomain) {
+    if(!mediaProperty || isWrongPropertyInCustomDomain) {
       return;
     }
 
@@ -56,6 +63,10 @@ const PropertyWrapper = observer(({children}) => {
       }, 500);
     };
   }, [mediaProperty]);
+
+  if(isWrongPropertyInCustomDomain){
+    return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
+  }
 
   if(!rootStore.loaded  || !itemLoaded) {
     return <PageLoader />;

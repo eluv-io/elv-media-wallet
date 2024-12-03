@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {Initialize as InitializeEmbed} from "@eluvio/elv-embed/src/Import";
+//import {Initialize as InitializeEmbed} from "@eluvio/elv-embed/src/Import";
 import {Redirect, Link, useHistory, useRouteMatch} from "react-router-dom";
 import {
   AvailableMedia,
@@ -274,6 +274,7 @@ const NFTActiveMediaActions = observer(({nftInfo, mediaItem, showFullscreen, set
   );
 });
 
+// eslint-disable-next-line no-unused-vars
 const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen, SetVideoElement}) => {
   const liveInfo = LiveMediaInfo(mediaItem);
   const [isAvailable, setIsAvailable] = useState(
@@ -281,7 +282,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
     liveInfo?.started
   );
 
-  const [error, setError] = useState(false);
+  //const [error, setError] = useState(false);
   const targetRef = useRef();
 
   if(!mediaItem.mediaInfo) { return null; }
@@ -297,7 +298,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
 
     if(!isAvailable || !targetRef || !targetRef.current) { return; }
 
-     
+
+    /*
     const playerPromise = new Promise(resolve =>
       InitializeEmbed({
         client: rootStore.client,
@@ -329,6 +331,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
       })
     );
 
+
+
     return async () => {
       if(!playerPromise) { return; }
 
@@ -339,6 +343,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
         console.log(error);
       }
     };
+
+     */
   }, [targetRef, isAvailable]);
 
   useEffect(() => {

@@ -9,7 +9,18 @@ import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
+
+export const EmbedMediaTypes = {
+  "v": "Video",
+  "lv": "Live Video",
+  "a": "Audio",
+  "mc": "Media Collection",
+  "g": "Gallery",
+  "i": "Image",
+  "h": "HTML",
+  "b": "EBook",
+  "l": "Link"
+};
 
 export const Slugify = str =>
   (str || "")
@@ -373,6 +384,7 @@ export const NFTInfo = ({
   const expired = item && item.expires_at && timeToExpired < 0;
   const maxOwned = stock && stock.max_per_user && stock.max_per_user > 0 && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
+  const marketplacePurchaseAuthorized = item && item.for_sale && !outOfStock && available && !unauthorized;
   const marketplaceGiftAvailable = item && item.for_sale && item.allow_gift_purchase && !item.free && !outOfStock && available && !unauthorized;
   const hideAvailable = !available || (item && item.hide_available);
 
@@ -515,6 +527,7 @@ export const NFTInfo = ({
     stock,
     status,
     marketplacePurchaseAvailable,
+    marketplacePurchaseAuthorized,
     marketplaceGiftAvailable,
     available,
     timeToAvailable,
@@ -637,7 +650,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   imageUrl = selectedMedia.image;
   mediaType = (selectedMedia.media_type || "Image").toLowerCase();
 
-  const embedMediaTypeParameter = Object.keys(mediaTypes).find(key => mediaTypes[key].toLowerCase() === mediaType.toLowerCase());
+  const embedMediaTypeParameter = Object.keys(EmbedMediaTypes).find(key => EmbedMediaTypes[key].toLowerCase() === mediaType.toLowerCase());
   if(embedMediaTypeParameter) {
     embedUrl.searchParams.set("mt", embedMediaTypeParameter);
   }

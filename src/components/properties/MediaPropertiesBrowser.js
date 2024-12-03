@@ -8,6 +8,7 @@ import {LoaderImage} from "Components/properties/Common";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
+import {Redirect} from "react-router-dom";
 
 const PropertyVideo = observer(({video}) => {
   const [loaded, setLoaded] = useState(false);
@@ -40,6 +41,10 @@ export const MediaPropertiesBrowser = observer(() => {
     mediaPropertyStore.LoadMediaProperties()
       .then(setMediaProperties);
   }, []);
+
+  if(rootStore.isCustomDomain) {
+    return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
+  }
 
   if(!mediaProperties) {
     return <PageLoader />;
