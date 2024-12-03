@@ -483,9 +483,10 @@ class RootStore {
         skipMarketplaceLoad: true
       });
 
-      // Internal feature - allow setting of authd node via query param for testing
-      //let authdURI = searchParams.get("authd"); // || this.GetSessionStorage("authd-uri");
-      let authdURI = "https://host-154-14-192-66.contentfabric.io/as";
+      //  force fr5-001
+      //let authdURI = "https://host-154-14-192-66.contentfabric.io/as";
+      //  force ld8-001
+      let authdURI = "https://host-154-14-211-98.contentfabric.io/as";
       if(authdURI) {
         this.Log("Setting authd URI: " + authdURI, "warn");
         this.SetSessionStorage("authd-uri", authdURI);
