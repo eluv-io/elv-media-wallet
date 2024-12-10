@@ -1020,14 +1020,21 @@ class MediaPropertyStore {
             try {
               let property = metadata.tenants[tenantSlug].media_properties[propertySlug];
 
+              const propertyId = Utils.DecodeVersionHash(property["."].source).objectId;
               property = {
                 ...property,
+                order: propertyOrder.findIndex(propertySlugOrId => property.slug === propertySlugOrId || propertyId === propertySlugOrId),
                 tenantSlug,
                 tenantObjectHash: metadata.tenants[tenantSlug]["."].source,
                 tenantObjectId: Utils.DecodeVersionHash(metadata.tenants[tenantSlug]["."].source).objectId,
                 propertyHash: property["."].source,
-                propertyId: Utils.DecodeVersionHash(property["."].source).objectId
+                propertyId
               };
+
+              // Sort unordered properties
+              property.order = property.order >= 0 ?
+                property.order :
+                1000 + (property.slug || propertyId).charCodeAt(0);
 
               if(property.image) {
                 const imageUrl = new URL(
@@ -1054,14 +1061,7 @@ class MediaPropertyStore {
         })
           .flat()
           .filter(property => property.show_on_main_page)
-          .sort((a, b) => {
-            const indexA = propertyOrder.findIndex(propertySlugOrId => a.slug === propertySlugOrId || a.propertyId === propertySlugOrId);
-            const indexB = propertyOrder.findIndex(propertySlugOrId => b.slug === propertySlugOrId || b.propertyId === propertySlugOrId);
-
-            return indexA < 0 ?
-              (indexB < 0 ? 0 : 1) :
-              (indexA < indexB ? -1 : 1);
-          });
+          .sort((a, b) => a.order < b.order ? -1 : 1);
 
         this.allMediaProperties = allProperties;
 
