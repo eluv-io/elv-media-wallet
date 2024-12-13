@@ -173,7 +173,7 @@ const SidebarItem = observer(({
         }
       </div>
       {
-        !showActions || !itemIsLive || item.id === match.params.mediaItemSlugOrId ? null :
+        !showActions || !itemIsLive || mediaItem.id === match.params.mediaItemSlugOrId ? null :
           <div className={S("item__actions")}>
             <button
               onClick={event => {
