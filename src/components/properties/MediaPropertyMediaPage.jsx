@@ -149,7 +149,10 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         })
       }
       settingsUpdateCallback={settingsUpdateCallback}
-      errorCallback={() => setError("Something went wrong")}
+      errorCallback={error => {
+        mediaPropertyStore.Log(error, true);
+        setError("Something went wrong");
+      }}
       className={[S("media", "media__video"), className].join(" ")}
     />
   );
