@@ -450,7 +450,7 @@ export const NFTInfo = ({
     let state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
 
     if(!state) {
-      rootStore.Log(`Redeemable offer ${offer.name} (${offer.offer_id}) has no corresponding offer in NFT details`, "warn");
+      //rootStore.Log(`Redeemable offer ${offer.name} (${offer.offer_id}) has no corresponding offer in NFT details`, "warn");
     }
 
     if(state?.redeemer) {

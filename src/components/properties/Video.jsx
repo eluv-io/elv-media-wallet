@@ -99,7 +99,11 @@ const Video = forwardRef(function VideoComponent({
         }
       }
     ).then(player => {
-      window.player = player;
+      window.players = {
+        ...(window.players || {}),
+        [contentHash]: player,
+      };
+
       setPlayer(player);
 
       player.controls.RegisterVideoEventListener("canplay", event => {
@@ -137,7 +141,7 @@ const Video = forwardRef(function VideoComponent({
 
       try {
         player.Destroy();
-        window.player = undefined;
+        delete window.players?.[contentHash];
       } catch(error) {
         // eslint-disable-next-line no-console
         console.log(error);

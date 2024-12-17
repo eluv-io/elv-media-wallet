@@ -24,7 +24,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 /* Video */
 
-const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, mute, onClick, settingsUpdateCallback, className=""}) => {
+const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, allowCasting=true, mute, onClick, settingsUpdateCallback, className=""}) => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
@@ -140,6 +140,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")],
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
+        allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"]
       }}
       posterImage={
         SetImageUrlDimensions({
@@ -148,7 +149,10 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         })
       }
       settingsUpdateCallback={settingsUpdateCallback}
-      errorCallback={() => setError("Something went wrong")}
+      errorCallback={error => {
+        mediaPropertyStore.Log(error, true);
+        setError("Something went wrong");
+      }}
       className={[S("media", "media__video"), className].join(" ")}
     />
   );
@@ -208,6 +212,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
       showTitle={secondaryPIP}
       hideControls={secondaryPIP}
       mute={secondaryPIP}
+      allowCasting={false}
       settingsUpdateCallback={player => setSecondaryMenuActive(player.controls.IsMenuVisible())}
       onClick={
         !secondaryPIP ? undefined :

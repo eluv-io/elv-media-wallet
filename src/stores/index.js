@@ -77,7 +77,7 @@ class RootStore {
   currentPropertyTenantId;
 
   domainSettings = undefined;
-  isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
+  isCustomDomain = !["localhost", "192.168", "contentfabric.io", "eluv.io"].find(host => window.location.hostname.includes(host));
 
   discoverFilter = "";
 

@@ -112,7 +112,7 @@ const SidebarItem = observer(({
     width: 400
   });
 
-  const itemIsLive = item.scheduleInfo?.isLiveContent && item.scheduleInfo?.started;
+  const itemIsLive = item.scheduleInfo?.currentlyLive;
   const itemIsVod = !item.scheduleInfo?.isLiveContent;
 
   const navContext = new URLSearchParams(location.search).get("ctx");
@@ -173,7 +173,7 @@ const SidebarItem = observer(({
         }
       </div>
       {
-        !showActions || !itemIsLive || item.id === match.params.mediaItemSlugOrId ? null :
+        !showActions || !itemIsLive || mediaItem.id === match.params.mediaItemSlugOrId ? null :
           <div className={S("item__actions")}>
             <button
               onClick={event => {
