@@ -7,6 +7,10 @@ import {ButtonWithLoader} from "Components/common/UIComponents";
 import {ValidEmail} from "../../utils/Utils";
 import {Redirect} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
+import ImageIcon from "Components/common/ImageIcon";
+
+import GoogleLogo from "Assets/icons/google-logo";
+import AppleLogo from "Assets/icons/apple-logo";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
@@ -200,7 +204,16 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
         break;
       case "login":
-        rootStore.oryClient.createBrowserLoginFlow({refresh: true})
+        const returnUrl = new URL(location.origin);
+        returnUrl.pathname = "/oidc";
+        returnUrl.searchParams.set("next", location.pathname);
+
+        const propertySlugOrId = rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId;
+        if(propertySlugOrId) {
+          returnUrl.searchParams.set("pid", propertySlugOrId);
+        }
+
+        rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "registration":
@@ -342,6 +355,32 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     }
 
     try {
+      if(additionalData.thirdParty) {
+        try {
+          await rootStore.oryClient.updateLoginFlow({
+            flow: flow.id,
+            updateLoginFlowBody: {
+              provider: additionalData.provider,
+              redirect_uri: window.location.href,
+              return_to: window.location.href
+            }
+          });
+          return;
+        } catch(error) {
+          if(error.status === 422) {
+            // Save user data in session storage
+            rootStore.SetSessionStorage("user-data", JSON.stringify(userData || {}));
+
+            // Redirect
+            window.location.href = error.response.data.redirect_browser_to;
+          } else {
+            throw error;
+          }
+        }
+
+        return;
+      }
+
       const formData = new FormData(formRef.current);
       const body = { ...Object.fromEntries(formData), ...additionalData };
 
@@ -467,6 +506,9 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     statusMessage
   ].filter(m => m);
 
+  const showGoogleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
+  const showAppleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+
   return (
     <div className="ory-login">
       {
@@ -511,6 +553,11 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
                 // 'Send sign in code' buttons?
                 if([1040006, 1010015].includes(node?.meta?.label?.id)) {
+                  return null;
+                }
+
+                if(node.group === "oidc") {
+                  // Third party sign in button
                   return null;
                 }
 
@@ -585,6 +632,33 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
               })
         }
         { additionalContent }
+        {
+          flowType !== "login" || !(showGoogleLogin || showAppleLogin) ? null :
+            <div className="login-page__third-party-login-container">
+              {
+                !showGoogleLogin ? null :
+                  <ButtonWithLoader
+                    action={false}
+                    onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "google"})}
+                    className="login-page__third-party-login login-page__third-party-login--google"
+                  >
+                    <ImageIcon icon={GoogleLogo} className="login-page__third-party-login__logo" />
+                    Sign In with Google
+                  </ButtonWithLoader>
+              }
+                {
+                !showAppleLogin ? null :
+                  <ButtonWithLoader
+                    action={false}
+                    onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "apple"})}
+                    className="login-page__third-party-login login-page__third-party-login--apple"
+                  >
+                    <ImageIcon icon={AppleLogo} className="login-page__third-party-login__logo" />
+                    Sign In with Apple
+                  </ButtonWithLoader>
+              }
+            </div>
+        }
       </form>
       { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
     </div>

@@ -641,7 +641,24 @@ class RootStore {
       });
 
       if(sendWelcomeEmail) {
-        this.SendLoginEmail({email, type: "send_welcome_email"});
+        const previouslySignedIn = yield rootStore.walletClient.ProfileMetadata({
+          type: "app",
+          mode: "private",
+          appId: this.appId,
+          key: `signed-in-${EluvioConfiguration.network}`
+        });
+
+        if(!previouslySignedIn) {
+           this.SendLoginEmail({email, type: "send_welcome_email"});
+
+          yield rootStore.walletClient.SetProfileMetadata({
+            type: "app",
+            mode: "private",
+            appId: this.appId,
+            key: `signed-in-${EluvioConfiguration.network}`,
+            value: "true"
+          });
+        }
       }
 
       if(sendVerificationEmail) {
@@ -1021,13 +1038,14 @@ class RootStore {
     };
   });
 
-  LoadLoginCustomization = flow(function * () {
+  LoadLoginCustomization = flow(function * (mediaPropertySlugOrId) {
     // Client may not be initialized yet but may not be needed
     while(!this.client) {
       yield new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    const property = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
+    const property = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
+
     if(property) {
       return yield this.LoadPropertyCustomization(property);
     }
