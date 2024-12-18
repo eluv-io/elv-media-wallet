@@ -371,6 +371,16 @@ const UserRouteWrapper = observer(({children}) => {
 
 const RouteWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
+  const [checkingSession, setCheckingSession] = useState(false);
+
+  useEffect(() => {
+    if(!rootStore.loggedIn) { return; }
+
+    setCheckingSession(true);
+
+    rootStore.CheckAuthSession()
+      .finally(() => setCheckingSession(false));
+  }, [match.path, rootStore.loggedIn]);
 
   useEffect(() => {
     const currentRoute = routes.find(route => match.path === route.path);
@@ -416,6 +426,10 @@ const RouteWrapper = observer(({routes, children}) => {
       return () => rootStore.ToggleNavigation(true);
     }
   });
+
+  if(checkingSession) {
+    return <PageLoader />;
+  }
 
   return children;
 });

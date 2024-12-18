@@ -206,6 +206,9 @@ class RootStore {
 
   shortURLs = {};
 
+  _resources = {};
+  logTiming = false;
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -251,6 +254,8 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.LoadResource = this.LoadResource.bind(this);
 
     if(searchParams.get("origin")) {
       this.authOrigin = searchParams.get("origin");
@@ -312,6 +317,11 @@ class RootStore {
         }
       }, 100);
     });
+
+    this.logTiming = new URLSearchParams(location.search).has("logTiming") || this.GetSessionStorage("log-timing");
+    if(this.logTiming) {
+      this.SetSessionStorage("log-timing", true);
+    }
 
     this.Initialize();
   }
@@ -664,6 +674,8 @@ class RootStore {
       if(sendVerificationEmail) {
         this.SendLoginEmail({email, type: "request_email_verification"});
       }
+
+      return true;
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
@@ -2458,7 +2470,8 @@ class RootStore {
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
         // Expire tokens early so they don't stop working while in use
-        if(expiresAt - Date.now() < expirationBuffer) {
+        // TODO: Revisit
+        if(false && expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired", "warn");
         } else {
@@ -2471,6 +2484,36 @@ class RootStore {
       this.RemoveLocalStorage(this.AuthStorageKey());
     }
   }
+
+  CheckAuthSession = flow(function * (expirationBuffer = 4 * 60 * 60 * 1000) {
+    return yield this.LoadResource({
+      key: "CheckAuthSession",
+      id: "check-auth-session",
+      anonymous: true,
+      ttl: 20,
+      Load: async () => {
+        console.log("CHECKING AUTH SESSION");
+        let {provider, expiresAt} = this.AuthInfo() || {};
+
+        console.log(this.AuthInfo());
+
+        if(!provider || expiresAt - Date.now() > expirationBuffer) {
+          return;
+        }
+
+        console.log("EXPIRED", expiresAt - Date.now(), expirationBuffer);
+
+        // Expired
+        if(provider === "ory" && await this.AuthenticateOry()) {
+          // Reauthentication from ory session successful
+          return;
+        }
+
+        console.log("SIGN OUT");
+        await this.SignOut({reload: true, message: this.l10n.login.errors.session_expired});
+      }
+    });
+  });
 
   ClearAuthInfo() {
     this.RemoveLocalStorage(this.AuthStorageKey());
@@ -2561,7 +2604,9 @@ class RootStore {
   });
 
   SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
-    const { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+    let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+
+    expiresAt = Date.now() + 4 * 60 * 60 * 1000 + 30 * 1000;
 
     const authInfo = {
       clientSigningToken,
@@ -2878,6 +2923,59 @@ class RootStore {
       this.DEBUG_ERROR_MESSAGE = message;
     }
   }
+
+
+  // Ensure the specified load method is called only once unless forced
+  LoadResource = flow(function * ({key, id, force=false, anonymous=false, ttl, Load}) {
+    if(anonymous) {
+      key = `load${key}-anonymous`;
+    } else if(!anonymous) {
+      while(
+        !this.loaded ||
+        this.authenticating ||
+        // Auth0 login - wait for completion
+        (
+          !this.loggedIn &&
+          new URLSearchParams(decodeURIComponent(window.location.search)).has("code") &&
+          !["/verify", "/register"].find(path => window.location.pathname.endsWith(path))
+        )
+      ) {
+        yield new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      key = `load${key}-${this.CurrentAddress() || "anonymous"}`;
+    }
+
+    if(force || (ttl && this._resources[key]?.[id] && Date.now() - this._resources[key][id].retrievedAt > ttl * 1000)) {
+      console.log("RELOAD", key, id);
+      // Force - drop all loaded content
+      this._resources[key] = {};
+    }
+
+    this._resources[key] = this._resources[key] || {};
+
+    if(force || !this._resources[key][id]) {
+      if(this.logTiming) {
+        this._resources[key][id] = (async (...args) => {
+          let start = Date.now();
+          // eslint-disable-next-line no-console
+          console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
+          const result = await Load(...args);
+          // eslint-disable-next-line no-console
+          console.log(`End Timing ${key.split("-").join(" ")} - ${id} - ${(Date.now() - start)}ms`);
+
+          return result;
+        })();
+      } else {
+        this._resources[key][id] = {
+          promise: Load(),
+          retrievedAt: Date.now()
+        };
+      }
+    }
+
+    return yield this._resources[key][id].promise;
+  });
 }
 
 export const rootStore = new RootStore();

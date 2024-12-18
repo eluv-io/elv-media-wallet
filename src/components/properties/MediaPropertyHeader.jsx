@@ -383,6 +383,8 @@ const HeaderLinks = observer(() => {
   const discoverDisabled = rootStore.isCustomDomain;
 
   if(!rootStore.loggedIn) {
+    if(rootStore.authenticating) { return null; }
+
     return (
       <>
         {

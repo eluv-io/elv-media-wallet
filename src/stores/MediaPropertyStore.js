@@ -30,8 +30,6 @@ class MediaPropertyStore {
     endTime: undefined
   };
   tags = [];
-  logTiming = false;
-  _resources = {};
 
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
@@ -46,6 +44,7 @@ class MediaPropertyStore {
 
     this.rootStore = rootStore;
     this.Log = this.rootStore.Log;
+    this.LoadResource = this.rootStore.LoadResource;
 
     this.previewPropertyId = new URLSearchParams(location.search).get("preview") || rootStore.GetSessionStorage("preview-property");
     if(this.previewPropertyId) {
@@ -55,11 +54,6 @@ class MediaPropertyStore {
     this.previewAll = new URLSearchParams(location.search).has("previewAll") || rootStore.GetSessionStorage("preview-all");
     if(this.previewAll) {
       rootStore.SetSessionStorage("preview-all", true);
-    }
-
-    this.logTiming = new URLSearchParams(location.search).has("logTiming") || rootStore.GetSessionStorage("log-timing");
-    if(this.logTiming) {
-      rootStore.SetSessionStorage("log-timing", true);
     }
   }
 
@@ -1344,54 +1338,6 @@ class MediaPropertyStore {
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
-  });
-
-  // Ensure the specified load method is called only once unless forced
-  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load}) {
-    if(anonymous) {
-      key = `load${key}-anonymous`;
-    } else if(!anonymous) {
-      while(
-        !this.rootStore.loaded ||
-        this.rootStore.authenticating ||
-        // Auth0 login - wait for completion
-        (
-          !this.rootStore.loggedIn &&
-          new URLSearchParams(decodeURIComponent(window.location.search)).has("code") &&
-          !["/verify", "/register"].find(path => window.location.pathname.endsWith(path))
-        )
-      ) {
-        yield new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
-    }
-
-    if(force) {
-      // Force - drop all loaded content
-      this._resources[key] = {};
-    }
-
-    this._resources[key] = this._resources[key] || {};
-
-    if(force || !this._resources[key][id]) {
-      if(this.logTiming) {
-        this._resources[key][id] = (async (...args) => {
-          let start = Date.now();
-          // eslint-disable-next-line no-console
-          console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
-          const result = await Load(...args);
-          // eslint-disable-next-line no-console
-          console.log(`End Timing ${key.split("-").join(" ")} - ${id} - ${(Date.now() - start)}ms`);
-
-          return result;
-        })();
-      } else {
-        this._resources[key][id] = Load();
-      }
-    }
-
-    return yield this._resources[key][id];
   });
 
   LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, force}) {
