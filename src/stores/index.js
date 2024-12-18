@@ -126,6 +126,7 @@ class RootStore {
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
   loggedIn = false;
+  signingOut = false;
   externalWalletUser = false;
   disableCloseEvent = false;
   darkMode = !searchParams.has("lt");
@@ -651,7 +652,7 @@ class RootStore {
       });
 
       if(sendWelcomeEmail) {
-        const previouslySignedIn = yield rootStore.walletClient.ProfileMetadata({
+        const previouslySignedIn = yield this.walletClient.ProfileMetadata({
           type: "app",
           mode: "private",
           appId: this.appId,
@@ -661,7 +662,7 @@ class RootStore {
         if(!previouslySignedIn) {
            this.SendLoginEmail({email, type: "send_welcome_email"});
 
-          yield rootStore.walletClient.SetProfileMetadata({
+          yield this.walletClient.SetProfileMetadata({
             type: "app",
             mode: "private",
             appId: this.appId,
@@ -803,14 +804,10 @@ class RootStore {
         // Show wallet options in login
         url.searchParams.set("swl", "");
 
-        if(rootStore.specifiedMarketplaceId) {
-          url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-        }
-
         // Metamask not available, link to download or open in app
         if(this.embedded) {
           // Do flow
-          return yield rootStore.Flow({
+          return yield this.Flow({
             type: "flow",
             flow: "open-metamask",
             parameters: {
@@ -1093,9 +1090,9 @@ class RootStore {
     ) {
       errorMessage = "Invalid username";
     } else {
-      const address = await rootStore.walletClient.UserNameToAddress({userName});
+      const address = await this.walletClient.UserNameToAddress({userName});
 
-      if(address && !Utils.EqualAddress(address, rootStore.CurrentAddress())) {
+      if(address && !Utils.EqualAddress(address, this.CurrentAddress())) {
         errorMessage = "Username has already been taken";
       }
     }
@@ -1319,7 +1316,7 @@ class RootStore {
     if(eventSlug) {
       if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
 
-      const mainSiteId = rootStore.walletClient.mainSiteId;
+      const mainSiteId = this.walletClient.mainSiteId;
       const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
 
       return (
@@ -1785,10 +1782,10 @@ class RootStore {
         const key = this.MediaViewKey({contractAddress, mediaId, preview});
         if(this.viewedMedia[key]) { return; }
 
-        const viewed = await rootStore.walletClient.ProfileMetadata({
+        const viewed = await this.walletClient.ProfileMetadata({
           type: "app",
           mode: "private",
-          appId: rootStore.appId,
+          appId: this.appId,
           key
         });
 
@@ -1808,10 +1805,10 @@ class RootStore {
 
     const key = this.MediaViewKey({contractAddress, mediaId, preview});
     if(!this.viewedMedia[key] && !preview) {
-      yield rootStore.walletClient.SetProfileMetadata({
+      yield this.walletClient.SetProfileMetadata({
         type: "app",
         mode: "private",
-        appId: rootStore.appId,
+        appId: this.appId,
         key,
         value: true
       });
@@ -1821,10 +1818,10 @@ class RootStore {
   });
 
   RemoveMediaViewed = flow(function * (key) {
-    yield rootStore.walletClient.RemoveProfileMetadata({
+    yield this.walletClient.RemoveProfileMetadata({
       type: "app",
       mode: "private",
-      appId: rootStore.appId,
+      appId: this.appId,
       key
     });
 
@@ -1990,6 +1987,8 @@ class RootStore {
   }
 
   SignOut = flow(function * ({returnUrl, message, reload=true}={}) {
+    this.signingOut = true;
+
     clearInterval(this.tokenStatusInterval);
 
     this.ClearAuthInfo();
@@ -1998,8 +1997,8 @@ class RootStore {
 
     if(this.oryClient) {
       try {
-        const response = yield rootStore.oryClient.createBrowserLogoutFlow();
-        yield rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
+        const response = yield this.oryClient.createBrowserLogoutFlow();
+        yield this.oryClient.updateLogoutFlow({token: response.data.logout_token});
       } catch(error) {
         this.Log(error, true);
       }
@@ -2015,6 +2014,7 @@ class RootStore {
 
     if(!reload) {
       this.loggedIn = false;
+      this.signingOut = false;
       return;
     }
 
@@ -2077,7 +2077,7 @@ class RootStore {
 
     if(signOut) {
       if(this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
-        url.pathname = MediaPropertyBasePath(rootStore.routeParams);
+        url.pathname = MediaPropertyBasePath(this.routeParams);
       } else if(this.routeParams.marketplaceId) {
         url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
       } else {
@@ -2377,7 +2377,7 @@ class RootStore {
 
   // Auth
   SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
-    email = email || rootStore.walletClient.UserInfo()?.email;
+    email = email || this.walletClient.UserInfo()?.email;
 
     mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 

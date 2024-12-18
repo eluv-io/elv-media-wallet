@@ -427,7 +427,7 @@ const RouteWrapper = observer(({routes, children}) => {
     }
   });
 
-  if(checkingSession) {
+  if(checkingSession || rootStore.signingOut) {
     return <PageLoader />;
   }
 
