@@ -919,6 +919,7 @@ class MediaPropertyStore {
       key: "MediaPropertySlugs",
       id: "media-property-slugs",
       anonymous: true,
+      ttl: 60,
       Load: async () => {
         const metadataUrl = new URL(
           this.rootStore.network === "demo" ?
@@ -1121,14 +1122,21 @@ class MediaPropertyStore {
   });
 
   MediaPropertyShouldReload = flow(function * ({mediaPropertySlugOrId}) {
-    if(!this.rootStore.CurrentAddress()) { return; }
-
     const existingProperty = yield this.MediaProperty({mediaPropertySlugOrId});
 
     if(!existingProperty) {
       return;
     }
 
+    // Check if property has updated
+    if(existingProperty.mediaPropertyHash !== this.mediaPropertyHashes[mediaPropertySlugOrId]) {
+      this.Log(`Reloading property ${mediaPropertySlugOrId} - Version updated`, "warn");
+      return true;
+    }
+
+    if(!this.rootStore.CurrentAddress()) { return; }
+
+    // Check if user has acquired new item(s)
     if((Date.now() - existingProperty.__permissionsLastChecked || 0) < 30000) {
       return;
     }
