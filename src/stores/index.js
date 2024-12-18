@@ -2442,21 +2442,10 @@ class RootStore {
   });
 
   AuthStorageKey() {
-    let key = `auth-${this.network}`;
-
-    /*
-      if(this.authOrigin) {
-        try {
-          key = `${key}-${(new URL(this.authOrigin)).hostname}`;
-        // eslint-disable-next-line no-empty
-        } catch(error) {}
-      }
-     */
-
-    return key;
+    return `auth-${this.network}`;
   }
 
-  AuthInfo(expirationBuffer=6 * 60 * 60 * 1000) {
+  AuthInfo() {
     try {
       if(this.authInfo) {
         return this.authInfo;
@@ -2469,14 +2458,7 @@ class RootStore {
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        // Expire tokens early so they don't stop working while in use
-        // TODO: Revisit
-        if(false && expiresAt - Date.now() < expirationBuffer) {
-          this.ClearAuthInfo();
-          this.Log("Authorization expired", "warn");
-        } else {
-          return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
-        }
+        return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2485,23 +2467,18 @@ class RootStore {
     }
   }
 
-  CheckAuthSession = flow(function * (expirationBuffer = 4 * 60 * 60 * 1000) {
+  CheckAuthSession = flow(function * (expirationBuffer = 3 * 60 * 60 * 1000) {
     return yield this.LoadResource({
       key: "CheckAuthSession",
       id: "check-auth-session",
       anonymous: true,
       ttl: 20,
       Load: async () => {
-        console.log("CHECKING AUTH SESSION");
         let {provider, expiresAt} = this.AuthInfo() || {};
-
-        console.log(this.AuthInfo());
 
         if(!provider || expiresAt - Date.now() > expirationBuffer) {
           return;
         }
-
-        console.log("EXPIRED", expiresAt - Date.now(), expirationBuffer);
 
         // Expired
         if(provider === "ory" && await this.AuthenticateOry()) {
@@ -2509,7 +2486,6 @@ class RootStore {
           return;
         }
 
-        console.log("SIGN OUT");
         await this.SignOut({reload: true, message: this.l10n.login.errors.session_expired});
       }
     });
@@ -2605,8 +2581,6 @@ class RootStore {
 
   SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
-
-    expiresAt = Date.now() + 4 * 60 * 60 * 1000 + 30 * 1000;
 
     const authInfo = {
       clientSigningToken,
@@ -2947,7 +2921,6 @@ class RootStore {
     }
 
     if(force || (ttl && this._resources[key]?.[id] && Date.now() - this._resources[key][id].retrievedAt > ttl * 1000)) {
-      console.log("RELOAD", key, id);
       // Force - drop all loaded content
       this._resources[key] = {};
     }
