@@ -126,6 +126,7 @@ class RootStore {
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
   loggedIn = false;
+  signingOut = false;
   externalWalletUser = false;
   disableCloseEvent = false;
   darkMode = !searchParams.has("lt");
@@ -206,6 +207,9 @@ class RootStore {
 
   shortURLs = {};
 
+  _resources = {};
+  logTiming = false;
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -251,6 +255,8 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.LoadResource = this.LoadResource.bind(this);
 
     if(searchParams.get("origin")) {
       this.authOrigin = searchParams.get("origin");
@@ -312,6 +318,11 @@ class RootStore {
         }
       }, 100);
     });
+
+    this.logTiming = new URLSearchParams(location.search).has("logTiming") || this.GetSessionStorage("log-timing");
+    if(this.logTiming) {
+      this.SetSessionStorage("log-timing", true);
+    }
 
     this.Initialize();
   }
@@ -641,7 +652,7 @@ class RootStore {
       });
 
       if(sendWelcomeEmail) {
-        const previouslySignedIn = yield rootStore.walletClient.ProfileMetadata({
+        const previouslySignedIn = yield this.walletClient.ProfileMetadata({
           type: "app",
           mode: "private",
           appId: this.appId,
@@ -651,7 +662,7 @@ class RootStore {
         if(!previouslySignedIn) {
            this.SendLoginEmail({email, type: "send_welcome_email"});
 
-          yield rootStore.walletClient.SetProfileMetadata({
+          yield this.walletClient.SetProfileMetadata({
             type: "app",
             mode: "private",
             appId: this.appId,
@@ -664,6 +675,8 @@ class RootStore {
       if(sendVerificationEmail) {
         this.SendLoginEmail({email, type: "request_email_verification"});
       }
+
+      return true;
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
@@ -791,14 +804,10 @@ class RootStore {
         // Show wallet options in login
         url.searchParams.set("swl", "");
 
-        if(rootStore.specifiedMarketplaceId) {
-          url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-        }
-
         // Metamask not available, link to download or open in app
         if(this.embedded) {
           // Do flow
-          return yield rootStore.Flow({
+          return yield this.Flow({
             type: "flow",
             flow: "open-metamask",
             parameters: {
@@ -1081,9 +1090,9 @@ class RootStore {
     ) {
       errorMessage = "Invalid username";
     } else {
-      const address = await rootStore.walletClient.UserNameToAddress({userName});
+      const address = await this.walletClient.UserNameToAddress({userName});
 
-      if(address && !Utils.EqualAddress(address, rootStore.CurrentAddress())) {
+      if(address && !Utils.EqualAddress(address, this.CurrentAddress())) {
         errorMessage = "Username has already been taken";
       }
     }
@@ -1307,7 +1316,7 @@ class RootStore {
     if(eventSlug) {
       if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
 
-      const mainSiteId = rootStore.walletClient.mainSiteId;
+      const mainSiteId = this.walletClient.mainSiteId;
       const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
 
       return (
@@ -1773,10 +1782,10 @@ class RootStore {
         const key = this.MediaViewKey({contractAddress, mediaId, preview});
         if(this.viewedMedia[key]) { return; }
 
-        const viewed = await rootStore.walletClient.ProfileMetadata({
+        const viewed = await this.walletClient.ProfileMetadata({
           type: "app",
           mode: "private",
-          appId: rootStore.appId,
+          appId: this.appId,
           key
         });
 
@@ -1796,10 +1805,10 @@ class RootStore {
 
     const key = this.MediaViewKey({contractAddress, mediaId, preview});
     if(!this.viewedMedia[key] && !preview) {
-      yield rootStore.walletClient.SetProfileMetadata({
+      yield this.walletClient.SetProfileMetadata({
         type: "app",
         mode: "private",
-        appId: rootStore.appId,
+        appId: this.appId,
         key,
         value: true
       });
@@ -1809,10 +1818,10 @@ class RootStore {
   });
 
   RemoveMediaViewed = flow(function * (key) {
-    yield rootStore.walletClient.RemoveProfileMetadata({
+    yield this.walletClient.RemoveProfileMetadata({
       type: "app",
       mode: "private",
-      appId: rootStore.appId,
+      appId: this.appId,
       key
     });
 
@@ -1978,6 +1987,8 @@ class RootStore {
   }
 
   SignOut = flow(function * ({returnUrl, message, reload=true}={}) {
+    this.signingOut = true;
+
     clearInterval(this.tokenStatusInterval);
 
     this.ClearAuthInfo();
@@ -1986,8 +1997,8 @@ class RootStore {
 
     if(this.oryClient) {
       try {
-        const response = yield rootStore.oryClient.createBrowserLogoutFlow();
-        yield rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
+        const response = yield this.oryClient.createBrowserLogoutFlow();
+        yield this.oryClient.updateLogoutFlow({token: response.data.logout_token});
       } catch(error) {
         this.Log(error, true);
       }
@@ -2003,6 +2014,7 @@ class RootStore {
 
     if(!reload) {
       this.loggedIn = false;
+      this.signingOut = false;
       return;
     }
 
@@ -2065,7 +2077,7 @@ class RootStore {
 
     if(signOut) {
       if(this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
-        url.pathname = MediaPropertyBasePath(rootStore.routeParams);
+        url.pathname = MediaPropertyBasePath(this.routeParams);
       } else if(this.routeParams.marketplaceId) {
         url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
       } else {
@@ -2365,7 +2377,7 @@ class RootStore {
 
   // Auth
   SendLoginEmail = flow(function * ({tenantId, email, type, code, mediaPropertySlugOrId}) {
-    email = email || rootStore.walletClient.UserInfo()?.email;
+    email = email || this.walletClient.UserInfo()?.email;
 
     mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 
@@ -2430,21 +2442,10 @@ class RootStore {
   });
 
   AuthStorageKey() {
-    let key = `auth-${this.network}`;
-
-    /*
-      if(this.authOrigin) {
-        try {
-          key = `${key}-${(new URL(this.authOrigin)).hostname}`;
-        // eslint-disable-next-line no-empty
-        } catch(error) {}
-      }
-     */
-
-    return key;
+    return `auth-${this.network}`;
   }
 
-  AuthInfo(expirationBuffer=6 * 60 * 60 * 1000) {
+  AuthInfo() {
     try {
       if(this.authInfo) {
         return this.authInfo;
@@ -2457,13 +2458,7 @@ class RootStore {
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        // Expire tokens early so they don't stop working while in use
-        if(expiresAt - Date.now() < expirationBuffer) {
-          this.ClearAuthInfo();
-          this.Log("Authorization expired", "warn");
-        } else {
-          return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
-        }
+        return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2471,6 +2466,30 @@ class RootStore {
       this.RemoveLocalStorage(this.AuthStorageKey());
     }
   }
+
+  CheckAuthSession = flow(function * (expirationBuffer = 3 * 60 * 60 * 1000) {
+    return yield this.LoadResource({
+      key: "CheckAuthSession",
+      id: "check-auth-session",
+      anonymous: true,
+      ttl: 20,
+      Load: async () => {
+        let {provider, expiresAt} = this.AuthInfo() || {};
+
+        if(!provider || expiresAt - Date.now() > expirationBuffer) {
+          return;
+        }
+
+        // Expired
+        if(provider === "ory" && await this.AuthenticateOry()) {
+          // Reauthentication from ory session successful
+          return;
+        }
+
+        await this.SignOut({reload: true, message: this.l10n.login.errors.session_expired});
+      }
+    });
+  });
 
   ClearAuthInfo() {
     this.RemoveLocalStorage(this.AuthStorageKey());
@@ -2561,7 +2580,7 @@ class RootStore {
   });
 
   SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
-    const { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+    let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
@@ -2878,6 +2897,58 @@ class RootStore {
       this.DEBUG_ERROR_MESSAGE = message;
     }
   }
+
+
+  // Ensure the specified load method is called only once unless forced
+  LoadResource = flow(function * ({key, id, force=false, anonymous=false, ttl, Load}) {
+    if(anonymous) {
+      key = `load${key}-anonymous`;
+    } else if(!anonymous) {
+      while(
+        !this.loaded ||
+        this.authenticating ||
+        // Auth0 login - wait for completion
+        (
+          !this.loggedIn &&
+          new URLSearchParams(decodeURIComponent(window.location.search)).has("code") &&
+          !["/verify", "/register"].find(path => window.location.pathname.endsWith(path))
+        )
+      ) {
+        yield new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      key = `load${key}-${this.CurrentAddress() || "anonymous"}`;
+    }
+
+    if(force || (ttl && this._resources[key]?.[id] && Date.now() - this._resources[key][id].retrievedAt > ttl * 1000)) {
+      // Force - drop all loaded content
+      this._resources[key] = {};
+    }
+
+    this._resources[key] = this._resources[key] || {};
+
+    if(force || !this._resources[key][id]) {
+      if(this.logTiming) {
+        this._resources[key][id] = (async (...args) => {
+          let start = Date.now();
+          // eslint-disable-next-line no-console
+          console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
+          const result = await Load(...args);
+          // eslint-disable-next-line no-console
+          console.log(`End Timing ${key.split("-").join(" ")} - ${id} - ${(Date.now() - start)}ms`);
+
+          return result;
+        })();
+      } else {
+        this._resources[key][id] = {
+          promise: Load(),
+          retrievedAt: Date.now()
+        };
+      }
+    }
+
+    return yield this._resources[key][id].promise;
+  });
 }
 
 export const rootStore = new RootStore();
