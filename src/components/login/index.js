@@ -16,12 +16,20 @@ import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 import {SetImageUrlDimensions} from "../../utils/Utils";
+import {Redirect} from "react-router-dom";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const useOry = searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
+
+  // Third party login (Ory)
+  isThirdPartyCallback: window.location.pathname === "/oidc",
+  // Redirect path
+  next: searchParams.get("next"),
+  // Property ID
+  mediaPropertySlugOrId: searchParams.get("pid"),
 
   // Origin URL of the opener
   origin: searchParams.get("origin"),
@@ -122,7 +130,9 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
 
 // Top logo
 const Logo = ({customizationOptions}) => {
-  if(!customizationOptions) { return null; }
+  if(!customizationOptions) {
+    return null;
+  }
 
   if(customizationOptions.logo) {
     return (
@@ -157,7 +167,6 @@ const PoweredBy = ({customizationOptions}) => {
           <ImageIcon icon={customizationOptions.powered_by_logo.url} className="login-page__tagline__image login-page__tagline__image--custom" alt={customizationOptions.powered_by_logo_alt_text || ""} /> :
           <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
       }
-
     </div>
   );
 };
@@ -491,7 +500,7 @@ const CustomConsentModal = ({customConsent}) => {
 export const SaveCustomConsent = async (userData) => {
   if(!rootStore.loggedIn || !rootStore.specifiedMarketplaceHash) { return; }
 
-  const customizationMetadata = await rootStore.LoadLoginCustomization();
+  const customizationMetadata = await rootStore.LoadLoginCustomization(params.mediaPropertySlugOrId);
 
   if(!customizationMetadata?.custom_consent?.enabled) { return; }
 
@@ -769,6 +778,59 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   );
 });
 
+const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
+  const [finished, setFinished] = useState(false);
+  const [userData, setUserData] = useState(undefined);
+
+  useEffect(() => {
+    try {
+      setUserData(JSON.parse(rootStore.GetSessionStorage("user-data")) || {});
+    } catch(error) {
+      rootStore.Log("Failed to parse user data", true);
+      rootStore.Log(error, true);
+      setUserData({});
+    }
+  }, []);
+
+  useEffect(() => {
+    if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
+
+    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
+      .finally(() => setFinished(true));
+  }, [rootStore.loaded, rootStore.oryClient, userData]);
+
+  if(finished) {
+    return <Redirect to={params.next || "/"} />;
+  }
+
+  if(!customizationOptions || !rootStore.loaded) {
+    return (
+      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}>
+        <PageLoader/>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={customizationOptions.styles}
+      className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
+    >
+      <Background customizationOptions={customizationOptions}/>
+
+      <div className="login-page__login-box">
+        <Form
+          userData={userData || {}}
+          setUserData={setUserData}
+          authenticating
+          loading
+          customizationOptions={customizationOptions}
+        />
+      </div>
+    </div>
+  );
+});
+
 const Login = observer(({Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(params.userData || {});
@@ -777,12 +839,7 @@ const Login = observer(({Close}) => {
   useEffect(() => {
     if(customizationOptions) { return; }
 
-    // Marketplace is specified as something other than hash - wait for it to be resolved to rootStore.specifiedMarketplaceHash
-    if(searchParams.get("mid") && !searchParams.get("mid").startsWith("hq__") && !rootStore.specifiedMarketplaceHash) {
-      return;
-    }
-
-    rootStore.LoadLoginCustomization()
+    rootStore.LoadLoginCustomization(params.mediaPropertySlugOrId)
       .then(options => {
         if(!options) {
           setCustomizationOptions({});
@@ -832,6 +889,10 @@ const Login = observer(({Close}) => {
       // eslint-disable-next-line no-empty
     } catch(error) {}
   };
+
+  if(params.isThirdPartyCallback) {
+    return <ThirdPartyLoginCallback customizationOptions={customizationOptions} />;
+  }
 
   return (
     <LoginComponent

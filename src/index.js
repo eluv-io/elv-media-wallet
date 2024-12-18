@@ -14,10 +14,12 @@ import { rootStore } from "Stores/index.js";
 import {
   Switch,
   Route,
-  Redirect, useRouteMatch, BrowserRouter, useHistory
+  Redirect,
+  useRouteMatch,
+  BrowserRouter,
+  useHistory
 } from "react-router-dom";
 import Login from "Components/login/index";
-import OryLogin from "Components/login/OryLogin";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
@@ -340,9 +342,9 @@ root.render(
             </div>
           </Route>
 
-          <Route path="/ory_login">
+          <Route path="/oidc">
             <div className="login-page-container">
-              <OryLogin />
+              <Login />
             </div>
           </Route>
 
