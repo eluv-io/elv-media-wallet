@@ -562,6 +562,13 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
+  if(
+    section.visibility === "authenticated" && !rootStore.loggedIn ||
+    section.visibility === "unauthenticated" && rootStore.loggedIn
+  ) {
+    return null;
+  }
+
   let sectionPermissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
     sectionSlugOrId: !mediaListId && sectionId,
