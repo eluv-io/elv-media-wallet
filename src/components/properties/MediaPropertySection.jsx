@@ -45,6 +45,44 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
   }
 };
 
+// Resolve content that should appear in the section
+const SectionContent = async ({match, section, mediaListId, activeFilters}) => {
+  if(!section) {
+    return [];
+  }
+
+  if(
+    section.visibility === "authenticated" && !rootStore.loggedIn ||
+    section.visibility === "unauthenticated" && rootStore.loggedIn
+  ) {
+    return [];
+  }
+
+  let content = (await mediaPropertyStore.MediaPropertySectionContent({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    pageSlugOrId: match.params.pageSlugOrId,
+    sectionSlugOrId: mediaListId || section.id,
+    mediaListSlugOrId: mediaListId,
+    filterOptions: activeFilters
+  })) || [];
+
+  let sectionPermissions = mediaPropertyStore.ResolvePermission({
+    ...match.params,
+    sectionSlugOrId: !mediaListId && section.id,
+    mediaListSlugOrId: mediaListId
+  });
+
+  if(
+    content.length === 0 ||
+    sectionPermissions.authorized === false &&
+    sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
+  ) {
+    return [];
+  }
+
+  return content;
+};
+
 const ActionVisible = ({permissions, behavior, visibility}) => {
   if(behavior === "sign_in" && rootStore.loggedIn) {
     return false;
@@ -265,28 +303,78 @@ export const MediaPropertyHeroSection = observer(({section}) => {
 export const MediaPropertySectionContainer = observer(({section, isMediaPage, sectionClassName=""}) => {
   const match = useRouteMatch();
   const [filter, setFilter] = useState("");
+  const [hasContent, setHasContent] = useState(false);
+
+  useEffect(() => {
+    // Check to see if any subsections have visible content
+    Promise.all(
+      section.sections.map(sectionId =>
+        SectionContent({
+          match,
+          section: mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: sectionId}),
+        })
+      )
+    ).then(results => setHasContent(!!results.find(result => result?.length > 0)));
+  }, [match.params]);
+
+  const hasTitle = !!section.display.title || !!section.display.subtitle;
+  const hasTags = (section.filter_tags || []).length > 0;
+
+  if(!hasContent) {
+    // No available content in any child sections - hide
+    return null;
+  }
 
   return (
     <>
       {
-        (section.filter_tags || []).length === 0 ? null :
-          <div className={S("container-section__filter-container")}>
-            <AttributeFilter
-              className={S("container-section__filter")}
-              attributeKey="tag"
-              filterOptions={
-                [
-                  "",
-                  ...section.filter_tags
-                ].map(value => ({value}))
-              }
-              variant="text"
-              activeFilters={{attributes: {tag: filter}}}
-              SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
-            />
-          </div>
-      }
+        !hasTitle && !hasTags ? null :
+          <div className={[S("section-container", "container-section", `container-section--${section.display.justification || "left"}`), sectionClassName].join(" ")}>
+            <div className={S("section", `section--${section.display.justification || "left"}`)}>
+              {
+                !section.display.title ? null :
+                  <div className={S("section__title-container")}>
+                    {
+                      !section.display.title ? null :
+                        <h2 className={[S("section__title"), "_title"].join(" ")}>
+                          {
+                            !section.display.title_icon ? null :
+                              <img src={section.display.title_icon.url} alt="Icon" className={S("section__title-icon")}/>
+                          }
+                          {section.display.title}
+                        </h2>
+                    }
+                  </div>
 
+              }
+              {
+                !section.display.subtitle ? null :
+                  <h2 className={S("section__subtitle")}>
+                    {section.display.subtitle}
+                  </h2>
+              }
+              {
+                !hasTags ? null :
+                  <div className={S("container-section__filter-container")}>
+                    <AttributeFilter
+                      className={S("container-section__filter")}
+                      attributeKey="tag"
+                      filterOptions={
+                        [
+                          "",
+                          ...section.filter_tags
+                        ].map(value => ({value}))
+                      }
+                      variant="text"
+                      activeFilters={{attributes: {tag: filter}}}
+                      SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
+                    />
+                  </div>
+              }
+            </div>
+          </div>
+
+      }
       {
         section.sections.map(sectionId => {
           const subsection = mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: sectionId});
@@ -543,13 +631,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
   useEffect(() => {
     if(!section) { return; }
 
-    mediaPropertyStore.MediaPropertySectionContent({
-      mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-      pageSlugOrId: match.params.pageSlugOrId,
-      sectionSlugOrId: mediaListId || sectionId,
-      mediaListSlugOrId: mediaListId,
-      filterOptions: activeFilters
-    })
+    SectionContent({match, section, mediaListId, activeFilters})
       .then(content => {
         setSectionContent(content);
 
@@ -558,22 +640,9 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       });
   }, [match.params, sectionId, mediaListId, activeFilters]);
 
-  if(!section) {
+  if(!section || allContentLength === 0) {
     return null;
   }
-
-  if(
-    section.visibility === "authenticated" && !rootStore.loggedIn ||
-    section.visibility === "unauthenticated" && rootStore.loggedIn
-  ) {
-    return null;
-  }
-
-  let sectionPermissions = mediaPropertyStore.ResolvePermission({
-    ...match.params,
-    sectionSlugOrId: !mediaListId && sectionId,
-    mediaListSlugOrId: mediaListId
-  });
 
   let ContentComponent;
   switch(section.display.display_format?.toLowerCase()) {
@@ -586,14 +655,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     default:
       ContentComponent = SectionContentGrid;
       break;
-  }
-
-  if(
-    allContentLength === 0 ||
-    sectionPermissions.authorized === false &&
-    sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
-  ) {
-    return null;
   }
 
   let displayLimit = section.display?.display_limit;
@@ -761,9 +822,10 @@ const MediaPropertySectionPage = observer(() => {
   useEffect(() => {
     if(!section) { return; }
 
-    mediaPropertyStore.MediaPropertySectionContent({
-      ...match.params,
-      filterOptions: activeFilters
+    SectionContent({
+      match,
+      section: mediaPropertyStore.MediaPropertySection({...match.params}),
+      activeFilters
     })
       .then(content => {
         setSectionContent(content);
