@@ -26,14 +26,4 @@
     position: relative;
     width: 100%;
   }
-
-  @media screen and (width <= 800px) {
-    &__section {
-      padding-inline: var(--property-page-padding);
-    }
-
-    &__sections {
-      gap: 20px;
-    }
-  }
 }
