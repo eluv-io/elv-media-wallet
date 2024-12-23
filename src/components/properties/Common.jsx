@@ -91,19 +91,34 @@ export const PageBackground = observer(({
   );
 });
 
-export const PageHeader = observer(({display, maxHeaderSize=36, active=true, children, className=""}) => {
+export const PageHeader = observer(({
+  display,
+  fontSizes={},
+  active=true,
+  children,
+  className=""
+}) => {
   // Collapse expanded description if this header becomes inactive, e.g. hero section is scrolled to another header
   const [descriptionKey, setDescriptionKey] = useState(0);
+
   useEffect(() => {
     if(!active) {
       setDescriptionKey(descriptionKey + 1);
     }
   }, [active]);
 
+  fontSizes = {
+    maxPx: 36,
+    minPx: 28,
+    maxPxMobile: 32,
+    minPxMobile: 18,
+    ...fontSizes
+  };
+
   return (
     <div className={[S("page-header", `page-header--${display.position?.toLowerCase()}`), className].join(" ")}>
       <div className={S("page-header__content-container")}>
-        <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`)}>
+        <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`, !children ? "page-header__content--no-children" : "")}>
           {
             !display?.logo?.url ? null :
               <LoaderImage
@@ -122,7 +137,14 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
                   !display.title_icon ? null :
                     <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")}/>
                 }
-                <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={28} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
+                <ScaledText
+                  Tag="h1"
+                  maxPx={fontSizes.maxPx || 36}
+                  minPx={fontSizes.minPx || 28}
+                  maxPxMobile={fontSizes.maxPxMobile || 32}
+                  minPxMobile={fontSizes.minPxMobile || 18}
+                  className={[S("page-header__title"), "_title"].join(" ")}
+                >
                   {display.title}
                 </ScaledText>
               </div>

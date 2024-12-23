@@ -103,6 +103,11 @@
     }
   }
 
+  &__page-header {
+    margin-top: 0!important;
+    padding-bottom: 0;
+  }
+
   &__logo-container {
     display: grid;
     gap: 40px;
@@ -123,7 +128,7 @@
     max-height: 300px;
     max-width: 200px;
     object-fit: contain;
-    width: 200px;
+    width: auto;
   }
 
   &__title-container {

@@ -273,7 +273,6 @@ export const MediaPropertyHeroSection = observer(({section}) => {
             <PageHeader
               active={activeIndex === index}
               display={heroItem.display}
-              maxHeaderSize={38}
               className={S("hero-section__header")}
             >
               <Actions
@@ -940,7 +939,11 @@ const MediaPropertySectionPage = observer(() => {
         activeFilters={activeFilters}
         SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
       />
-      <PageHeader display={section.display} className={S("section__page-header")} />
+      <PageHeader
+        display={section.display}
+        fontSizes={{maxPxMobile: 24, minPxMobile: 24}}
+        className={S("section__page-header")}
+      />
       <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
         {sectionItems}
       </LoginGate>
