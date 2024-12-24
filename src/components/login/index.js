@@ -122,6 +122,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       options: consent?.consent_options
     },
     use_ory: settings?.provider === "ory",
+    enable_metamask: settings?.enable_metamask,
     disable_registration: settings?.disable_registration || false
   };
 };

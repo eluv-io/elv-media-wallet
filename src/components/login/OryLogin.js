@@ -11,6 +11,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import GoogleLogo from "Assets/icons/google-logo";
 import AppleLogo from "Assets/icons/apple-logo";
+import MetamaskIcon from "Assets/icons/metamask fox";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
@@ -508,6 +509,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
   const showGoogleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
   const showAppleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showMetamaskLogin = customizationOptions.enable_metamask;
 
   return (
     <div className="ory-login">
@@ -638,8 +640,10 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
               {
                 !showGoogleLogin ? null :
                   <ButtonWithLoader
+                    disabled={requiredOptionsMissing}
                     action={false}
                     onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "google"})}
+                    title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
                     className="login-page__third-party-login login-page__third-party-login--google"
                   >
                     <ImageIcon icon={GoogleLogo} className="login-page__third-party-login__logo" />
@@ -649,14 +653,42 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
                 {
                 !showAppleLogin ? null :
                   <ButtonWithLoader
+                    disabled={requiredOptionsMissing}
                     action={false}
                     onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "apple"})}
+                    title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
                     className="login-page__third-party-login login-page__third-party-login--apple"
                   >
                     <ImageIcon icon={AppleLogo} className="login-page__third-party-login__logo" />
                     Sign In with Apple
                   </ButtonWithLoader>
               }
+            </div>
+        }
+        {
+          flowType !== "login" || !showMetamaskLogin ? null :
+            <div className="login-page__third-party-login-container">
+              <ButtonWithLoader
+                className="login-page__third-party-login login-page__third-party-login--metamask"
+                onClick={async event => {
+                  try {
+                    event.preventDefault();
+                    await rootStore.Authenticate({externalWallet: "Metamask"});
+
+                    if(searchParams.get("next")) {
+                      setRedirect(searchParams.get("next"));
+                    }
+                  } catch(error) {
+                    rootStore.Log(error, true);
+                  }
+                }}
+                action={false}
+                disabled={requiredOptionsMissing}
+                title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
+              >
+                <ImageIcon icon={MetamaskIcon} className="login-page__third-party-login__logo" />
+                { rootStore.l10n.login.connect_metamask }
+              </ButtonWithLoader>
             </div>
         }
       </form>

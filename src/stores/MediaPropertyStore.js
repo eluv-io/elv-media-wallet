@@ -1187,19 +1187,6 @@ class MediaPropertyStore {
 
         metadata.mediaPropertyId = mediaPropertyId;
 
-        const provider = this.rootStore.AuthInfo()?.provider || "external";
-        const propertyProvider = metadata?.login?.settings?.provider || "auth0";
-        if(
-          this.rootStore.loggedIn &&
-          provider !== propertyProvider &&
-          // Only allow metamask for auth0
-          !(provider === "external" && propertyProvider === "auth0")
-        ) {
-          this.rootStore.Log("Signing out due to mismatched login provider with property");
-          await this.rootStore.SignOut({reload: false});
-          return;
-        }
-
         // Start loading associated marketplaces but don't block on it
         (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
           this.LoadMarketplace({marketplaceId: marketplace_id, force})
