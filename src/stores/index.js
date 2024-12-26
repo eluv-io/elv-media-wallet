@@ -2535,6 +2535,11 @@ class RootStore {
 
       try {
         expiresAt = JSON.parse(this.client.utils.FromB64(clusterToken)).exp || expiresAt;
+
+        if(expiresAt - Date.now() < 5 * 60 * 60 * 1000) {
+          // This auth expires too soon, ignore it
+          return;
+        }
       } catch(error) {
         this.Log("Failed to parse cluster token from authorization parameter:", true);
         this.Log(error);
