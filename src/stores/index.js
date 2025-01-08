@@ -83,7 +83,6 @@ class RootStore {
 
   appId = "eluvio-media-wallet";
 
-  auth0 = undefined;
   oryClient = undefined;
 
   authOrigin = this.GetSessionStorage("auth-origin");
@@ -136,8 +135,6 @@ class RootStore {
   marketplaceHashes = {};
   tenantSlug = undefined;
   marketplaceSlug = undefined;
-
-  auth0AccessToken = undefined;
 
   loaded = false;
   authenticating = false;
@@ -454,17 +451,6 @@ class RootStore {
             }
           })
         );
-
-        const {Auth0Client} = yield import("auth0-spa-js");
-
-        this.auth0 = new Auth0Client({
-          domain: EluvioConfiguration["auth0-domain"],
-          client_id: EluvioConfiguration["auth0-configuration-id"],
-          redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
-          cacheLocation: "localstorage",
-          useRefreshTokens: true,
-          useCookiesForTransactions: true
-        });
       }
 
       // Start loading media properties
@@ -569,9 +555,6 @@ class RootStore {
         if(this.AuthInfo()) {
           this.Log("Authenticating from saved session");
           yield this.Authenticate(this.AuthInfo());
-        } else if(this.auth0) {
-          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
-          yield this.AuthenticateAuth0({});
         }
       }
 
@@ -592,9 +575,6 @@ class RootStore {
         if(this.AuthInfo()) {
           this.Log("Authenticating from saved session");
           yield this.Authenticate(this.AuthInfo());
-        } else if(this.auth0) {
-          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
-          yield this.AuthenticateAuth0({});
         }
       }
 
@@ -718,61 +698,6 @@ class RootStore {
       this.Log(error, true);
     }
   }
-
-  AuthenticateAuth0 = flow(function * ({userData}={}) {
-    try {
-      // eslint-disable-next-line no-console
-      console.time("Auth0 Authentication");
-
-      // Check for existing Auth0 authentication status
-      // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
-      // eslint-disable-next-line no-async-promise-executor
-      yield new Promise(async (resolve, reject) => {
-        const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
-        // eslint-disable-next-line no-console
-        console.time("auth0.checkSession");
-        await this.auth0.checkSession();
-        // eslint-disable-next-line no-console
-        console.timeEnd("auth0.checkSession");
-        clearTimeout(timeout);
-
-        resolve();
-      });
-
-      if(yield this.auth0.isAuthenticated()) {
-        this.Log("Authenticating with Auth0 session");
-
-        const authInfo = yield this.auth0.getIdTokenClaims();
-
-        yield this.Authenticate({
-          idToken: authInfo.__raw,
-          provider: "auth0",
-          user: {
-            name: authInfo.name,
-            email: authInfo.email,
-            verified: authInfo.email_verified,
-            userData
-          }
-        });
-
-        this.ClearLoginParams();
-      }
-    } catch(error) {
-      if(error?.message?.toLowerCase() !== "login required") {
-        this.Log("Error logging in with Auth0:", true);
-        this.Log(error, true);
-
-        this.ClearLoginParams();
-      }
-
-      if([400, 403, 503].includes(parseInt(error?.status))) {
-        throw { uiMessage: this.l10n.login.errors.too_many_logins };
-      }
-    } finally {
-      // eslint-disable-next-line no-console
-      console.timeEnd("Auth0 Authentication");
-    }
-  });
 
   Authenticate = flow(function * ({
     idToken,
@@ -2011,28 +1936,6 @@ class RootStore {
       return;
     }
 
-    if(this.auth0 && (yield this.auth0.isAuthenticated())) {
-      try {
-        this.disableCloseEvent = true;
-
-        // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
-        returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
-        returnUrl.hash = returnUrl.pathname;
-        returnUrl.pathname = "";
-
-        setTimeout(() => {
-          this.auth0.logout({
-            returnTo: returnUrl.toString()
-          });
-        }, 100);
-
-        return;
-      } catch(error) {
-        this.Log("Failed to log out of Auth0:");
-        this.Log(error, true);
-      }
-    }
-
     this.Reload(returnUrl || this.ReloadURL({signOut: true}));
   });
 
@@ -2131,29 +2034,6 @@ class RootStore {
 
       throw { message: "User has rejected the request", error: "user_reject" };
     }
-  });
-
-  CheckEmailVerification = flow(function * (auth0) {
-    try {
-      if(!this.auth0AccessToken) {
-        this.auth0AccessToken = yield auth0.getAccessTokenSilently();
-      }
-
-      const userProfile = (
-        yield (
-          yield fetch(
-            "https://auth.contentfabric.io/userinfo",
-            { headers: { Authorization: `Bearer ${this.auth0AccessToken}` } }
-          )
-        ).json()
-      ) || {};
-
-      return userProfile.email_verified;
-    } catch(error) {
-      this.Log(error, true);
-    }
-
-    return false;
   });
 
   FlowURL({type="flow", flow, marketplaceId, parameters={}}) {
@@ -2902,16 +2782,7 @@ class RootStore {
     if(anonymous) {
       key = `load${key}-anonymous`;
     } else if(!anonymous) {
-      while(
-        !this.loaded ||
-        this.authenticating ||
-        // Auth0 login - wait for completion
-        (
-          !this.loggedIn &&
-          new URLSearchParams(decodeURIComponent(window.location.search)).has("code") &&
-          !["/verify", "/register"].find(path => window.location.pathname.endsWith(path))
-        )
-      ) {
+      while(!this.loaded || this.authenticating) {
         yield new Promise(resolve => setTimeout(resolve, 500));
       }
 

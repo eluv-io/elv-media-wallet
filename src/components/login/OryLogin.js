@@ -210,7 +210,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         returnUrl.pathname = "/oidc";
         returnUrl.searchParams.set("next", location.pathname);
 
-        const propertySlugOrId = rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId;
+        const propertySlugOrId = rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId && searchParams.get("pid");
         if(propertySlugOrId) {
           returnUrl.searchParams.set("pid", propertySlugOrId);
         }
@@ -381,8 +381,12 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
     try {
       if(additionalData.thirdParty) {
-        rootStore.SetSessionStorage("pid", rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId);
+        rootStore.SetSessionStorage("pid", rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId || searchParams.get("pid"));
         rootStore.SetSessionStorage("return_to", window.location.pathname);
+
+        if(searchParams.get("elvid")) {
+          rootStore.SetSessionStorage("elvid", searchParams.get("elvid"));
+        }
 
         try {
           await rootStore.oryClient.updateLoginFlow({

@@ -9,7 +9,6 @@ import Confirm from "Components/common/Confirm";
 import {LocalizeString} from "Components/common/UIComponents";
 import {RichText} from "Components/properties/Common";
 
-import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
@@ -21,9 +20,6 @@ import {Redirect} from "react-router-dom";
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const useOry = searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
-  // If we've just come back from Auth0
-  isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
-
   // Third party login (Ory) - If flow parameter is present, there was a conflict and the login form needs to be shown
   isThirdPartyCallback: window.location.pathname === "/oidc" && !searchParams.has("flow"),
   // Redirect path
@@ -46,9 +42,7 @@ const params = {
   // Where should the page redirect to with login credentials
   redirect: searchParams.get("redirect"),
   // Response code to fill out for code login
-  loginCode: searchParams.get("elvid"),
-  // Should Auth0 credentials be cleared before login?
-  clearLogin: !useOry && searchParams.has("clear"),
+  loginCode: searchParams.get("elvid") || rootStore.GetSessionStorage("elvid"),
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
@@ -271,13 +265,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, errorMessage, LogIn}) => {
-  let hasLoggedIn = false;
-  try {
-    hasLoggedIn = localStorage.getItem("hasLoggedIn");
-    // eslint-disable-next-line no-empty
-  } catch(error) {}
-
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet}) => {
   loading =
     loading ||
     !rootStore.loaded ||
@@ -292,45 +280,6 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     customizationOptions?.custom_consent?.type === "Checkboxes" &&
     customizationOptions.custom_consent.enabled &&
     customizationOptions.custom_consent.options.find(option => option.required && !userData[option.key]);
-
-  let signUpButton;
-  if(!customizationOptions.disable_registration) {
-    signUpButton = (
-      <button
-        className={`login-page__button ${hasLoggedIn ? "login-page__button--secondary" : "login-page__button--primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
-        autoFocus={!hasLoggedIn}
-        onClick={() => LogIn({provider: "oauth", mode: "create"})}
-        disabled={requiredOptionsMissing}
-        title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
-      >
-        {rootStore.l10n.login.sign_up}
-      </button>
-    );
-  }
-
-  const logInButton = (
-    <button
-      autoFocus={!!hasLoggedIn}
-      className={`login-page__button ${hasLoggedIn || customizationOptions.disable_registration ? "login-page__button--primary" : "login-page__button--secondary"} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
-      onClick={() => LogIn({provider: "oauth", mode: "login"})}
-      disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
-    >
-      { rootStore.l10n.login.sign_in }
-    </button>
-  );
-
-  const metamaskButton = (
-    <button
-      className="login-page__button login-page__button--secondary login-page__button--metamask"
-      onClick={() => LogIn({provider: "metamask", mode: "login"})}
-      disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
-    >
-      <ImageIcon icon={MetamaskIcon} />
-      { rootStore.l10n.login.connect_metamask }
-    </button>
-  );
 
   if(codeAuthSet) {
     return (
@@ -347,69 +296,39 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     );
   }
 
-  if(useOry) {
+  if(params.isThirdPartyCallback) {
     return (
-      <>
-        <Logo customizationOptions={customizationOptions} />
-        <OryLogin
-          codeAuth={params.loginCode}
-          customizationOptions={customizationOptions}
-          userData={userData}
-          requiredOptionsMissing={requiredOptionsMissing}
-        />
-        {
-          params.loginCode && !loading ?
-            <div className="login-page__login-code">
-              { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
-            </div> : null
-        }
+      <div
+        style={customizationOptions.styles}
+        className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
+      >
+        <Background customizationOptions={customizationOptions}/>
 
-        <PoweredBy customizationOptions={customizationOptions}/>
-        <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
-      </>
+        <div className="login-page__login-box">
+          <div className="login-page__actions login-page__actions--loading">
+            <div className="login-page__actions__loader">
+              <Loader />
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
     <>
       <Logo customizationOptions={customizationOptions} />
-      <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
-        { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
-        {
-          hasLoggedIn ?
-            <>
-              { logInButton }
-              { signUpButton }
-            </> :
-            <>
-              { signUpButton }
-              { logInButton }
-            </>
-        }
-
-        {
-          customizationOptions.disable_registration ? null :
-            <>
-              <div className="login-page__actions__separator">
-                <div className="login-page__actions__separator-line"/>
-                <div className="login-page__actions__separator-text">Or</div>
-                <div className="login-page__actions__separator-line"/>
-              </div>
-
-              {metamaskButton}
-            </>
-        }
-      </div>
+      <OryLogin
+        codeAuth={params.loginCode}
+        customizationOptions={customizationOptions}
+        userData={userData}
+        requiredOptionsMissing={requiredOptionsMissing}
+      />
       {
         params.loginCode && !loading ?
           <div className="login-page__login-code">
             { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
           </div> : null
-      }
-
-      {
-        !errorMessage ? null :
-          <div className="login-page__error-message">{errorMessage}</div>
       }
 
       <PoweredBy customizationOptions={customizationOptions}/>
@@ -553,117 +472,38 @@ export const SaveCustomConsent = async (userData) => {
   }
 };
 
-const AuthenticateAuth0 = async (userData) => {
-  if(rootStore.authenticating || rootStore.loggedIn) { return; }
-
-  try {
-    rootStore.Log("Parsing Auth0 parameters");
-
-    // eslint-disable-next-line no-console
-    console.time("Auth0 Parameter Parsing");
-
-    await rootStore.auth0.handleRedirectCallback();
-
-    await rootStore.AuthenticateAuth0({userData});
-  } catch(error){
-    rootStore.Log("Auth0 authentication failed:", true);
-    rootStore.Log(error, true);
-
-    if(error.uiMessage) {
-      throw error;
-    }
-  } finally {
-    rootStore.ClearLoginParams();
-  }
-};
-
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
-  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
   const [userDataSaved, setUserDataSaved] = useState(false);
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(undefined);
-  const useOry = true;
+  const [redirect, setRedirect] = useState(undefined);
 
-  // Handle login button clicked - Initiate popup/login flow
-  const LogIn = async ({provider, mode}) => {
-    setErrorMessage(undefined);
+  useEffect(() => {
+    if(!rootStore.GetSessionStorage("user-data")) { return; }
 
-    if(rootStore.embedded) {
-      const marketplaceHash = params.marketplace || customizationOptions.marketplaceHash;
-      await rootStore.walletClient.LogIn({
-        method: "tab",
-        provider,
-        mode,
-        callback: async ({clientAuthToken, clientSigningToken}) => await rootStore.Authenticate({clientAuthToken, clientSigningToken}),
-        marketplaceParams: marketplaceHash ? { marketplaceHash } : undefined,
-        clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
-      });
-    } else {
-      if(provider === "metamask") {
-        // Authenticate with metamask
-        await rootStore.Authenticate({externalWallet: "Metamask"});
-      } else if(provider === "oauth") {
-        let auth0LoginParams = { appState: {} };
-
-        if(rootStore.darkMode) {
-          auth0LoginParams.darkMode = true;
-        }
-
-        if(customizationOptions?.disable_third_party) {
-          auth0LoginParams.disableThirdParty = true;
-        }
-
-        const callbackUrl = new URL(window.location.href);
-        callbackUrl.pathname = "";
-        callbackUrl.hash = window.location.pathname;
-
-        callbackUrl.searchParams.set("source", "oauth");
-        callbackUrl.searchParams.set("action", "loginCallback");
-
-        if(rootStore.specifiedMarketplaceHash && !callbackUrl.searchParams.get("mid") && !callbackUrl.searchParams.get("marketplace")) {
-          callbackUrl.searchParams.set("marketplace", rootStore.specifiedMarketplaceHash);
-        }
-
-        if(userData && !callbackUrl.searchParams.get("data")) {
-          callbackUrl.searchParams.set("data", Utils.B64(JSON.stringify(userData)));
-        }
-
-        await rootStore.auth0.loginWithRedirect({
-          redirect_uri: callbackUrl.toString(),
-          initialScreen: mode === "create" ? "signUp" : "login",
-          ...auth0LoginParams
-        });
-      }
+    try {
+      setUserData(JSON.parse(rootStore.GetSessionStorage("user-data")) || {});
+    } catch(error) {
+      rootStore.Log("Failed to parse user data", true);
+      rootStore.Log(error, true);
+      setUserData({});
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if(!params.isThirdPartyCallback || !rootStore.oryClient || !rootStore.loaded || !userData) { return; }
+
+    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
+      .finally(() => {
+        if(!params.loginCode) {
+          setRedirect(params.next || "/");
+        }
+      });
+  }, [rootStore.loaded, rootStore.oryClient, userData]);
 
   // Handle login event, popup flow, and auth0 logout
   useEffect(() => {
-    const Respond = () => {
-      const origin = params.origin || window.location.origin;
-
-      let response = { clientAuthToken: rootStore.AuthInfo().clientAuthToken };
-
-      if(origin === window.location.origin) {
-        response.clientSigningToken = rootStore.AuthInfo().clientSigningToken;
-      }
-
-      window.opener.postMessage({
-        type: "LoginResponse",
-        params: response
-      }, params.origin || window.location.origin);
-
-      setTimeout(() => window.close(), 5000);
-    };
-
-    const Redirect = () => {
-      let redirectUrl = new URL(params.redirect);
-      redirectUrl.searchParams.set("elvToken", rootStore.AuthInfo().clientAuthToken);
-      window.location = redirectUrl;
-    };
-
     const SetCodeAuth = async () => {
       try {
         setSettingCodeAuth(true);
@@ -679,6 +519,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         });
 
         setCodeAuthSet(true);
+        rootStore.RemoveSessionStorage("elvid");
       } finally {
         setSettingCodeAuth(false);
       }
@@ -686,60 +527,21 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
 
     if(!customizationOptions || !rootStore.loaded) { return; }
 
-    if(
-      (useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
-      (!useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "ory")
-    ) {
-      rootStore.SignOut({reload: false});
-      return;
-    }
-
-    if(params.clearLogin && !useOry) {
-      const returnURL = new URL(window.location.href);
-      returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
-      returnURL.hash = window.location.hash;
-      returnURL.searchParams.delete("clear");
-
-      setTimeout(() => rootStore.SignOut({returnUrl: returnURL.toString()}), 1000);
-    } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
+    if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
       SaveCustomConsent(userData)
         .finally(() => {
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(!useOry && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
-      // Returned from Auth0 callback - Authenticate
-      AuthenticateAuth0(params.userData)
-        .catch(error => {
-          if(error?.uiMessage) {
-            setErrorMessage(error?.uiMessage);
-          }
-        })
-        .finally(() => setAuth0Authenticating(false));
-    } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
-      // Opened from frame - do appropriate login flow
-      LogIn({provider: params.provider, mode: params.mode})
-        .then(() => {
-          if(params.provider !== "oauth") {
-            if(params.response === "message") {
-              Respond();
-            } else if(params.response === "redirect") {
-              Redirect();
-            } else if(params.response === "code") {
-              SetCodeAuth();
-            }
-          }
-        });
-    } else if(userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "message") {
-      // Opened from frame and logged in, respond with auth info
-      Respond();
-    } else if(userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "redirect") {
-      Redirect();
-    } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
+    } else if(!settingCodeAuth && userDataSaved && rootStore.loggedIn && params.loginCode) {
       SetCodeAuth();
     }
-  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
+  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, customizationOptions]);
+
+  if(redirect) {
+    return <Redirect to={redirect} />;
+  }
 
   const loading =
     !rootStore.loaded ||
@@ -767,65 +569,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         <Form
           userData={userData}
           setUserData={setUserData}
-          authenticating={auth0Authenticating}
           loading={settingCodeAuth || savingUserData}
           codeAuthSet={codeAuthSet}
-          LogIn={LogIn}
-          customizationOptions={customizationOptions}
-          errorMessage={errorMessage}
-          useOry={useOry}
-        />
-      </div>
-    </div>
-  );
-});
-
-const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
-  const [finished, setFinished] = useState(false);
-  const [userData, setUserData] = useState(undefined);
-
-  useEffect(() => {
-    try {
-      setUserData(JSON.parse(rootStore.GetSessionStorage("user-data")) || {});
-    } catch(error) {
-      rootStore.Log("Failed to parse user data", true);
-      rootStore.Log(error, true);
-      setUserData({});
-    }
-  }, []);
-
-  useEffect(() => {
-    if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
-
-    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
-      .finally(() => setFinished(true));
-  }, [rootStore.loaded, rootStore.oryClient, userData]);
-
-  if(finished) {
-    return <Redirect to={params.next || "/"} />;
-  }
-
-  if(!customizationOptions || !rootStore.loaded) {
-    return (
-      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}>
-        <PageLoader/>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={customizationOptions.styles}
-      className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
-    >
-      <Background customizationOptions={customizationOptions}/>
-
-      <div className="login-page__login-box">
-        <Form
-          userData={userData || {}}
-          setUserData={setUserData}
-          authenticating
-          loading
           customizationOptions={customizationOptions}
         />
       </div>
@@ -891,10 +636,6 @@ const Login = observer(({Close}) => {
       // eslint-disable-next-line no-empty
     } catch(error) {}
   };
-
-  if(params.isThirdPartyCallback) {
-    return <ThirdPartyLoginCallback customizationOptions={customizationOptions} />;
-  }
 
   return (
     <LoginComponent

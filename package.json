@@ -44,7 +44,6 @@
     "@solana/spl-token": "0.3.8",
     "@solana/web3.js": "1.66.2",
     "@stripe/stripe-js": "^1.17.1",
-    "auth0-spa-js": "^1.6.5",
     "bad-words": "^3.0.4",
     "country-codes-list": "^1.6.8",
     "dayjs": "^1.11.10",

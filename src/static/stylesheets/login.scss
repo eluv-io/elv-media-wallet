@@ -214,6 +214,7 @@
     flex-direction: column;
     max-width: 400px;
     min-height: 500px;
+    min-width: 375px;
     padding: 40px 30px 30px;
     position: relative;
     width: 100%;
@@ -515,7 +516,7 @@
     color: var(--login-text-secondary--color);
     font-size: 16px;
     font-weight: 300;
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
 
   &__code-message {
@@ -525,7 +526,7 @@
     flex-grow: 1;
     height: 100%;
     justify-content: center;
-    padding: 20px 0 40px;
+    margin-bottom: 40px;
 
     &__text {
       font-size: 20px;
@@ -602,6 +603,7 @@
       height: 100%;
       max-width: unset;
       min-height: 100vh;
+      min-width: 100%;
       padding: 50px 20px 100px;
       width: 100%;
     }
