@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import {ValidEmail} from "../../utils/Utils";
 import {Redirect} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
@@ -171,7 +171,8 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
 };
 
 const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing}) => {
-  const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
+  const isThirdPartyConflict = window.location.pathname === "/oidc";
+  const [flowType, setFlowType] = useState(searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
@@ -214,8 +215,13 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           returnUrl.searchParams.set("pid", propertySlugOrId);
         }
 
-        rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
-          .then(({data}) => setFlows({...flows, [flowType]: data}));
+        if(searchParams.has("flow")) {
+          rootStore.oryClient.getLoginFlow({id: searchParams.get("flow")})
+            .then(({data}) => setFlows({...flows, [flowType]: data}));
+        } else {
+          rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
+            .then(({data}) => setFlows({...flows, [flowType]: data}));
+        }
         break;
       case "registration":
         rootStore.oryClient.createBrowserRegistrationFlow({returnTo: window.location.origin})
@@ -276,8 +282,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     }
 
     if(!flow.refresh && flow.requested_aal !== "aal2") {
-      // TODO: Remove
-      if(!customizationOptions?.disable_registration) {
+      if(!isThirdPartyConflict && !customizationOptions?.disable_registration) {
         additionalContent.push(
           <button
             key="registration-link"
@@ -289,19 +294,38 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
         );
       }
 
-      additionalContent.push(
-        <button
-          key="recovery-link"
-          onClick={() => {
-            setFlows({...flows, recovery_email: {}});
-            setFlowType("recovery_email");
-            setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 100);
-          }}
-          className="login-page__button login-page__button--link"
-        >
-          { rootStore.l10n.login.ory.actions.recovery }
-        </button>
-      );
+      if(!isThirdPartyConflict) {
+        additionalContent.push(
+          <button
+            key="recovery-link"
+            onClick={() => {
+              setFlows({...flows, recovery_email: {}});
+              setFlowType("recovery_email");
+              setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 100);
+            }}
+            className="login-page__button login-page__button--link"
+          >
+            {rootStore.l10n.login.ory.actions.recovery}
+          </button>
+        );
+      }
+
+      if(isThirdPartyConflict) {
+        additionalContent.push(
+          <button
+            key="recovery-link"
+            onClick={() => {
+              const returnUrl = new URL(window.location.origin);
+              returnUrl.pathname = rootStore.GetSessionStorage("return_to");
+              rootStore.RemoveSessionStorage("pid");
+              rootStore.SignOut({returnUrl: returnUrl.toString()});
+            }}
+            className="login-page__button login-page__button--link"
+          >
+            {rootStore.l10n.login.ory.actions.sign_out}
+          </button>
+        );
+      }
     } else {
       additionalContent.push(
         <button key="sign-out-link" onClick={LogOut} className="login-page__button login-page__button--link">
@@ -357,6 +381,9 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
     try {
       if(additionalData.thirdParty) {
+        rootStore.SetSessionStorage("pid", rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId);
+        rootStore.SetSessionStorage("return_to", window.location.pathname);
+
         try {
           await rootStore.oryClient.updateLoginFlow({
             flow: flow.id,
@@ -400,6 +427,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
       }
 
       let next = false;
+      let nextPath = searchParams.get("next") || (isThirdPartyConflict && rootStore.GetSessionStorage("return_to"));
       switch(flowType) {
         case "login":
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
@@ -449,8 +477,8 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
           break;
       }
 
-      if(next && searchParams.get("next")) {
-        setRedirect(searchParams.get("next"));
+      if(next && nextPath) {
+        setRedirect(nextPath);
       }
     } catch(error) {
       if(error.login_limited) {
@@ -503,13 +531,23 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
   };
 
   const messages = [
-    ...(flow?.ui?.messages || []),
+    ...(flow?.ui?.messages || [])
+      .map(message => {
+        switch(message.id) {
+          case 1010016:
+            const email = flow.ui.nodes.find(node => node.attributes.name === "identifier")?.attributes.value;
+            message.text = LocalizeString(rootStore.l10n.login.ory.messages.third_party_conflict, {email});
+            break;
+        }
+
+        return message;
+      }),
     statusMessage
   ].filter(m => m);
 
-  const showGoogleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
-  const showAppleLogin = !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
-  const showMetamaskLogin = customizationOptions.enable_metamask;
+  const showGoogleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
+  const showAppleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
   return (
     <div className="ory-login">

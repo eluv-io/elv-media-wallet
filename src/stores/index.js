@@ -85,7 +85,6 @@ class RootStore {
 
   auth0 = undefined;
   oryClient = undefined;
-  propertyLoginProvider = "auth0";
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -966,8 +965,6 @@ class RootStore {
       return;
     }
 
-    this.SetPropertyLoginProvider(options?.login?.settings?.provider || "auth0");
-
     let variables = [];
 
     let css = [];
@@ -1020,10 +1017,6 @@ class RootStore {
 
     this.SetCustomCSS(css.join("\n"));
   });
-
-  SetPropertyLoginProvider(provider="auth0") {
-    this.propertyLoginProvider = provider;
-  }
 
   LoadPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
     if(!mediaPropertySlugOrId) { return; }

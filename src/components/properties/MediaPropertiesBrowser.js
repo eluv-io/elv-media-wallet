@@ -40,6 +40,8 @@ export const MediaPropertiesBrowser = observer(() => {
   useEffect(() => {
     mediaPropertyStore.LoadMediaProperties()
       .then(setMediaProperties);
+
+    rootStore.RemoveSessionStorage("pid");
   }, []);
 
   if(rootStore.isCustomDomain) {

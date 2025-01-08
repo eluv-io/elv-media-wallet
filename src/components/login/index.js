@@ -24,12 +24,12 @@ const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
 
-  // Third party login (Ory)
-  isThirdPartyCallback: window.location.pathname === "/oidc",
+  // Third party login (Ory) - If flow parameter is present, there was a conflict and the login form needs to be shown
+  isThirdPartyCallback: window.location.pathname === "/oidc" && !searchParams.has("flow"),
   // Redirect path
   next: searchParams.get("next"),
   // Property ID
-  mediaPropertySlugOrId: searchParams.get("pid"),
+  mediaPropertySlugOrId: searchParams.get("pid") || (!rootStore.routeParams.mediaPropertySlugOrId && rootStore.GetSessionStorage("pid")),
 
   // Origin URL of the opener
   origin: searchParams.get("origin"),
@@ -123,6 +123,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
     },
     use_ory: settings?.provider === "ory",
     enable_metamask: settings?.enable_metamask,
+    disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
   };
 };
@@ -583,7 +584,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const useOry = params.useOry || customizationOptions?.use_ory || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"] || rootStore.propertyLoginProvider === "ory";
+  const useOry = true;
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
