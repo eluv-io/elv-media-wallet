@@ -137,7 +137,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
       }}
       playerOptions={{
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")],
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile] || EluvioPlayerParameters.playerProfile.DEFAULT,
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"]

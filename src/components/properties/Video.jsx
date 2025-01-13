@@ -2,7 +2,7 @@ import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss
 
 import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
-import {mediaPropertyStore} from "Stores";
+import {rootStore, mediaPropertyStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
@@ -83,6 +83,7 @@ const Video = forwardRef(function VideoComponent({
           autoplay: EluvioPlayerParameters.autoplay.ON,
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
+          capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
           restartCallback: async () => {
