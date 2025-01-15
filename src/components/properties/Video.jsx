@@ -24,6 +24,9 @@ const Video = forwardRef(function VideoComponent({
   showTitle,
   mute,
   autoAspectRatio=true,
+  mediaPropertySlugOrId,
+  mediaItemId,
+  saveProgress=false,
   onClick,
   className=""
 }, ref) {
@@ -55,6 +58,12 @@ const Video = forwardRef(function VideoComponent({
       }
     }
 
+    let startProgress = saveProgress && mediaPropertyStore.GetMediaProgress({mediaPropertySlugOrId, mediaItemId});
+
+    if(startProgress > 0.95) {
+      startProgress = 0;
+    }
+
     InitializeEluvioPlayer(
       targetRef.current,
       {
@@ -84,6 +93,7 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
+          startProgress,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
           restartCallback: async () => {
@@ -135,6 +145,32 @@ const Video = forwardRef(function VideoComponent({
       }
     }
   }, [hideControls, showTitle, mute]);
+
+  useEffect(() => {
+    if(!saveProgress || isLive || !player || !mediaPropertySlugOrId || !mediaItemId) {
+      return;
+    }
+
+    const SaveProgress = () => {
+      const progress = player.controls.GetCurrentTime() / player.controls.GetDuration();
+
+      if(progress && !isNaN(progress)) {
+        mediaPropertyStore.SetMediaProgress({
+          mediaPropertySlugOrId,
+          mediaItemId,
+          progress
+        });
+      }
+    };
+
+    const progressInterval = setInterval(SaveProgress, 60 * 1000);
+
+    return () => {
+      clearInterval(progressInterval);
+
+      SaveProgress();
+    };
+  }, [player]);
 
   useEffect(() => {
     return () => {

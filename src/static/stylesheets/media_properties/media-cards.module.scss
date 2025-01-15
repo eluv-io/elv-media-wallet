@@ -129,6 +129,7 @@
   word-break: break-word;
 
   &__image-container {
+    border-radius: 14px;
     overflow: hidden;
     position: relative;
   }
@@ -197,6 +198,20 @@
   &__subtitle {
     color: var(--property-text-faded);
     min-height: 1.4em;
+  }
+
+  &__progress-container {
+    background-color: rgb(255 255 255 / 20%);
+    bottom: 0;
+    height: 8px;
+    opacity: 0.8;
+    position: absolute;
+    width: 100%;
+  }
+
+  &__progress-indicator {
+    background-color: #3784eb;
+    height: 100%;
   }
 
   &--center {

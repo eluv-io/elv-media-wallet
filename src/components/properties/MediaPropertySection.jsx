@@ -17,7 +17,7 @@ import {
 } from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
@@ -730,15 +730,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
           // Remove context from url
           const url = new URL(location.href);
           url.searchParams.delete("ctx");
-          //history.replaceState(undefined, undefined, url);
+          history.replaceState(undefined, undefined, url);
 
-          /*
           setTimeout(() => {
             // Scroll to section
             ScrollTo(-150, element);
-          }, 150);
-
-           */
+          }, 50);
         }}
         className={S(
           "section",

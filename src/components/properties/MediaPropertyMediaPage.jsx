@@ -131,6 +131,9 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
       showTitle={showTitle}
       hideControls={hideControls || mediaItem.player_controls}
       mute={mute || mediaItem.player_muted}
+      mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
+      mediaItemId={mediaItem.id}
+      saveProgress
       playoutParameters={playoutParameters}
       contentInfo={{
         title: display.title,

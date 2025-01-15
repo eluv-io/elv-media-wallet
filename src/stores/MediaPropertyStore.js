@@ -31,6 +31,8 @@ class MediaPropertyStore {
   };
   tags = [];
 
+  mediaProgress = {};
+
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
     DISABLE: "disable",
@@ -1330,6 +1332,7 @@ class MediaPropertyStore {
           __ownedItemCount: ownedItemCount
         };
 
+        this.LoadMediaProgress({mediaPropertySlugOrId: mediaPropertyId});
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
@@ -1615,6 +1618,79 @@ class MediaPropertyStore {
       }
     });
   });
+
+  /* Media */
+
+  SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
+    if(!this.rootStore.loggedIn) { return; }
+
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
+
+    if(!mediaPropertyId) { return; }
+
+    if(!this.mediaProgress[mediaPropertyId]) {
+      this.mediaProgress[mediaPropertyId] = {};
+    }
+
+    progress = parseFloat(parseFloat(progress).toFixed(5));
+
+    if(progress < 0.01) {
+      delete this.mediaProgress[mediaPropertyId][mediaItemId];
+    } else {
+      this.mediaProgress[mediaPropertyId][mediaItemId] = Math.min(1, Math.max(0, progress));
+    }
+
+    yield this.rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: this.rootStore.appId,
+      key: `media-progress-${mediaPropertyId}`,
+      value: JSON.stringify(this.mediaProgress[mediaPropertyId])
+    });
+  });
+
+  LoadMediaProgress = flow(function * ({mediaPropertySlugOrId}) {
+    if(!this.rootStore.loggedIn) { return; }
+
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
+
+    if(!mediaPropertyId) { return; }
+
+    yield this.LoadResource({
+      key: "MediaProgress",
+      id: mediaPropertyId,
+      Load: async () => {
+
+        if(!this.mediaProgress[mediaPropertyId]) {
+          this.mediaProgress[mediaPropertyId] = {};
+        }
+
+        let progress = {};
+        try {
+          progress = JSON.parse(
+            await this.rootStore.walletClient.ProfileMetadata({
+              type: "app",
+              mode: "private",
+              appId: this.rootStore.appId,
+              key: `media-progress-${mediaPropertyId}`
+            })
+          );
+        } catch(error) { /* empty */ }
+
+        this.mediaProgress[mediaPropertyId] = progress;
+      }
+    });
+  });
+
+  GetMediaProgress({mediaPropertySlugOrId, mediaItemId}) {
+    if(!this.rootStore.loggedIn) { return; }
+
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || this.rootStore.currentPropertyId;
+
+    if(!mediaPropertyId) { return; }
+
+    return this.mediaProgress[mediaPropertyId]?.[mediaItemId];
+  }
 }
 
 export default MediaPropertyStore;

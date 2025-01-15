@@ -425,6 +425,7 @@ const MediaCardVertical = observer(({
   url,
   size,
   lazy=true,
+  progress,
   authorized,
   onClick,
   className=""
@@ -476,6 +477,16 @@ const MediaCardVertical = observer(({
           authorized || !rootStore.loggedIn ? null :
             <div className={S("media-card__unauthorized-indicator")}>
               View Purchase Options
+            </div>
+        }
+        {
+          // Progress indicator
+          !progress || isNaN(progress) ? null :
+            <div className={S("media-card-vertical__progress-container")}>
+              <div
+                style={{width: `${progress * 100}%`}}
+                className={S("media-card-vertical__progress-indicator")}
+              />
             </div>
         }
       </div>
@@ -674,6 +685,12 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
+  const cardMediaItem = mediaItem || sectionItem?.mediaItem;
+  const progress =
+    cardMediaItem &&
+    !scheduleInfo.isLiveContent &&
+    mediaPropertyStore.GetMediaProgress({mediaItemId: cardMediaItem.id});
+
   disabled = disabled || (sectionItem || mediaItem)?.resolvedPermissions?.disable;
 
   let linkPath, url, authorized, price;
@@ -725,6 +742,7 @@ const MediaCard = observer(({
     buttonText,
     authorized,
     fullBleed,
+    progress,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?
