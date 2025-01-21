@@ -720,35 +720,17 @@ class RootStore {
       this.loggedIn = false;
 
       if(externalWallet === "Metamask" && !this.cryptoStore.MetamaskAvailable()) {
-        const url = new URL(window.location.origin);
-        url.pathname = window.location.pathname;
-
-        // Show login
-        url.searchParams.set("sl", "");
-        // Show wallet options in login
-        url.searchParams.set("swl", "");
-
         // Metamask not available, link to download or open in app
-        if(this.embedded) {
-          // Do flow
-          return yield this.Flow({
-            type: "flow",
-            flow: "open-metamask",
-            parameters: {
-              appUrl: url.toString()
-            }
-          });
-        } else {
-          const a = document.createElement("a");
-          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
+        const url = this.FlowURL({flow: "redirect", parameters: {url: window.location.href}});
+        const a = document.createElement("a");
+        a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
 
-          a.target = "_self";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+        a.target = "_self";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
 
-          return;
-        }
+        return;
       } else if(externalWallet === "Metamask") {
         //yield this.cryptoStore.ActivateEluvioChain();
       }
@@ -2180,13 +2162,6 @@ class RootStore {
           Respond({response: parameters.response, error: parameters.error});
 
           setTimeout(() => window.close(), 5000);
-
-          break;
-
-        case "open-metamask":
-          window.location.href = `https://metamask.app.link/dapp/${parameters.appUrl.toString().replace("https://", "")}`;
-
-          setTimeout(() => window.close(), 1000);
 
           break;
 
