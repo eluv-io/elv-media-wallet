@@ -407,6 +407,10 @@ class RootStore {
 
     const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId];
 
+    if(!propertyHash) {
+      return;
+    }
+
     const propertySlug = Object.keys(this.mediaPropertyStore.mediaPropertyHashes)
       .find(key =>
           key &&

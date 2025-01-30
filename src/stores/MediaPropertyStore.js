@@ -940,27 +940,46 @@ class MediaPropertyStore {
 
         metadataUrl.searchParams.set("resolve", "false");
 
-        const metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
+        let metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
+
+        // If preview is specified, make sure to load hashes for the current properties, even if not linked
+        if(this.previewAll) {
+          const {mediaPropertySlugOrId, parentMediaPropertySlugOrId} = this.rootStore.routeParams;
+
+          if(mediaPropertySlugOrId) {
+            const latestHash = await this.rootStore.client.LatestVersionHash({objectId: mediaPropertySlugOrId});
+            const slug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
+            metadata[slug] = { latestHash };
+          }
+
+          if(parentMediaPropertySlugOrId) {
+            const latestHash = await this.rootStore.client.LatestVersionHash({objectId: parentMediaPropertySlugOrId});
+            const slug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
+            metadata[slug] = { latestHash };
+          }
+        }
 
         let mediaPropertyHashes = {};
         let mediaPropertyIds = {};
         let mediaPropertySlugs = {};
-        Object.keys(metadata).forEach(mediaPropertySlug => {
-          const mediaPropertyHash = metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
+        await Promise.all(
+          Object.keys(metadata).map(async mediaPropertySlug => {
+            let mediaPropertyHash = metadata[mediaPropertySlug]?.latestHash || metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
 
-          if(mediaPropertyHash) {
-            const mediaPropertyId = Utils.DecodeVersionHash(mediaPropertyHash).objectId;
+            if(mediaPropertyHash) {
+              const mediaPropertyId = Utils.DecodeVersionHash(mediaPropertyHash).objectId;
 
-            mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
-            mediaPropertyHashes[mediaPropertyId] = mediaPropertyHash;
+              mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
+              mediaPropertyHashes[mediaPropertyId] = mediaPropertyHash;
 
-            mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
-            mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
+              mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
+              mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
 
-            mediaPropertySlugs[mediaPropertySlug] = mediaPropertySlug;
-            mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
-          }
-        });
+              mediaPropertySlugs[mediaPropertySlug] = mediaPropertySlug;
+              mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
+            }
+          })
+        );
 
         this.mediaPropertyHashes = mediaPropertyHashes;
         this.mediaPropertyIds = mediaPropertyIds;

@@ -190,7 +190,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
   let linkPath = MediaPropertyBasePath(match.params);
 
-  mediaItem = mediaItem || sectionItem.mediaItem;
+  mediaItem = mediaItem || sectionItem?.mediaItem;
   let params = new URLSearchParams();
 
   if(match.params.sectionSlugOrId) {
@@ -209,11 +209,11 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
     const mediaId = mediaItem?.id || sectionItem?.media_id;
 
-    if((mediaItem?.type || sectionItem.media_type) === "collection") {
+    if((mediaItem?.type || sectionItem?.media_type) === "collection") {
       linkPath = UrlJoin(linkPath, "c", mediaId);
-    } else if((mediaItem?.type || sectionItem.media_type) === "list") {
+    } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
       linkPath = UrlJoin(linkPath, "l", mediaId);
-    } else if((mediaItem?.type || sectionItem.media_type) === "media") {
+    } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
       const listParam = new URLSearchParams(location.search).get("l");
 
       if(listParam) {
