@@ -193,6 +193,13 @@
     font-weight: 700;
     height: max-content;
     min-height: 1.6em;
+
+    &--wrap {
+      font-size: 14px;
+      font-weight: 500;
+      overflow: visible;
+      white-space: wrap;
+    }
   }
 
   &__subtitle {

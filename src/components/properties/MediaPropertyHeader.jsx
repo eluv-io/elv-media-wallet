@@ -381,6 +381,12 @@ const HeaderLinks = observer(() => {
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
 
   const discoverDisabled = rootStore.isCustomDomain;
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  if(mediaProperty?.metadata?.login?.settings?.disable_login) {
+    return null;
+  }
+
 
   if(!rootStore.loggedIn) {
     if(rootStore.authenticating) { return null; }

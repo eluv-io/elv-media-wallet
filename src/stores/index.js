@@ -2474,6 +2474,12 @@ class RootStore {
   }
 
   ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
+    const mediaProperty = this.mediaPropertyStore.MediaProperty(this.routeParams);
+    if(mediaProperty?.metadata?.login?.settings?.disable_login) {
+      // Login disabled, ignore
+      return;
+    }
+
     if(this.capturedLogin && !ignoreCapture) {
       if(this.loggedIn) { return; }
 

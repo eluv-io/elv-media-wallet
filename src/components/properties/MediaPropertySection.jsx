@@ -407,6 +407,7 @@ export const MediaGrid = observer(({
   textJustification="left",
   cardFormat="vertical",
   defaultButtonText,
+  wrapTitles=false,
   className="",
   navContext,
 }) => {
@@ -446,6 +447,7 @@ export const MediaGrid = observer(({
             textDisplay={textDisplay}
             aspectRatio={aspectRatio}
             textJustification={textJustification}
+            wrapTitle={wrapTitles}
             buttonText={item?.card_button_text || defaultButtonText}
             navContext={navContext}
           />
@@ -513,6 +515,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
           textDisplay={section.display.content_display_text}
           textJustification={section.display.text_justification}
           aspectRatio={section.display.aspect_ratio}
+          wrapTitle={section.display.wrap_titles}
           format={section.display.card_style || "vertical"}
           buttonText={item?.card_button_text || section.display.card_default_button_text}
           navContext={navContext}
@@ -533,6 +536,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       textDisplay={section.display.content_display_text}
       justification={section.display.justification}
       textJustification={section.display.text_justification}
+      wrapTitles={section.display.wrap_titles}
       defaultButtonText={section.display.card_default_button_text}
       cardStyle={section.display.card_style}
       navContext={navContext}
@@ -541,7 +545,14 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   );
 });
 
-export const SectionResultsGroup = observer(({groupBy, label, results, isSectionContent=false, navContext}) => {
+export const SectionResultsGroup = observer(({
+  groupBy,
+  label,
+  results,
+  isSectionContent=false,
+  wrapTitles=false,
+  navContext
+}) => {
   if(label && groupBy === "__date") {
     const date = new Date(label);
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
@@ -598,6 +609,7 @@ export const SectionResultsGroup = observer(({groupBy, label, results, isSection
       }
       <MediaGrid
         isSectionContent={isSectionContent}
+        wrapTitles={wrapTitles}
         content={
           isSectionContent ?
             results :
@@ -899,6 +911,7 @@ const MediaPropertySectionPage = observer(() => {
             <SectionResultsGroup
               key={`results-${attribute}`}
               isSectionContent
+              wrapTitle={section.display.wrap_titles}
               groupBy={groupBy}
               label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
               results={groupedSectionContent[attribute]}
@@ -910,6 +923,7 @@ const MediaPropertySectionPage = observer(() => {
           !groupedSectionContent.__other ? null :
             <SectionResultsGroup
               isSectionContent
+              wrapTitles={section.display.wrap_titles}
               label={Object.keys(groupedSectionContent || {}).length > 1 ? "Other" : ""}
               results={groupedSectionContent.__other}
               navContext="s"

@@ -425,6 +425,7 @@ const MediaCardVertical = observer(({
   url,
   size,
   lazy=true,
+  wrapTitle=false,
   progress,
   authorized,
   onClick,
@@ -501,9 +502,9 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={20 * textScale} className={[S("media-card-vertical__title"), "_title"].join(" ")}>
+                <h3 className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
                   { display.title }
-                </ScaledText>
+                </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
@@ -617,6 +618,7 @@ const MediaCard = observer(({
   size,
   fullBleed=false,
   lazy=true,
+  wrapTitle=false,
   onClick,
   className=""
 }) => {
@@ -739,6 +741,7 @@ const MediaCard = observer(({
     size,
     disabled,
     lazy,
+    wrapTitle,
     buttonText,
     authorized,
     fullBleed,
