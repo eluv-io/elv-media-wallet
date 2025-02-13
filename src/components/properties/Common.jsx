@@ -461,7 +461,7 @@ export const ExpandableDescription = observer(({
       setExpanded(showToggle && !expanded);
   };
 
-  const fontHeight = GetFontHeight({element: descriptionRef.current}) - 3 || 20;
+  const fontHeight = GetFontHeight({element: descriptionRef.current}) - 5 || 20;
 
   return (
     <>

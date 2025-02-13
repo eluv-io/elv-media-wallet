@@ -506,7 +506,7 @@ const MediaCardVertical = observer(({
                   <ExpandableDescription
                     expandable={false}
                     description={display.title}
-                    maxLines={2}
+                    maxLines={3}
                     className={[S("media-card-vertical__title--wrap"), "_title"].join(" ")}
                   /> :
                   <h3 className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
