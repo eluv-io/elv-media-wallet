@@ -191,6 +191,10 @@
   &__input {
     border: 1px solid #67676a;
     border-radius: 33px;
+    color: var(--property-text-primary);
+    font-size: 1.15em;
+    height: 45px;
+    padding: 0 30px;
 
     &::placeholder {
       color: var(--property-text-secondary);
@@ -198,15 +202,17 @@
     }
   }
 
-  &__input,
-  &__option {
-    color: var(--property-text-primary);
-    font-size: 1.15em;
-    height: 45px;
-    padding: 0 30px;
+  &__options {
+    padding: 10px 10px 0;
   }
 
   &__option {
+    color: var(--property-text-primary);
+    font-size: 16px;
+    height: max-content;
+    padding: 10px;
+    transition: background-color 0.15s ease;
+
     &:hover {
       &:where(:not([data-combobox-selected], [data-combobox-disabled])) {
         background-color: var(--property-search-button-background);

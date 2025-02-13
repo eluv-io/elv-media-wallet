@@ -96,21 +96,21 @@ const MediaCardWithButtonVertical = observer(({
               {price}
             </div>
         }
-          <ExpandableDescription
-            description={display.description}
-            descriptionRichText={display.description_rich_text}
-            maxLines={isModal ? 1000 : 6}
-            onClick={
-              isModal ? undefined :
-                () => {
-                  setShowModal(true);
+        <ExpandableDescription
+          description={display.description}
+          descriptionRichText={display.description_rich_text}
+          maxLines={isModal ? 1000 : 6}
+          onClick={
+            isModal ? undefined :
+              () => {
+                setShowModal(true);
 
-                  return true;
-                }
-            }
-            togglePosition={textJustification || "left"}
-            className={S("media-card-button-vertical__description")}
-          />
+                return true;
+              }
+          }
+          togglePosition={textJustification || "left"}
+          className={S("media-card-button-vertical__description")}
+        />
         <div className={S("media-card-button-vertical__actions")}>
           <Button
             aria-label={display.title}
@@ -265,7 +265,7 @@ const ButtonCard = observer(({orientation="vertical", ...args}) => {
             >
               <div className={S("button-card-modal-wrapper")}>
                 <MediaCardWithButtonVertical {...args} isModal setShowModal={setShowModal} />
-                </div>
+              </div>
             </div>
           </Modal>
       }
@@ -502,9 +502,16 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <h3 className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
-                  { display.title }
-                </h3>
+                wrapTitle ?
+                  <ExpandableDescription
+                    expandable={false}
+                    description={display.title}
+                    maxLines={2}
+                    className={[S("media-card-vertical__title--wrap"), "_title"].join(" ")}
+                  /> :
+                  <h3 className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
+                    { display.title }
+                  </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :

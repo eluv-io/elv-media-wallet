@@ -19,6 +19,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 import MediaSidebar, {SidebarContent} from "Components/properties/MediaSidebar";
+import {Linkish} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -367,6 +368,60 @@ const MediaGallery = observer(({mediaItem}) => {
   );
 });
 
+const SectionNavButtons = observer(() => {
+  const match = useRouteMatch();
+  const searchParams = new URLSearchParams(location.search);
+  const [sectionContent, setSectionContent] = useState(undefined);
+
+  useEffect(() => {
+    mediaPropertyStore.MediaPropertySectionContent({
+      mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+      pageSlugOrId: match.params.pageSlugOrId,
+      sectionSlugOrId: match.params.mediaListSlugOrId || match.params.sectionSlugOrId || searchParams.get("ctx"),
+      mediaListSlugOrId: match.params.mediaListSlugOrId
+    })
+      .then(content => setSectionContent(
+        content.filter(sectionItem => sectionItem.type === "media")
+      ));
+  }, []);
+
+  if(!sectionContent || sectionContent?.length === 0) { return null; }
+
+  const currentItemIndex = sectionContent.findIndex(item =>
+    item.mediaItem?.id === match.params.mediaItemSlugOrId ||
+    item.mediaItem?.slug === match.params.mediaItemSlugOrId
+  );
+  const previousItemId = currentItemIndex < 1 ? undefined :
+    sectionContent[currentItemIndex - 1].mediaItem?.id;
+
+  const nextItemId = currentItemIndex < 0 || currentItemIndex >= sectionContent.length - 1 ? undefined :
+    sectionContent[currentItemIndex + 1].mediaItem?.id;
+
+  return (
+    <>
+      {
+        !previousItemId ? null :
+          <Linkish
+            className={S("media-nav-button", "media-nav-button--previous")}
+            to={`${match.url.replace(match.params.mediaItemSlugOrId, previousItemId)}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`}
+          >
+            Previous
+          </Linkish>
+      }
+            {
+        !nextItemId ? null :
+          <Linkish
+            className={S("media-nav-button", "media-nav-button--next")}
+            to={`${match.url.replace(match.params.mediaItemSlugOrId, nextItemId)}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`}
+          >
+            Next
+          </Linkish>
+      }
+    </>
+  );
+});
+
+
 const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
@@ -394,6 +449,7 @@ const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
           loaderWidth="100%"
           className={S("media__image")}
         />
+        <SectionNavButtons />
       </div>
     );
   } else if(["Ebook", "HTML"].includes(mediaItem.media_type)) {

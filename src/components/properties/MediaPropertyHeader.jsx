@@ -368,6 +368,7 @@ const SearchBar = observer(({autoFocus}) => {
           root: S("search"),
           input: S("search__input"),
           dropdown: S("search__dropdown"),
+          options: S("search__options"),
           option: S("search__option")
         }}
       />

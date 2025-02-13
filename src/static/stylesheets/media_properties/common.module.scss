@@ -356,7 +356,7 @@
 
   &--toggleable {
     cursor: pointer;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
   }
 
   &:not(.expandable-description--toggleable) {
@@ -419,6 +419,12 @@
       justify-content: flex-end;
       right: 0;
     }
+  }
+
+  &__ellipsis {
+    bottom: 5px;
+    color: var(--property-text-extra-faded);
+    position: absolute;
   }
 
   &__description {

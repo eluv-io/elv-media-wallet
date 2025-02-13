@@ -123,8 +123,10 @@
   --max-card-width-square: calc(var(--max-card-width) - 100px);
   --max-card-width-portrait: calc(var(--max-card-width) - 100px);
 
-  display: block;
+  display: flex;
   flex: 1 1 100%;
+  flex-direction: column;
+  height: 100%;
   max-width: min(calc(100vw - 50px), var(--max-card-width));
   word-break: break-word;
 
@@ -166,6 +168,9 @@
   }
 
   &__text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     margin-top: 5px;
     padding-inline: 4px;
   }
@@ -175,7 +180,8 @@
     font-size: 0.9em;
     gap: 1.3em;
     margin-bottom: 2px;
-    overflow: hidden;
+    min-height: 1.25em;
+    overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: pre;
   }
@@ -195,6 +201,7 @@
     min-height: 1.6em;
 
     &--wrap {
+      flex-grow: 1;
       font-size: 14px;
       font-weight: 500;
       overflow: visible;
@@ -204,6 +211,7 @@
 
   &__subtitle {
     color: var(--property-text-faded);
+    margin-top: 2px;
     min-height: 1.4em;
   }
 

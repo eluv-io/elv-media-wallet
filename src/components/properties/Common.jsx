@@ -402,6 +402,16 @@ export const Description = ({
   );
 };
 
+const GetFontHeight = ({element}) => {
+  if(!element) { return; }
+
+  const styles = getComputedStyle(element);
+
+  textWidthCanvasContext.font = `${styles.fontWeight} ${styles.fontSize}px ${styles.fontFamily}`;
+
+  return textWidthCanvasContext.measureText("asdYyg").emHeightAscent;
+};
+
 export const ExpandableDescription = observer(({
   description,
   descriptionRichText,
@@ -409,6 +419,7 @@ export const ExpandableDescription = observer(({
   useModal,
   togglePosition="left",
   maxLines,
+  expandable=true,
   className=""
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -450,6 +461,7 @@ export const ExpandableDescription = observer(({
       setExpanded(showToggle && !expanded);
   };
 
+  const fontHeight = GetFontHeight({element: descriptionRef.current}) - 3 || 20;
 
   return (
     <>
@@ -483,7 +495,7 @@ export const ExpandableDescription = observer(({
       >
         <div
           ref={descriptionRef}
-          style={maxLines && !expanded ? {maxHeight: `${maxLines * 1.6}em`} : {}}
+          style={maxLines && !expanded ? {maxHeight: `${maxLines * fontHeight}px`} : {}}
           className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}
         >
           <Description
@@ -495,9 +507,13 @@ export const ExpandableDescription = observer(({
         { expanded ? null : <div className={S("expandable-description__overlay")} /> }
         {
           !showToggle ? null :
-            <button onClick={Expand} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
-              {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
-            </button>
+            expandable ?
+              <button onClick={Expand} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
+                {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
+              </button> :
+              <div className={S("expandable-description__ellipsis")}>
+                ...
+              </div>
         }
       </div>
     </>
