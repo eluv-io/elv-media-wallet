@@ -458,7 +458,7 @@ const MediaCardVertical = observer(({
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
-          width={600}
+          width={400}
           showWithoutSource
           className={S("media-card-vertical__image")}
         />
@@ -554,7 +554,7 @@ const MediaCardHorizontal = observer(({
             src={livePreviewUrl || imageUrl}
             alternateSrc={livePreviewUrl ? imageUrl : undefined}
             alt={display.thumbnail_alt_text || display.title}
-            width={600}
+            width={400}
             className={S("media-card-horizontal__image")}
           />
         }
@@ -682,7 +682,7 @@ const MediaCard = observer(({
     mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
     display,
     aspectRatio,
-    width: 600
+    width: 400
   });
 
   if(format === "banner") {

@@ -405,11 +405,7 @@ export const Description = ({
 const GetFontHeight = ({element}) => {
   if(!element) { return; }
 
-  const styles = getComputedStyle(element);
-
-  textWidthCanvasContext.font = `${styles.fontWeight} ${styles.fontSize}px ${styles.fontFamily}`;
-
-  return textWidthCanvasContext.measureText("asdYyg").emHeightAscent;
+  return parseInt(window.getComputedStyle(element).fontSize) || 16;
 };
 
 export const ExpandableDescription = observer(({
@@ -461,7 +457,7 @@ export const ExpandableDescription = observer(({
       setExpanded(showToggle && !expanded);
   };
 
-  const fontHeight = GetFontHeight({element: descriptionRef.current}) - 5 || 20;
+  const fontHeight = GetFontHeight({element: descriptionRef.current}) * 1.5 || 20;
 
   return (
     <>
