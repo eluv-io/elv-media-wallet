@@ -82,6 +82,20 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
 });
 
 const Items = observer(({items, secondaryPurchaseOption, Select}) => {
+  items = items
+    .filter(item =>
+      item.purchasable ||
+      (!item.secondaryDisabled && item.showSecondary)
+    );
+
+  if(items.length === 0) {
+    return (
+      <div className={S("items")}>
+        <div className={S("items__empty")}>No Items Available</div>
+      </div>
+    );
+  }
+
   return (
     <div className={S("items")}>
       {
@@ -104,7 +118,8 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                     {
                       !item.secondaryDisabled && (item?.secondaryPurchaseOption || secondaryPurchaseOption) === "only" ? null :
                         <Button
-                          disabled={!item.purchasable}
+                          disabled={!item.purchasable || !item.purchaseAuthorized}
+                          title={!item.purchaseAuthorized ? "Purchase not available" : ""}
                           onClick={async () => await Select(item.id)}
                           className={S("button")}
                         >
@@ -311,7 +326,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   const canPurchase =
-    (item.purchasable || item.listingId) && (
+    ((item.purchasable && item.purchaseAuthorized) || item.listingId) && (
       (paymentMethod.type === "card" && (!ebanxEnabled || paymentMethod.country)) ||
       (paymentMethod.type === "crypto" && ValidEmail(paymentMethod.email)) ||
       (paymentMethod.type === "balance" && !insufficientBalance) ||
@@ -649,6 +664,7 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     listingPath,
     outOfStock,
     purchasable: itemInfo?.marketplacePurchaseAvailable,
+    purchaseAuthorized: itemInfo?.marketplacePurchaseAuthorized,
     secondaryDisabled,
     showPrimary,
     showSecondary,

@@ -165,7 +165,7 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
           purchasable: (
             !!item.secondary_market_purchase_option ||
             secondaryEnabled ||
-            marketplaceItem && itemInfo?.marketplacePurchaseAvailable
+            (marketplaceItem && itemInfo?.marketplacePurchaseAvailable && itemInfo?.marketplacePurchaseAuthorized)
           )
         };
       })
