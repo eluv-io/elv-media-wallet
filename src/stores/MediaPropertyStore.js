@@ -30,6 +30,7 @@ class MediaPropertyStore {
     endTime: undefined
   };
   tags = [];
+  _ownedItems = {};
 
   mediaProgress = {};
 
@@ -962,24 +963,22 @@ class MediaPropertyStore {
         let mediaPropertyHashes = {};
         let mediaPropertyIds = {};
         let mediaPropertySlugs = {};
-        await Promise.all(
-          Object.keys(metadata).map(async mediaPropertySlug => {
-            let mediaPropertyHash = metadata[mediaPropertySlug]?.latestHash || metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
+        Object.keys(metadata).forEach(mediaPropertySlug => {
+          let mediaPropertyHash = metadata[mediaPropertySlug]?.latestHash || metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
 
-            if(mediaPropertyHash) {
-              const mediaPropertyId = Utils.DecodeVersionHash(mediaPropertyHash).objectId;
+          if(mediaPropertyHash) {
+            const mediaPropertyId = Utils.DecodeVersionHash(mediaPropertyHash).objectId;
 
-              mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
-              mediaPropertyHashes[mediaPropertyId] = mediaPropertyHash;
+            mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
+            mediaPropertyHashes[mediaPropertyId] = mediaPropertyHash;
 
-              mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
-              mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
+            mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
+            mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
 
-              mediaPropertySlugs[mediaPropertySlug] = mediaPropertySlug;
-              mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
-            }
-          })
-        );
+            mediaPropertySlugs[mediaPropertySlug] = mediaPropertySlug;
+            mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
+          }
+        });
 
         this.mediaPropertyHashes = mediaPropertyHashes;
         this.mediaPropertyIds = mediaPropertyIds;
@@ -1173,6 +1172,29 @@ class MediaPropertyStore {
     return shouldReload;
   });
 
+  LoadOwnedItems = flow(function * ({marketplaceId, force=false}={}) {
+    return yield this.LoadResource({
+      key: "OwnedItems",
+      id: `owned-items-${marketplaceId}`,
+      ttl: 60,
+      force,
+      Load: async () => {
+        if(!this.rootStore.loggedIn) {
+          this._ownedItems[marketplaceId] = [];
+          return;
+        }
+
+        this._ownedItems[marketplaceId] = (await this.rootStore.walletClient.UserItems({
+          userAddress: this.rootStore.CurrentAddress(),
+          marketplaceId,
+          limit: 1000
+        })).results || [];
+
+        return this._ownedItems[marketplaceId];
+      }
+    });
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
 
@@ -1208,10 +1230,11 @@ class MediaPropertyStore {
 
         metadata.mediaPropertyId = mediaPropertyId;
 
-        // Start loading associated marketplaces but don't block on it
-        (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
-          this.LoadMarketplace({marketplaceId: marketplace_id, force})
-        );
+        // Start loading associated marketplaces and owned items in those marketplaces but don't block on it
+        (metadata.associated_marketplaces || []).map(({marketplace_id}) => {
+          this.LoadMarketplace({marketplaceId: marketplace_id, force});
+          this.LoadOwnedItems({marketplaceId: marketplace_id, force});
+        });
 
         if(!isPreview && metadata.permission_set_links) {
           // Load from links
@@ -1480,12 +1503,7 @@ class MediaPropertyStore {
         if(this.rootStore.loggedIn) {
           await Promise.all(
             Object.keys(permissionContracts).map(async marketplaceId => {
-              const ownedItems = (await this.rootStore.walletClient.UserItems({
-                userAddress: this.rootStore.CurrentAddress(),
-                marketplaceParams: {marketplaceId},
-                limit: 1000
-              })).results || [];
-
+              const ownedItems = await this.LoadOwnedItems({marketplaceId});
               for(const item of ownedItems) {
                 const permissionItemId = permissionContracts[marketplaceId][this.client.utils.FormatAddress(item.contractAddress)];
 

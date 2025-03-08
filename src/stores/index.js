@@ -2783,16 +2783,19 @@ class RootStore {
 
     if(force || !this._resources[key][id]) {
       if(this.logTiming) {
-        this._resources[key][id] = (async (...args) => {
-          let start = Date.now();
-          // eslint-disable-next-line no-console
-          console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
-          const result = await Load(...args);
-          // eslint-disable-next-line no-console
-          console.log(`End Timing ${key.split("-").join(" ")} - ${id} - ${(Date.now() - start)}ms`);
+        this._resources[key][id] = {
+          promise: (async (...args) => {
+            let start = Date.now();
+            // eslint-disable-next-line no-console
+            console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
+            const result = await Load(...args);
+            // eslint-disable-next-line no-console
+            console.log(`${(Date.now() - start)}ms | End Timing ${key.split("-").join(" ")} - ${id}`);
 
-          return result;
-        })();
+            return result;
+          })(),
+          retrievedAt: Date.now()
+        };
       } else {
         this._resources[key][id] = {
           promise: Load(),
