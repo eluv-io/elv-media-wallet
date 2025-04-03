@@ -22,7 +22,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
 
   const priceCeiling = ParseMoney(10000, "USD").toDecimal();
-  const [priceFloor, setPriceFloor] = useState(0);
+  const [priceFloor, setPriceFloor] = useState(1);
   const [royaltyRate, setRoyaltyRate] = useState(0);
 
   useEffect(() => {

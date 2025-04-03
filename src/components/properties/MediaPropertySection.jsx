@@ -711,6 +711,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   return (
     <div
+      data-section-id={sectionId}
       style={style}
       className={[S(
         "section-container",

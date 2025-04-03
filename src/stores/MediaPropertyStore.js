@@ -1478,18 +1478,24 @@ class MediaPropertyStore {
             const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
               ?.find(item => item.sku === permissionItem.marketplace_sku);
 
-            const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
+            let contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
 
             if(!contractAddress) {
               this.Log(`Warning: No contract or missing item for permission item ${permissionItemId}. Marketplace ${permissionItem.marketplace.marketplace_id} SKU ${permissionItem.marketplace_sku}`);
               return;
             }
 
+            contractAddress = this.client.utils.FormatAddress(contractAddress);
+
             if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
               permissionContracts[permissionItem.marketplace.marketplace_id] = {};
             }
 
-            permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
+            if(!permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress]) {
+              permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = [];
+            }
+
+            permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress].push(permissionItemId);
 
             const itemInfo = NFTInfo({
               item: marketplaceItem
@@ -1504,13 +1510,14 @@ class MediaPropertyStore {
           await Promise.all(
             Object.keys(permissionContracts).map(async marketplaceId => {
               const ownedItems = await this.LoadOwnedItems({marketplaceId});
-              for(const item of ownedItems) {
-                const permissionItemId = permissionContracts[marketplaceId][this.client.utils.FormatAddress(item.contractAddress)];
 
-                if(permissionItemId) {
+              for(const item of ownedItems) {
+                const permissionItemIds = (permissionContracts[marketplaceId][this.client.utils.FormatAddress(item.contractAddress)]) || [];
+
+                permissionItemIds.forEach(permissionItemId => {
                   permissionItems[permissionItemId].authorized = true;
                   permissionItems[permissionItemId].ownedItem = item;
-                }
+                });
               }
             })
           );
