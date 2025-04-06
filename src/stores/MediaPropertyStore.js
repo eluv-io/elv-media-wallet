@@ -1497,6 +1497,11 @@ class MediaPropertyStore {
 
             permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress].push(permissionItemId);
 
+            if(permissionContracts?.[permissionItem.marketplace.marketplace_id]?.[contractAddress]?.length > 1) {
+              this.Log("Warning: Multiple permission items have the same contract", "warn");
+              this.Log(permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress], "warn");
+            }
+
             const itemInfo = NFTInfo({
               item: marketplaceItem
             });
