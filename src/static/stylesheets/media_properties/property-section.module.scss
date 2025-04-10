@@ -376,6 +376,8 @@
   &__background-image,
   &__background-video {
     @include page-fade-in(1s, ease-out);
+
+    min-width: 100vw;
   }
 
   &__content {
