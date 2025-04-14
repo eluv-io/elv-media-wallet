@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {
   Link,
@@ -135,7 +135,8 @@ const Profile = observer(() => {
 
   const userInfo = rootStore.walletClient.UserInfo();
   const custodialWallet = userInfo.walletType === "Custodial";
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const marketplaceId = mediaPropertyStore.MediaProperty({...match.params})?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
+  const marketplace = rootStore.marketplaces[marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   useEffect(() => {
@@ -163,9 +164,7 @@ const Profile = observer(() => {
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
   let basePath = "/wallet";
-  if(match.params.marketplaceId) {
-    basePath = UrlJoin("/marketplace", match.params.marketplaceId);
-  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+  if(rootStore.routeParams.mediaPropertySlugOrId) {
     basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
   }
 

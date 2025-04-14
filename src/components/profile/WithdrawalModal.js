@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {ButtonWithLoader, FormatPriceString, LocalizeString, Select} from "Components/common/UIComponents";
@@ -359,7 +359,8 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
 const WithdrawalModal = observer(({Close}) => {
   const match = useRouteMatch();
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const marketplaceId = mediaPropertyStore.MediaProperty({...match.params})?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
+  const marketplace = rootStore.marketplaces[marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
 
   const [provider, setProvider] = useState(ebanxAvailable ? undefined : "Stripe");

@@ -2,7 +2,7 @@ import UserProfileStyles from "Assets/stylesheets/user.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {ButtonWithLoader, CopyButton, DebouncedInput} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {observer} from "mobx-react";
@@ -91,7 +91,8 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
   const match = useRouteMatch();
   includeUserProfile = typeof includeUserProfile === "function" ? includeUserProfile(match) : includeUserProfile;
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const marketplaceId = mediaPropertyStore.MediaProperty({...match.params})?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
+  const marketplace = rootStore.marketplaces[marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
   const availableDisplayCurrencies = marketplace?.display_currencies || [];
 

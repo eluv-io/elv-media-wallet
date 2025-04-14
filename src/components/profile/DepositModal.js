@@ -3,7 +3,7 @@ import Modal from "Components/common/Modal";
 import {observer} from "mobx-react";
 import {ButtonWithLoader, RichText, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-import {rootStore, checkoutStore} from "Stores";
+import {rootStore, checkoutStore, mediaPropertyStore} from "Stores";
 import {ValidEmail} from "../../utils/Utils";
 import {useRouteMatch} from "react-router-dom";
 
@@ -76,8 +76,9 @@ const DepositModal = observer(({Close}) => {
             <ButtonWithLoader
               disabled={!ValidEmail(email)}
               onClick={async () => {
+                const marketplaceId = mediaPropertyStore.MediaProperty({...match.params})?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
                 await checkoutStore.BalanceCheckoutSubmit({
-                  marketplaceId: match.params.marketplaceId,
+                  marketplaceId,
                   amount: parsedAmount,
                   email,
                   provider: selectedProvider
