@@ -722,6 +722,7 @@ class MediaPropertyStore {
     let cause;
     let permissionItemIds;
     let sectionItem;
+    let isTestContent = false;
 
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
     behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
@@ -819,6 +820,7 @@ class MediaPropertyStore {
       const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
 
       if(!mediaCollection.authorized) {
+        isTestContent = mediaCollection.test_content;
         authorized = false;
         permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media collection permissions";
@@ -829,6 +831,7 @@ class MediaPropertyStore {
       const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
 
       if(!mediaList.authorized) {
+        isTestContent = mediaList.test_content;
         authorized = false;
         permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media list permissions";
@@ -839,6 +842,7 @@ class MediaPropertyStore {
       const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
 
       if(!mediaItem.authorized) {
+        isTestContent = mediaItem.test_content;
         authorized = false;
         permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media permissions";
@@ -899,6 +903,10 @@ class MediaPropertyStore {
         this.Log(arguments, true);
         behavior = this.PERMISSION_BEHAVIORS.HIDE;
       }
+    }
+
+    if(isTestContent && !authorized) {
+      behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
     return {
