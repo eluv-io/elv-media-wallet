@@ -118,7 +118,14 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
     offerings: mediaItem.offerings
   };
 
-  if(display.clip && !mediaItem.live_video) {
+  if(mediaItem.media_link_info) {
+    if(mediaItem.media_link_info.type === "composition") {
+      playoutParameters.channel = mediaItem.media_link_info.composition_key;
+    } else if(!mediaItem.live_video){
+      playoutParameters.clipStart = mediaItem.media_link_info.clip_start_time;
+      playoutParameters.clipEnd = mediaItem.media_link_info.clip_end_time;
+    }
+  } else if(display.clip && !mediaItem.live_video) {
     playoutParameters.clipStart = display.clip_start_time;
     playoutParameters.clipEnd = display.clip_end_time;
   }
