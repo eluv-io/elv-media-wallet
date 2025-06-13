@@ -115,6 +115,7 @@ class RootStore {
 
   authInfo = undefined;
   authNonce;
+  authTTL = parseFloat(this.GetSessionStorage("auth-ttl") || searchParams.get("ttl"));
   useLocalAuth;
 
   loginOnly = window.loginOnly;
@@ -287,6 +288,10 @@ class RootStore {
 
     if(this.geo) {
       this.SetSessionStorage("geo", this.geo);
+    }
+
+    if(this.authTTL) {
+      this.SetSessionStorage("auth-ttl", this.authTTL);
     }
 
     this.resizeHandler = new ResizeObserver(elements => {
@@ -758,7 +763,8 @@ class RootStore {
           signerURIs,
           nonce: this.authNonce,
           createRemoteToken: !this.useLocalAuth,
-          force
+          force,
+          tokenDuration: this.authTTL || 24
         });
 
         clientAuthToken = tokens.authToken;
