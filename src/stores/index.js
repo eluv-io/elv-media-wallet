@@ -3,13 +3,6 @@ console.time("Initial Load");
 
 import {SearchParams} from "../utils/Utils";
 
-let testTheme = undefined;
-//testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
-//testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
-//testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
-//testTheme = import("../static/stylesheets/themes/superman-test.theme.css");
-//testTheme = import("../static/stylesheets/themes/uefa-test.theme.scss");
-
 window.sessionStorageAvailable = false;
 try {
   sessionStorage.getItem("test");
@@ -115,7 +108,8 @@ class RootStore {
 
   authInfo = undefined;
   authNonce;
-  authTTL = parseFloat(this.GetSessionStorage("auth-ttl") || searchParams.get("ttl"));
+  authTTL = searchParams.get("ttl") || parseFloat(this.GetSessionStorage("auth-ttl"));
+  noSavedAuth = searchParams.has("refresh");
   useLocalAuth;
 
   loginOnly = window.loginOnly;
@@ -1165,13 +1159,7 @@ class RootStore {
     css = SanitizeHTML(css);
     const cssTag = document.getElementById(tag);
     if(cssTag) {
-      if(testTheme) {
-        testTheme.then(theme => {
-          cssTag.innerHTML = theme.default;
-        });
-      } else {
-        cssTag.innerHTML = css;
-      }
+      cssTag.innerHTML = css;
     }
 
     this.SetSessionStorage("custom-css", Utils.B64(css));
@@ -2305,7 +2293,7 @@ class RootStore {
 
   AuthInfo() {
     try {
-      if(this.authInfo) {
+      if(this.authInfo || this.noSavedAuth) {
         return this.authInfo;
       }
 
