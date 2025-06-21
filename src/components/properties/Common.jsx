@@ -231,7 +231,7 @@ export const LoaderImage = observer(({
       }
       {
         loaded ? null :
-          <object
+          <div
             {...props}
             style={{
               ...(props.style || {}),
