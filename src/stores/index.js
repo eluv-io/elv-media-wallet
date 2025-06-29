@@ -52,6 +52,12 @@ try {
   storageSupported = false;
 }
 
+const domainPropertySlugs = {
+  "wpalive.tv": "wpalive-tv",
+  "epcrugby.tv": "epcrtv"
+};
+
+let activeTimers = 0;
 class RootStore {
   siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
   preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
@@ -473,7 +479,15 @@ class RootStore {
         this.ToggleNavigation(false);
       }
 
+      const client = yield ElvClient.FromConfigurationUrl({
+        configUrl:
+          EluvioConfiguration.network === "main" ?
+            "https://main.srt.bunny.cfab.io/s/main/config" :
+            "https://demov3.net955210.contentfabric.io/config"
+      });
+
       this.walletClient = yield ElvWalletClient.Initialize({
+        client,
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
@@ -514,15 +528,18 @@ class RootStore {
 
       // Load domain map
       if(this.isCustomDomain) {
-        let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
-          libraryId: this.walletClient.mainSiteLibraryId,
-          objectId: this.walletClient.mainSiteId,
-          metadataSubtree: "public/asset_metadata/info/domain_map"
-        });
+        let propertySlugOrId = domainPropertySlugs[window.location.hostname];
+        if(!propertySlugOrId) {
+          let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
+            libraryId: this.walletClient.mainSiteLibraryId,
+            objectId: this.walletClient.mainSiteId,
+            metadataSubtree: "public/asset_metadata/info/domain_map"
+          });
 
-        const propertySlugOrId = domainMapping
-          .find(map => map.domain === location.hostname)
-          ?.property_slug;
+          propertySlugOrId = domainMapping
+            .find(map => map.domain === location.hostname)
+            ?.property_slug;
+        }
 
         if(propertySlugOrId) {
           yield this.SetCurrentProperty(propertySlugOrId);
@@ -2779,12 +2796,15 @@ class RootStore {
       if(this.logTiming) {
         this._resources[key][id] = {
           promise: (async (...args) => {
+            activeTimers += 1;
             let start = Date.now();
             // eslint-disable-next-line no-console
-            console.log(`Start Timing ${key.split("-").join(" ")} - ${id}`);
+            console.log(`${"-".repeat(activeTimers - 1)}Start Timing ${key.split("-").join(" ")} - ${id}`);
             const result = await Load(...args);
             // eslint-disable-next-line no-console
-            console.log(`${(Date.now() - start)}ms | End Timing ${key.split("-").join(" ")} - ${id}`);
+            console.log(`${(Date.now() - start)}ms`.padEnd(7, " "), `| End Timing ${key.split("-").join(" ")} - ${id}`);
+
+            activeTimers -= 1;
 
             return result;
           })(),

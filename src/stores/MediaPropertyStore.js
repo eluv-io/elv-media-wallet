@@ -935,7 +935,7 @@ class MediaPropertyStore {
         const metadataUrl = new URL(
           this.rootStore.network === "demo" ?
             "https://demov3.net955210.contentfabric.io/s/demov3" :
-            "https://main.net955305.contentfabric.io/s/main"
+            "https://main.srt.bunny.cfab.io/s/main"
         );
 
         metadataUrl.pathname = UrlJoin(
@@ -1004,7 +1004,7 @@ class MediaPropertyStore {
         const metadataUrl = new URL(
           this.rootStore.network === "demo" ?
             "https://demov3.net955210.contentfabric.io/s/demov3" :
-            "https://main.net955305.contentfabric.io/s/main"
+            "https://main.srt.bunny.cfab.io/s/main"
         );
 
         metadataUrl.pathname = UrlJoin(
@@ -1063,7 +1063,7 @@ class MediaPropertyStore {
                 const imageUrl = new URL(
                   this.rootStore.network === "demo" ?
                     "https://demov3.net955210.contentfabric.io/s/demov3" :
-                    "https://main.net955305.contentfabric.io/s/main"
+                    "https://main.srt.bunny.cfab.io/s/main"
                 );
 
                 imageUrl.pathname = UrlJoin(imageUrl.pathname, "q", property.propertyHash, "meta/public/asset_metadata/info/image");
