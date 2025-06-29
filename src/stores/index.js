@@ -52,11 +52,6 @@ try {
   storageSupported = false;
 }
 
-const domainPropertySlugs = {
-  "wpalive.tv": "wpalive-tv",
-  "epcrugby.tv": "epcrtv"
-};
-
 let activeTimers = 0;
 class RootStore {
   siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
@@ -408,7 +403,9 @@ class RootStore {
       return;
     }
 
-    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+    if(!this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId]) {
+      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+    }
 
     const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId];
 
@@ -463,7 +460,9 @@ class RootStore {
       }
 
       // Start loading media properties
-      this.mediaPropertyStore.LoadMediaPropertyHashes();
+      if(!this.isCustomDomain) {
+        this.mediaPropertyStore.LoadMediaPropertyHashes();
+      }
 
       // Login required
       if(searchParams.has("rl")) {
@@ -528,25 +527,20 @@ class RootStore {
 
       // Load domain map
       if(this.isCustomDomain) {
-        let propertySlugOrId = domainPropertySlugs[window.location.hostname];
-        if(!propertySlugOrId) {
-          let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
-            libraryId: this.walletClient.mainSiteLibraryId,
-            objectId: this.walletClient.mainSiteId,
-            metadataSubtree: "public/asset_metadata/info/domain_map"
-          });
+        let propertySlug = window.__domainPropertySlug;
+        let propertyHash = window.__domainPropertyHash;
 
-          propertySlugOrId = domainMapping
-            .find(map => map.domain === location.hostname)
-            ?.property_slug;
-        }
+        if(propertySlug && !propertySlug.startsWith("@") && propertyHash && !propertyHash.startsWith("@")) {
+          const propertyId = this.client.utils.DecodeVersionHash(propertyHash).objectId;
+          this.customDomainPropertyId = propertyId;
+          this.customDomainPropertySlug = propertySlug;
+          this.customDomainPropertyHash = propertyHash;
 
-        if(propertySlugOrId) {
-          yield this.SetCurrentProperty(propertySlugOrId);
+          this.mediaPropertyStore.mediaPropertyHashes[propertySlug] = propertyHash;
+          this.mediaPropertyStore.mediaPropertyHashes[propertyId] = propertyHash;
+          this.mediaPropertyStore.mediaPropertyIds[propertySlug] = propertyId;
 
-          this.customDomainPropertyId = this.currentPropertyId;
-          this.customDomainPropertySlug = this.currentPropertySlug;
-          this.customDomainPropertyTenantId = this.currentPropertyTenantId;
+          yield this.SetCurrentProperty(propertySlug);
         }
       } else if(searchParams.get("pid")) {
         yield this.SetCurrentProperty(searchParams.get("pid"));
@@ -868,7 +862,9 @@ class RootStore {
 
     this.SetCurrentProperty(mediaPropertyId);
 
-    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+    if(!mediaPropertyStore.mediaPropertyHashes[mediaPropertyId]) {
+      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+    }
 
     const options = yield this.LoadPropertyCustomization(this.currentPropertyId);
 
@@ -2245,7 +2241,10 @@ class RootStore {
     mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 
     if(!tenantId) {
-      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+      if(!this.mediaPropertyStore.mediaPropertyIds[mediaPropertySlugOrId]) {
+        yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+      }
+
       const propertyId = this.mediaPropertyStore.mediaPropertyIds[mediaPropertySlugOrId];
       tenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
     }

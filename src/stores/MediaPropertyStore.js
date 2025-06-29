@@ -10,9 +10,9 @@ import {NFTInfo} from "../utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
-  mediaPropertyHashes;
-  mediaPropertyIds;
-  mediaPropertySlugs;
+  mediaPropertyHashes = {};
+  mediaPropertyIds = {};
+  mediaPropertySlugs = {};
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
@@ -1094,7 +1094,9 @@ class MediaPropertyStore {
   });
 
   LoadMediaPropertyCustomizationMetadata = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    yield this.LoadMediaPropertyHashes();
+    if(!this.mediaPropertyHashes[mediaPropertySlugOrId]) {
+      yield this.LoadMediaPropertyHashes();
+    }
 
     return yield this.LoadResource({
       key: "MediaPropertyCustomizationMetadata",
@@ -1204,7 +1206,9 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    yield this.LoadMediaPropertyHashes();
+    if(!this.mediaPropertyHashes[mediaPropertySlugOrId]) {
+      yield this.LoadMediaPropertyHashes();
+    }
 
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
     force = force || (yield this.MediaPropertyShouldReload({mediaPropertySlugOrId}));
@@ -1233,7 +1237,11 @@ class MediaPropertyStore {
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
-          produceLinkUrls: true
+          produceLinkUrls: true,
+          resolveLinks: true,
+          resolveIgnoreErrors: true,
+          resolveIncludeSource: true,
+          linkDepthLimit: 1
         });
 
         metadata.mediaPropertyId = mediaPropertyId;
@@ -1250,7 +1258,7 @@ class MediaPropertyStore {
             Object.keys(metadata.permission_set_links).map(async permissionSetId =>
               await this.LoadPermissionSet({
                 permissionSetId,
-                permissionSetHash: metadata.permission_set_links[permissionSetId]["/"].split("/").find(segment => segment.startsWith("hq__")),
+                metadata: metadata.permission_set_links[permissionSetId],
                 force
               })
             )
@@ -1272,7 +1280,7 @@ class MediaPropertyStore {
             Object.keys(metadata.media_catalog_links).map(async mediaCatalogId =>
               await this.LoadMediaCatalog({
                 mediaCatalogId,
-                mediaCatalogHash: metadata.media_catalog_links[mediaCatalogId]["/"].split("/").find(segment => segment.startsWith("hq__")),
+                metadata: metadata.media_catalog_links[mediaCatalogId],
                 force
               })
             )
@@ -1388,7 +1396,7 @@ class MediaPropertyStore {
     });
   });
 
-  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, force}) {
+  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, force}) {
     if(mediaCatalogHash) {
       mediaCatalogId = this.client.utils.DecodeVersionHash(mediaCatalogHash).objectId;
     } else {
@@ -1400,20 +1408,22 @@ class MediaPropertyStore {
       id: mediaCatalogHash,
       force,
       Load: async () => {
-        const metadata = await this.client.ContentObjectMetadata({
-          versionHash: mediaCatalogHash,
-          metadataSubtree: "/public/asset_metadata/info",
-          select: [
-            "name",
-            "permission_sets",
-            "media",
-            "media_collections",
-            "media_lists",
-            "attributes",
-            "tags"
-          ],
-          produceLinkUrls: true
-        });
+        if(!metadata) {
+          metadata = await this.client.ContentObjectMetadata({
+            versionHash: mediaCatalogHash,
+            metadataSubtree: "/public/asset_metadata/info",
+            select: [
+              "name",
+              "permission_sets",
+              "media",
+              "media_collections",
+              "media_lists",
+              "attributes",
+              "tags"
+            ],
+            produceLinkUrls: true
+          });
+        }
 
         await Promise.all(
           (metadata.permission_sets || []).map(async permissionSetId =>
@@ -1455,7 +1465,7 @@ class MediaPropertyStore {
     });
   });
 
-  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, force}) {
+  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, metadata, force}) {
     if(permissionSetHash) {
       permissionSetId = this.client.utils.DecodeVersionHash(permissionSetHash).objectId;
     } else {
@@ -1467,11 +1477,14 @@ class MediaPropertyStore {
       force,
       id: permissionSetId,
       Load: async () => {
-        const permissionItems = (await this.client.ContentObjectMetadata({
-          versionHash: permissionSetHash,
-          metadataSubtree: "/public/asset_metadata/info/permission_items",
-          produceLinkUrls: true
-        })) || {};
+        let permissionItems = metadata?.permissionItems;
+        if(!permissionItems) {
+          permissionItems = (await this.client.ContentObjectMetadata({
+            versionHash: permissionSetHash,
+            metadataSubtree: "/public/asset_metadata/info/permission_items",
+            produceLinkUrls: true
+          })) || {};
+        }
 
         let permissionContracts = {};
         await Promise.all(

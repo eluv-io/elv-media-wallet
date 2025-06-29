@@ -3,6 +3,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const fs = require("fs");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = (env) => {
   const isDevelopment = !!env.WEBPACK_SERVE;
@@ -25,6 +26,14 @@ module.exports = (env) => {
   if(process.env.ANALYZE_BUNDLE) {
     plugins.push(new BundleAnalyzerPlugin());
   }
+
+  plugins.push(
+    new CopyPlugin({
+      patterns: [
+        { from: "src/static/icons/favicon.png", to: "favicon.png" }
+      ]
+    })
+  );
 
   return {
     entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/index.js"),
