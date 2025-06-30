@@ -540,10 +540,10 @@ class RootStore {
           this.mediaPropertyStore.mediaPropertyHashes[propertyId] = propertyHash;
           this.mediaPropertyStore.mediaPropertyIds[propertySlug] = propertyId;
 
-          yield this.SetCurrentProperty(propertySlug);
+          this.SetCurrentProperty(propertySlug);
         }
       } else if(searchParams.get("pid")) {
-        yield this.SetCurrentProperty(searchParams.get("pid"));
+        this.SetCurrentProperty(searchParams.get("pid"));
       }
 
       if(this.customDomainPropertyId) {
