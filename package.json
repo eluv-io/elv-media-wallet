@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@eluvio/crypto": "^1.1.1",
-    "@eluvio/elv-client-js": "^4.0.138",
+    "@eluvio/elv-client-js": "^4.0.139",
     "@eluvio/elv-paymentgate": "^1.0.0",
     "@eluvio/elv-player-js": "^2.0.47",
     "@mantine/core": "^7.11.2",
