@@ -1238,7 +1238,7 @@ class MediaPropertyStore {
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
           produceLinkUrls: true,
-          resolveLinks: true,
+          resolveLinks: !isPreview,
           resolveIgnoreErrors: true,
           resolveIncludeSource: true,
           linkDepthLimit: 1
