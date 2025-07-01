@@ -470,7 +470,6 @@ const MediaCardVertical = observer(({
                 { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
               </div> :
               <div className={S("media-card-vertical__indicator", "media-card-vertical__upcoming-indicator")}>
-                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
                 <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
               </div>
         }

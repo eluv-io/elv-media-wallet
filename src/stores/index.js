@@ -403,9 +403,7 @@ class RootStore {
       return;
     }
 
-    if(!this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId]) {
-      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
-    }
+    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
     const propertyHash = this.mediaPropertyStore.mediaPropertyHashes[mediaPropertySlugOrId];
 
@@ -460,9 +458,6 @@ class RootStore {
       }
 
       // Start loading media properties
-      if(!this.isCustomDomain) {
-        this.mediaPropertyStore.LoadMediaPropertyHashes();
-      }
 
       // Login required
       if(searchParams.has("rl")) {
@@ -528,9 +523,10 @@ class RootStore {
       // Load domain map
       if(this.isCustomDomain) {
         let propertySlug = window.__domainPropertySlug;
-        let propertyHash = window.__domainPropertyHash;
+        yield this.mediaPropertyStore.LoadMediaPropertyHashes();
+        let propertyHash = this.mediaPropertyStore.mediaPropertyHashes[propertySlug];
 
-        if(propertySlug && !propertySlug.startsWith("@") && propertyHash && !propertyHash.startsWith("@")) {
+        if(propertySlug && !propertySlug.startsWith("@") && propertyHash) {
           const propertyId = this.client.utils.DecodeVersionHash(propertyHash).objectId;
           this.customDomainPropertyId = propertyId;
           this.customDomainPropertySlug = propertySlug;
@@ -862,9 +858,7 @@ class RootStore {
 
     this.SetCurrentProperty(mediaPropertyId);
 
-    if(!mediaPropertyStore.mediaPropertyHashes[mediaPropertyId]) {
-      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
-    }
+    yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
     const options = yield this.LoadPropertyCustomization(this.currentPropertyId);
 
@@ -2241,9 +2235,7 @@ class RootStore {
     mediaPropertySlugOrId = mediaPropertySlugOrId || this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
 
     if(!tenantId) {
-      if(!this.mediaPropertyStore.mediaPropertyIds[mediaPropertySlugOrId]) {
-        yield this.mediaPropertyStore.LoadMediaPropertyHashes();
-      }
+      yield this.mediaPropertyStore.LoadMediaPropertyHashes();
 
       const propertyId = this.mediaPropertyStore.mediaPropertyIds[mediaPropertySlugOrId];
       tenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});

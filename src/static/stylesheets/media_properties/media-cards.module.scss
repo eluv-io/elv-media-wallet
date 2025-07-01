@@ -145,26 +145,26 @@
   }
 
   &__indicator {
-    bottom: 15px;
+    border-radius: 10px;
+    bottom: 5px;
+    font-size: 14px;
+    padding: 5px 10px;
     position: absolute;
-    right: 15px;
+    right: 5px;
     text-align: center;
     user-select: none;
     z-index: 1;
   }
 
   &__live-indicator {
-    background-color: #F00;
-    border-radius: 5px;
-    font-weight: 600;
-    padding: 3px 8px;
+    background-color: #C00;
+    font-weight: 800;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
   }
 
   &__upcoming-indicator {
     background: rgb(39 39 39 / 80%);
-    border-radius: 5px;
-    padding: 5px 10px;
   }
 
   &__text {

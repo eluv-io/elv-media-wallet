@@ -932,24 +932,34 @@ class MediaPropertyStore {
       anonymous: true,
       ttl: 60,
       Load: async () => {
-        const metadataUrl = new URL(
-          this.rootStore.network === "demo" ?
-            "https://demov3.net955210.contentfabric.io/s/demov3" :
-            "https://main.srt.bunny.cfab.io/s/main"
-        );
+        let metadata;
+        if(this.client) {
+          metadata = await this.client.ContentObjectMetadata({
+            libraryId: this.rootStore.siteConfiguration.siteLibraryId,
+            objectId: this.rootStore.siteConfiguration.siteId,
+            metadataSubtree: "public/asset_metadata/media_properties"
+          });
+        } else {
+          // Load from global url if client is not yet initialized
+          const metadataUrl = new URL(
+            this.rootStore.network === "demo" ?
+              "https://demov3.net955210.contentfabric.io/s/demov3" :
+              "https://main.srt.bunny.cfab.io/s/main"
+          );
 
-        metadataUrl.pathname = UrlJoin(
-          metadataUrl.pathname,
-          "qlibs",
-          this.rootStore.siteConfiguration.siteLibraryId,
-          "q",
-          this.rootStore.siteConfiguration.siteId,
-          "meta/public/asset_metadata/media_properties"
-        );
+          metadataUrl.pathname = UrlJoin(
+            metadataUrl.pathname,
+            "qlibs",
+            this.rootStore.siteConfiguration.siteLibraryId,
+            "q",
+            this.rootStore.siteConfiguration.siteId,
+            "meta/public/asset_metadata/media_properties"
+          );
 
-        metadataUrl.searchParams.set("resolve", "false");
+          metadataUrl.searchParams.set("resolve", "false");
 
-        let metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
+          metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
+        }
 
         // If preview is specified, make sure to load hashes for the current properties, even if not linked
         if(this.previewAll) {
