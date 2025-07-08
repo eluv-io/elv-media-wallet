@@ -6,7 +6,7 @@
   grid-template-rows: max-content;
   height: 100%;
   margin-right: 10px;
-  max-height: calc(var(--property-full-content-height) - 10px);
+  max-height: calc(var(--property-full-content-height) - 20px);
   min-height: 300px;
   min-width: 400px;
   padding: 15px 0 15px 15px;
@@ -123,6 +123,7 @@
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  padding-bottom: 10px;
 
   &__title {
     font-weight: 600;
@@ -130,6 +131,24 @@
 
     &:not(:first-child) {
       margin-top: 20px;
+    }
+  }
+
+  &__mode {
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 30px;
+    padding-bottom: 0;
+  }
+
+  &__mode-tab {
+    border-bottom: 2px solid transparent;
+    font-size: 14px;
+    transition: border 0.25s ease;
+
+    &--active {
+      border-bottom: 2px solid white;
     }
   }
 }
@@ -140,6 +159,10 @@
   display: flex;
   gap: 10px;
   padding: 12px 0 0;
+
+  &--no-border {
+    border: 0;
+  }
 
   &--active {
     .item__title {
@@ -223,21 +246,27 @@
 
   &__actions {
     align-items: center;
+    cursor: initial;
     display: flex;
-    padding-right: 20px;
+    height: 100%;
+    padding: 0 20px 0 10px;
     z-index: 1;
   }
 
   &__action {
+    background-color: var(--property-button-background);
+    border-radius: 5px;
     height: 30px;
-    transition: opacity 0.15s ease;
+    padding: 5px;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
     width: 30px;
 
     * {
-      color: var(--property-text-highlight);
+      color: var(--property-button-text);
     }
 
     &--faded {
+      background-color: transparent;
       opacity: 0.5;
 
       * {

@@ -1,7 +1,7 @@
 import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
-import React from "react";
+import React, {useEffect} from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
@@ -9,9 +9,8 @@ import {LoaderImage} from "Components/properties/Common";
 import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
-import NoVideoIcon from "Assets/icons/sidebar-novideo.svg";
-import MultiVideoIcon from "Assets/icons/sidebar-multivideo.svg";
 import PipVideoIcon from "Assets/icons/sidebar-pip.svg";
+import MultiviewIcon from "Assets/icons/eye.svg";
 import XIcon from "Assets/icons/x.svg";
 import ChevronLeft from "Assets/icons/left-arrow.svg";
 
@@ -95,10 +94,12 @@ export const SidebarContent = async ({match}) => {
 
 const SidebarItem = observer(({
   item,
+  noBorder,
   aspectRatio,
   showActions,
-  secondaryMediaSettings,
-  setSecondaryMediaSettings
+  multiviewMode,
+  additionalMedia=[],
+  setAdditionalMedia
 }) => {
   const match = useRouteMatch();
   const mediaItem = item.mediaItem;
@@ -118,11 +119,14 @@ const SidebarItem = observer(({
   const navContext = new URLSearchParams(location.search).get("ctx");
   const { linkPath } = MediaPropertyLink({match, mediaItem: mediaItem, navContext}) || "";
 
+  const isActive = !!additionalMedia.find(mediaId => mediaId === mediaItem.id);
+
   return (
     <Linkish
       to={linkPath}
       className={S(
         "item",
+        noBorder ? "item--no-border" : "",
         (itemIsLive || itemIsVod) ? "item--live" : "",
           item.id === match.params.mediaItemSlugOrId ? "item--active" : ""
       )}
@@ -174,29 +178,29 @@ const SidebarItem = observer(({
       </div>
       {
         !showActions || !itemIsLive || mediaItem.id === match.params.mediaItemSlugOrId ? null :
-          <div className={S("item__actions")}>
+          <div
+            onClick={event => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            className={S("item__actions")}
+          >
             <button
-              onClick={event => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if(secondaryMediaSettings?.mediaId === mediaItem.id) {
-                  if(secondaryMediaSettings.display === "side-by-side") {
-                    setSecondaryMediaSettings({mediaId: mediaItem.id, display: "picture-in-picture", pip: "secondary"});
-                  } else {
-                    setSecondaryMediaSettings(undefined);
-                  }
+              onClick={() => {
+                if(isActive) {
+                  setAdditionalMedia(additionalMedia.filter(mediaId => mediaId !== mediaItem.id));
+                } else if(multiviewMode === "pip") {
+                  setAdditionalMedia([mediaItem.id]);
                 } else {
-                  setSecondaryMediaSettings({mediaId: mediaItem.id, display: "side-by-side"});
+                  setAdditionalMedia([...additionalMedia, mediaItem.id]);
                 }
               }}
-              className={S("item__action", secondaryMediaSettings?.mediaId !== mediaItem.id ? "item__action--faded" : "")}
+              className={S("item__action", !isActive ? "item__action--faded" : "")}
             >
               <ImageIcon
                 icon={
-                  secondaryMediaSettings?.mediaId !== mediaItem.id ? NoVideoIcon :
-                    secondaryMediaSettings.display === "side-by-side" ? MultiVideoIcon :
-                      PipVideoIcon
+                    multiviewMode === "pip" ?
+                      PipVideoIcon : MultiviewIcon
                 }
               />
             </button>
@@ -211,10 +215,12 @@ const MediaSidebar = observer(({
   display,
   sidebarContent,
   showActions,
-  secondaryMediaSettings,
-  setSecondaryMediaSettings,
   showSidebar,
-  setShowSidebar
+  setShowSidebar,
+  additionalMedia,
+  setAdditionalMedia,
+  multiviewMode,
+  setMultiviewMode
 }) => {
   const {content, section} = sidebarContent || {};
 
@@ -224,9 +230,13 @@ const MediaSidebar = observer(({
 
   if(!content || content.length === 0) { return; }
 
-  const liveContent = content.filter(item => item.scheduleInfo.isLiveContent && item.scheduleInfo.started);
+  const liveContent = content.filter(item => item.scheduleInfo.isLiveContent && item.scheduleInfo.started && !item.scheduleInfo.ended);
   const upcomingContent = content.filter(item => item.scheduleInfo.isLiveContent && !item.scheduleInfo.started);
   const vodContent = content.filter(item => !item.scheduleInfo.isLiveContent);
+
+  useEffect(() => {
+    setAdditionalMedia([]);
+  }, [multiviewMode]);
 
   if(!showSidebar || rootStore.pageWidth < 800) {
     return (
@@ -239,7 +249,7 @@ const MediaSidebar = observer(({
   }
 
   return (
-    <div className={S("sidebar", secondaryMediaSettings?.display === "side-by-side" ? "sidebar--overlay" : "")}>
+    <div className={S("sidebar", "sidebar--overlay")}>
       <button onClick={() => setShowSidebar(false)} className={S("hide-button")}>
         <ImageIcon icon={XIcon} />
       </button>
@@ -266,16 +276,29 @@ const MediaSidebar = observer(({
         {
           liveContent.length === 0 ? null :
             <>
-              <div className={[S("content__title"), "_title"].join(" ")}>
-                Today
+              <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
+                <button
+                  onClick={() => setMultiviewMode("pip")}
+                  className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
+                >
+                  Live
+                </button>
+                <button
+                  onClick={() => setMultiviewMode("multiview")}
+                  className={S("content__mode-tab", multiviewMode === "multiview" ? "content__mode-tab--active" : "")}
+                >
+                  Multiview
+                </button>
               </div>
-              {liveContent.map(item =>
+              {liveContent.map((item, index) =>
                 <SidebarItem
+                  multiviewMode={multiviewMode}
+                  noBorder={index === 0}
                   item={item}
                   aspectRatio={aspectRatio}
                   showActions={showActions}
-                  secondaryMediaSettings={secondaryMediaSettings}
-                  setSecondaryMediaSettings={setSecondaryMediaSettings}
+                  additionalMedia={additionalMedia}
+                  setAdditionalMedia={setAdditionalMedia}
                   key={`item-${item.id}`}
                 />
               )}
@@ -292,8 +315,6 @@ const MediaSidebar = observer(({
                   item={item}
                   aspectRatio={aspectRatio}
                   showActions={showActions}
-                  secondaryMediaSettings={secondaryMediaSettings}
-                  setSecondaryMediaSettings={setSecondaryMediaSettings}
                   key={`item-${item.id}`}
                 />
               )}
