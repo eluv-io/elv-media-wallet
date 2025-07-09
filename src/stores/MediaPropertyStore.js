@@ -961,23 +961,6 @@ class MediaPropertyStore {
           metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
         }
 
-        // If preview is specified, make sure to load hashes for the current properties, even if not linked
-        if(this.previewAll) {
-          const {mediaPropertySlugOrId, parentMediaPropertySlugOrId} = this.rootStore.routeParams;
-
-          if(mediaPropertySlugOrId) {
-            const latestHash = await this.rootStore.client.LatestVersionHash({objectId: mediaPropertySlugOrId});
-            const slug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
-            metadata[slug] = { latestHash };
-          }
-
-          if(parentMediaPropertySlugOrId) {
-            const latestHash = await this.rootStore.client.LatestVersionHash({objectId: parentMediaPropertySlugOrId});
-            const slug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
-            metadata[slug] = { latestHash };
-          }
-        }
-
         let mediaPropertyHashes = {};
         let mediaPropertyIds = {};
         let mediaPropertySlugs = {};
@@ -997,6 +980,36 @@ class MediaPropertyStore {
             mediaPropertySlugs[mediaPropertyId] = mediaPropertySlug;
           }
         });
+
+        // If preview is specified, make sure to load hashes for the current properties, even if not linked
+        if(this.previewAll) {
+          const {mediaPropertySlugOrId, parentMediaPropertySlugOrId} = this.rootStore.routeParams;
+
+          await Promise.all(
+            [mediaPropertySlugOrId, parentMediaPropertySlugOrId].map(async mediaPropertySlugOrId => {
+              if(!mediaPropertySlugOrId) { return; }
+              const id = mediaPropertyIds[mediaPropertySlugOrId];
+              let slug = mediaPropertySlugs[mediaPropertySlugOrId];
+              const latestHash = await this.rootStore.client.LatestVersionHash({objectId: id});
+              const latestSlug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
+
+              mediaPropertyHashes[id] = latestHash;
+              mediaPropertyHashes[slug] = latestHash;
+              mediaPropertyHashes[latestSlug] = latestHash;
+
+              mediaPropertyIds[id] = id;
+              mediaPropertyIds[slug] = id;
+              mediaPropertyIds[latestSlug] = id;
+
+              mediaPropertySlugs[id] = latestSlug;
+              mediaPropertySlugs[slug] = latestSlug;
+              mediaPropertySlugs[latestSlug] = latestSlug;
+
+
+              metadata[slug] = { latestHash };
+            })
+          );
+        }
 
         this.mediaPropertyHashes = mediaPropertyHashes;
         this.mediaPropertyIds = mediaPropertyIds;
