@@ -25,7 +25,20 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 /* Video */
 
-const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, allowCasting=true, mute, capLevelToPlayerSize, onClick, settingsUpdateCallback, className=""}) => {
+const MediaVideo = observer(({
+  mediaItem,
+  display,
+  videoRef,
+  showTitle,
+  hideControls,
+  allowCasting=true,
+  mute,
+  capLevelToPlayerSize,
+  onClick,
+  onClose,
+  settingsUpdateCallback,
+  className=""
+}) => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
@@ -161,6 +174,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         })
       }
       settingsUpdateCallback={settingsUpdateCallback}
+      onClose={onClose}
       errorCallback={error => {
         mediaPropertyStore.Log(error, true);
         setError("Something went wrong");
@@ -247,6 +261,11 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     }
   }, [rootStore.pageWidth]);
 
+  useEffect(() => {
+    setAdditionalMedia(additionalMedia.slice(0, 1));
+  }, [multiviewMode]);
+
+
   if(!mediaItem) { return <div className={S("media")} />; }
 
   const mediaInfo = additionalMedia
@@ -264,41 +283,44 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   let media;
   if(multiviewMode === "pip") {
     media = (
-      <PIPContent
-        primaryMedia={{mediaItem, display}}
-        secondaryMedia={mediaInfo[0]}
-      />
+      <div className={S("media-with-sidebar__media-container")}>
+        <PIPContent
+          primaryMedia={{mediaItem, display}}
+          secondaryMedia={mediaInfo[0]}
+        />
+      </div>
     );
   } else {
     media = (
-      [{mediaItem, display}, ...mediaInfo].map(item =>
-        <MediaVideo
-          key={`media-${item.mediaItem.mediaId}`}
-          capLevelToPlayerSize
-          mediaItem={item.mediaItem}
-          display={item.display}
-          showTitle
-          className={S("media-with-sidebar__video")}
-        />
-      )
+      <div className={S("media-with-sidebar__media-grid-container", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
+        <div className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length + 1}`)}>
+          {
+            [{mediaItem, display}, ...mediaInfo].map((item, index) =>
+              <MediaVideo
+                key={`media-${item.mediaItem.id}`}
+                capLevelToPlayerSize
+                mute={index > 0}
+                mediaItem={item.mediaItem}
+                display={item.display}
+                showTitle
+                onClose={
+                  index === 0 ? undefined :
+                    () => setAdditionalMedia(additionalMedia.filter(id => id !== item.mediaItem.id))
+                }
+                className={S("media-with-sidebar__video")}
+              />
+            )
+          }
+        </div>
+      </div>
     );
   }
 
   return (
     <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
-        <div
-          className={
-            S(
-              "media-with-sidebar__media-container",
-              multiviewMode === "multiview" ? "media-with-sidebar__media-grid" : "",
-              multiviewMode === "multiview" ? `media-with-sidebar__media-grid--${additionalMedia.length + 1}` : ""
-            )
-          }
-        >
-          {media}
-        </div>
-        { textContent }
+        {media}
+        {textContent}
       </div>
       <MediaSidebar
         sidebarContent={sidebarContent}

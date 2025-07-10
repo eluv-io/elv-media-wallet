@@ -128,6 +128,8 @@
   &__title {
     font-weight: 600;
     text-transform: uppercase;
+    top: 0;
+    z-index: 10;
 
     &:not(:first-child) {
       margin-top: 20px;
@@ -139,12 +141,11 @@
     border-bottom: 1px solid var(--border-color);
     display: flex;
     gap: 30px;
-    padding-bottom: 0;
   }
 
   &__mode-tab {
     border-bottom: 2px solid transparent;
-    font-size: 14px;
+    line-height: 2em;
     transition: border 0.25s ease;
 
     &--active {
@@ -263,6 +264,10 @@
 
     * {
       color: var(--property-button-text);
+    }
+
+    &:disabled {
+      opacity: 0.2;
     }
 
     &--faded {

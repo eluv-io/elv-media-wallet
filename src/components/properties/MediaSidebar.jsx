@@ -1,7 +1,7 @@
 import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
-import React, {useEffect} from "react";
+import React from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
@@ -13,6 +13,7 @@ import PipVideoIcon from "Assets/icons/sidebar-pip.svg";
 import MultiviewIcon from "Assets/icons/eye.svg";
 import XIcon from "Assets/icons/x.svg";
 import ChevronLeft from "Assets/icons/left-arrow.svg";
+import CheckmarkIcon from "Assets/icons/check.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -120,9 +121,11 @@ const SidebarItem = observer(({
   const { linkPath } = MediaPropertyLink({match, mediaItem: mediaItem, navContext}) || "";
 
   const isActive = !!additionalMedia.find(mediaId => mediaId === mediaItem.id);
+  const isPrimary = mediaItem.id === match.params.mediaItemSlugOrId;
 
   return (
     <Linkish
+      disabled={isPrimary}
       to={linkPath}
       className={S(
         "item",
@@ -130,22 +133,24 @@ const SidebarItem = observer(({
         (itemIsLive || itemIsVod) ? "item--live" : "",
           item.id === match.params.mediaItemSlugOrId ? "item--active" : ""
       )}
-      ref={element => {
-        // Scroll selected item into view
-        if(!element || item.id !== match.params.mediaItemSlugOrId) {
-          return;
-        }
+      /*
+        ref={element => {
+          // Scroll selected item into view
+          if(!element || item.id !== match.params.mediaItemSlugOrId) {
+            return;
+          }
 
-        const parentDimensions = element.parentElement.getBoundingClientRect();
-        const elementDimensions = element.getBoundingClientRect();
+          const parentDimensions = element.parentElement.getBoundingClientRect();
+          const elementDimensions = element.getBoundingClientRect();
 
-        if(elementDimensions.top + elementDimensions.height <= parentDimensions.top + parentDimensions.height) {
-          // Element already visible
-          return;
-        }
+          if(elementDimensions.top + elementDimensions.height <= parentDimensions.top + parentDimensions.height) {
+            // Element already visible
+            return;
+          }
 
-        element.parentElement.scrollTop = elementDimensions.top - parentDimensions.top;
-      }}
+          element.parentElement.scrollTop = elementDimensions.top - parentDimensions.top;
+        }}
+       */
     >
       {
         !(itemIsLive || itemIsVod) ? null :
@@ -177,7 +182,7 @@ const SidebarItem = observer(({
         }
       </div>
       {
-        !showActions || !itemIsLive || mediaItem.id === match.params.mediaItemSlugOrId ? null :
+        !showActions || !itemIsLive || isPrimary ? null :
           <div
             onClick={event => {
               event.stopPropagation();
@@ -186,6 +191,7 @@ const SidebarItem = observer(({
             className={S("item__actions")}
           >
             <button
+              disabled={!isActive && additionalMedia.length >= 8}
               onClick={() => {
                 if(isActive) {
                   setAdditionalMedia(additionalMedia.filter(mediaId => mediaId !== mediaItem.id));
@@ -205,6 +211,21 @@ const SidebarItem = observer(({
               />
             </button>
           </div>
+      }
+      {
+        !isPrimary ? null :
+          <div
+            onClick={event => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            className={S("item__actions")}
+          >
+            <div className={S("item__action", !isActive ? "item__action--faded" : "")}>
+              <ImageIcon icon={CheckmarkIcon} />
+            </div>
+          </div>
+
       }
     </Linkish>
   );
@@ -228,15 +249,13 @@ const MediaSidebar = observer(({
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
   const aspectRatio = section?.display?.aspect_ratio;
 
-  if(!content || content.length === 0) { return; }
+  if(!content || content.length === 0) {
+    return;
+  }
 
   const liveContent = content.filter(item => item.scheduleInfo.isLiveContent && item.scheduleInfo.started && !item.scheduleInfo.ended);
   const upcomingContent = content.filter(item => item.scheduleInfo.isLiveContent && !item.scheduleInfo.started);
   const vodContent = content.filter(item => !item.scheduleInfo.isLiveContent);
-
-  useEffect(() => {
-    setAdditionalMedia([]);
-  }, [multiviewMode]);
 
   if(!showSidebar || rootStore.pageWidth < 800) {
     return (
@@ -275,13 +294,13 @@ const MediaSidebar = observer(({
       <div className={S("content")}>
         {
           liveContent.length === 0 ? null :
-            <>
+            <div className={S("content__section")}>
               <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
                 <button
                   onClick={() => setMultiviewMode("pip")}
                   className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
                 >
-                  Live
+                  Today
                 </button>
                 <button
                   onClick={() => setMultiviewMode("multiview")}
@@ -302,11 +321,11 @@ const MediaSidebar = observer(({
                   key={`item-${item.id}`}
                 />
               )}
-            </>
+            </div>
         }
         {
           upcomingContent.length === 0 ? null :
-            <>
+            <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
                 Upcoming
               </div>
@@ -318,11 +337,11 @@ const MediaSidebar = observer(({
                   key={`item-${item.id}`}
                 />
               )}
-            </>
+            </div>
         }
         {
           vodContent.length === 0 ? null :
-            <>
+            <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
                 { section?.display?.title }
               </div>
@@ -334,7 +353,7 @@ const MediaSidebar = observer(({
                   key={`item-${item.id}`}
                 />
               )}
-            </>
+            </div>
         }
       </div>
     </div>
