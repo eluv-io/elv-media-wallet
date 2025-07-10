@@ -1,7 +1,7 @@
 import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
-import React from "react";
+import React, {useState} from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
@@ -102,6 +102,7 @@ const SidebarItem = observer(({
   additionalMedia=[],
   setAdditionalMedia
 }) => {
+  const [hovering, setHovering] = useState(false);
   const match = useRouteMatch();
   const mediaItem = item.mediaItem;
 
@@ -127,11 +128,14 @@ const SidebarItem = observer(({
     <Linkish
       disabled={isPrimary}
       to={linkPath}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
       className={S(
         "item",
         noBorder ? "item--no-border" : "",
         (itemIsLive || itemIsVod) ? "item--live" : "",
-          item.id === match.params.mediaItemSlugOrId ? "item--active" : ""
+          item.id === match.params.mediaItemSlugOrId ? "item--active" : "",
+        hovering? "item--hover" : ""
       )}
       /*
         ref={element => {
@@ -184,6 +188,8 @@ const SidebarItem = observer(({
       {
         !showActions || !itemIsLive || isPrimary ? null :
           <div
+            onMouseEnter={() => setHovering(false)}
+            onMouseLeave={() => setHovering(true)}
             onClick={event => {
               event.stopPropagation();
               event.preventDefault();

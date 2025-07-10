@@ -413,7 +413,7 @@ export const MediaPropertyMediaBackPath = ({params, navContext}) => {
 };
 
 export const MediaItemScheduleInfo = mediaItem => {
-  const isLiveVideoType =
+  const isLiveVideoType = !!mediaItem ||
     mediaItem &&
     mediaItem?.type === "media" &&
     mediaItem.media_type === "Video" &&
@@ -430,8 +430,8 @@ export const MediaItemScheduleInfo = mediaItem => {
     const startTime = !!mediaItem.start_time && new Date(mediaItem.start_time);
     const streamStartTime = (!!mediaItem.stream_start_time && new Date(mediaItem.stream_start_time)) || startTime;
     const endTime = !!mediaItem.end_time && new Date(mediaItem.end_time);
-    const started = !streamStartTime || now > streamStartTime;
-    const ended = !!endTime && now > endTime;
+    const started = true || !streamStartTime || now > streamStartTime;
+    const ended = false && !!endTime && now > endTime;
     const displayStartDate = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
     const displayStartDateLong = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "short"}).replace(/0(\d)/g, "$1");
     const displayStartTime = startTime?.toLocaleTimeString?.(rootStore.preferredLocale, {hour: "numeric", minute: "numeric"}).replace(/^0(\d)/, "$1");
@@ -450,7 +450,7 @@ export const MediaItemScheduleInfo = mediaItem => {
     };
   } catch(error) {
     // eslint-disable-next-line no-console
-    console.error(`Error parsing start/end time in media item ${mediaItem.name}`);
+    console.error(`Error parsing start/end time in media item ${mediaItem}`);
     // eslint-disable-next-line no-console
     console.error(error);
     // eslint-disable-next-line no-console
