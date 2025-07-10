@@ -4,6 +4,9 @@ import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
+import ImageIcon from "Components/common/ImageIcon";
+
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -28,7 +31,9 @@ const Video = forwardRef(function VideoComponent({
   mediaItemId,
   saveProgress=false,
   onClick,
-  className=""
+  onClose,
+  className="",
+  containerProps
 }, ref) {
   const [contentHash, setContentHash] = useState(undefined);
   const [videoDimensions, setVideoDimensions] = useState(undefined);
@@ -188,15 +193,25 @@ const Video = forwardRef(function VideoComponent({
 
   return (
     <div
+      {...(containerProps || {})}
       ref={ref}
       className={[S("video"), className].join(" ")}
       onClick={onClick}
       style={
-        !autoAspectRatio ? {} :
-          {aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}
+        !autoAspectRatio ? containerProps?.style || {} :
+          {
+            ...(containerProps?.style || {}),
+            aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`
+          }
       }
     >
       <div ref={targetRef} />
+      {
+        !onClose ? null :
+          <button onClick={() => onClose()} className={S("video__close")}>
+            <ImageIcon icon={XIcon} />
+          </button>
+      }
     </div>
   );
 });

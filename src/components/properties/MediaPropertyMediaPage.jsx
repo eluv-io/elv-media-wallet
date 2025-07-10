@@ -25,7 +25,21 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 /* Video */
 
-const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, allowCasting=true, mute, onClick, settingsUpdateCallback, className=""}) => {
+const MediaVideo = observer(({
+  mediaItem,
+  display,
+  videoRef,
+  showTitle,
+  hideControls,
+  allowCasting=true,
+  mute,
+  capLevelToPlayerSize,
+  onClick,
+  onClose,
+  settingsUpdateCallback,
+  className="",
+  containerProps
+}) => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
@@ -125,7 +139,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
       playoutParameters.clipStart = mediaItem.media_link_info.clip_start_time;
       playoutParameters.clipEnd = mediaItem.media_link_info.clip_end_time;
     }
-  } else if(display.clip && !mediaItem.live_video) {
+  } else if(mediaItem.clip && !mediaItem.live_video) {
     playoutParameters.clipStart = display.clip_start_time;
     playoutParameters.clipEnd = display.clip_end_time;
   }
@@ -148,6 +162,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
       }}
       playerOptions={{
+        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[capLevelToPlayerSize ? "ON" : "OFF"],
         playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile] || EluvioPlayerParameters.playerProfile.DEFAULT,
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
@@ -160,51 +175,34 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         })
       }
       settingsUpdateCallback={settingsUpdateCallback}
+      onClose={onClose}
       errorCallback={error => {
         mediaPropertyStore.Log(error, true);
         setError("Something went wrong");
       }}
       className={[S("media", "media__video"), className].join(" ")}
+      containerProps={containerProps}
     />
   );
 });
 
-const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
-  const [secondaryMediaSettings, setSecondaryMediaSettings] = useState(undefined);
-  const [primaryPlayerActive, setPrimaryPlayerActive] = useState(false);
+const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   const [primaryMenuActive, setPrimaryMenuActive] = useState(false);
   const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [primaryPIP, setPrimaryPIP] = useState(false);
 
-  useEffect(() => {
-    if(rootStore.pageWidth < 800) {
-      setSecondaryMediaSettings(undefined);
-    }
-  }, [rootStore.pageWidth]);
-
-  if(!mediaItem) { return <div className={S("media")} />; }
-
-  const secondaryMediaItem = mediaPropertyStore.media[secondaryMediaSettings?.mediaId];
-  const secondaryDisplay = secondaryMediaItem?.override_settings_when_viewed ? secondaryMediaItem.viewed_settings : secondaryMediaItem;
-
-  const primaryPIP = secondaryMediaSettings?.display === "picture-in-picture" && secondaryMediaSettings.pip === "primary";
-  const secondaryPIP = secondaryMediaSettings?.display === "picture-in-picture" && secondaryMediaSettings.pip === "secondary";
-
-  const primaryMedia = (
+  const primaryVideo = (
     <MediaVideo
-      key={`media-${mediaItem.mediaId}`}
-      mediaItem={mediaItem}
-      display={display}
+      key={`media-${primaryMedia.mediaItem.id}`}
+      mediaItem={primaryMedia.mediaItem}
+      display={primaryMedia.display}
       showTitle={primaryPIP}
       hideControls={primaryPIP}
       mute={primaryPIP}
-      settingsUpdateCallback={player => {
-        setPrimaryPlayerActive(true);
-        setPrimaryMenuActive(player.controls.IsMenuVisible());
-      }}
+      settingsUpdateCallback={player => setPrimaryMenuActive(player.controls.IsMenuVisible())}
       onClick={
-          !primaryPIP? undefined :
-          () => setSecondaryMediaSettings({...secondaryMediaSettings, pip: "secondary"})
+        !primaryPIP? undefined :
+          () => setPrimaryPIP(false)
       }
       className={
         S(
@@ -215,55 +213,134 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     />
   );
 
-  let secondaryMedia = !secondaryMediaItem ? null :
+  if(!secondaryMedia) {
+    return primaryVideo;
+  }
+
+  const secondaryVideo = (
     <MediaVideo
-      key={`media-${secondaryMediaSettings.mediaId}`}
-      mediaItem={secondaryMediaItem}
-      display={secondaryDisplay}
-      showTitle={secondaryPIP}
-      hideControls={secondaryPIP}
-      mute={secondaryPIP}
-      allowCasting={false}
+      key={`media-${secondaryMedia.mediaItem.id}`}
+      mediaItem={secondaryMedia.mediaItem}
+      display={secondaryMedia.display}
+      showTitle={!primaryPIP}
+      hideControls={!primaryPIP}
+      mute={!primaryPIP}
       settingsUpdateCallback={player => setSecondaryMenuActive(player.controls.IsMenuVisible())}
       onClick={
-        !secondaryPIP ? undefined :
-          () => setSecondaryMediaSettings({...secondaryMediaSettings, pip: "primary"})
+        primaryPIP ? undefined :
+          () => setPrimaryPIP(true)
       }
       className={
         S(
-          secondaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
-          secondaryPIP && primaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
+          !primaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
+          !primaryPIP && primaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
         )
       }
-    />;
+    />
+  );
+
+  return (
+    primaryPIP ?
+      <>
+        { secondaryVideo }
+        { primaryVideo }
+      </> :
+      <>
+        { primaryVideo }
+        { secondaryVideo }
+      </>
+  );
+});
+
+let lastSelectedModa = "pip";
+const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
+  const [additionalMedia, setAdditionalMedia] = useState([]);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [multiviewMode, setMultiviewMode] = useState(lastSelectedModa);
+
+  useEffect(() => {
+    if(rootStore.pageWidth < 800) {
+      setAdditionalMedia([]);
+    }
+  }, [rootStore.pageWidth]);
+
+  useEffect(() => {
+    setAdditionalMedia(additionalMedia.slice(0, 1));
+
+    lastSelectedModa = multiviewMode;
+  }, [multiviewMode]);
+
+
+  if(!mediaItem) { return <div className={S("media")} />; }
+
+  const mediaInfo = additionalMedia
+    .map(mediaId => {
+      const mediaItem = mediaPropertyStore.media[mediaId];
+
+      if(!mediaItem) { return; }
+
+      const display = mediaItem?.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
+
+      return { mediaItem, display };
+    })
+    .filter(item => item);
+
+  let media;
+  if(multiviewMode === "pip") {
+    media = (
+      <div className={S("media-with-sidebar__media-container")}>
+        <PIPContent
+          primaryMedia={{mediaItem, display}}
+          secondaryMedia={mediaInfo[0]}
+        />
+      </div>
+    );
+  } else {
+    media = (
+      <div className={S("media-with-sidebar__media-grid-container", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
+        <div className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length + 1}`)}>
+          {
+            [{mediaItem, display}, ...mediaInfo].map((item, index) =>
+              <MediaVideo
+                key={`media-${item.mediaItem.id}`}
+                capLevelToPlayerSize
+                mute={index > 0}
+                mediaItem={item.mediaItem}
+                display={{title: `video-${index}`}}
+                showTitle
+                onClose={
+                  index === 0 ? undefined :
+                    () => setAdditionalMedia(additionalMedia.filter(id => id !== item.mediaItem.id))
+                }
+                className={S("media-with-sidebar__video")}
+                containerProps={{
+                  style: { gridArea: `video-${index + 1}` }
+                }}
+              />
+            )
+          }
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
-        <div className={S("media-with-sidebar__media-container")}>
-          {
-            secondaryMediaSettings?.pip !== "primary" ?
-              <>
-                { primaryMedia }
-                { secondaryMedia }
-              </> :
-              <>
-                { secondaryMedia }
-                { primaryMedia }
-              </>
-          }
-        </div>
-        { textContent }
+        {media}
+        {textContent}
       </div>
       <MediaSidebar
         sidebarContent={sidebarContent}
-        showActions={primaryPlayerActive}
+        showActions
         mediaItem={mediaItem}
         display={display}
-        secondaryMediaSettings={secondaryMediaSettings}
-        setSecondaryMediaSettings={setSecondaryMediaSettings}
         showSidebar={showSidebar}
         setShowSidebar={setShowSidebar}
+        additionalMedia={additionalMedia}
+        setAdditionalMedia={setAdditionalMedia}
+        multiviewMode={multiviewMode}
+        setMultiviewMode={setMultiviewMode}
       />
     </div>
   );
