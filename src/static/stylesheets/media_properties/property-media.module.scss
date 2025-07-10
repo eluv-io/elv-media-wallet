@@ -115,7 +115,7 @@
 
 .media {
   background: #000;
-  box-shadow: 0 3px 15px black;
+  box-shadow: 0 3px 5px black;
   height: var(--property-full-content-height);
   max-height: calc(var(--property-full-content-height) - 220px);
   min-height: 400px;
@@ -304,9 +304,9 @@
   &__media-grid-container {
     align-items: center;
     background-color: var(--property-background-secondary);
+    border-radius: 5px;
     display: flex;
     height: 100%;
-    margin-bottom: 10px;
     min-height: calc(var(--vh, 1vh) * 100 - 200px);
     padding: 10px;
     width: 100%;
@@ -323,21 +323,59 @@
     gap: 5px;
     width: 100%;
 
-    &--2,
-    &--3,
+    &--1 {
+      grid-template-areas: "video-1";
+    }
+
+    &--2 {
+      grid-template-areas: "video-1 video-2";
+    }
+
+    &--3 {
+      grid-template-areas:
+              "video-1 video-1 video-2 video-2"
+              ". video-3 video-3 .";
+    }
+
     &--4 {
-      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+              "video-1 video-2"
+              "video-3 video-4";
     }
 
-    &--5,
+    &--5 {
+      grid-template-areas:
+              "video-1 video-2 ."
+              "video-1 video-2 video-5"
+              "video-3 video-4 video-5"
+              "video-3 video-4 .";
+    }
+
     &--6 {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas:
+              "video-1 video-2 video-3"
+              "video-4 video-5 video-6";
     }
 
-    &--7,
-    &--8,
+    &--7 {
+      grid-template-areas:
+              "video-1 video-2 video-3"
+              "video-4 video-5 video-6"
+              ". video-7 .";
+    }
+
+    &--8 {
+      grid-template-areas:
+              "video-1 video-1 video-2 video-2 video-3 video-3"
+              "video-4 video-4 video-5 video-5 video-6 video-6"
+              ".  video-7 video-7 video-8 video-8 .";
+    }
+
     &--9 {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas:
+              "video-1 video-2 video-3"
+              "video-4 video-5 video-6"
+              "video-7 video-8 video-9";
     }
   }
 

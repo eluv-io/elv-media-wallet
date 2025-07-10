@@ -37,7 +37,8 @@ const MediaVideo = observer(({
   onClick,
   onClose,
   settingsUpdateCallback,
-  className=""
+  className="",
+  containerProps
 }) => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
@@ -180,6 +181,7 @@ const MediaVideo = observer(({
         setError("Something went wrong");
       }}
       className={[S("media", "media__video"), className].join(" ")}
+      containerProps={containerProps}
     />
   );
 });
@@ -250,10 +252,11 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   );
 });
 
+let lastSelectedModa = "pip";
 const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
   const [additionalMedia, setAdditionalMedia] = useState([]);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [multiviewMode, setMultiviewMode] = useState("pip");
+  const [multiviewMode, setMultiviewMode] = useState(lastSelectedModa);
 
   useEffect(() => {
     if(rootStore.pageWidth < 800) {
@@ -263,6 +266,8 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
 
   useEffect(() => {
     setAdditionalMedia(additionalMedia.slice(0, 1));
+
+    lastSelectedModa = multiviewMode;
   }, [multiviewMode]);
 
 
@@ -301,13 +306,16 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
                 capLevelToPlayerSize
                 mute={index > 0}
                 mediaItem={item.mediaItem}
-                display={item.display}
+                display={{title: `video-${index}`}}
                 showTitle
                 onClose={
                   index === 0 ? undefined :
                     () => setAdditionalMedia(additionalMedia.filter(id => id !== item.mediaItem.id))
                 }
                 className={S("media-with-sidebar__video")}
+                containerProps={{
+                  style: { gridArea: `video-${index + 1}` }
+                }}
               />
             )
           }

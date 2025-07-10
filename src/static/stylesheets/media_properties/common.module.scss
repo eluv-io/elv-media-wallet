@@ -38,7 +38,7 @@
     @include page-fade-in(0.25s);
 
     background: var(--property-background-modal);
-    box-shadow: 0 0 20px rgb(0 0 0 / 50%);
+    box-shadow: 0 0 20px  rgb(0 0 0 / 50%);
     max-height: calc(97 * var(--vh));
     max-width: 100vw;
   }

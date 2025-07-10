@@ -32,7 +32,8 @@ const Video = forwardRef(function VideoComponent({
   saveProgress=false,
   onClick,
   onClose,
-  className=""
+  className="",
+  containerProps
 }, ref) {
   const [contentHash, setContentHash] = useState(undefined);
   const [videoDimensions, setVideoDimensions] = useState(undefined);
@@ -192,12 +193,16 @@ const Video = forwardRef(function VideoComponent({
 
   return (
     <div
+      {...(containerProps || {})}
       ref={ref}
       className={[S("video"), className].join(" ")}
       onClick={onClick}
       style={
-        !autoAspectRatio ? {} :
-          {aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}
+        !autoAspectRatio ? containerProps?.style || {} :
+          {
+            ...(containerProps?.style || {}),
+            aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`
+          }
       }
     >
       <div ref={targetRef} />

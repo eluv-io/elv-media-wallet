@@ -13,7 +13,6 @@ import PipVideoIcon from "Assets/icons/sidebar-pip.svg";
 import MultiviewIcon from "Assets/icons/eye.svg";
 import XIcon from "Assets/icons/x.svg";
 import ChevronLeft from "Assets/icons/left-arrow.svg";
-import CheckmarkIcon from "Assets/icons/check.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -121,8 +120,8 @@ const SidebarItem = observer(({
   const navContext = new URLSearchParams(location.search).get("ctx");
   const { linkPath } = MediaPropertyLink({match, mediaItem: mediaItem, navContext}) || "";
 
-  const isActive = !!additionalMedia.find(mediaId => mediaId === mediaItem.id);
   const isPrimary = mediaItem.id === match.params.mediaItemSlugOrId;
+  const isActive = isPrimary || !!additionalMedia.find(mediaId => mediaId === mediaItem.id);
 
   return (
     <Linkish
@@ -186,7 +185,7 @@ const SidebarItem = observer(({
         }
       </div>
       {
-        !showActions || !itemIsLive || isPrimary ? null :
+        !showActions || !itemIsLive || (isPrimary && multiviewMode === "pip") ? null :
           <div
             onMouseEnter={() => setHovering(false)}
             onMouseLeave={() => setHovering(true)}
@@ -196,18 +195,21 @@ const SidebarItem = observer(({
             }}
             className={S("item__actions")}
           >
-            <button
+            <Linkish
               disabled={!isActive && additionalMedia.length >= 8}
-              onClick={() => {
-                if(isActive) {
-                  setAdditionalMedia(additionalMedia.filter(mediaId => mediaId !== mediaItem.id));
-                } else if(multiviewMode === "pip") {
-                  setAdditionalMedia([mediaItem.id]);
-                } else {
-                  setAdditionalMedia([...additionalMedia, mediaItem.id]);
-                }
-              }}
-              className={S("item__action", !isActive ? "item__action--faded" : "")}
+              onClick={
+                isPrimary ? undefined :
+                  () => {
+                    if(isActive) {
+                      setAdditionalMedia(additionalMedia.filter(mediaId => mediaId !== mediaItem.id));
+                    } else if(multiviewMode === "pip") {
+                      setAdditionalMedia([mediaItem.id]);
+                    } else {
+                      setAdditionalMedia([...additionalMedia, mediaItem.id]);
+                    }
+                  }
+              }
+              className={S("item__action", isPrimary ? "item__action--primary" : "", !isActive ? "item__action--faded" : "")}
             >
               <ImageIcon
                 icon={
@@ -215,23 +217,8 @@ const SidebarItem = observer(({
                       PipVideoIcon : MultiviewIcon
                 }
               />
-            </button>
+            </Linkish>
           </div>
-      }
-      {
-        !isPrimary ? null :
-          <div
-            onClick={event => {
-              event.stopPropagation();
-              event.preventDefault();
-            }}
-            className={S("item__actions")}
-          >
-            <div className={S("item__action", !isActive ? "item__action--faded" : "")}>
-              <ImageIcon icon={CheckmarkIcon} />
-            </div>
-          </div>
-
       }
     </Linkish>
   );
