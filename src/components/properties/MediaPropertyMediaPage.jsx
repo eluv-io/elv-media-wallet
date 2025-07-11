@@ -306,7 +306,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
                 capLevelToPlayerSize
                 mute={index > 0}
                 mediaItem={item.mediaItem}
-                display={{title: `video-${index}`}}
+                display={display}
                 showTitle
                 onClose={
                   index === 0 ? undefined :
