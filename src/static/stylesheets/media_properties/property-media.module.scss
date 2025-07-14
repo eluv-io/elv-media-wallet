@@ -322,6 +322,7 @@
     display: grid;
     gap: 5px;
     width: 100%;
+    align-items: center;
 
     &--1 {
       grid-template-areas: "video-1";
