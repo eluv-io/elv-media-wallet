@@ -71,7 +71,7 @@ const MediaVideo = observer(({
     }) || backgroundImage;
 
     return (
-      <div className={S("media__error", "media__error--countdown")}>
+      <div className={S("media__error", "media__error--countdown")} {...containerProps}>
         <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         {
@@ -110,7 +110,7 @@ const MediaVideo = observer(({
 
   if(error) {
     return (
-      <div onClick={onClick} className={[S("media__error"), className].join(" ")}>
+      <div onClick={onClick} className={[S("media__error"), className].join(" ")} {...containerProps}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
         <img src={imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
