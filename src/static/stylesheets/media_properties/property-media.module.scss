@@ -319,29 +319,42 @@
   }
 
   &__media-grid {
+    align-items: center;
     display: grid;
     gap: 5px;
+    justify-content: center;
+    margin-inline: auto;
     width: 100%;
     align-items: center;
 
+    .media__error {
+      aspect-ratio: 16/9;
+      height: 100%;
+      padding-bottom: 0;
+    }
+
     &--1 {
       grid-template-areas: "video-1";
+      justify-content: unset;
     }
 
     &--2 {
       grid-template-areas: "video-1 video-2";
+      grid-template-columns: 1fr 1fr;
     }
 
     &--3 {
       grid-template-areas:
               "video-1 video-1 video-2 video-2"
               ". video-3 video-3 .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
     &--4 {
       grid-template-areas:
               "video-1 video-2"
               "video-3 video-4";
+      grid-template-columns: 1fr 1fr;
     }
 
     &--5 {
@@ -350,12 +363,14 @@
               "video-1 video-2 video-5"
               "video-3 video-4 video-5"
               "video-3 video-4 .";
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     &--6 {
       grid-template-areas:
               "video-1 video-2 video-3"
               "video-4 video-5 video-6";
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     &--7 {
@@ -363,6 +378,7 @@
               "video-1 video-2 video-3"
               "video-4 video-5 video-6"
               ". video-7 .";
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     &--8 {
@@ -370,6 +386,7 @@
               "video-1 video-1 video-2 video-2 video-3 video-3"
               "video-4 video-4 video-5 video-5 video-6 video-6"
               ".  video-7 video-7 video-8 video-8 .";
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     }
 
     &--9 {
@@ -377,6 +394,14 @@
               "video-1 video-2 video-3"
               "video-4 video-5 video-6"
               "video-7 video-8 video-9";
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    &--7,
+    &--8,
+    &--9 {
+      // Limit width of 3 row case so they will all fit on one screen
+      max-width: calc(97 * var(--vh) * 16 / 9);
     }
   }
 

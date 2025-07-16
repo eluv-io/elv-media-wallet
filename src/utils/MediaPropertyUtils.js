@@ -462,6 +462,35 @@ export const MediaItemScheduleInfo = mediaItem => {
   }
 };
 
+// Sets all video media to live
+export const TestMediaItemScheduleInfo = mediaItem => {
+  if(!mediaItem) {
+    return { isLiveContent: false };
+  }
+
+  const startTime = new Date(Date.now() + 60 * 60 * 1000);
+  const streamStartTime = new Date(Date.now() + 50 * 60 * 1000);
+  const endTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  const started = true;
+  const ended = false;
+  const displayStartDate = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
+  const displayStartDateLong = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "short"}).replace(/0(\d)/g, "$1");
+  const displayStartTime = startTime?.toLocaleTimeString?.(rootStore.preferredLocale, {hour: "numeric", minute: "numeric"}).replace(/^0(\d)/, "$1");
+
+  return {
+    startTime,
+    streamStartTime,
+    endTime,
+    isLiveContent: true,
+    currentlyLive: started && !ended,
+    started,
+    ended,
+    displayStartDate,
+    displayStartDateLong,
+    displayStartTime
+  };
+};
+
 export const MediaItemLivePreviewImageUrl = async ({mediaItem, width}) => {
   if(!MediaItemScheduleInfo(mediaItem)?.currentlyLive) {
     return;
