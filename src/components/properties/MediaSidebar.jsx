@@ -26,7 +26,16 @@ export const SidebarContent = async ({match}) => {
     mediaListSlugOrId: match.params.mediaListSlugOrId
   });
 
-  if(!sidebarOptions.show_media_sidebar) { return; }
+  const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({...match.params});
+
+  const additionalViews = (mediaItem?.additional_views || [])
+    .filter(view => !!view.media_link)
+    .map((view, index) => ({...view, index}));
+  const additionalViewLabel = mediaItem?.additional_views_label;
+
+  if(!sidebarOptions.show_media_sidebar) {
+    return { content: [], additionalViews, additionalViewLabel };
+  }
 
   if(sidebarOptions.sidebar_content === "live" || (!currentSection && sidebarOptions.default_sidebar_content === "live")) {
     let content = await mediaPropertyStore.SearchMedia({
@@ -41,7 +50,7 @@ export const SidebarContent = async ({match}) => {
       }))
       .sort((a, b) => a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1);
 
-    return { content };
+    return { content, additionalViews, additionalViewLabel };
   } else {
     let section = sidebarOptions.sidebar_content === "current_section" && currentSection;
     if(
@@ -59,7 +68,9 @@ export const SidebarContent = async ({match}) => {
       });
     }
 
-    if(!section) { return; }
+    if(!section) {
+      return { content: [], additionalViews, additionalViewLabel };
+    }
 
     let content = await mediaPropertyStore.MediaPropertySectionContent({
       ...match.params,
@@ -87,10 +98,48 @@ export const SidebarContent = async ({match}) => {
 
     return {
       content,
-      section
+      section,
+      additionalViews,
+      additionalViewLabel
     };
   }
 };
+
+const AdditionalView = observer(({item, multiviewMode, additionalMedia=[], setAdditionalMedia}) => {
+  const isActive = additionalMedia.find(other => item.index === other.index);
+
+  return (
+    <div className={S("item", "item--additional-view")}>
+      <div className={S("item__text")}>
+        <div className={S("item__title")}>
+          {item.label}
+        </div>
+      </div>
+      <div className={S("item__actions")}>
+        <Linkish
+          disabled={!isActive && additionalMedia.length >= 8}
+          onClick={() => {
+            if(isActive) {
+              setAdditionalMedia(additionalMedia.filter(other => item.index !== other.index));
+            } else if(multiviewMode === "pip") {
+              setAdditionalMedia([item]);
+            } else {
+              setAdditionalMedia([...additionalMedia, item]);
+            }
+          }}
+          className={S("item__action", !isActive ? "item__action--faded" : "")}
+        >
+          <ImageIcon
+            icon={
+                multiviewMode === "pip" ?
+                  PipVideoIcon : MultiviewIcon
+            }
+          />
+        </Linkish>
+      </div>
+    </div>
+  );
+});
 
 const SidebarItem = observer(({
   item,
@@ -286,14 +335,14 @@ const MediaSidebar = observer(({
       </div>
       <div className={S("content")}>
         {
-          liveContent.length === 0 ? null :
+          sidebarContent.additionalViews.length === 0 ? null :
             <div className={S("content__section")}>
               <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
                 <button
                   onClick={() => setMultiviewMode("pip")}
                   className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
                 >
-                  Today
+                  { sidebarContent.additionalViewLabel || "Additional Views" }
                 </button>
                 <button
                   onClick={() => setMultiviewMode("multiview")}
@@ -302,9 +351,43 @@ const MediaSidebar = observer(({
                   Multiview
                 </button>
               </div>
+              {sidebarContent.additionalViews.map((item, index) =>
+                <AdditionalView
+                  multiviewMode={multiviewMode}
+                  item={item}
+                  additionalMedia={additionalMedia}
+                  setAdditionalMedia={setAdditionalMedia}
+                  key={`item-${index}`}
+                />
+              )}
+            </div>
+        }
+        {
+          liveContent.length === 0 ? null :
+            <div className={S("content__section")}>
+              {
+                sidebarContent.additionalViews.length > 0 ?
+                  <div className={[S("content__title"), "_title"].join(" ")}>
+                    Today
+                  </div> :
+                  <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
+                    <button
+                      onClick={() => setMultiviewMode("pip")}
+                      className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
+                    >
+                      Today
+                    </button>
+                    <button
+                      onClick={() => setMultiviewMode("multiview")}
+                      className={S("content__mode-tab", multiviewMode === "multiview" ? "content__mode-tab--active" : "")}
+                    >
+                      Multiview
+                    </button>
+                  </div>
+              }
               {liveContent.map((item, index) =>
                 <SidebarItem
-                  multiviewMode={multiviewMode}
+                multiviewMode={multiviewMode}
                   noBorder={index === 0}
                   item={item}
                   aspectRatio={aspectRatio}

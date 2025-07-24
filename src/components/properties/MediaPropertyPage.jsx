@@ -30,6 +30,8 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
             sectionSlugOrId: sectionId
           });
 
+          if(!section) { return null; }
+
           if(section.type === "container") {
             return (
               <MediaPropertySectionContainer
