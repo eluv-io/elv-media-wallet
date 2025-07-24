@@ -172,6 +172,7 @@
   &--active {
     .item__title {
       color: var(--property-text-highlight);
+      font-size: 18px;
     }
   }
 
@@ -183,11 +184,12 @@
   }
 
   &--additional-view {
-    padding: 0;
+    cursor: pointer;
+    padding: 0 0 0 10px;
 
     .item__title {
-      font-size: 14px;
       color: var(--property-text-secondary);
+      font-size: 14px;
     }
   }
 

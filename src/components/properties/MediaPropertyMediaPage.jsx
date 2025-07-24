@@ -252,11 +252,12 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   );
 });
 
-let lastSelectedModa = "pip";
+let lastSelectedMode = "pip";
 const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
   const [additionalMedia, setAdditionalMedia] = useState([]);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [multiviewMode, setMultiviewMode] = useState(lastSelectedModa);
+  const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
+  const [selectedView, setSelectedView] = useState(null);
 
   useEffect(() => {
     if(rootStore.pageWidth < 800) {
@@ -267,7 +268,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   useEffect(() => {
     setAdditionalMedia(additionalMedia.slice(0, 1));
 
-    lastSelectedModa = multiviewMode;
+    lastSelectedMode = multiviewMode;
   }, [multiviewMode]);
 
 
@@ -294,14 +295,12 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     })
     .filter(item => item);
 
-  console.log(mediaInfo)
-
   let media;
   if(multiviewMode === "pip") {
     media = (
       <div className={S("media-with-sidebar__media-container")}>
         <PIPContent
-          primaryMedia={{mediaItem, display}}
+          primaryMedia={{mediaItem: selectedView || mediaItem, display}}
           secondaryMedia={mediaInfo[0]}
         />
       </div>
@@ -350,6 +349,8 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
         setShowSidebar={setShowSidebar}
         additionalMedia={additionalMedia}
         setAdditionalMedia={setAdditionalMedia}
+        selectedView={selectedView}
+        setSelectedView={setSelectedView}
         multiviewMode={multiviewMode}
         setMultiviewMode={setMultiviewMode}
       />

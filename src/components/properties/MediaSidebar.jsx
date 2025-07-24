@@ -105,17 +105,43 @@ export const SidebarContent = async ({match}) => {
   }
 };
 
-const AdditionalView = observer(({item, multiviewMode, additionalMedia=[], setAdditionalMedia}) => {
+const AdditionalView = observer(({
+  item,
+  multiviewMode,
+  additionalMedia=[],
+  setAdditionalMedia,
+  selectedView,
+  setSelectedView
+}) => {
+  const [hovering, setHovering] = useState(false);
   const isActive = additionalMedia.find(other => item.index === other.index);
 
   return (
-    <div className={S("item", "item--additional-view")}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => setSelectedView(item)}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      className={
+        S(
+          "item",
+          "item--additional-view",
+          selectedView?.index === item.index ? "item--hover" : "",
+          hovering? "item--hover" : ""
+        )
+      }
+    >
       <div className={S("item__text")}>
         <div className={S("item__title")}>
           {item.label}
         </div>
       </div>
-      <div className={S("item__actions")}>
+      <div
+        onMouseEnter={() => setHovering(false)}
+        onMouseLeave={() => setHovering(true)}
+        className={S("item__actions")}
+      >
         <Linkish
           disabled={!isActive && additionalMedia.length >= 8}
           onClick={() => {
@@ -282,6 +308,8 @@ const MediaSidebar = observer(({
   setShowSidebar,
   additionalMedia,
   setAdditionalMedia,
+  selectedView,
+  setSelectedView,
   multiviewMode,
   setMultiviewMode
 }) => {
@@ -357,6 +385,8 @@ const MediaSidebar = observer(({
                   item={item}
                   additionalMedia={additionalMedia}
                   setAdditionalMedia={setAdditionalMedia}
+                  selectedView={selectedView}
+                  setSelectedView={setSelectedView}
                   key={`item-${index}`}
                 />
               )}
@@ -387,7 +417,7 @@ const MediaSidebar = observer(({
               }
               {liveContent.map((item, index) =>
                 <SidebarItem
-                multiviewMode={multiviewMode}
+                  multiviewMode={multiviewMode}
                   noBorder={index === 0}
                   item={item}
                   aspectRatio={aspectRatio}
