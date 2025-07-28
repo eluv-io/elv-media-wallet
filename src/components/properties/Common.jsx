@@ -86,7 +86,10 @@ export const PageBackground = observer(({
             className={[S("page-background__video"), videoClassName].join(" ")}
           />
       }
-      <div className={[S("page-background__gradient"), className, gradientClassName].join(" ")} {...props} />
+      <div
+        {...props}
+        className={[S("page-background__gradient"), className, gradientClassName].join(" ")}
+      />
     </>
   );
 });

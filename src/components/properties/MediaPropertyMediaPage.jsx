@@ -252,11 +252,12 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   );
 });
 
-let lastSelectedModa = "pip";
+let lastSelectedMode = "pip";
 const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
   const [additionalMedia, setAdditionalMedia] = useState([]);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [multiviewMode, setMultiviewMode] = useState(lastSelectedModa);
+  const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
+  const [selectedView, setSelectedView] = useState(null);
 
   useEffect(() => {
     if(rootStore.pageWidth < 800) {
@@ -267,15 +268,24 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   useEffect(() => {
     setAdditionalMedia(additionalMedia.slice(0, 1));
 
-    lastSelectedModa = multiviewMode;
+    lastSelectedMode = multiviewMode;
   }, [multiviewMode]);
 
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
   const mediaInfo = additionalMedia
-    .map(mediaId => {
-      const mediaItem = mediaPropertyStore.media[mediaId];
+    .map(mediaIdOrItem => {
+      if(mediaIdOrItem?.media_link) {
+        // This is an additional view
+
+        return {
+          mediaItem: { media_link: mediaIdOrItem.media_link },
+          display: { title: mediaIdOrItem.label }
+        };
+      }
+
+      const mediaItem = mediaPropertyStore.media[mediaIdOrItem];
 
       if(!mediaItem) { return; }
 
@@ -290,7 +300,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     media = (
       <div className={S("media-with-sidebar__media-container")}>
         <PIPContent
-          primaryMedia={{mediaItem, display}}
+          primaryMedia={{mediaItem: selectedView || mediaItem, display}}
           secondaryMedia={mediaInfo[0]}
         />
       </div>
@@ -339,6 +349,8 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
         setShowSidebar={setShowSidebar}
         additionalMedia={additionalMedia}
         setAdditionalMedia={setAdditionalMedia}
+        selectedView={selectedView}
+        setSelectedView={setSelectedView}
         multiviewMode={multiviewMode}
         setMultiviewMode={setMultiviewMode}
       />
@@ -510,7 +522,7 @@ const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(sidebarContent?.content?.length > 0) {
+    if(sidebarContent?.content?.length > 0 || sidebarContent?.additionalViews?.length > 0) {
       return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} textContent={textContent} />;
     } else {
       return <MediaVideo mediaItem={mediaItem} display={display}/>;
@@ -587,7 +599,7 @@ const MediaPropertyMediaPage = observer(() => {
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-  const showSidebar = sidebarContent?.content?.length > 0;
+  const showSidebar = sidebarContent?.content?.length > 0 || sidebarContent?.additionalViews?.length > 0;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 

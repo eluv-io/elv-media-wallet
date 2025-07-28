@@ -80,6 +80,8 @@ const PropertyWrapper = observer(({children}) => {
     const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
     const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
     const page = mediaPropertyStore.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId});
+    const useCustomBackgroundColor = page?.background_color && CSS.supports("color", page.background_color);
+
 
     return (
       <AsyncComponent
@@ -123,10 +125,16 @@ const PropertyWrapper = observer(({children}) => {
             <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
               <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
                 <PurchaseGate id={page?.id} permissions={page?.permissions}>
-                  <div className={PropertyStyles["property"]}>
+                  <div
+                    style={
+                      useCustomBackgroundColor ?
+                        { "--property-background": page.background_color } : {}
+                    }
+                    className={PropertyStyles["property"]}
+                  >
                     { children }
+                    <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
                   </div>
-                  <MediaPropertyFooter />
                 </PurchaseGate>
               </PurchaseGate>
             </LoginGate>

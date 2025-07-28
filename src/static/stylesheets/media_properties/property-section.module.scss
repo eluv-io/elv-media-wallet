@@ -58,6 +58,11 @@
     padding-inline: 0;
   }
 
+  &__separator {
+    border-radius: 3px;
+    width: 100%;
+  }
+
   @media screen and (width <= 800px) {
     gap: 30px;
   }

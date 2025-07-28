@@ -10,7 +10,7 @@ import {
 import {
   MediaPropertyHeroSection,
   MediaPropertySection,
-  MediaPropertySectionContainer
+  MediaPropertySectionContainer, MediaPropertySpacerSection
 } from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
@@ -32,7 +32,15 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
 
           if(!section) { return null; }
 
-          if(section.type === "container") {
+          if(section.type === "spacer") {
+            return (
+              <MediaPropertySpacerSection
+                key={`section-${sectionId}`}
+                section={section}
+                className={S("page__section")}
+              />
+            );
+          } else if(section.type === "container") {
             return (
               <MediaPropertySectionContainer
                 key={`section-${sectionId}`}

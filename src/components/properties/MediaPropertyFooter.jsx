@@ -70,7 +70,7 @@ const FooterContentModal = observer(({footerItem, Close}) => {
 
 });
 
-const MediaPropertyFooter = observer(() => {
+const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
   const [modalItem, setModalItem] = useState(undefined);
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
@@ -82,7 +82,7 @@ const MediaPropertyFooter = observer(() => {
 
   return (
     <>
-      <footer className={S("footer")}>
+      <footer className={S("footer", withCustomBackgroundColor ? "footer--custom-background" : "")}>
         {
           !items || items.length === 0 ? null :
             <div className={S("footer__items")}>

@@ -622,6 +622,75 @@ export const SectionResultsGroup = observer(({
   );
 });
 
+const SectionBackgroundStyle = section => {
+  const backgroundImage = rootStore.pageWidth <= 800 ?
+    section.display.inline_background_image_mobile?.url :
+    section.display.inline_background_image?.url;
+
+  let style = {};
+  if(backgroundImage) {
+    style = {
+      backgroundImage: `url(${SetImageUrlDimensions({url: backgroundImage, width: rootStore.fullscreenImageWidth})})`
+    };
+  } else if(
+    section.display.inline_background_color ||
+    (section.display.inline_background_gradient && section.display.inline_background_color_2)
+  ) {
+    const color1 = section.display.inline_background_color || "transparent";
+    const color2 = section.display.inline_background_color_2 || "transparent";
+    const gradient = section.display.inline_background_gradient;
+
+    if(!gradient) {
+      style = {
+        backgroundColor: section.display.inline_background_color
+      };
+    } else if(gradient === "vertical") {
+      style = {
+        background: `linear-gradient(${color1}, ${color2})`,
+      };
+    } else {
+      style = {
+        background: `linear-gradient(to right, ${color1}, ${color2})`,
+      };
+    }
+  }
+
+  return style;
+};
+
+export const MediaPropertySpacerSection = observer(({section, className=""}) => {
+  if(!section) { return; }
+
+  let style = SectionBackgroundStyle(section);
+
+  style.paddingTop = section.display.padding_top || 20;
+  style.paddingBottom = section.display.padding_bottom || 20;
+
+  const separatorColor = CSS.supports("color", section.display.spacer_color) ?
+    section.display.spacer_color :
+    "var(--property-text-secondary)";
+
+  return (
+    <div
+      data-section-id={section.id}
+      style={style}
+      className={[S(
+        "section-container",
+        "section-container--spacer",
+        section.display.spacer_full_bleed ? "section-container--full-bleed" : ""
+      ), className].join(" ")}
+    >
+      <div
+        style={{
+          height: section.display.spacer_thickness || 0,
+          backgroundColor: separatorColor
+        }}
+        className={S("section-container__separator")}
+      />
+    </div>
+  );
+});
+
 export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, className=""}) => {
   const match = useRouteMatch();
   let navContext = new URLSearchParams(location.search).get("ctx");
@@ -694,20 +763,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     displayLimit = columns * displayLimit;
   }
 
-  const backgroundImage = rootStore.pageWidth <= 800 ?
-    section.display.inline_background_image_mobile?.url :
-    section.display.inline_background_image?.url;
-
-  let style = {};
-  if(backgroundImage) {
-    style = {
-      backgroundImage: `url(${SetImageUrlDimensions({url: backgroundImage, width: rootStore.fullscreenImageWidth})})`
-    };
-  } else if(section.display.inline_background_color && CSS.supports("color", section.display.inline_background_color)) {
-    style = {
-      backgroundColor: section.display.inline_background_color
-    };
-  }
+  const style = SectionBackgroundStyle(section);
 
   return (
     <div
@@ -791,7 +847,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             </>
         }
         {
-          !section.primary_filter || !section.show_primary_filter_in_page_view ? null :
+          !section.filters?.primary_filter || !section.filters?.show_primary_filter_in_page_view ? null :
             <Filters
               filterSettings={section.filters}
               activeFilters={activeFilters}
