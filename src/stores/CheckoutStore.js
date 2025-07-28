@@ -1087,6 +1087,25 @@ class CheckoutStore {
       })
     ));
   });
+
+  EntitlementClaim = flow(function * ({entitlementSignature}) {
+    const decode = yield this.client.DecodeSignedMessageJSON({signedMessage: entitlementSignature});
+
+    const tenantId = decode?.message?.tenant_id;
+    const body =  {"op": "nft-claim-entitlement", "signature": entitlementSignature};
+
+    const data = (yield this.client.utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "act", tenantId),
+      method: "POST",
+      body: body,
+      headers: {
+        Authorization: `Bearer ${this.walletClient.AuthToken()}`
+      }
+    })));
+
+    const splits = data?.op?.split(":");
+    return splits?.length > 3 ? splits[3] : "";
+  });
 }
 
 export default CheckoutStore;

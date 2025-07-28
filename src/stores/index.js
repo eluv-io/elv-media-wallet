@@ -1129,6 +1129,10 @@ class RootStore {
     this.voteStatus[votingEventId] = (yield this.walletClient.RevokeVote({tenantId, votingEventId, sku})).totals;
   });
 
+  EntitlementClaimStatus = flow(function * ({marketplaceId, purchaseId}) {
+    return yield this.walletClient.EntitlementClaimStatus({marketplaceParams: { marketplaceId }, purchaseId});
+  });
+
   // Get already loaded full NFT data
   NFTData({tokenId, contractAddress, contractId}) {
     if(contractId) {
