@@ -107,7 +107,7 @@
 }
 
 .media-container {
-  background-color: #000;
+  background-color: var(--property-background);
   height: 100%;
   position: relative;
   z-index: 1;
@@ -115,7 +115,6 @@
 
 .media {
   background: #000;
-  box-shadow: 0 3px 5px black;
   height: var(--property-full-content-height);
   max-height: calc(var(--property-full-content-height) - 220px);
   min-height: 400px;

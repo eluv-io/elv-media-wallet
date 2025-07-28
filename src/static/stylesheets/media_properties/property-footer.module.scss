@@ -2,6 +2,12 @@
   padding: 75px;
   width: 100%;
 
+  &--custom-background {
+    .footer__separator {
+      background: var(--property-text-extra-faded);
+    }
+  }
+
   * {
     color: var(--property-text-secondary);
     text-align: center;

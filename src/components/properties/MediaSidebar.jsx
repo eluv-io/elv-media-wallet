@@ -115,12 +115,13 @@ const AdditionalView = observer(({
 }) => {
   const [hovering, setHovering] = useState(false);
   const isActive = additionalMedia.find(other => item.index === other.index);
+  const isSelected = selectedView?.media_link?.["/"] === item?.media_link?.["/"];
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => setSelectedView(item)}
+      onClick={() => setSelectedView(isSelected ? undefined : item)}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={
@@ -144,7 +145,10 @@ const AdditionalView = observer(({
       >
         <Linkish
           disabled={!isActive && additionalMedia.length >= 8}
-          onClick={() => {
+          onClick={event => {
+            event.stopPropagation();
+            event.preventDefault();
+
             if(isActive) {
               setAdditionalMedia(additionalMedia.filter(other => item.index !== other.index));
             } else if(multiviewMode === "pip") {
