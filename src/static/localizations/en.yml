@@ -681,6 +681,9 @@ media_properties:
   header:
     search: Search
     filter: Filter
+  footer:
+    social_links:
+      text: Stay Connected
   sections:
     view_all: View All
   search:

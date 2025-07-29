@@ -366,7 +366,7 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
                           ...section.filter_tags
                         ].map(value => ({value}))
                       }
-                      variant="text"
+                      variant={section.filter_options?.primary_filter_style}
                       activeFilters={{attributes: {tag: filter}}}
                       SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
                     />

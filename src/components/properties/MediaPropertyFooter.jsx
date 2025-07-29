@@ -8,6 +8,23 @@ import {LoaderImage, Modal, RichText} from "Components/properties/Common";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 
+import BlueskyIcon from "Assets/icons/social/bluesky";
+import FacebookIcon from "Assets/icons/social/facebook";
+import InstagramIcon from "Assets/icons/social/instagram";
+import LinkedInIcon from "Assets/icons/social/linkedin";
+import TikTokIcon from "Assets/icons/social/tiktok";
+import TwitterIcon from "Assets/icons/social/twitter";
+import ImageIcon from "Components/common/ImageIcon";
+
+const icons = {
+  bluesky: BlueskyIcon,
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+  linkedin: LinkedInIcon,
+  x: TwitterIcon
+};
+
 const S = (...classes) => classes.map(c => FooterStyles[c] || "").join(" ");
 
 const eluvioFooterItems = [
@@ -70,6 +87,43 @@ const FooterContentModal = observer(({footerItem, Close}) => {
 
 });
 
+const SocialLinks = observer(() => {
+    const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  if(!mediaProperty) { return null; }
+
+  const socialLinks = mediaProperty.metadata.footer?.social_links || {};
+
+  if(!Object.values(socialLinks).find(l => l)) {
+    return null;
+  }
+
+  return (
+    <div className={S("social-links")}>
+      <div className={S("social-links__text")}>
+        { rootStore.l10n.media_properties.footer.social_links.text }
+      </div>
+      <div className={S("social-links__links")}>
+        {
+          Object.keys(socialLinks).map(key =>
+            !socialLinks[key] ? null :
+              <Linkish
+                alt={key}
+                key={`link-${key}`}
+                href={socialLinks[key]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={S("social-links__link")}
+              >
+                <ImageIcon icon={icons[key]} className={S("social-links__link-icon")} />
+              </Linkish>
+          )
+        }
+      </div>
+    </div>
+  );
+});
+
 const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
   const [modalItem, setModalItem] = useState(undefined);
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
@@ -83,6 +137,7 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
   return (
     <>
       <footer className={S("footer", withCustomBackgroundColor ? "footer--custom-background" : "")}>
+        <SocialLinks />
         {
           !items || items.length === 0 ? null :
             <div className={S("footer__items")}>

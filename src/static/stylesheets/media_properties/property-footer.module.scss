@@ -65,3 +65,49 @@
     }
   }
 }
+
+.social-links {
+  align-items: center;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-bottom: 50px;
+  width: 100%;
+
+  &__text {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  &__links {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+
+    * {
+      color: var(--property-text-faded);
+      transition: color 0.25s ease;
+    }
+  }
+
+  &__link {
+    height: 40px;
+    width: 40px;
+
+    &:hover {
+      * {
+        color: var(--property-text-primary);
+      }
+    }
+  }
+
+  &__link-icon {
+    height: 100%;
+    width: 100%;
+  }
+
+  @media screen and (width <= 800px) {
+    flex-direction: column;
+    margin-bottom: 50px;
+  }
+}

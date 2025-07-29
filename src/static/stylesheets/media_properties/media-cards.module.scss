@@ -1,3 +1,19 @@
+a {
+  &.media-card-vertical,
+  &.media-card-horizontal,
+  &.media-card-button-vertical,
+  &.media-card-button-horizontal {
+    opacity: 1;
+    transition: opacity 0.15s ease, background 0.15s ease;
+
+    &:focus-visible,
+    &:hover {
+      opacity: 0.85;
+      transition: opacity 0.5s ease, background 0.5s ease;
+    }
+  }
+}
+
 .media-card {
   &--disabled {
     opacity: 0.5!important;

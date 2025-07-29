@@ -914,6 +914,10 @@ class RootStore {
       }
     }
 
+    if(CSS.supports("color", options?.styling?.filter_color)) {
+     variables.push(`--property-filter-color: ${options.styling.filter_color};`);
+    }
+
     if(CSS.supports("color", options?.styling?.button_style?.background_color)) {
       variables.push(`--property-button-background--custom: ${options.styling.button_style.background_color};`);
       // If border color is not explicitly set, it should default to background color

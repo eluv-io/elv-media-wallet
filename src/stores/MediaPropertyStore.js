@@ -554,7 +554,7 @@ class MediaPropertyStore {
       }
 
       content = (
-        content.map(sectionItem => {
+        (content || []).map(sectionItem => {
           if(!sectionItem.expand || sectionItem.type !== "media") {
             return this.ResolveSectionItem({sectionId: section.id, sectionItem});
           }

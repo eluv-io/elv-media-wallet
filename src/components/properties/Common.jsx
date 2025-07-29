@@ -652,7 +652,7 @@ export const AttributeFilter = observer(({
   attributeKey,
   filterOptions,
   dependentAttribute,
-  variant="box",
+  variant="text",
   level="primary",
   activeFilters,
   SetActiveFilters,
@@ -671,12 +671,14 @@ export const AttributeFilter = observer(({
       className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
       swiperOptions={{
         threshold: 0,
-        spaceBetween: variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 15 : 30,
+        spaceBetween: variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 10 : 30,
         slidesPerView: "auto",
         ...swiperOptions
       }}
       RenderSlide={({item}) => {
-        const { value, image } = item;
+        const value = item?.value;
+        const image = variant === "image" ? item?.image : undefined;
+
         return (
           <button
             onClick={() => {

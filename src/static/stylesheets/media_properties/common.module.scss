@@ -915,21 +915,26 @@
 
   max-width: 100%;
   min-height: max-content;
-  padding: 20px 0;
+  padding: 20px;
   user-select: none;
   width: max-content;
 
   &__attribute--box {
-    background-color: #414141;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    min-width: 65px;
-    padding: 10px;
-    transition: border 0.25s ease;
+    border: 1px solid var(--property-text-secondary);
+    border-radius: 3px;
+    color: var(--property-text-secondary);
+    flex-grow: 1;
+    font-weight: 600;
+    letter-spacing: 0.05rem;
+    min-width: 150px;
+    padding: 5px 10px;
+    transition: border 0.25s ease, background-color 0.25s ease;
     white-space: nowrap;
 
     &.attribute-filter__attribute--active {
-      border: 1px solid white;
+      background-color: var(--property-filter-color);
+      border: 1px solid var(--property-filter-color);
+      color: black;
     }
   }
 
@@ -984,12 +989,13 @@
   }
 
   @media screen and (width <= 800px) {
-    &--box {
-      font-size: 0.8em;
+    &__attribute--box {
+      font-size: 14px;
+      min-width: 100px;
     }
 
-    &--text {
-      font-size: 0.8em;
+    &__attribute--text {
+      font-size: 14px;
     }
 
     &__attribute--image {
