@@ -566,7 +566,7 @@ class RootStore {
       const authIdInfo = searchParams.get("authId");
       if(authIdInfo) {
         try {
-          yield this.Authenticate(JSON.parse(Utils.FromB64(authInfo)));
+          yield this.Authenticate(JSON.parse(Utils.FromB64(authIdInfo)));
         } catch(error) {
           this.Log("Failed to load auth from parameter as B64", true);
           this.Log(error, true);
