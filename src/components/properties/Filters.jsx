@@ -57,12 +57,6 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
   const primaryFilterOptions = FormatFilterOptions({match, type: "primary", filterSettings, activeFilters});
   const secondaryFilterOptions = FormatFilterOptions({match, type: "secondary", filterSettings, activeFilters});
 
-  if(primaryOnly) {
-    // Don't show box style for primary only
-    //primaryFilterOptions.variant = primaryFilterOptions.variant === "box" ? "text" : primaryFilterOptions.variant;
-  }
-  primaryFilterOptions.variant = "box";
-
   useEffect(() => {
     // Set initial primary filter value
     if(
