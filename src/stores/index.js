@@ -548,17 +548,29 @@ class RootStore {
         }
       }
 
-      try {
+      const authInfo = searchParams.get("auth");
+      if(authInfo) {
         // Auth parameter containing wallet app formatted tokens
-        const authInfo = searchParams.get("auth");
-
-        if(authInfo) {
-          this.SetAuthInfo(JSON.parse(Utils.FromB58ToStr(authInfo)));
-          this.ClearLoginParams();
+        try {
+          if(authInfo) {
+            this.SetAuthInfo(JSON.parse(Utils.FromB58ToStr(authInfo)));
+            this.ClearLoginParams();
+          }
+        } catch(error) {
+          this.Log("Failed to load auth from parameter as B58", true);
+          this.Log(error, true);
         }
-      } catch(error) {
-        this.Log("Failed to load auth from parameter", true);
-        this.Log(error, true);
+      }
+
+      // Login parameter with oauth ID token
+      const authIdInfo = searchParams.get("authId");
+      if(authIdInfo) {
+        try {
+          yield this.Authenticate(JSON.parse(Utils.FromB64(authInfo)));
+        } catch(error) {
+          this.Log("Failed to load auth from parameter as B64", true);
+          this.Log(error, true);
+        }
       }
 
       if(!this.inFlow) {
@@ -723,6 +735,10 @@ class RootStore {
     callback
   }) {
     if(this.authenticating) { return; }
+
+    if(signerURIs && !Array.isArray(signerURIs)) {
+      signerURIs = [signerURIs];
+    }
 
     try {
       this.SetAlertNotification(undefined);

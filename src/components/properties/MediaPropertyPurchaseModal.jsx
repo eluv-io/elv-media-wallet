@@ -155,6 +155,105 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
   );
 });
 
+const EntitlementClaim = observer(({item, Close}) => {
+  const params = MediaPropertyPurchaseParams() || {};
+  const [status, setStatus] = useState(undefined);
+  const [error, setError] = useState(undefined);
+
+  useEffect(() => {
+    rootStore.EntitlementClaimStatus({
+      marketplaceId: item.marketplace.marketplace_id,
+      purchaseId: params.purchaseId,
+    })
+      .then(async status => {
+        if(!status || status?.status === "none") {
+          // Only send claim if not already sent
+          await checkoutStore.EntitlementClaim({entitlementSignature: params.entitlementSignature})
+            .catch(error => {
+              rootStore.Log(`EntitlementClaim error ${error}`, true);
+              setError("Error redeeming this item, please try again");
+            });
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if(!params.purchaseId || status?.status === "complete") { return; }
+
+    const interval = setInterval(async () => {
+      const status = await rootStore.EntitlementClaimStatus({
+        marketplaceId: item.marketplace.marketplace_id,
+        purchaseId: params.purchaseId
+      });
+
+      setStatus(status);
+
+      if(["complete", "failed"].includes(status?.status)) {
+        clearInterval(interval);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [params.purchaseId]);
+
+  let content, actions, loading;
+  if(error || status?.status === "failed") {
+    content = (
+      <div className={S("status__message", "status__error")}>
+        {rootStore.l10n.media_properties.purchase_status.claim_failed}
+      </div>
+    );
+  } else if(status?.status === "complete") {
+    content = (
+      <div className={S("status__message")}>
+        {rootStore.l10n.media_properties.purchase_status.claim_complete}
+      </div>
+    );
+
+    actions = (
+      <Button
+        onClick={async () => {
+          try {
+            await mediaPropertyStore.LoadMediaProperty({
+              mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+              force: true
+            });
+          } catch(error) {
+            mediaPropertyStore.Log(error, true);
+          }
+
+          Close(true);
+        }}
+        className={S("button")}
+      >
+        { rootStore.l10n.actions.close }
+      </Button>
+    );
+  } else {
+    loading = true;
+    content = (
+      <>
+        <div className={S("status__message")}>
+          { rootStore.l10n.media_properties.purchase_status.pending[item?.itemInfo?.free ? "claiming" : "finalizing"] }
+        </div>
+        <div className={S("status__message", "status__message--info")}>
+          { rootStore.l10n.media_properties.purchase_status.pending.info }
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <Item item={item} hidePrice hideInfo>
+      <div className={S("status")} key={`status-${status?.status}`}>
+        { !loading ? null : <Loader className={S("loader", "status__loader")} /> }
+        { content }
+        { !actions ? null : <div className={S("actions")}>{actions}</div> }
+      </div>
+    </Item>
+  );
+});
+
 const WalletBalanceSummary = observer(({item, fee}) => {
   const price = item.price;
   const total = price + fee;
@@ -163,7 +262,7 @@ const WalletBalanceSummary = observer(({item, fee}) => {
   return (
     <>
       <div className={S("summary")}>
-        <div className={S("summary__line")}>
+      <div className={S("summary__line")}>
           <label>{ rootStore.l10n.purchase.price }</label>
           <div>{ FormatPriceString(price) }</div>
         </div>
@@ -679,7 +778,7 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
   };
 };
 
-const PurchaseModalContent = observer(({items, itemId, confirmationId, secondaryPurchaseOption, setHeader, Close}) => {
+const PurchaseModalContent = observer(({type, items, itemId, confirmationId, secondaryPurchaseOption, setHeader, Close}) => {
   const history = useHistory();
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
@@ -722,9 +821,9 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
       const secondaryOnly = !isListing && !formattedPurchaseItems?.find(item => item.showPrimary);
 
       setHeader(
-        rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]
+        type === "entitlement" ? rootStore.l10n.media_properties.purchase.claim :
+          rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]
       );
-
     });
   }, [items]);
 
@@ -754,7 +853,9 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
     // Not loaded or no items
     key = 0;
     content = <Loader className={S("loader")}/>;
-  } else if((selectedItemId && !selectedItem.free)  || confirmationId) {
+  } else if(type === "entitlement") {
+    content = <EntitlementClaim item={purchaseItems[0]} Close={Close} />;
+  } else if((selectedItemId && !selectedItem.free) || confirmationId) {
     // Purchased/claimed
     if(confirmationId) {
       key = 3;
@@ -849,7 +950,7 @@ const MediaPropertyPurchaseModal = () => {
   };
 
   useEffect(() => {
-    if(!params || params.type !== "purchase") {
+    if(!params || !["purchase", "entitlement"].includes(params.type)) {
       setPurchaseItems([]);
       return;
     }
@@ -913,21 +1014,22 @@ const MediaPropertyPurchaseModal = () => {
         size="auto"
         centered
         opened={(purchaseItems || []).length > 0}
-        onClose={params.confirmationId ? () => {} : Close}
+        onClose={params.confirmationId || params.purchaseId ? () => {} : Close}
         bodyClassName={S("form-container")}
         withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
         header={header}
       >
         {
-            (purchaseItems || []).length === 0 ? null :
-              <PurchaseModalContent
-                items={purchaseItems}
-                itemId={params.itemId || params.listingId}
-                secondaryPurchaseOption={params.secondaryPurchaseOption}
-                confirmationId={params.confirmationId}
-                setHeader={setHeader}
-                Close={Close}
-              />
+          (purchaseItems || []).length === 0 ? null :
+            <PurchaseModalContent
+              type={params.type}
+              items={purchaseItems}
+              itemId={params.itemId || params.listingId}
+              secondaryPurchaseOption={params.secondaryPurchaseOption}
+              confirmationId={params.confirmationId}
+              setHeader={setHeader}
+              Close={Close}
+            />
         }
       </Modal>
     </LoginGate>

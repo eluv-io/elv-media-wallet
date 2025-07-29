@@ -72,8 +72,12 @@ export const MediaPropertyPurchaseParams = () => {
     try {
       params = JSON.parse(rootStore.client.utils.FromB58ToStr(urlParams.get("p")));
     } catch(error) {
-      rootStore.Log("Failed to parse URL params", true);
-      rootStore.Log(error, true);
+      try {
+        params = JSON.parse(rootStore.client.utils.FromB64(urlParams.get("p")));
+      } catch(error) {
+        rootStore.Log("Failed to parse URL params", true);
+        rootStore.Log(error, true);
+      }
     }
   }
 
@@ -103,7 +107,7 @@ export const CreateRedeemableParams = ({
 };
 
 export const PurchaseParamsToItems = (params, secondaryEnabled) => {
-  if(!params || params.type !== "purchase") {
+  if(!params || !["entitlement", "purchase"].includes(params.type)) {
     return [];
   }
 

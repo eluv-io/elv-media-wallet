@@ -536,7 +536,6 @@ const PurchaseBalanceConfirmation = observer(({
     return () => clearInterval(stockCheck);
   }, []);
 
-
   useEffect(() => {
     if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
       setErrorMessage(rootStore.l10n.purchase.errors.failed);

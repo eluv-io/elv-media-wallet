@@ -12,7 +12,7 @@ import {
   DropMintingStatus,
   PackOpenStatus,
   PurchaseMintingStatus,
-  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus, EntitlementMintingStatus
+  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus
 } from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
@@ -44,7 +44,6 @@ import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurch
 import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 import EmailVerification from "Components/login/EmailVerification";
 import FAQ from "Components/properties/FAQ";
-import EntitlementClaim from "Components/marketplace/EntitlementClaim";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -287,8 +286,6 @@ const MarketplaceRoutes = () => {
 
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", backPath: "collections", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", backPath: "collections", Component: CollectionRedeemStatus },
-    { name: "Redeem Entitlement", path: "store/:sku/entitle/:signature", Component: EntitlementClaim },
-    { name: "Redeem Entitlement", path: "store/:sku/entitle/status/:purchaseId", Component: EntitlementMintingStatus },
 
     ...TokenRoutes("collections/:collectionSKU/owned"),
 

@@ -988,8 +988,8 @@ class MediaPropertyStore {
           await Promise.all(
             [mediaPropertySlugOrId, parentMediaPropertySlugOrId].map(async mediaPropertySlugOrId => {
               if(!mediaPropertySlugOrId) { return; }
-              const id = mediaPropertyIds[mediaPropertySlugOrId];
-              let slug = mediaPropertySlugs[mediaPropertySlugOrId];
+              const id = mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId;
+              let slug = mediaPropertySlugs[mediaPropertySlugOrId] || mediaPropertySlugOrId;
               const latestHash = await this.rootStore.client.LatestVersionHash({objectId: id});
               const latestSlug = await this.rootStore.client.ContentObjectMetadata({versionHash: latestHash, metadataSubtree: "/public/asset_metadata/info/slug"});
 
