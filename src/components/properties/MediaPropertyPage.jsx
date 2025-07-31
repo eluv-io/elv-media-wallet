@@ -10,7 +10,8 @@ import {
 import {
   MediaPropertyHeroSection,
   MediaPropertySection,
-  MediaPropertySectionContainer, MediaPropertySpacerSection
+  MediaPropertySectionContainer,
+  MediaPropertySpacerSection
 } from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");

@@ -28,8 +28,15 @@ import {
 } from "../../utils/MediaPropertyUtils";
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
-import LeftArrow from "Assets/icons/left-arrow";
 import Filters from "Components/properties/Filters";
+
+import LeftArrow from "Assets/icons/left-arrow";
+
+import PoweredByImage from "Assets/images/apps/Eluvio";
+import RokuImage from "Assets/images/apps/roku";
+import AmazonImage from "Assets/images/apps/amazon";
+import AndroidImage from "Assets/images/apps/android";
+import AppleImage from "Assets/images/apps/apple";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -691,7 +698,49 @@ export const MediaPropertySpacerSection = observer(({section, className=""}) => 
   );
 });
 
-export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, className=""}) => {
+const AppLinks = observer(() => {
+  return (
+    <div className={S("app-links")}>
+      <ImageIcon icon={PoweredByImage} label="Powered by the Eluvio Content Fabric" className={S("app-links__powered-by")} />
+      <div className={S("app-links__links")}>
+        <a
+          href="https://apps.apple.com/us/app/eluvio-media-wallet/id1591550411"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={AppleImage} label="Download on Apple TV"/>
+        </a>
+        <a
+          href="https://play.google.com/store/apps/details?id=app.eluvio.wallet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={AndroidImage} label="Get it on Google Play"/>
+        </a>
+        <a
+          href="https://www.amazon.com/gp/product/B0CDLG65ML"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={AmazonImage} label="Available at Amazon Appstore"/>
+        </a>
+        <a
+          href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={RokuImage} label="Available on Roku"/>
+        </a>
+      </div>
+    </div>
+  );
+});
+
+export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, className = ""}) => {
   const match = useRouteMatch();
   let navContext = new URLSearchParams(location.search).get("ctx");
   const [sectionContent, setSectionContent] = useState([]);
@@ -796,7 +845,9 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       }
       <div
         ref={element => {
-          if(isMediaPage || !element || navContext !== sectionId) { return; }
+          if(isMediaPage || !element || navContext !== sectionId) {
+            return;
+          }
 
           // Remove context from url
           const url = new URL(location.href);
@@ -823,18 +874,19 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
                     <h2 className={[S("section__title"), "_title"].join(" ")}>
                       {
                         !section.display.title_icon ? null :
-                          <img src={section.display.title_icon.url} alt="Icon" className={S("section__title-icon")} />
+                          <img src={section.display.title_icon.url} alt="Icon" className={S("section__title-icon")}/>
                       }
                       {section.display.title}
                     </h2>
                 }
                 {
                   !showAllLink ? null :
-                    <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)} className={S("section__title-link")}>
+                    <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)}
+                          className={S("section__title-link")}>
                       <div>
-                        { rootStore.l10n.media_properties.sections.view_all }
+                        {rootStore.l10n.media_properties.sections.view_all}
                       </div>
-                      <ImageIcon icon={RightArrow} />
+                      <ImageIcon icon={RightArrow}/>
                     </Link>
                 }
               </div>
@@ -865,7 +917,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
               sectionContent
           }
         />
+        {
+          !section.display.show_app_links ? null :
+            <AppLinks />
+        }
       </div>
+
     </div>
   );
 });

@@ -918,6 +918,12 @@ class RootStore {
      variables.push(`--property-filter-color: ${options.styling.filter_color};`);
     }
 
+    if(options?.styling?.filter_style === "squared") {
+      //variables.push("--property-filter-border-radius: 0px;");
+    } else if(options?.styling?.filter_style === "alternating") {
+      variables.push("--property-filter-border-radius: 7px 0 7px 0;");
+    }
+
     if(CSS.supports("color", options?.styling?.button_style?.background_color)) {
       variables.push(`--property-button-background--custom: ${options.styling.button_style.background_color};`);
       // If border color is not explicitly set, it should default to background color

@@ -511,11 +511,35 @@ class MediaPropertyStore {
           })
         )
         .sort((a, b) => {
-          if(a.display.live_video && b.display.live_video) {
-            // Sort live content by start time
-            return a.display.start_time < b.display.start_time ? -1 : 1;
-          } else {
-            return (a.display.catalog_title || a.display.title) < (b.display.catalog_title || b.display.title) ? -1 : 1;
+          let titleComparison = (a.display.catalog_title || a.display.title) < (b.display.catalog_title || b.display.title) ? -1 : 1;
+          let scheduleComparison = 0;
+          let timeComparison = 0;
+
+          // For live comparison, regardless of direction we want live content to show first, followed by vod content
+          if(a.display.live_video) {
+            if(b.display.live_video) {
+              timeComparison =
+                a.display.start_time === b.display.start_time ? titleComparison :
+                  a.display.start_time < b.display.start_time ? -1 : 1;
+            } else {
+              timeComparison = -1;
+              scheduleComparison = -1;
+            }
+          } else if(b.display.live_video) {
+            scheduleComparison = 1;
+            timeComparison = 1;
+          }
+
+          switch(section.select.sort_order) {
+            case "title_asc":
+              return titleComparison;
+            case "title_desc":
+              return -1 * titleComparison;
+            case "time_desc":
+              return scheduleComparison || (-1 * timeComparison) || titleComparison;
+            // "time_asc" is the default case
+            default:
+              return scheduleComparison || timeComparison || titleComparison;
           }
         });
     } else {

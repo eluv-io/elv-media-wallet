@@ -359,6 +359,57 @@
   }
 }
 
+.app-links {
+  align-items: center;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 10px;
+
+  &__links {
+    align-items: center;
+    display: flex;
+    gap: 15px;
+  }
+
+  img {
+    object-fit: contain;
+  }
+
+  &__powered-by {
+    height: 30px;
+  }
+
+  &__link {
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    transition: opacity 0.25s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  @media screen and (width <= 800px) {
+    flex-direction: column;
+
+    &__links {
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+  }
+}
+
+
+
 .hero-section {
   @include page-fade-in;
 
