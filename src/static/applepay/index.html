@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apple Pay QR Handoff Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2em; }
+    #result {
+      margin-top: 1.5em;
+      font-size: 1.1em;
+    }
+    apple-pay-button {
+      --apple-pay-button-width: 300px;
+      --apple-pay-button-height: 60px;
+      --apple-pay-button-border-radius: 12px;
+      --apple-pay-button-padding: 0px 0px;
+      --apple-pay-button-box-sizing: border-box;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Apple Pay Demo</h1>
+  <p>
+    Click the button below to try the Apple Pay Web-to-iPhone handoff.<br>
+  </p>
+  <p>
+    On Chrome, Edge, or Firefox with iOS 18+, you should see a QR code.<br>
+    On Safari, it will try to use the native integration.<br>
+  </p>
+  <p>
+    Scan the code with your iPhone camera to continue payment there.
+  </p>
+  <apple-pay-button id="apple-pay-button" buttonstyle="black" type="plain" locale="en-US"></apple-pay-button>
+  <div id="result"></div>
+  <script>
+    const applePayButton = document.getElementById('apple-pay-button');
+    const resultDiv = document.getElementById('result');
+
+    // Show the button only if Apple Pay is available
+    if (window.ApplePaySession) {
+      applePayButton.style.display = 'inline-block';
+    } else {
+      resultDiv.textContent = "Apple Pay is not supported in this browser.";
+    }
+
+    applePayButton.addEventListener('click', () => {
+      if (!window.ApplePaySession) {
+        resultDiv.textContent = "Apple Pay is not supported in this browser.";
+        return;
+      }
+
+      const paymentRequest = {
+        countryCode: 'US',
+        currencyCode: 'USD',
+        supportedNetworks: ['visa', 'masterCard', 'amex'],
+        merchantCapabilities: ['supports3DS'],
+        total: { label: 'Demo Widget', amount: '2.99' },
+        merchantIdentifier: 'merchant.ap.contentfabric.io'
+      };
+
+      let session;
+      try {
+        session = new ApplePaySession(4, paymentRequest);
+      } catch(e) {
+        resultDiv.textContent = "Apple Pay is not available on this platform.";
+        return;
+      }
+
+      session.onvalidatemerchant = event => {
+        // For demo, simulate with an empty object
+        session.completeMerchantValidation({});
+      };
+
+      session.onpaymentauthorized = event => {
+        setTimeout(() => {
+          session.completePayment(ApplePaySession.STATUS_SUCCESS);
+          resultDiv.textContent = "Payment successful! (Simulated)";
+        }, 1000);
+      };
+
+      session.oncancel = () => {
+        resultDiv.textContent = "Payment cancelled or not completed.";
+      };
+
+      session.begin();
+    });
+  </script>
+</body>
+</html>
