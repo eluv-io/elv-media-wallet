@@ -70,8 +70,24 @@
       }
 
       session.onvalidatemerchant = event => {
+        fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ validationURL: event.validationURL })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Merchant validation failed");
+          return res.json();
+        })
+        .then(merchantSession => {
+          session.completeMerchantValidation(merchantSession);
+        })
+        .catch(err => {
+          resultDiv.textContent = "Merchant validation failed: " + err;
+          session.abort();
+        });
         // For demo, simulate with an empty object
-        session.completeMerchantValidation({});
+        //session.completeMerchantValidation({});
       };
 
       session.onpaymentauthorized = event => {
