@@ -92,24 +92,37 @@
       };
 
       session.onpaymentauthorized = event => {
-        // setTimeout(() => {
-        //   session.completePayment(ApplePaySession.STATUS_SUCCESS);
-        //   resultDiv.textContent = "Payment successful! (Simulated)";
-        // }, 1000);
         console.log("onpaymentauth", JSON.stringify(event));
-        fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payment: event.payment })
-        })
-        .then(res => res.json())
-        .then(result => {
-          if(result.success) {
+
+        const params = new URLSearchParams(window.location.search);
+        const doPay = params.get("pay") === "true";
+
+        if (!doPay) {
+          setTimeout(() => {
             session.completePayment(ApplePaySession.STATUS_SUCCESS);
-          } else {
-            session.completePayment(ApplePaySession.STATUS_FAILURE);
-          }
-        });
+            resultDiv.textContent = "Payment successful! (Simulated)";
+          }, 1000);
+        } else {
+          fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount: 299,
+              currency: "USD",
+              email: "not captured",
+              payment: event.payment,
+              mode: "develop",
+            })
+          })
+          .then(res => res.json())
+          .then(result => {
+            if(result.success) {
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+            } else {
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+            }
+          });
+        }
       };
 
       session.oncancel = () => {
