@@ -93,9 +93,8 @@
 
       session.onpaymentauthorized = event => {
         console.log("onpaymentauth", JSON.stringify(event));
-
         const params = new URLSearchParams(window.location.search);
-        const doPay = params.get("pay") === "true";
+        const doPay = params.has("pay");
 
         if (!doPay) {
           setTimeout(() => {
