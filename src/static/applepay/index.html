@@ -56,7 +56,7 @@
         countryCode: 'US',
         currencyCode: 'USD',
         supportedNetworks: ['visa', 'masterCard', 'amex'],
-        merchantCapabilities: ['supports3DS'],
+        merchantCapabilities: [ "supports3DS", "supportsCredit", "supportsDebit" ],
         total: { label: 'Demo (Card will not be charged)', amount: '2.99' },
         merchantIdentifier: 'merchant.ap.eluv.io'
       };
@@ -70,6 +70,7 @@
       }
 
       session.onvalidatemerchant = event => {
+        console.log("onvalidatemerchant", JSON.stringify(event));
         fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay', {
           method: 'POST',
           headers: { "Content-Type": "application/json" },
@@ -91,10 +92,24 @@
       };
 
       session.onpaymentauthorized = event => {
-        setTimeout(() => {
-          session.completePayment(ApplePaySession.STATUS_SUCCESS);
-          resultDiv.textContent = "Payment successful! (Simulated)";
-        }, 1000);
+        // setTimeout(() => {
+        //   session.completePayment(ApplePaySession.STATUS_SUCCESS);
+        //   resultDiv.textContent = "Payment successful! (Simulated)";
+        // }, 1000);
+        console.log("onpaymentauth", JSON.stringify(event));
+        fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payment: event.payment })
+        })
+        .then(res => res.json())
+        .then(result => {
+          if(result.success) {
+            session.completePayment(ApplePaySession.STATUS_SUCCESS);
+          } else {
+            session.completePayment(ApplePaySession.STATUS_FAILURE);
+          }
+        });
       };
 
       session.oncancel = () => {
