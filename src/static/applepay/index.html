@@ -92,16 +92,17 @@
       };
 
       session.onpaymentauthorized = event => {
-        console.log("onpaymentauth", JSON.stringify(event));
         const params = new URLSearchParams(window.location.search);
         const doPay = params.has("pay");
 
         if (!doPay) {
+          console.log("onPaymentAuthorized: simulating payment success");
           setTimeout(() => {
             session.completePayment(ApplePaySession.STATUS_SUCCESS);
             resultDiv.textContent = "Payment successful! (Simulated)";
           }, 1000);
         } else {
+          console.log("onPaymentAuthorized: processing payment with server");
           fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
