@@ -87,8 +87,6 @@
           resultDiv.textContent = "Merchant validation failed: " + err;
           session.abort();
         });
-        // For demo, simulate with an empty object
-        //session.completeMerchantValidation({});
       };
 
       session.onpaymentauthorized = event => {
