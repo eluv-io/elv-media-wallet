@@ -555,7 +555,7 @@ class RootStore {
       if(config?.login?.settings?.auth0_domain) {
         this.auth0 = new Auth0Client({
           domain: config.login.settings.auth0_domain,
-          clientId: config.login.settings.auth0_configuration_id,
+          clientId: config.login.settings.auth0_client_id,
           authorizationParams: {
             redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
           },
