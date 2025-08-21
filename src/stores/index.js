@@ -2022,13 +2022,11 @@ class RootStore {
 
         setTimeout(() => {
           this.auth0.logout({
-            returnTo: returnUrl.toString()
+            logoutParams: {
+              returnTo: returnUrl.toString()
+            }
           });
         }, 100);
-
-        setTimeout(() => {
-          this.Reload(returnUrl || this.ReloadURL({signOut: true}));
-        }, 3000);
 
         return;
       } catch(error) {
