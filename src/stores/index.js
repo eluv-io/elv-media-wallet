@@ -2026,6 +2026,10 @@ class RootStore {
           });
         }, 100);
 
+        setTimeout(() => {
+          this.Reload(returnUrl || this.ReloadURL({signOut: true}));
+        }, 3000);
+
         return;
       } catch(error) {
         this.Log("Failed to log out of Auth0:");
