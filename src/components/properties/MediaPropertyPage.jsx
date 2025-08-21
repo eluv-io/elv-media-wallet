@@ -36,7 +36,7 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
           if(section.type === "spacer") {
             return (
               <MediaPropertySpacerSection
-                key={`section-${sectionId}`}
+                key={`section-${sectionId}-${index}`}
                 section={section}
                 className={S("page__section")}
               />

@@ -509,6 +509,11 @@ class CryptoStore {
   });
 
   PhantomBalance = flow(function * () {
+    return {
+      sol: 0,
+      usdc: 0
+    };
+
     try {
       const {PublicKey} = yield import("@solana/web3.js");
 

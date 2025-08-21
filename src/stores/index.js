@@ -458,19 +458,6 @@ class RootStore {
         );
       }
 
-      const {Auth0Client} = yield import("@auth0/auth0-spa-js");
-
-      this.auth0 = new Auth0Client({
-        domain: EluvioConfiguration["auth0-domain"],
-        clientId: EluvioConfiguration["auth0-configuration-id"],
-        authorizationParams: {
-          redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
-        },
-        cacheLocation: "localstorage",
-        useRefreshTokens: true,
-        useCookiesForTransactions: true
-      });
-
       // Start loading media properties
 
       // Login required
@@ -560,6 +547,22 @@ class RootStore {
         if(this.isCustomDomain && window.location.pathname === "/") {
           this.routeChange = UrlJoin("/", this.currentPropertySlug || this.currentPropertyId);
         }
+      }
+
+      const {Auth0Client} = yield import("@auth0/auth0-spa-js");
+
+      const config = yield this.LoadPropertyCustomization(window.location.pathname.split("/")[1]);
+      if(config?.login?.settings?.auth0_domain) {
+        this.auth0 = new Auth0Client({
+          domain: config.login.settings.auth0_domain,
+          clientId: config.login.settings.auth0_configuration_id,
+          authorizationParams: {
+            redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
+          },
+          cacheLocation: "localstorage",
+          useRefreshTokens: true,
+          useCookiesForTransactions: true
+        });
       }
 
       try {
