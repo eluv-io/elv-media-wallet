@@ -93,7 +93,16 @@
         const params = new URLSearchParams(window.location.search);
         const doPay = params.has("pay");
 
-        if (!doPay) {
+        const generateUserAddress = () => {
+          const chars = "0123456789abcdef";
+          let result = "";
+          for(let i = 0; i < 40; i++) {
+            result += chars[Math.floor(Math.random() * 16)];
+          }
+          return "0x" + result;
+        };
+
+        if(!doPay) {
           console.log("onPaymentAuthorized: simulating payment success");
           setTimeout(() => {
             session.completePayment(ApplePaySession.STATUS_SUCCESS);
@@ -101,13 +110,13 @@
           }, 1000);
         } else {
           console.log("onPaymentAuthorized: processing payment with server");
-          fetch('https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          fetch("https://host-154-14-211-102.contentfabric.io/as/otp/webhook/applepay/process", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
               amount: 299,
               currency: "USD",
-              email: "not captured",
+              user_addr: generateUserAddress(),
               payment: event.payment,
               mode: "develop",
             })
