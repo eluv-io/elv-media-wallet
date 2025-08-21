@@ -18,7 +18,6 @@ import {SetImageUrlDimensions} from "../../utils/Utils";
 import {Redirect} from "react-router-dom";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
-const useOry = false; //searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
@@ -47,13 +46,12 @@ const params = {
   // Response code to fill out for code login
   loginCode: searchParams.get("elvid"),
   // Should Auth0 credentials be cleared before login?
-  clearLogin: !useOry && searchParams.has("clear"),
+  clearLogin: searchParams.has("clear"),
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
-  oryFlow: searchParams.get("flow"),
-  useOry
+  oryFlow: searchParams.get("flow")
 };
 
 window.params = params;
@@ -120,7 +118,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       enabled: consent?.consent_options?.length > 0,
       options: consent?.consent_options
     },
-    use_ory: settings?.provider === "ory",
+    use_ory: !settings?.auth0_domain,
     disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
   };
@@ -269,7 +267,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, errorMessage, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, errorMessage, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -333,7 +331,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     );
   }
 
-  if(useOry) {
+  if(customizationOptions.use_ory) {
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
@@ -661,14 +659,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     if(!customizationOptions || !rootStore.loaded) { return; }
 
     if(
-      (useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
-      (!useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "ory")
+      (customizationOptions.use_ory && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
+      (!customizationOptions.use_ory && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "ory")
     ) {
       rootStore.SignOut({reload: false});
       return;
     }
 
-    if(params.clearLogin && !useOry) {
+    if(params.clearLogin && !customizationOptions.use_ory) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.hash = window.location.hash;
@@ -682,7 +680,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(!useOry && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
+    } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
         .catch(error => {
@@ -747,7 +745,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           LogIn={LogIn}
           customizationOptions={customizationOptions}
           errorMessage={errorMessage}
-          useOry={useOry}
         />
       </div>
     </div>
