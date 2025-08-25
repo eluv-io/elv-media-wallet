@@ -476,7 +476,7 @@ class RootStore {
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl:
           EluvioConfiguration.network === "main" ?
-            "https://main.srt.bunny.cfab.io/s/main/config" :
+            "https://main.glb.contentfabric.io/s/main/config" :
             "https://demov3.net955210.contentfabric.io/config"
       });
 
