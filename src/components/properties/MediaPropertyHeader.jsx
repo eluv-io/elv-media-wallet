@@ -23,6 +23,7 @@ import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import SelectIcon from "Assets/icons/select";
+import {LogInAuth0} from "Components/login";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -400,7 +401,17 @@ const HeaderLinks = observer(() => {
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
-        <Button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
+        <Button
+          onClick={() => {
+            const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
+            if(useAuth0) {
+              LogInAuth0();
+            } else {
+              rootStore.ShowLogin();
+            }
+          }}
+          className={S("sign-in")}
+        >
           { rootStore.l10n.login.sign_in }
         </Button>
       </>

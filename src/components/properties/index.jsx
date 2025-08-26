@@ -109,6 +109,19 @@ const PropertyWrapper = observer(({children}) => {
           SetHTMLMetaTags({
             metaTags: property.metadata?.meta_tags
           });
+
+          const provider = rootStore.AuthInfo()?.provider || "external";
+          const useAuth0 = !!(property?.metadata?.login?.settings?.use_auth0 && property?.metadata?.login?.settings?.auth0_domain);
+          const propertyProvider = useAuth0 ? "auth0" : "ory";
+          if(
+            rootStore.loggedIn &&
+            provider !== propertyProvider &&
+            // Only allow metamask for auth0
+            !(provider === "external" && propertyProvider === "auth0")
+          ) {
+            rootStore.Log("Signing out due to mismatched login provider with property");
+            await rootStore.SignOut({reload: false});
+          }
         }}
         loadingClassName="page-loader content"
       >

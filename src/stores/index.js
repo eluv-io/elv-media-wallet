@@ -424,6 +424,8 @@ class RootStore {
     this.currentPropertyId = propertyId;
     this.currentPropertySlug = propertySlug;
     this.currentPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+
+    yield this.InitializeAuth0Client();
   });
 
   Initialize = flow(function * () {
@@ -549,21 +551,7 @@ class RootStore {
         }
       }
 
-      const {Auth0Client} = yield import("@auth0/auth0-spa-js");
-
-      const config = yield this.LoadPropertyCustomization(window.location.pathname.split("/")[1]);
-      if(config?.login?.settings?.auth0_domain) {
-        this.auth0 = new Auth0Client({
-          domain: config.login.settings.auth0_domain,
-          clientId: config.login.settings.auth0_client_id,
-          authorizationParams: {
-            redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
-          },
-          cacheLocation: "localstorage",
-          useRefreshTokens: true,
-          useCookiesForTransactions: true
-        });
-      }
+      yield this.InitializeAuth0Client();
 
       try {
         // Auth parameter containing wallet app formatted tokens
@@ -697,6 +685,26 @@ class RootStore {
         throw { login_limited: true };
       }
     }
+  });
+
+  InitializeAuth0Client = flow(function * () {
+    const config = yield this.LoadPropertyCustomization(
+      this.currentPropertyId || window.location.pathname.split("/")[1]
+    );
+
+    if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
+
+    const {Auth0Client} = yield import("@auth0/auth0-spa-js");
+    this.auth0 = new Auth0Client({
+      domain: config.login.settings.auth0_domain,
+      clientId: config.login.settings.auth0_client_id,
+      authorizationParams: {
+        redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
+      },
+      cacheLocation: "localstorage",
+      useRefreshTokens: true,
+      useCookiesForTransactions: true
+    });
   });
 
   AuthenticateAuth0 = flow(function * ({userData}={}) {
@@ -928,8 +936,8 @@ class RootStore {
     }
   });
 
-
   SetDomainCustomization = flow(function * (mediaPropertyId) {
+
     if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
