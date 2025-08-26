@@ -118,7 +118,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       enabled: consent?.consent_options?.length > 0,
       options: consent?.consent_options
     },
-    use_ory: !settings?.auth0_domain,
+    use_ory: !(settings?.use_auth0 && settings?.auth0_domain),
     disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
   };
@@ -546,6 +546,35 @@ const AuthenticateAuth0 = async (userData) => {
   } finally {
     rootStore.ClearLoginParams();
   }
+};
+
+export const LogInAuth0 = async () => {
+  const customizationOptions = await rootStore.LoadLoginCustomization(params.mediaPropertySlugOrId);
+
+  let auth0LoginParams = { appState: {} };
+
+  if(customizationOptions?.disable_third_party) {
+    auth0LoginParams.disableThirdParty = true;
+  }
+
+  const callbackUrl = new URL(window.location.href);
+  callbackUrl.pathname = "";
+  callbackUrl.hash = window.location.pathname;
+
+  callbackUrl.searchParams.set("source", "oauth");
+  callbackUrl.searchParams.set("action", "loginCallback");
+
+  if(rootStore.currentPropertyId) {
+    callbackUrl.searchParams.set("pid", rootStore.currentPropertyId);
+  }
+
+  await rootStore.auth0.loginWithRedirect({
+    authorizationParams: {
+      redirect_uri: callbackUrl.toString()
+    },
+    initialScreen: "login",
+    ...auth0LoginParams
+  });
 };
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
