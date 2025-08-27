@@ -702,8 +702,8 @@ class RootStore {
         redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
       },
       cacheLocation: "localstorage",
-      useRefreshTokens: true,
-      useCookiesForTransactions: true
+      //useRefreshTokens: true,
+      //useCookiesForTransactions: true
     });
   });
 
