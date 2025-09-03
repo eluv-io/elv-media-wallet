@@ -691,7 +691,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         mediaLink = new URL(
           rootStore.network === "demo" ?
             "https://demov3.net955210.contentfabric.io/s/demov3" :
-            "https://main.srt.bunny.cfab.io/s/main"
+            "https://main.glb.contentfabric.io/s/main"
         );
 
         const filePath = selectedMedia.media_file["/"].split("/files/")[1];
@@ -865,7 +865,7 @@ export const LinkTargetHash = (link) => {
 export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, path="", authToken, resolve=true, width}) => {
   let url = new URL(
     rootStore.network === "main" ?
-      "https://main.srt.bunny.cfab.io/s/main" :
+      "https://main.glb.contentfabric.io/s/main" :
       "https://demov3.net955210.contentfabric.io"
   );
 
