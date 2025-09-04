@@ -631,11 +631,16 @@ const MediaPropertyHeader = observer(() => {
     );
   }
 
+  let backPath = rootStore.backPath;
+  if(backPath === "/" && !mediaProperty?.metadata?.domain?.features?.discover) {
+    backPath = undefined;
+  }
+
   return (
     <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
       <div className={S("nav")}>
         {
-          !rootStore.backPath ? null :
+          !backPath ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
