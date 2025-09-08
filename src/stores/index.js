@@ -77,6 +77,7 @@ class RootStore {
 
   appId = "eluvio-media-wallet";
 
+  auth0 = undefined;
   oryClient = undefined;
 
   authOrigin = this.GetSessionStorage("auth-origin");
@@ -423,6 +424,8 @@ class RootStore {
     this.currentPropertyId = propertyId;
     this.currentPropertySlug = propertySlug;
     this.currentPropertyTenantId = yield this.client.ContentObjectTenantId({objectId: propertyId});
+
+    yield this.InitializeAuth0Client();
   });
 
   Initialize = flow(function * () {
@@ -548,6 +551,8 @@ class RootStore {
         }
       }
 
+      yield this.InitializeAuth0Client();
+
       try {
         // Auth parameter containing wallet app formatted tokens
         const authInfo = searchParams.get("auth");
@@ -565,6 +570,9 @@ class RootStore {
         if(this.AuthInfo()) {
           this.Log("Authenticating from saved session");
           yield this.Authenticate(this.AuthInfo());
+        } else if(this.auth0) {
+          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
+          yield this.AuthenticateAuth0({});
         }
       }
 
@@ -585,6 +593,9 @@ class RootStore {
         if(this.AuthInfo()) {
           this.Log("Authenticating from saved session");
           yield this.Authenticate(this.AuthInfo());
+        } else if(this.auth0) {
+          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
+          yield this.AuthenticateAuth0({});
         }
       }
 
@@ -673,6 +684,82 @@ class RootStore {
       if([400, 403, 503].includes(parseInt(error?.status))) {
         throw { login_limited: true };
       }
+    }
+  });
+
+  InitializeAuth0Client = flow(function * () {
+    const config = yield this.LoadPropertyCustomization(
+      this.currentPropertyId || window.location.pathname.split("/")[1]
+    );
+
+    if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
+
+    const {Auth0Client} = yield import("@auth0/auth0-spa-js");
+    this.auth0 = new Auth0Client({
+      domain: config.login.settings.auth0_domain,
+      clientId: config.login.settings.auth0_client_id,
+      authorizationParams: {
+        redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
+      },
+      cacheLocation: "localstorage",
+      useRefreshTokensFallback: true
+      //useRefreshTokens: true,
+      //useCookiesForTransactions: true
+    });
+  });
+
+  AuthenticateAuth0 = flow(function * ({userData}={}) {
+    try {
+      // eslint-disable-next-line no-console
+      console.time("Auth0 Authentication");
+
+      // Check for existing Auth0 authentication status
+      // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
+      // eslint-disable-next-line no-async-promise-executor
+      yield new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
+        // eslint-disable-next-line no-console
+        console.time("auth0.checkSession");
+        await this.auth0.checkSession();
+        // eslint-disable-next-line no-console
+        console.timeEnd("auth0.checkSession");
+        clearTimeout(timeout);
+
+        resolve();
+      });
+
+      if(yield this.auth0.isAuthenticated()) {
+        this.Log("Authenticating with Auth0 session");
+
+        const authInfo = yield this.auth0.getIdTokenClaims();
+
+        yield this.Authenticate({
+          idToken: authInfo.__raw,
+          provider: "auth0",
+          user: {
+            name: authInfo.name,
+            email: authInfo.email,
+            verified: authInfo.email_verified,
+            userData
+          }
+        });
+
+        this.ClearLoginParams();
+      }
+    } catch(error) {
+      if(error?.message?.toLowerCase() !== "login required") {
+        this.Log("Error logging in with Auth0:", true);
+        this.Log(error, true);
+
+        this.ClearLoginParams();
+      }
+
+      if([400, 403, 503].includes(parseInt(error?.status))) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
+    } finally {
+      // eslint-disable-next-line no-console
+      console.timeEnd("Auth0 Authentication");
     }
   });
 
@@ -850,8 +937,8 @@ class RootStore {
     }
   });
 
-
   SetDomainCustomization = flow(function * (mediaPropertyId) {
+
     if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
@@ -1931,6 +2018,30 @@ class RootStore {
       this.loggedIn = false;
       this.signingOut = false;
       return;
+    }
+
+    if(this.auth0 && (yield this.auth0.isAuthenticated())) {
+      try {
+        this.disableCloseEvent = true;
+
+        // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
+        returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
+        returnUrl.hash = returnUrl.pathname;
+        returnUrl.pathname = "";
+
+        setTimeout(() => {
+          this.auth0.logout({
+            logoutParams: {
+              returnTo: returnUrl.toString()
+            }
+          });
+        }, 100);
+
+        return;
+      } catch(error) {
+        this.Log("Failed to log out of Auth0:");
+        this.Log(error, true);
+      }
     }
 
     this.Reload(returnUrl || this.ReloadURL({signOut: true}));
