@@ -75,7 +75,7 @@ const MediaCardWithButtonVertical = observer(({
       <div className={S("media-card-button-vertical__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
           <div className={S("media-card-button-vertical__headers")}>
-            { display.headers.join("     ") }
+            { display.headers?.join?.("     ") }
           </div>
         }
         {
@@ -190,7 +190,7 @@ const MediaCardWithButtonHorizontal = observer(({
       <div className={S("media-card-button-horizontal__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
           <div className={S("media-card-button-horizontal__headers")}>
-            { display.headers.join("     ") }
+            { display.headers?.join?.("     ") }
           </div>
         }
         {
@@ -496,7 +496,7 @@ const MediaCardVertical = observer(({
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
               <div className={S("media-card-vertical__headers")}>
-                { display.headers.join("     ") }
+                { display.headers?.join?.("     ") }
               </div>
             }
             {

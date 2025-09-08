@@ -90,7 +90,7 @@ const MediaVideo = observer(({
         {
           (display.headers || []).length === 0 ? null :
             <div className={S("media__error-headers")}>
-              {display.headers.map((header, index) =>
+              {display.headers?.map?.((header, index) =>
                 <div key={`header-${index}`} className={S("media__error-header")}>{header}</div>
               )}
             </div>
@@ -654,7 +654,7 @@ const MediaPropertyMediaPage = observer(() => {
                 {
                   (display.headers || []).length === 0 ? null :
                     <div className={S("media-text__headers")}>
-                      {display.headers.map((header, index) =>
+                      {display.headers?.map?.((header, index) =>
                         <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
                       )}
                     </div>

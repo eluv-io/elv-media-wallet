@@ -357,7 +357,7 @@ const MediaSidebar = observer(({
           { display.title }
         </div>
         <div className={S("header__headers")}>
-          {display.headers.map((header, index) =>
+          {display.headers?.map?.((header, index) =>
             <div key={`header-${index}`} className={S("header__header")}>{header}</div>
           )}
         </div>
