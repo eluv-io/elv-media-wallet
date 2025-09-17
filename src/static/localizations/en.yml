@@ -96,6 +96,7 @@ actions:
   cancel: Cancel
   close: Close
   share: Share
+  done: Done
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?
@@ -165,6 +166,24 @@ profile:
     total: Total Balance
     locked: Locked Balance
     withdrawable: Withdrawable Balance
+  subscriptions:
+    title: Subscriptions
+    subscription: Subscription
+    auto_renewal: Auto Renewal
+    next_payment_date: Next Payment Date
+    manage: Manage Subscription
+    manage_in_stripe: Manage Payment in Stripe
+    start_date: Start Date
+    period: Subscription Period
+    paid_to: Paid To
+    cancelled_on: Cancelled On
+    optional_end_date: Optional End Date
+    cancel: Cancel Subscription
+    cancel_confirm: Confirm Cancellation
+    confirm_cancel: Are you sure you want to cancel your subscription?
+    cancel_message: If you choose to cancel, it'll take effect on {date}. You'll still be able to watch until then.
+    cancelled_message: Cancellation will take effect on {date}. You'll still be able to watch until then.
+    subscription_cancelled: Your subscription has been cancelled.
 
 preferences:
   preferences: Preferences

@@ -4,6 +4,7 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import {rootStore} from "./index";
+import {NFTInfo} from "../utils/Utils";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -193,6 +194,61 @@ class CheckoutStore {
       this.Log(error, true);
     }
   }
+
+  LoadSubscriptions = flow(function * ({tenantId}) {
+    let subscriptions = (yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "subs", "list"),
+        method: "POST",
+        body: {
+          tenant: tenantId
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    ))?.subscriptions || [];
+
+    return yield Promise.all(
+      subscriptions.map(async subscription => ({
+        ...subscription,
+        item: NFTInfo({
+          nft: (await this.rootStore.walletClient.UserItems({
+            contractAddress: subscription.token_addr
+          }))?.results?.[0]
+        })
+      }))
+    );
+  });
+
+  UpdateSubscriptionPayment = flow(function * ({subscriptionId}) {
+    const {redirect_url} = yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "subs", "portal", subscriptionId),
+        method: "POST",
+        body: {
+          return_url: window.location.href
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    );
+
+    window.location.href = redirect_url;
+  });
+
+  CancelSubscription = flow(function * ({subscriptionId}) {
+    return yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "subs", "cancel", subscriptionId),
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    );
+  });
 
   EbanxPurchaseStatus = flow(function * (paymentHash) {
     return yield Utils.ResponseToJson(

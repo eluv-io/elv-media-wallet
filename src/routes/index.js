@@ -44,6 +44,7 @@ import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurch
 import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 import EmailVerification from "Components/login/EmailVerification";
 import FAQ from "Components/properties/FAQ";
+import Subscription from "Components/profile/Subscription";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -84,7 +85,15 @@ const TokenRoutes = basePath => {
 
 const UserRoutes = ({includeMarketplaceRoutes}={}) => {
   return [
+    {
+      name: "Subscriptions",
+      path: "details/subscriptions/:subscriptionId",
+      backPath: "details",
+      Component: Subscription
+    },
+
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
+
     { name: "Listings", path: "listings", includeUserProfile: true, backPath: "/", Component: UserListings },
     { name: "Listings", path: "listings/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/listings" },
     { name: "Listings", path: "listings/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/listings" },

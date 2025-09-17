@@ -27,12 +27,6 @@ const icons = {
 
 const S = (...classes) => classes.map(c => FooterStyles[c] || "").join(" ");
 
-const eluvioFooterItems = [
-  { type: "link", text: "Get Support", url: "https://eluviolive.zendesk.com/hc/en-us/requests/new" },
-  { type: "link", text: "Eluvio Terms", url: "https://eluv.io/terms" },
-  { type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" },
-];
-
 const FooterContentModal = observer(({footerItem, Close}) => {
   switch(footerItem.type) {
     case "image":
@@ -88,7 +82,7 @@ const FooterContentModal = observer(({footerItem, Close}) => {
 });
 
 const SocialLinks = observer(() => {
-    const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
   if(!mediaProperty) { return null; }
 
@@ -126,13 +120,28 @@ const SocialLinks = observer(() => {
 
 const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
   const [modalItem, setModalItem] = useState(undefined);
+  const parentMediaProperty = mediaPropertyStore.MediaProperty({
+    mediaPropertySlugOrId: rootStore.parentMediaPropertySlugOrId
+  });
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
   if(!mediaProperty) { return null; }
 
   let {items, rich_text} = mediaProperty.metadata.footer || {};
+  const supportUrl =
+    mediaProperty.metadata.footer?.support_url ||
+    parentMediaProperty?.metadata?.footer?.support_url;
 
-  items = [...(items || []), ...eluvioFooterItems];
+  items = [
+    ...(items || []),
+    {
+      type: "link",
+      text: "Get Support",
+      url: supportUrl || "https://eluviolive.zendesk.com/hc/en-us/requests/new"
+    },
+    { type: "link", text: "Eluvio Terms", url: "https://eluv.io/terms" },
+    { type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" }
+  ];
 
   return (
     <>

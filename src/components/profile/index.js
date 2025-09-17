@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {
   Link,
   useRouteMatch
 } from "react-router-dom";
-import {ButtonWithLoader, CopyableField, FormatPriceString, RichText} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, FormatPriceString, Linkish, RichText} from "Components/common/UIComponents";
 import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import WithdrawalModal from "Components/profile/WithdrawalModal";
@@ -13,13 +13,15 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import ImageIcon from "Components/common/ImageIcon";
 import DepositModal from "Components/profile/DepositModal";
 import {SearchParams} from "../../utils/Utils";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {LoaderImage} from "Components/properties/Common";
 
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 import OffersIcon from "Assets/icons/Offers table icon.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import UpCaret from "Assets/icons/up-caret.svg";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+
 
 const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children, className=""}) => {
   const [expanded, setExpanded] = useState(initiallyOpen);
@@ -127,6 +129,70 @@ const BalanceDetails = observer(({basePath}) => {
   );
 });
 
+const Subscriptions = observer(({basePath}) => {
+  const [subscriptions, setSubscriptions] = useState([]);
+
+  useEffect(() => {
+    checkoutStore.LoadSubscriptions({tenantId: rootStore.currentPropertyTenantId})
+      .then(setSubscriptions);
+  }, []);
+
+  if(!subscriptions) {
+    return null;
+  }
+
+  return (
+    <div className="profile-page__section-container">
+      <div className="profile-page__section profile-page__section-account">
+        <h1 className="profile-page__header">{ rootStore.l10n.profile.subscriptions.title }</h1>
+        {
+          subscriptions.map(subscription =>
+            <div key={`sub-${subscription.sub_id}`}>
+              <div className="subscription">
+                <LoaderImage
+                  loaderAspectRatio={1}
+                  src={subscription.item.mediaInfo?.imageUrl}
+                  className="subscription__image"
+                />
+                <div className="subscription__text">
+                  <div className="subscription__name">{subscription.item.name}</div>
+                  <div className="subscription__subtitle">{subscription.item.subtitle1}</div>
+                  {
+                    subscription.canceled_at ?
+                      <>
+                        <div className="subscription__next-payment">
+                          {rootStore.l10n.profile.subscriptions.cancelled_on}:&nbsp;
+                          {new Date(subscription.canceled_at).toLocaleDateString()}
+                        </div>
+                        <div className="subscription__next-payment">
+                          {rootStore.l10n.profile.subscriptions.paid_to}:&nbsp;
+                          {new Date(subscription.paid_to).toLocaleDateString()}
+                        </div>
+                      </> :
+                      <div className="subscription__next-payment">
+                        {rootStore.l10n.profile.subscriptions.next_payment_date}:&nbsp;
+                        {new Date(subscription.start_time).toLocaleDateString()}
+                      </div>
+                  }
+                  {
+                    subscription.canceled_at ? null :
+                      <Linkish
+                        to={UrlJoin(basePath, "users", "me", "details", "subscriptions", subscription.sub_id)}
+                        className="action subscription__action"
+                      >
+                        {rootStore.l10n.profile.subscriptions.manage}
+                      </Linkish>
+                  }
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  );
+});
+
 const Profile = observer(() => {
   const match = useRouteMatch();
 
@@ -218,6 +284,8 @@ const Profile = observer(() => {
           </div>
         </div>
       </div>
+
+      <Subscriptions basePath={basePath} />
 
       <ExpandableContent
         textShow={rootStore.l10n.profile.advanced_details}

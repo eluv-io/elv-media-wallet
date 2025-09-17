@@ -14,10 +14,11 @@
     background: #d9d9d9;
     border-radius: 4px;
     color: #000;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     height: 40px;
     min-width: unset;
+    padding-inline: 30px;
     text-transform: unset;
     white-space: nowrap;
     width: max-content;
@@ -33,6 +34,7 @@
     background-color: #212121;
     border-radius: 12px;
     margin: 0 auto;
+    margin-bottom: 10px;
     max-width: 750px;
     overflow: hidden;
     width: 100%;
@@ -610,5 +612,37 @@
       min-height: 100vh;
       padding-bottom: 200px;
     }
+  }
+}
+
+.subscription {
+  display: flex;
+  gap: 20px;
+  padding: 20px 30px;
+
+  &__image {
+    border-radius: 5px;
+    width: 200px;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+  }
+
+  &__name {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  &__subtitle {
+    color: var(--property-text-secondary);
+    font-size: 14px;
+  }
+
+  &__action {
+    margin-top: 10px;
   }
 }

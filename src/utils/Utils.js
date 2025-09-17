@@ -330,6 +330,11 @@ export const NFTInfo = ({
   imageWidth,
   showToken
 }) => {
+
+  if(!nft && !item && !listing) {
+    return {};
+  }
+
   if(listing) {
     nft = {
       ...(nft || {}),
