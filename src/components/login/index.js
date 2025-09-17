@@ -9,6 +9,7 @@ import Confirm from "Components/common/Confirm";
 import {LocalizeString} from "Components/common/UIComponents";
 import {RichText} from "Components/properties/Common";
 
+import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
@@ -119,6 +120,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       options: consent?.consent_options
     },
     use_ory: !(settings?.use_auth0 && settings?.auth0_domain),
+    enable_metamask: settings?.enable_metamask,
     disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
   };
@@ -316,6 +318,18 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     </button>
   );
 
+  const metamaskButton = (
+    <button
+      className="login-page__button login-page__button--secondary login-page__button--metamask"
+      onClick={() => LogIn({provider: "metamask", mode: "login"})}
+      disabled={requiredOptionsMissing}
+      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
+    >
+      <ImageIcon icon={MetamaskIcon} />
+      { rootStore.l10n.login.connect_metamask }
+    </button>
+  );
+
   if(codeAuthSet) {
     return (
       <>
@@ -368,6 +382,19 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
             <>
               { signUpButton }
               { logInButton }
+            </>
+        }
+
+        {
+          customizationOptions.disable_registration ? null :
+            <>
+              <div className="login-page__actions__separator">
+                <div className="login-page__actions__separator-line"/>
+                <div className="login-page__actions__separator-text">Or</div>
+                <div className="login-page__actions__separator-line"/>
+              </div>
+
+              {metamaskButton}
             </>
         }
       </div>

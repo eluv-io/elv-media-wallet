@@ -11,7 +11,6 @@ import {LoaderImage} from "Components/properties/Common";
 import {Linkish, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
-import StripeLogo from "Assets/icons/stripe-color";
 import CaretRightIcon from "Assets/icons/right-caret";
 import Confirm from "Components/common/Confirm";
 
