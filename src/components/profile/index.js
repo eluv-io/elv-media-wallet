@@ -137,7 +137,7 @@ const Subscriptions = observer(({basePath}) => {
       .then(setSubscriptions);
   }, []);
 
-  if(!subscriptions) {
+  if(!subscriptions || subscriptions.length === 0) {
     return null;
   }
 
