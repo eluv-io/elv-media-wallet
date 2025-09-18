@@ -152,7 +152,7 @@ const Subscription = observer(() => {
               </div> :
               <div className={S("subscription__next-payment")}>
                 {rootStore.l10n.profile.subscriptions.next_payment_date}:&nbsp;
-                {FormatDate(subscription.paid_to)}
+                {FormatDate(subscription.next_payment_date)}
               </div>
           }
           {

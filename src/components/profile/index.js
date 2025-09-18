@@ -171,7 +171,7 @@ const Subscriptions = observer(({basePath}) => {
                       </> :
                       <div className="subscription__next-payment">
                         {rootStore.l10n.profile.subscriptions.next_payment_date}:&nbsp;
-                        {new Date(subscription.paid_to).toLocaleDateString()}
+                        {new Date(subscription.next_payment_date).toLocaleDateString()}
                       </div>
                   }
                   {
