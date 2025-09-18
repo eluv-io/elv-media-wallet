@@ -617,11 +617,13 @@
 
 .subscription {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   padding: 20px 30px;
 
   &__image {
-    border-radius: 5px;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    object-fit: cover;
     width: 200px;
   }
 

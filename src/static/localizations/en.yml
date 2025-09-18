@@ -172,10 +172,12 @@ profile:
     auto_renewal: Auto Renewal
     next_payment_date: Next Payment Date
     manage: Manage Subscription
-    manage_in_stripe: Manage Payment in Stripe
-    start_date: Start Date
+    manage_payment: Manage Payment Method
+    start_date: Purchase Date
     period: Subscription Period
-    paid_to: Paid To
+    paid_to: Paid Through
+    auto_renewing: auto-renewing
+    renew_note: Your subscription will automatically renew on this date, unless cancelled in advance.
     cancelled_on: Cancelled On
     optional_end_date: Optional End Date
     cancel: Cancel Subscription

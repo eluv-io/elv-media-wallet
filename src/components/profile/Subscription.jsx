@@ -152,7 +152,7 @@ const Subscription = observer(() => {
               </div> :
               <div className={S("subscription__next-payment")}>
                 {rootStore.l10n.profile.subscriptions.next_payment_date}:&nbsp;
-                {FormatDate(subscription.start_time)}
+                {FormatDate(subscription.paid_to)}
               </div>
           }
           {
@@ -161,7 +161,7 @@ const Subscription = observer(() => {
                 onClick={() => checkoutStore.UpdateSubscriptionPayment({subscriptionId})}
                 className={S("subscription__action")}
               >
-                {rootStore.l10n.profile.subscriptions.manage}
+                {rootStore.l10n.profile.subscriptions.manage_payment}
               </Linkish>
           }
         </div>
@@ -193,8 +193,14 @@ const Subscription = observer(() => {
             {rootStore.l10n.profile.subscriptions.paid_to}
           </label>
           <div className={S("info__item-value")}>
-            {FormatDate(subscription.paid_to)}
+            {FormatDate(subscription.paid_to)}{!subscription.canceled_at ? ` (${rootStore.l10n.profile.subscriptions.auto_renewing})` : null}
           </div>
+          {
+            subscription.canceled_at ? null :
+              <div className={S("info__item-note")}>
+                { rootStore.l10n.profile.subscriptions.renew_note}
+              </div>
+          }
         </div>
       </div>
       {
