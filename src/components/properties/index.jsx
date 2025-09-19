@@ -80,7 +80,13 @@ const PropertyWrapper = observer(({children}) => {
     const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
     const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
     const page = mediaPropertyStore.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId});
-    const useCustomBackgroundColor = page?.background_color && CSS.supports("color", page.background_color);
+
+    let backgroundColor = page?.background_color;
+    if(match.path.endsWith("/faq")) {
+      backgroundColor = mediaProperty?.metadata?.faq?.background_color || backgroundColor;
+    }
+
+    const useCustomBackgroundColor = backgroundColor && CSS.supports("color", backgroundColor);
 
 
     return (
@@ -141,7 +147,7 @@ const PropertyWrapper = observer(({children}) => {
                   <div
                     style={
                       useCustomBackgroundColor ?
-                        { "--property-background": page.background_color } : {}
+                        { "--property-background": backgroundColor } : {}
                     }
                     className={PropertyStyles["property"]}
                   >

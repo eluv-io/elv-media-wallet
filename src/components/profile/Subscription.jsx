@@ -169,6 +169,14 @@ const Subscription = observer(() => {
       <div className={S("info")}>
         <div className={S("info__item")}>
           <label className={S("info__item-label")}>
+            {rootStore.l10n.profile.subscriptions.purchase_date}
+          </label>
+          <div className={S("info__item-value")}>
+            {FormatDate(subscription.start_time)}
+          </div>
+        </div>
+        <div className={S("info__item")}>
+          <label className={S("info__item-label")}>
             {rootStore.l10n.profile.subscriptions.period}
           </label>
           <div className={S("info__item-value")}>
@@ -187,7 +195,7 @@ const Subscription = observer(() => {
           {
             subscription.canceled_at ? null :
               <div className={S("info__item-note")}>
-                { rootStore.l10n.profile.subscriptions.renew_note}
+                {rootStore.l10n.profile.subscriptions.renew_note}
               </div>
           }
         </div>
@@ -199,8 +207,8 @@ const Subscription = observer(() => {
               onClick={() => setCancelling(true)}
               className={S("cancel-section__button")}
             >
-              { rootStore.l10n.profile.subscriptions.cancel }
-              <ImageIcon icon={CaretRightIcon} />
+              {rootStore.l10n.profile.subscriptions.cancel}
+              <ImageIcon icon={CaretRightIcon}/>
             </Linkish>
           </div>
       }

@@ -51,7 +51,6 @@ export const PageBackground = observer(({
     display.background_video_mobile :
     display.background_video;
 
-
   if(!backgroundImage && !backgroundVideo) {
     return null;
   }
