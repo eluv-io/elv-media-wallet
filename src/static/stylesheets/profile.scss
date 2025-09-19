@@ -98,7 +98,6 @@
 
   &__header {
     color: var(--color-component-text-primary);
-    font: var(--font-component-misc);
     font-size: 24px;
     font-weight: 500;
     margin-bottom: 10px;
@@ -107,7 +106,6 @@
 
   &__section-header {
     color: var(--color-component-text-primary);
-    font: var(--font-component-header);
     font-size: 18px;
     margin-bottom: 10px;
     text-align: center;
@@ -156,7 +154,6 @@
   &__balance {
     align-items: center;
     display: flex;
-    font: var(--font-component-header);
     font-size: 24px;
     font-weight: 500;
     justify-content: center;
@@ -319,7 +316,6 @@
 
   &__header {
     border-bottom: var(--border-component-primary);
-    font: var(--font-component-header);
     font-size: 20px;
     font-weight: 300;
     padding: 15px 25px;

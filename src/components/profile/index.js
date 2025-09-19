@@ -144,7 +144,7 @@ const Subscriptions = observer(({basePath}) => {
   return (
     <div className="profile-page__section-container">
       <div className="profile-page__section profile-page__section-account">
-        <h1 className="profile-page__header">{ rootStore.l10n.profile.subscriptions.title }</h1>
+        <h1 className="profile-page__header _title">{ rootStore.l10n.profile.subscriptions.title }</h1>
         {
           subscriptions.map(subscription =>
             <div key={`sub-${subscription.sub_id}`}>
@@ -239,7 +239,7 @@ const Profile = observer(() => {
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section-container">
         <div className="profile-page__section profile-page__section-account">
-          <h1 className="profile-page__header">{ rootStore.l10n.profile.media_wallet_details }</h1>
+          <h1 className="profile-page__header _title">{ rootStore.l10n.profile.media_wallet_details }</h1>
           <div className="profile-page__section-content">
             <h2 className="profile-page__address-header">
               { rootStore.l10n.profile.address }

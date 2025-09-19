@@ -132,7 +132,7 @@ const Subscription = observer(() => {
           to={UrlJoin(basePath, "users", "me", "details")}
           className={S("subscription__back")}
         >
-          { rootStore.l10n.actions.done }
+          { rootStore.l10n.actions.back }
         </Linkish>
 
         <LoaderImage
@@ -169,25 +169,14 @@ const Subscription = observer(() => {
       <div className={S("info")}>
         <div className={S("info__item")}>
           <label className={S("info__item-label")}>
-            {rootStore.l10n.profile.subscriptions.start_date}
+            {rootStore.l10n.profile.subscriptions.period}
           </label>
           <div className={S("info__item-value")}>
             {FormatDate(subscription.start_time)}
+            &nbsp;-&nbsp;
+            {FormatDate(subscription.paid_to)}
           </div>
         </div>
-        {
-          subscription.validity_range.split(" - ").length <= 1 ? null :
-            <div className={S("info__item")}>
-              <label className={S("info__item-label")}>
-                {rootStore.l10n.profile.subscriptions.period}
-              </label>
-              <div className={S("info__item-value")}>
-                {FormatDate(subscription.validity_range.split(" - ")[0])}
-                &nbsp;-&nbsp;
-                {FormatDate(subscription.validity_range.split(" - ")[1])}
-              </div>
-            </div>
-        }
         <div className={S("info__item")}>
           <label className={S("info__item-label")}>
             {rootStore.l10n.profile.subscriptions.paid_to}
