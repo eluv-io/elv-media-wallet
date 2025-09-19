@@ -91,6 +91,12 @@ const UserRoutes = ({includeMarketplaceRoutes}={}) => {
       backPath: "details",
       Component: Subscription
     },
+    {
+      name: "Subscriptions",
+      path: "items/subscriptions/:subscriptionId",
+      backPath: "items",
+      Component: Subscription
+    },
 
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
 

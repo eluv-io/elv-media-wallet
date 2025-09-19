@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {useRouteMatch} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
@@ -14,6 +14,8 @@ import TestIcon from "Assets/icons/alert-circle.svg";
 import NFTCard from "Components/nft/NFTCard";
 
 const UserItems = observer(() => {
+  const [subscriptions, setSubscriptions] = useState([]);
+
   const match = useRouteMatch();
   const userAddress =
     rootStore.userProfiles[match.params.userId]?.userAddress ||
@@ -23,6 +25,11 @@ const UserItems = observer(() => {
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
+    if(match.params.userId === "me") {
+      checkoutStore.LoadSubscriptions({tenantId: rootStore.currentPropertyTenantId})
+        .then(subscriptions => setSubscriptions(subscriptions));
+    }
+
     rootStore.walletClient.UserListings({userAddress})
       .then(listings => setUserListings(listings));
 
@@ -67,6 +74,14 @@ const UserItems = observer(() => {
                     }
                     nft={nft}
                     imageWidth={600}
+                    subscription={
+                      subscriptions.find(s =>
+                        rootStore.client.utils.EqualAddress(
+                          s.token_addr,
+                          nft.details.ContractAddr,
+                        )
+                      )
+                    }
                     badges={[
                       !listing ? null :
                         <ImageIcon

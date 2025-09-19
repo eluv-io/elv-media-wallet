@@ -3,8 +3,6 @@ import SubscriptionStyles from "Assets/stylesheets/media_properties/subscription
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {checkoutStore, rootStore} from "Stores";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import UrlJoin from "url-join";
 import {useParams} from "react-router-dom";
 import {Loader, PageLoader} from "Components/common/Loaders";
 import {LoaderImage} from "Components/properties/Common";
@@ -31,7 +29,7 @@ const SubscriptionCancel = observer(({subscription, Close}) => {
           onClick={Close}
           className={S("subscription__back")}
         >
-          {rootStore.l10n.actions.done}
+          {rootStore.l10n.actions.back}
         </Linkish>
         <div className={S("subscription__text")}>
           <div className={S("subscription__header")}>{rootStore.l10n.profile.subscriptions.cancel_confirm}</div>
@@ -114,11 +112,6 @@ const Subscription = observer(() => {
     return <PageLoader/>;
   }
 
-  let basePath = "/wallet";
-  if(rootStore.routeParams.mediaPropertySlugOrId) {
-    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
-  }
-
   if(cancelling) {
     return <SubscriptionCancel subscription={subscription} Close={() => setCancelling(false)} />;
   }
@@ -129,7 +122,7 @@ const Subscription = observer(() => {
     <div className={S("subscription-container")}>
       <div className={S("subscription")}>
         <Linkish
-          to={UrlJoin(basePath, "users", "me", "details")}
+          to={rootStore.backPath}
           className={S("subscription__back")}
         >
           { rootStore.l10n.actions.back }

@@ -1,9 +1,17 @@
+import ItemCardStyles from "Assets/stylesheets/item-card.module.scss";
+
+const S = (...classes) => classes.map(c => ItemCardStyles[c] || "").join(" ");
+
 import React from "react";
 import {NFTImage} from "Components/common/Images";
 import {observer} from "mobx-react";
 import {NFTInfo} from "../../utils/Utils";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, Linkish} from "Components/common/UIComponents";
 import ItemCard from "Components/common/ItemCard";
+import UrlJoin from "url-join";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {rootStore} from "Stores";
+
 
 const NFTCard = observer(({
   nft,
@@ -20,6 +28,7 @@ const NFTCard = observer(({
   hideToken,
   allowFullscreen,
   playerCallback,
+  subscription,
   className=""
 }) => {
   const info = NFTInfo({
@@ -34,6 +43,8 @@ const NFTCard = observer(({
   const renderedPrice = typeof price !== "undefined" ?
     FormatPriceString(price, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false}) :
     info.renderedPrice;
+
+  const basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
 
   return (
     <ItemCard
@@ -57,6 +68,16 @@ const NFTCard = observer(({
           allowFullscreen={allowFullscreen}
           playerCallback={playerCallback}
         />
+      }
+      hoverButton={
+        !subscription ? null :
+          <Linkish
+            onClick={event => event.stopPropagation()}
+            to={UrlJoin(basePath, "/users/me/items/subscriptions", subscription.sub_id)}
+            className={S("item-card__hover-button")}
+          >
+            { rootStore.l10n.profile.subscriptions.manage_your_subscription }
+          </Linkish>
       }
       className={className}
     />

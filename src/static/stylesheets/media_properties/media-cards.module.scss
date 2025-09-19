@@ -491,8 +491,8 @@ a {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  height: 100%;
   max-width: 375px;
+  min-height: 100%;
   overflow: hidden;
   width: 100%;
 

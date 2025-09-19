@@ -22,6 +22,7 @@ const ItemCard = observer(({
   detailsLink,
   onClick,
   disabled,
+  hoverButton,
   className=""
 }) => {
   if(Array.isArray(sideText)) {
@@ -37,7 +38,16 @@ const ItemCard = observer(({
       to={link}
       onClick={onClick}
       disabled={disabled}
-      className={[S("item-card-container", disabled ? "item-card-container--disabled" : ""), className].join(" ")}
+      className={
+        [
+          S(
+            "item-card-container",
+            disabled ? "item-card-container--disabled" : "",
+            hoverButton ? "item-card-container--with-hover-button" : ""
+          ),
+          className
+        ].join(" ")
+    }
     >
       <div className={S("item-card")}>
         <div className={S("item-card__header")}>
@@ -82,6 +92,12 @@ const ItemCard = observer(({
             !subtitle2 ? null :
               <div className={S("item-card__subtitle")}>
                 { subtitle2 }
+              </div>
+          }
+          {
+            !hoverButton ? null :
+              <div className={S("item-card__hover-button-container")}>
+                { hoverButton }
               </div>
           }
         </div>

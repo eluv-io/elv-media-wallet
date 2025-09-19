@@ -172,6 +172,7 @@ profile:
     auto_renewal: Auto Renewal
     next_payment_date: Next Payment Date
     manage: Manage Subscription
+    manage_your_subscription: Manage Your Subscription
     manage_payment: Manage Payment Method
     purchase_date: Purchase Date
     period: Subscription Period

@@ -7,6 +7,20 @@
   overflow: hidden;
   width: 100%;
 
+  &--with-hover-button {
+    &:hover {
+      .item-card__text {
+        & > :not(.item-card__hover-button-container) {
+          opacity: 0;
+        }
+      }
+
+      .item-card__hover-button-container {
+        opacity: 1;
+      }
+    }
+  }
+
   @media screen and (width <= 600px) {
     min-width: 325px;
   }
@@ -98,7 +112,12 @@
     display: grid;
     flex-grow: 1;
     gap: 5px;
+    position: relative;
     text-align: center;
+
+    * {
+      transition: opacity 0.25s ease;
+    }
   }
 
   &__title {
@@ -115,5 +134,24 @@
     font-size: 0.9em;
     margin-top: 30px;
     text-align: center;
+  }
+
+  &__hover-button-container {
+    align-items: center;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    position: absolute;
+  }
+
+  &__hover-button {
+    align-items: center;
+    background-color: var(--property-background-secondary);
+    border-radius: 5px;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    width: 100%;
   }
 }
