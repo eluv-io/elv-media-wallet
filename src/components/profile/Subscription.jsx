@@ -180,9 +180,9 @@ const Subscription = observer(() => {
             {rootStore.l10n.profile.subscriptions.period}
           </label>
           <div className={S("info__item-value")}>
-            {FormatDate(subscription.start_time)}
+            {FormatDate(subscription.last_payment)}
             &nbsp;-&nbsp;
-            {FormatDate(subscription.paid_to)}
+            {FormatDate(subscription.next_payment_date)}
           </div>
         </div>
         <div className={S("info__item")}>
@@ -190,7 +190,7 @@ const Subscription = observer(() => {
             {rootStore.l10n.profile.subscriptions.paid_to}
           </label>
           <div className={S("info__item-value")}>
-            {FormatDate(subscription.paid_to)}{!subscription.canceled_at ? ` (${rootStore.l10n.profile.subscriptions.auto_renewing})` : null}
+            {FormatDate(subscription.next_payment_date)}{!subscription.canceled_at ? ` (${rootStore.l10n.profile.subscriptions.auto_renewing})` : null}
           </div>
           {
             subscription.canceled_at ? null :

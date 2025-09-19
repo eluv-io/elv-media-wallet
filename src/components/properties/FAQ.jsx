@@ -23,7 +23,11 @@ const FAQPage = observer(() => {
 
   if(!mediaProperty) { return null; }
 
-  const faq = mediaProperty.metadata?.faq || {};
+  let faq = mediaProperty.metadata?.faq || {};
+  if(match.params.slug) {
+    faq = mediaProperty.metadata.faq.additional
+      ?.find(other => other.slug === match.params.slug) || faq;
+  }
 
   if((faq.questions || []).length === 0) {
     return <Redirect to={MediaPropertyBasePath(match.params)} />;

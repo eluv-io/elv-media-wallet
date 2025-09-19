@@ -202,10 +202,16 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
       Component: EmailVerification
     })),
 
-    // Email Verification
     ...prefixPaths.map(path => ({
       name: GetPropertyPageTitle,
       path: UrlJoin(basePath, path, "faq"),
+      backPath: UrlJoin(basePath, path),
+      Component: FAQ
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "faq", ":slug"),
       backPath: UrlJoin(basePath, path),
       Component: FAQ
     })),
