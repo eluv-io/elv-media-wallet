@@ -157,7 +157,7 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
                     href={footerItem.type === "link" ? footerItem.url : undefined}
                     rel="noopener"
                     target="_blank"
-                    to={footerItem.type === "faq" ? UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "faq") : undefined}
+                    to={footerItem.type === "faq" ? UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "faq", footerItem.faq_slug || "") : undefined}
                     onClick={footerItem.type === "link" ? undefined : () => setModalItem(footerItem)}
                     className={S("footer__item")}
                   >
