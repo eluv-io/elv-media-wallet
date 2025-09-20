@@ -842,21 +842,28 @@ class RootStore {
           walletName: walletMethods.name
         });
       } else if(idToken) {
-        const tokens = yield this.walletClient.AuthenticateOAuth({
-          idToken,
-          email: user?.email,
-          tenantId: this.currentPropertyTenantId,
-          shareEmail: user?.userData?.share_email,
-          extraData: user?.userData || {},
-          signerURIs,
-          nonce: this.authNonce,
-          createRemoteToken: !this.useLocalAuth,
-          force,
-          tokenDuration: this.authTTL || 24
-        });
+        try {
+          const tokens = yield this.walletClient.AuthenticateOAuth({
+            idToken,
+            email: user?.email,
+            tenantId: this.currentPropertyTenantId,
+            shareEmail: user?.userData?.share_email,
+            extraData: user?.userData || {},
+            signerURIs,
+            nonce: this.authNonce,
+            createRemoteToken: !this.useLocalAuth,
+            force,
+            tokenDuration: this.authTTL || 24
+          });
 
-        clientAuthToken = tokens.authToken;
-        clientSigningToken = tokens.signingToken;
+          clientAuthToken = tokens.authToken;
+          clientSigningToken = tokens.signingToken;
+        } catch(error) {
+          this.Log("Failed to authenticate with OAuth ID token:", true);
+          this.Log(error, true);
+
+          this.SignOut({returnUrl: window.location.href});
+        }
       } else if(clientAuthToken) {
         yield this.walletClient.Authenticate({token: clientSigningToken || clientAuthToken});
       } else if(!clientAuthToken) {
