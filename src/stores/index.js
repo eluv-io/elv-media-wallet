@@ -702,7 +702,7 @@ class RootStore {
         redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
       },
       useRefreshTokensFallback: true,
-      //cacheLocation: "localstorage",
+      cacheLocation: "localstorage",
       //useRefreshTokens: true,
     });
   });
