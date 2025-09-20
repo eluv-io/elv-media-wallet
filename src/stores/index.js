@@ -756,9 +756,7 @@ class RootStore {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
 
-      if(yield this.auth0.isAuthenticated()) {
-        this.SignOut({returnUrl: window.location.href, reload: true});
-      }
+      this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
       // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
@@ -1990,7 +1988,7 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * ({returnUrl, message, reload=true}={}) {
+  SignOut = flow(function * ({returnUrl, message, reload=true, logOutAuth0}={}) {
     this.signingOut = true;
 
     clearInterval(this.tokenStatusInterval);
@@ -2022,7 +2020,7 @@ class RootStore {
       return;
     }
 
-    if(this.auth0 && (yield this.auth0.isAuthenticated())) {
+    if(this.auth0 && (logOutAuth0 || (yield this.auth0.isAuthenticated()))) {
       try {
         this.disableCloseEvent = true;
 
