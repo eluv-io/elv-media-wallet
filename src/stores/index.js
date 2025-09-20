@@ -755,6 +755,10 @@ class RootStore {
       if([400, 403, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
+
+      if(yield this.auth0.isAuthenticated()) {
+        this.SignOut({returnUrl: window.location.href, reload: true});
+      }
     } finally {
       // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
@@ -840,28 +844,21 @@ class RootStore {
           walletName: walletMethods.name
         });
       } else if(idToken) {
-        try {
-          const tokens = yield this.walletClient.AuthenticateOAuth({
-            idToken,
-            email: user?.email,
-            tenantId: this.currentPropertyTenantId,
-            shareEmail: user?.userData?.share_email,
-            extraData: user?.userData || {},
-            signerURIs,
-            nonce: this.authNonce,
-            createRemoteToken: !this.useLocalAuth,
-            force,
-            tokenDuration: this.authTTL || 24
-          });
+        const tokens = yield this.walletClient.AuthenticateOAuth({
+          idToken,
+          email: user?.email,
+          tenantId: this.currentPropertyTenantId,
+          shareEmail: user?.userData?.share_email,
+          extraData: user?.userData || {},
+          signerURIs,
+          nonce: this.authNonce,
+          createRemoteToken: !this.useLocalAuth,
+          force,
+          tokenDuration: this.authTTL || 24
+        });
 
-          clientAuthToken = tokens.authToken;
-          clientSigningToken = tokens.signingToken;
-        } catch(error) {
-          this.Log("Failed to authenticate with OAuth ID token:", true);
-          this.Log(error, true);
-
-          this.SignOut({returnUrl: window.location.href});
-        }
+        clientAuthToken = tokens.authToken;
+        clientSigningToken = tokens.signingToken;
       } else if(clientAuthToken) {
         yield this.walletClient.Authenticate({token: clientSigningToken || clientAuthToken});
       } else if(!clientAuthToken) {
