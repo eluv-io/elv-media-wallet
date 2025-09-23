@@ -1,6 +1,8 @@
 .footer {
   padding: 75px;
   width: 100%;
+  position: relative;
+  z-index: 1;
 
   &--custom-background {
     .footer__separator {

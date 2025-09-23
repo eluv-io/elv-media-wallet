@@ -328,6 +328,7 @@ em {
 
 .page-container {
   height: 100%;
+  overflow: hidden;
 
   .page-block {
     &:last-child {
