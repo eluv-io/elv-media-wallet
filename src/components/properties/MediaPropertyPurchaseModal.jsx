@@ -7,7 +7,7 @@ import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
@@ -18,12 +18,146 @@ import {
   PurchaseParamsToItems
 } from "../../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
+import ImageIcon from "Components/common/ImageIcon";
+
+import PurchaseIcon from "Assets/icons/listing";
+import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
-const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
+const SHA512 = async (str) => {
+  const buf = await crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str));
+  return Array.prototype.map.call(new Uint8Array(buf), x=>(("00"+x.toString(16)).slice(-2))).join("");
+};
+
+const DiscountedPrice = ({item, discountCode={}}) => {
+  const { currency } = PriceCurrency(item.marketplaceItem.price);
+  const originalPrice = ParseMoney(item.marketplaceItem.price[currency], currency);
+  let discountAmount = 0;
+  if(discountCode?.percent) {
+    discountAmount = ParseMoney(item.marketplaceItem.price[currency] * 0.1, currency);
+  } else if(discountCode?.price?.[currency]) {
+    discountAmount = (
+      ParseMoney(item.marketplaceItem.price[currency], currency) -
+      ParseMoney(discountCode.price[currency], currency)
+    );
+  } else {
+    return {};
+  }
+
+  return {
+    currency,
+    originalPrice,
+    originalPriceStr: FormatPriceString({[currency]: originalPrice}, {stringOnly: true}),
+    discountPercent: discountCode.percent ? `${discountCode.percent}%` : "",
+    discountAmount,
+    discountAmountStr: FormatPriceString({[currency]: discountAmount}, {stringOnly: true}),
+    discountedPrice: originalPrice - discountAmount,
+    discountedPriceStr: FormatPriceString({[currency]: originalPrice - discountAmount}, {stringOnly: true}),
+  };
+};
+
+const DiscountInput = observer(({item, Update}) => {
+  const [codeInput, setCodeInput] = useState("");
+  const [selectedCode, setSelectedCode] = useState("");
+  const [error, setError] = useState("");
+  const l10n = rootStore.l10n.media_properties.discount_codes;
+
+  useEffect(() => {
+    Update({...selectedCode, codeText: codeInput});
+  }, [selectedCode]);
+
+  if((item.marketplaceItem.discount_codes || []).length === 0) {
+    return null;
+  }
+
+  if(!selectedCode) {
+    const Submit = async () => {
+      setError("");
+
+      if(!codeInput) { return; }
+
+      const hash = await SHA512(codeInput);
+
+      const matchingCode = item.marketplaceItem.discount_codes.find(code =>
+        code.code === hash
+      );
+
+      if(matchingCode) {
+        setSelectedCode(matchingCode);
+      } else {
+        setError(l10n.invalid_code);
+      }
+    };
+
+    return (
+      <div className={S("discount-code")}>
+        {
+          !error ? null :
+            <div className={S("discount-code__message")}>
+              { error }
+            </div>
+        }
+        <div className={S("discount-code__input-container")}>
+          <input
+            value={codeInput}
+            onChange={event => setCodeInput(event.target.value)}
+            placeholder={l10n.placeholder}
+            onKeyDown={event => {
+              if(event.key === "Enter") {
+                Submit();
+              }
+            }}
+          />
+          <Button
+            onClick={Submit}
+          >
+            { rootStore.l10n.actions.apply }
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const { discountPercent, discountAmountStr } = DiscountedPrice({
+    item,
+    discountCode: selectedCode
+  });
+
+  let message = l10n.discounts.discount;
+  let periods = selectedCode.periods;
+  if(item.marketplaceItem.is_subscription && selectedCode.periods) {
+    if(item.marketplaceItem.subscription_period === 12) {
+      message = l10n.discounts[selectedCode.periods > 1 ? "years" : "year"];
+    } else if((item.marketplaceItem.subscription_period * periods) % 12 === 0) {
+      message = l10n.discounts[item.marketplaceItem.subscription_period * periods > 12 ? "years" : "year"];
+      periods = periods / 12;
+    } else {
+      message = l10n.discounts[selectedCode.periods > 1 ? "months" : "month"];
+    }
+  }
+
+  return (
+    <div className={S("discount-code")}>
+      <div className={S("discount-code__message")}>
+        { LocalizeString(message, {amount: discountPercent || discountAmountStr, periods}) }
+      </div>
+      <div className={S("discount-code__code-container")}>
+        <ImageIcon icon={PurchaseIcon} />
+        { codeInput }
+        <button onClick={() => setSelectedCode(undefined)}>
+          <ImageIcon icon={XIcon} />
+        </button>
+      </div>
+    </div>
+  );
+});
+
+const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, Actions}) => {
   const hasDetails = item.subtitle || item.description;
   const [showDetails, setShowDetails] = useState(false);
+
+  const {currency, discountedPrice} = DiscountedPrice({item, discountCode: discountCodeInfo});
 
   return (
     <div className={S("item-container")}>
@@ -43,9 +177,16 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
             <>
               {
                 hidePrice ? null :
-                  <div className={S("item__price")}>
-                    {FormatPriceString(item.price)}
-                  </div>
+                  discountedPrice ?
+                    <div className={S("item__price")}>
+                      <div className={S("item__price--strikethrough")}>
+                        {FormatPriceString(item.price)}
+                      </div>
+                      {FormatPriceString({[currency]: discountedPrice})}
+                    </div> :
+                    <div className={S("item__price")}>
+                      {FormatPriceString(item.price)}
+                    </div>
               }
               <div className={[S("item__title"), "_title"].join(" ")}>
                 {item.title}
@@ -73,7 +214,7 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
         {
           !Actions ? null :
             <div className={S("actions")}>
-              { Actions({item}) }
+              { Actions({item, discountCode: discountCodeInfo?.codeText, discountedPrice, currency}) }
             </div>
         }
       </div>
@@ -112,7 +253,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
               key={`item-${item?.id}`}
               item={item}
               hidePrice={item.showSecondary && secondaryPurchaseOption !== "show"}
-              Actions={({item}) => {
+              Actions={({item, discountCode, discountedPrice, currency}) => {
                 return (
                   <>
                     {
@@ -120,7 +261,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                         <Button
                           disabled={!item.purchasable || !item.purchaseAuthorized}
                           title={!item.purchaseAuthorized ? "Purchase not available" : ""}
-                          onClick={async () => await Select(item.id)}
+                          onClick={async () => await Select(item.id, discountCode)}
                           className={S("button")}
                         >
                             {
@@ -128,7 +269,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                                 rootStore.l10n.media_properties.purchase.claim :
                                 LocalizeString(
                                   rootStore.l10n.media_properties.purchase.select,
-                                  {price: FormatPriceString(item.price, {stringOnly: true})},
+                                  {price: FormatPriceString(discountedPrice ? {[currency]: discountedPrice} : item.price, {stringOnly: true})},
                                   {stringOnly: true}
                                 )
                             }
@@ -197,7 +338,7 @@ const WalletBalanceSummary = observer(({item, fee}) => {
   );
 });
 
-const Purchase = async ({item, paymentMethod, history}) => {
+const Purchase = async ({item, discountCode, paymentMethod, history}) => {
   const successUrl = new URL(location.href);
   const params = MediaPropertyPurchaseParams() || {};
   params.itemId = item.id;
@@ -234,6 +375,7 @@ const Purchase = async ({item, paymentMethod, history}) => {
       marketplaceId: item.marketplace.marketplace_id,
       sku: item.marketplace_sku,
       quantity: 1,
+      discountCode,
       currency,
       successUrl,
       cancelUrl
@@ -253,8 +395,10 @@ const Payment = observer(({item, Back}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [discountCodeInfo, setDiscountCodeInfo] = useState(null);
 
   const {currency} = PriceCurrency(item.price);
+  const {discountedPrice} = DiscountedPrice({item, discountCode: discountCodeInfo});
 
   let paymentOptions = { stripe: { enabled: true } };
 
@@ -430,7 +574,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   return (
-    <Item item={item}>
+    <Item discountCodeInfo={discountCodeInfo} item={item}>
       <div key={`actions-${page}`} className={S("payment")}>
         { options }
         {
@@ -439,8 +583,14 @@ const Payment = observer(({item, Back}) => {
               { errorMessage }
             </div>
         }
+        {
+          paymentMethod.type !== "card" ? null :
+            <DiscountInput
+              item={item}
+              Update={code => setDiscountCodeInfo(code)}
+            />
+        }
         <div className={S("actions")}>
-
           <Button
             loading={submitting}
             disabled={!canPurchase}
@@ -451,6 +601,7 @@ const Payment = observer(({item, Back}) => {
               try {
                 await Purchase({
                   item,
+                  discountCode: discountCodeInfo.codeText,
                   paymentMethod,
                   history
                 });
@@ -467,7 +618,9 @@ const Payment = observer(({item, Back}) => {
               LocalizeString(
                 rootStore.l10n.media_properties.purchase.select,
                 {price: FormatPriceString(
-                    item.price,
+                    discountedPrice ?
+                      { [currency]: discountedPrice } :
+                      item.price,
                     {
                       additionalFee: page === "balance" ? fee : 0,
                       stringOnly: true
@@ -481,11 +634,14 @@ const Payment = observer(({item, Back}) => {
           <Button
             variant="outline"
             defaultStyles
-            onClick={() =>
-              page ?
-                setPaymentMethod({...paymentMethod, type: ebanxEnabled ? undefined : "card", provider: undefined}) :
-                Back()
-            }
+            onClick={() => {
+              if(page) {
+                setPaymentMethod({...paymentMethod, type: ebanxEnabled ? undefined : "card", provider: undefined});
+                setDiscountCodeInfo(undefined);
+              } else {
+                Back();
+              }
+            }}
             className={S("button")}
           >
             { rootStore.l10n.actions.back }
@@ -785,12 +941,13 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         <Items
           items={purchaseItems}
           secondaryPurchaseOption={secondaryPurchaseOption}
-          Select={async itemId => {
+          Select={async (itemId, discountCode) => {
             const selectedItem = itemId && FormatPurchaseItem(items.find(item => item.id === itemId), secondaryPurchaseOption);
 
             if(selectedItem?.itemInfo?.free) {
               await Purchase({
                 item: selectedItem,
+                discountCode,
                 paymentMethod: "claim",
                 history
               });

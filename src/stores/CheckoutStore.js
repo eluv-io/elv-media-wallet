@@ -713,6 +713,7 @@ class CheckoutStore {
     confirmationId,
     email,
     address,
+    discountCode,
     isGift,
     giftInfo,
     fromEmbed,
@@ -747,6 +748,7 @@ class CheckoutStore {
             sku,
             quantity,
             confirmationId,
+            discountCode,
             email,
             isGift,
             giftInfo,
@@ -816,6 +818,7 @@ class CheckoutStore {
         items: [{sku, quantity}],
         success_url: successUrl,
         cancel_url: cancelUrl,
+        discount_code: discountCode,
         ...(additionalParameters || {})
       };
 

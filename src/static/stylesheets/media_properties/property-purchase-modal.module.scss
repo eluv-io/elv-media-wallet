@@ -65,9 +65,21 @@
   width: 100%;
 
   &__price {
+    align-items: center;
+    display: flex;
     font-size: 16px;
     font-weight: 500;
+    gap: 10px;
     margin-bottom: 5px;
+
+    &--strikethrough {
+      color: var(--property-text-extra-faded);
+      text-decoration: line-through;
+
+      * {
+        color: var(--property-text-extra-faded);
+      }
+    }
   }
 
   &__title {
@@ -186,5 +198,53 @@
   &__error {
     color: #C00;
     font-size: 1.1em;
+  }
+}
+
+.discount-code {
+  margin-top: 30px;
+
+  &__message {
+    color: var(--property-text-faded);
+    font-weight: 500;
+    margin-bottom: 5px;
+    text-align: right;
+  }
+
+  &__input-container {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    height: 50px;
+
+    input {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      font-size: 20px;
+      padding-inline: 20px;
+      width: 100%;
+
+      &::placeholder {
+        font-size: 18px;
+      }
+    }
+  }
+
+  &__code-container {
+    align-items: center;
+    background-color: var(--property-background-tertiary);
+    border-radius: 5px;
+    display: flex;
+    font-size: 20px;
+    font-weight: 600;
+    height: 50px;
+    justify-content: space-between;
+    padding-inline: 20px;
+
+    svg {
+      height: 20px;
+      width: 20px;
+    }
   }
 }

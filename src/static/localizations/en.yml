@@ -97,6 +97,7 @@ actions:
   close: Close
   share: Share
   done: Done
+  apply: Apply
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?
@@ -728,6 +729,15 @@ media_properties:
     claim_failed: Claim failed. Please try again
     complete: Purchase Complete!
     claim_complete: Claimed Successfully!
+  discount_codes:
+    placeholder: Add Promo Code
+    invalid_code: Invalid code, please try again.
+    discounts:
+      discount: "{amount} off"
+      month: "{amount} off for the first month"
+      months: "{amount} for the first {periods} months"
+      year: "{amount} for the first year"
+      years: "{amount} for the first {periods} years"
   page:
     actions:
       item_details: Details
