@@ -35,7 +35,7 @@ const DiscountedPrice = ({item, discountCode={}}) => {
   const originalPrice = ParseMoney(item.marketplaceItem.price[currency], currency);
   let discountAmount = 0;
   if(discountCode?.percent) {
-    discountAmount = ParseMoney(item.marketplaceItem.price[currency] * 0.1, currency);
+    discountAmount = ParseMoney(item.marketplaceItem.price[currency] * (discountCode.percent / 100), currency);
   } else if(discountCode?.price?.[currency]) {
     discountAmount = (
       ParseMoney(item.marketplaceItem.price[currency], currency) -
