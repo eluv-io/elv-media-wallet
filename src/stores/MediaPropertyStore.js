@@ -1398,6 +1398,10 @@ class MediaPropertyStore {
             section.content?.forEach((sectionItem, index) => {
               metadata.sections[sectionId].content[index].authorized = ResolveSectionPermission(sectionItem);
             });
+          } else if(metadata.sections[sectionId].type === "hero") {
+            section.hero_items?.forEach((sectionItem, index) => {
+              metadata.sections[sectionId].hero_items[index].authorized = ResolveSectionPermission(sectionItem);
+            });
           }
         });
 

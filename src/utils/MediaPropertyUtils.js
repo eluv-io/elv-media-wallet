@@ -44,24 +44,26 @@ export const CreateMediaPropertyPurchaseParams = ({
   secondaryPurchaseOption,
   unlessPermissions,
   successPath,
-  cancelPath
+  cancelPath,
+  encode=true,
 }) => {
-  return (
-    mediaPropertyStore.client.utils.B58(JSON.stringify({
-      id,
-      gate: !!gate,
-      type: "purchase",
-      listingId,
-      sectionSlugOrId,
-      sectionItemId,
-      actionId,
-      permissionItemIds,
-      secondaryPurchaseOption,
-      unlessPermissions,
-      cancelPath,
-      successPath
-    }))
-  );
+  const params = {
+    id,
+    gate: !!gate,
+    type: "purchase",
+    listingId,
+    sectionSlugOrId,
+    sectionItemId,
+    actionId,
+    permissionItemIds,
+    secondaryPurchaseOption,
+    unlessPermissions,
+    cancelPath,
+    successPath
+  };
+
+  return !encode ? params :
+    mediaPropertyStore.client.utils.B58(JSON.stringify(params));
 };
 
 export const MediaPropertyPurchaseParams = () => {

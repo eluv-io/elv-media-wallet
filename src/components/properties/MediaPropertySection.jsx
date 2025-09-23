@@ -139,7 +139,8 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
         id: action.id,
         sectionSlugOrId: sectionId,
         sectionItemId,
-        actionId: action.id
+        actionId: action.id,
+        encode: false
       });
 
       if(
@@ -153,7 +154,7 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
       }
 
       const params = new URLSearchParams(location.search);
-      params.set("p", purchaseParams);
+      params.set("p", mediaPropertyStore.client.utils.B58(JSON.stringify(purchaseParams)));
       buttonParams.to = location.pathname + "?" + params.toString();
       break;
 
@@ -201,7 +202,6 @@ const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
       permissions: action.permissions
     }));
 
-
   if(actions.length === 0) { return null; }
 
   return (
@@ -226,12 +226,17 @@ export const MediaPropertyHeroSection = observer(({section}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [minHeight, setMinHeight] = useState(undefined);
 
-  const activeItem = section.hero_items[activeIndex];
+  const heroItems = section.hero_items
+    .filter(item =>
+      (item.permissions?.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED && !item.authorized) ||
+      (item.permissions?.behavior !== mediaPropertyStore.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED && item.authorized)
+    );
+  const activeItem = heroItems[activeIndex];
 
   // Monitor size of hero content so min height can be properly set
   useEffect(() => {
     const resizeHandler = new ResizeObserver(elements => {
-      if(elements.length !== section.hero_items.length) { return; }
+      if(elements.length !== heroItems.length) { return; }
 
       setMinHeight(
         Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []))
@@ -244,6 +249,18 @@ export const MediaPropertyHeroSection = observer(({section}) => {
       resizeHandler.disconnect();
     };
   }, [contentRefs]);
+
+  if(
+    (section.permissions?.behavior !== mediaPropertyStore.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED && !section.authorized) ||
+    (section.permissions?.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED && section.authorized) ||
+    heroItems.length === 0
+  ) {
+    return null;
+  }
+
+  if(heroItems.length === 0) {
+    return null;
+  }
 
   return (
     <div
@@ -258,7 +275,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
         videoClassName={S("hero-section__background-video")}
       />
       {
-        section.hero_items.map((heroItem, index) =>
+        heroItems.map((heroItem, index) =>
           <div
             ref={element => {
               if(!element || contentRefs[heroItem.id] === element) { return; }
@@ -266,11 +283,11 @@ export const MediaPropertyHeroSection = observer(({section}) => {
               setContentRefs({...contentRefs, [heroItem.id]: element});
             }}
             style={activeIndex === index ? {} : {position: "absolute", opacity: 0, userSelect: "none"}}
-            key={`content-${index}`}
+            key={`content-${heroItem.id}`}
             className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
           >
             {
-              section.hero_items.length < 2 ? null :
+              heroItems.length < 2 ? null :
                 <button
                   disabled={activeIndex === 0}
                   onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
@@ -292,10 +309,10 @@ export const MediaPropertyHeroSection = observer(({section}) => {
               />
             </PageHeader>
             {
-              section.hero_items.length < 2 ? null :
+              heroItems.length < 2 ? null :
                 <button
-                  disabled={activeIndex === section.hero_items.length - 1}
-                  onClick={() => setActiveIndex(Math.min(section.hero_items.length - 1, activeIndex + 1))}
+                  disabled={activeIndex === heroItems.length - 1}
+                  onClick={() => setActiveIndex(Math.min(heroItems.length - 1, activeIndex + 1))}
                   className={S("hero-section__arrow", "hero-section__arrow--next")}
                 >
                   <ImageIcon label="Next Page" icon={RightArrow}/>
