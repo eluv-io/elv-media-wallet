@@ -386,7 +386,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
         }
 
         {
-          customizationOptions.disable_registration ? null :
+          customizationOptions.disable_registration || !customizationOptions.enable_metamask ? null :
             <>
               <div className="login-page__actions__separator">
                 <div className="login-page__actions__separator-line"/>
@@ -613,6 +613,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback;
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -674,7 +675,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     const Respond = () => {
       const origin = params.origin || window.location.origin;
 
-      let response = { clientAuthToken: rootStore.AuthInfo().clientAuthToken };
+      let response = {clientAuthToken: rootStore.AuthInfo().clientAuthToken};
 
       if(origin === window.location.origin) {
         response.clientSigningToken = rootStore.AuthInfo().clientSigningToken;
@@ -714,7 +715,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       }
     };
 
-    if(!customizationOptions || !rootStore.loaded) { return; }
+    if(!customizationOptions || !rootStore.loaded) {
+      return;
+    }
 
     if(
       (customizationOptions.use_ory && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
@@ -724,7 +727,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       return;
     }
 
-    if(params.clearLogin && !customizationOptions.use_ory) {
+    if(params.clearLogin) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.searchParams.delete("clear");
@@ -747,6 +750,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           }
         })
         .finally(() => setAuth0Authenticating(false));
+    } else if(automaticRedirect) {
+      LogIn({provider: "oauth", mode: "login"});
     } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
       // Opened from frame - do appropriate login flow
       LogIn({provider: params.provider, mode: params.mode})
@@ -775,6 +780,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     !rootStore.loaded ||
     !customizationOptions ||
     params.clearLogin ||
+    automaticRedirect ||
     (params.source === "parent" && params.provider);
 
   if(loading) {
