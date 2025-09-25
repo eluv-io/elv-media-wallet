@@ -45,6 +45,7 @@ import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 import EmailVerification from "Components/login/EmailVerification";
 import FAQ from "Components/properties/FAQ";
 import Subscription from "Components/profile/Subscription";
+import CodeLoginTest from "Components/login/CodeLoginTest";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -245,6 +246,13 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
       backPath: UrlJoin(basePath, path),
       Component: Listings,
       includePageBlock: true
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "code-login-test"),
+      backPath: UrlJoin(basePath, path),
+      Component: CodeLoginTest
     })),
 
     // Base property pages

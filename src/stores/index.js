@@ -689,7 +689,7 @@ class RootStore {
 
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
-      this.currentPropertyId || window.location.pathname.split("/")[1]
+      this.currentPropertyId || searchParams.get("pid") || window.location.pathname.split("/")[1]
     );
 
     if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
@@ -717,11 +717,9 @@ class RootStore {
       // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
-        // eslint-disable-next-line no-console
-        console.time("auth0.checkSession");
+         
         await this.auth0.checkSession();
-        // eslint-disable-next-line no-console
-        console.timeEnd("auth0.checkSession");
+         
         clearTimeout(timeout);
 
         resolve();
@@ -2027,7 +2025,7 @@ class RootStore {
 
         // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
         returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
-        returnUrl.hash = returnUrl.pathname;
+        returnUrl.hash = returnUrl.pathname + returnUrl.search;
         returnUrl.pathname = "";
 
         setTimeout(() => {

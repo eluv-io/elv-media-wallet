@@ -557,9 +557,6 @@ const AuthenticateAuth0 = async (userData) => {
   try {
     rootStore.Log("Parsing Auth0 parameters");
 
-    // eslint-disable-next-line no-console
-    console.time("Auth0 Parameter Parsing");
-
     await rootStore.auth0.handleRedirectCallback();
 
     await rootStore.AuthenticateAuth0({userData});
@@ -588,11 +585,16 @@ export const LogInAuth0 = async () => {
   callbackUrl.pathname = "";
   callbackUrl.hash = window.location.pathname;
 
+  callbackUrl.searchParams.delete("clear");
   callbackUrl.searchParams.set("source", "oauth");
   callbackUrl.searchParams.set("action", "loginCallback");
 
   if(rootStore.currentPropertyId) {
     callbackUrl.searchParams.set("pid", rootStore.currentPropertyId);
+  }
+
+  if(params.loginCode) {
+    callbackUrl.searchParams.set("elvid", params.loginCode);
   }
 
   await rootStore.auth0.loginWithRedirect({
@@ -725,8 +727,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     if(params.clearLogin && !customizationOptions.use_ory) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
-      returnURL.hash = window.location.hash;
       returnURL.searchParams.delete("clear");
+      returnURL.hash = `${returnURL.pathname}?${returnURL.searchParams.toString()}`;
 
       setTimeout(() => rootStore.SignOut({returnUrl: returnURL.toString()}), 1000);
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {

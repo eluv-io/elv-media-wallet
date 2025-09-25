@@ -516,7 +516,7 @@
     color: var(--login-text-secondary--color);
     font-size: 16px;
     font-weight: 300;
-    margin-bottom: 20px;
+    margin: 20px 0;
   }
 
   &__code-message {
@@ -715,5 +715,54 @@
     &__actions {
       padding-bottom: 75px;
     }
+  }
+}
+
+
+.code-test {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: calc(80 * var(--vh));
+
+  &__container {
+    align-items: center;
+    background-color: var(--login-box--background);
+    border: 1px solid var(--login-box--border-color);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    gap: 20px;
+    height: max-content;
+    min-height: 200px;
+    padding: 40px 20px;
+    width: 300px;
+  }
+
+  &__qr {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 100px;
+  }
+
+  &__button {
+    align-items: center;
+    border: 1px solid var(--login-box--border-color);
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    min-height: 35px;
+    width: 120px;
+  }
+
+  &__message {
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+    font-size: 20px;
+    justify-content: center;
+    width: 100%;
   }
 }

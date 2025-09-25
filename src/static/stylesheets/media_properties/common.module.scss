@@ -134,7 +134,9 @@
   gap: 0.8em;
 
   * {
+    max-width: 100%;
     overflow: hidden;
+    width: 100%;
   }
 
   h1,
@@ -205,6 +207,7 @@
   a {
     color: var(--property-text-highlight);
     display: inline;
+    word-break: break-all;
   }
 
   ol {
