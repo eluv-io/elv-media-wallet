@@ -717,9 +717,9 @@ class RootStore {
       // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
-         
+
         await this.auth0.checkSession();
-         
+
         clearTimeout(timeout);
 
         resolve();

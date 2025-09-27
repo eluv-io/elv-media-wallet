@@ -727,13 +727,19 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       return;
     }
 
-    if(params.clearLogin) {
+    const ClearLogin = () => {
+      params.clearLogin = true;
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.searchParams.delete("clear");
+      returnURL.searchParams.delete("code");
       returnURL.hash = `${returnURL.pathname}?${returnURL.searchParams.toString()}`;
 
-      setTimeout(() => rootStore.SignOut({returnUrl: returnURL.toString()}), 1000);
+      rootStore.SignOut({returnUrl: returnURL.toString(), logOutAuth0: true});
+    };
+
+    if(params.clearLogin) {
+      ClearLogin();
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
       SaveCustomConsent(userData)
@@ -748,8 +754,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           if(error?.uiMessage) {
             setErrorMessage(error?.uiMessage);
           }
+
+          ClearLogin();
         })
-        .finally(() => setAuth0Authenticating(false));
+        .then(() => setAuth0Authenticating(false));
     } else if(automaticRedirect) {
       LogIn({provider: "oauth", mode: "login"});
     } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
