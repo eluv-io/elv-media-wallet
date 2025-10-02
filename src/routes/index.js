@@ -142,7 +142,7 @@ const PropertyMediaRoutes = (basePath="") => {
   ].map(route => ({...route, name: GetPropertyPageTitle, backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath, noBlock: true}));
 };
 
-const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
+const PropertyRoutes = ({basePath="/", rootPath="/", authed, additionalRoutes=[]}) => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
@@ -264,6 +264,7 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
     }))),
   ].map(route => ({
     ...route,
+    authed: route.authed || authed,
     noBlock: route.noBlock || !route.includePageBlock
   }));
 };
@@ -274,6 +275,7 @@ const BundledPropertyRoutes = () => {
   return PropertyRoutes({
     basePath,
     rootPath: "/",
+    authed: true,
     additionalRoutes: [
       {path: "/details", Component: ItemDetailsPage, backPath: basePath}
     ]

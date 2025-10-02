@@ -207,7 +207,7 @@
   a {
     color: var(--property-text-highlight);
     display: inline;
-    word-break: break-all;
+    overflow-wrap: break-word;
   }
 
   ol {

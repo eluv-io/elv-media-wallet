@@ -143,6 +143,18 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
     { type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" }
   ];
 
+  const availableLocalizations = [
+    mediaProperty.metadata.language || "",
+    ...(mediaProperty.metadata.localizations || [])
+  ]
+    .filter(l => l)
+    .map(key => ({
+      value: key,
+      label: new Intl.DisplayNames([key], {type: "language"}).of(key).capitalize()
+    }));
+
+  console.log(availableLocalizations);
+
   return (
     <>
       <footer className={S("footer", withCustomBackgroundColor ? "footer--custom-background" : "")}>
@@ -168,6 +180,24 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
                     }
                   </Linkish>
                 )
+              }
+              {
+                availableLocalizations.length <= 1 ? null :
+                  <select
+                    value={rootStore.language}
+                    onChange={event => mediaPropertyStore.SetPropertyLanguage({
+                      mediaPropertyId: rootStore.currentPropertyId,
+                      localizationKey: event.target.value,
+                      reload: true
+                    })}
+                    className={S("language-select")}
+                  >
+                    {
+                      availableLocalizations.map(({label, value}) =>
+                        <option key={value} value={value}>{label}</option>
+                      )
+                    }
+                  </select>
               }
             </div>
         }

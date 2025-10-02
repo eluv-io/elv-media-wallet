@@ -88,7 +88,6 @@ const PropertyWrapper = observer(({children}) => {
 
     const useCustomBackgroundColor = backgroundColor && CSS.supports("color", backgroundColor);
 
-
     return (
       <AsyncComponent
         // Store info is cleared when logged in
@@ -183,17 +182,15 @@ export const PropertyRoutes = observer(({basePath}) => {
 
 export const BundledPropertyRoutes = observer(() => {
   return (
-    <LoginGate backPath="/">
-      <div className="page-container property-page">
-        <MediaPropertyHeader />
-        <Switch>
-          <RenderRoutes
-            basePath="/"
-            routeList="bundledProperty"
-            Wrapper={PropertyWrapper}
-          />
-        </Switch>
-      </div>
-    </LoginGate>
+    <div className="page-container property-page">
+      <MediaPropertyHeader />
+      <Switch>
+        <RenderRoutes
+          basePath="/"
+          routeList="bundledProperty"
+          Wrapper={PropertyWrapper}
+        />
+      </Switch>
+    </div>
   );
 });

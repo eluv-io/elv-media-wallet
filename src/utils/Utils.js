@@ -10,6 +10,13 @@ import UrlJoin from "url-join";
 import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
+String.prototype.capitalize =
+  function() {
+    return this.replace(/_/g, " ").replace(/\w\S*/g, function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  };
+
 export const EmbedMediaTypes = {
   "v": "Video",
   "lv": "Live Video",
