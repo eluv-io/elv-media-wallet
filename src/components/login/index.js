@@ -740,7 +740,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       rootStore.SignOut({returnUrl: returnURL.toString(), logOutAuth0: true});
     };
 
-    if(params.clearLogin || (params.loginCode && rootStore.loggedIn && !params.isAuth0Callback)) {
+    if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback)) {
       ClearLogin();
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
