@@ -552,15 +552,19 @@ export const SaveCustomConsent = async (userData) => {
 };
 
 const AuthenticateAuth0 = async (userData) => {
+  console.log("Authenticate auth0", rootStore.authenticating, rootStore.loggedIn)
   if(rootStore.authenticating || rootStore.loggedIn) { return; }
 
   try {
     rootStore.Log("Parsing Auth0 parameters");
 
+    console.log("Handle callback")
     await rootStore.auth0.handleRedirectCallback();
 
+    console.log("Authenticate")
     await rootStore.AuthenticateAuth0({userData});
   } catch(error){
+    console.log("Failed");
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
 
@@ -728,6 +732,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     }
 
     const ClearLogin = () => {
+      console.log("Clear login")
       params.clearLogin = true;
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
@@ -751,6 +756,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
         .catch(error => {
+          console.log("Catch")
           if(error?.uiMessage) {
             setErrorMessage(error?.uiMessage);
           }
