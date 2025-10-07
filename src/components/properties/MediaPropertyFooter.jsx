@@ -153,8 +153,6 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
       label: new Intl.DisplayNames([key], {type: "language"}).of(key).capitalize()
     }));
 
-  console.log(availableLocalizations);
-
   return (
     <>
       <footer className={S("footer", withCustomBackgroundColor ? "footer--custom-background" : "")}>
