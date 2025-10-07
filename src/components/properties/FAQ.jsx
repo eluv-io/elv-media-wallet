@@ -77,7 +77,7 @@ const FAQPage = observer(() => {
             }}
           >
             {
-              faq.questions.map(({question, answer, video}, index) =>
+              faq.questions.map(({question, answer, video, images}, index) =>
                 <Accordion.Item key={`question-${index}`} value={index.toString()}>
                   <Accordion.Control
                     chevron={<ImageIcon icon={openedItem === index.toString() ? MinusIcon : PlusIcon} className={S("chevron")} />}
@@ -94,6 +94,23 @@ const FAQPage = observer(() => {
                           }}
                           className={S("video")}
                         />
+                    }
+                    {
+                      !images || images.length === 0 || openedItem !== index.toString() ? null :
+                        <div className={S("images")}>
+                          {
+                            images.map(({image, image_alt}, imageIndex) =>
+                              <LoaderImage
+                                key={`image-${index}-${imageIndex}`}
+                                loaderAspectRatio={2}
+                                src={image?.url}
+                                alt={image_alt}
+                                width={1600}
+                                className={S("image")}
+                              />
+                            )
+                          }
+                        </div>
 
                     }
                     <RichText richText={answer} className={S("answer")} />
