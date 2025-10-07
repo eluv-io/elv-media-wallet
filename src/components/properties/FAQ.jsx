@@ -9,10 +9,11 @@ import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 import {Accordion} from "@mantine/core";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import ImageIcon from "Components/common/ImageIcon";
+import Video from "Components/properties/Video";
+import {Linkish} from "Components/common/UIComponents";
 
 import PlusIcon from "Assets/icons/plus";
 import MinusIcon from "Assets/icons/minus";
-import Video from "Components/properties/Video";
 
 const S = (...classes) => classes.map(c => FAQStyles[c] || "").join(" ");
 
@@ -24,9 +25,9 @@ const QuestionImages = observer(({images=[], center=false}) => {
   return (
     <div className={S("images", center ? "images--centered" : "")}>
       {
-        images.map(({image, image_mobile, image_alt}, imageIndex) =>
+        images.map(({image, image_mobile, image_alt, link}, imageIndex) =>
+          <Linkish href={link} className={S("image-container")} key={`image-${imageIndex}`}>
             <LoaderImage
-              key={`image-${imageIndex}`}
               loaderAspectRatio={2}
               src={
                 rootStore.pageWidth < 800 && image_mobile?.url ?
@@ -37,6 +38,7 @@ const QuestionImages = observer(({images=[], center=false}) => {
               width={1600}
               className={S("image")}
             />
+          </Linkish>
         )
       }
     </div>
