@@ -35,7 +35,7 @@ const QuestionImages = observer(({images=[], center=false}) => {
                   image?.url
               }
               alt={image_alt}
-              width={1600}
+              width={rootStore.fullscreenImageWidth}
               className={S("image")}
             />
           </Linkish>
