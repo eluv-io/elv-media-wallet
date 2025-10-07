@@ -16,6 +16,33 @@ import Video from "Components/properties/Video";
 
 const S = (...classes) => classes.map(c => FAQStyles[c] || "").join(" ");
 
+const QuestionImages = observer(({images=[], center=false}) => {
+  if(images.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={S("images", center ? "images--centered" : "")}>
+      {
+        images.map(({image, image_mobile, image_alt}, imageIndex) =>
+            <LoaderImage
+              key={`image-${imageIndex}`}
+              loaderAspectRatio={2}
+              src={
+                rootStore.pageWidth < 800 && image_mobile?.url ?
+                  image_mobile.url :
+                  image?.url
+              }
+              alt={image_alt}
+              width={1600}
+              className={S("image")}
+            />
+        )
+      }
+    </div>
+  );
+});
+
 const FAQPage = observer(() => {
   const [openedItem, setOpenedItem] = useState(undefined);
   const match = useRouteMatch();
@@ -77,46 +104,48 @@ const FAQPage = observer(() => {
             }}
           >
             {
-              faq.questions.map(({question, answer, video, images}, index) =>
-                <Accordion.Item key={`question-${index}`} value={index.toString()}>
-                  <Accordion.Control
-                    chevron={<ImageIcon icon={openedItem === index.toString() ? MinusIcon : PlusIcon} className={S("chevron")} />}
-                  >
-                    <div className={S("question__label")}>{ question }</div>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    {
-                      !video || openedItem !== index.toString() ? null :
-                        <Video
-                          link={video}
-                          playerOptions={{
-                            autoplay: false
-                          }}
-                          className={S("video")}
-                        />
-                    }
-                    {
-                      !images || images.length === 0 || openedItem !== index.toString() ? null :
-                        <div className={S("images")}>
-                          {
-                            images.map(({image, image_alt}, imageIndex) =>
-                              <LoaderImage
-                                key={`image-${index}-${imageIndex}`}
-                                loaderAspectRatio={2}
-                                src={image?.url}
-                                alt={image_alt}
-                                width={1600}
-                                className={S("image")}
-                              />
-                            )
-                          }
-                        </div>
+              faq.questions.map(({question, answer, video, images}, index) => {
+                images = images || [];
+                const beforeImages = images.filter(i => i.position === "before");
+                const afterImages = images.filter(i => i.position === "after");
+                const insideImages = images.filter(i => i.position === "inside" || !i.position);
 
-                    }
-                    <RichText richText={answer} className={S("answer")} />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              )
+                return (
+                  <>
+                    <QuestionImages center images={beforeImages} />
+                    <Accordion.Item key={`question-${index}`} value={index.toString()}>
+                      <Accordion.Control
+                        chevron={
+                          <ImageIcon
+                            icon={openedItem === index.toString() ? MinusIcon : PlusIcon}
+                            className={S("chevron")}
+                          />
+                        }
+                      >
+                        <div className={S("question__label")}>{question}</div>
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        {
+                          !video || openedItem !== index.toString() ? null :
+                            <Video
+                              link={video}
+                              playerOptions={{
+                                autoplay: false
+                              }}
+                              className={S("video")}
+                            />
+                        }
+                        {
+                          openedItem !== index.toString() ? null :
+                            <QuestionImages images={insideImages} />
+                        }
+                        <RichText richText={answer} className={S("answer")}/>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                    <QuestionImages center images={afterImages} />
+                  </>
+                );
+              })
             }
           </Accordion>
         }
