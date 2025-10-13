@@ -954,7 +954,7 @@ class MediaPropertyStore {
       key: "MediaPropertySlugs",
       id: "media-property-slugs",
       anonymous: true,
-      ttl: 60,
+      ttl: 30,
       Load: async () => {
         let metadata;
         if(this.client) {
@@ -1205,8 +1205,18 @@ class MediaPropertyStore {
       return;
     }
 
+    let latestPropertyHash;
+    if(this.previewAll || this.previewPropertyId === existingProperty.mediaPropertyId) {
+      // Preview - load latest
+      latestPropertyHash = yield this.client.LatestVersionHash({objectId: existingProperty.mediaPropertyId});
+    } else {
+      // Load from tree
+      yield this.LoadMediaPropertyHashes();
+      latestPropertyHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
+    }
+
     // Check if property has updated
-    if(existingProperty.mediaPropertyHash !== this.mediaPropertyHashes[mediaPropertySlugOrId]) {
+    if(existingProperty.mediaPropertyHash !== latestPropertyHash) {
       this.Log(`Reloading property ${mediaPropertySlugOrId} - Version updated`, "warn");
       return true;
     }
@@ -1253,9 +1263,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    if(!this.mediaPropertyHashes[mediaPropertySlugOrId]) {
-      yield this.LoadMediaPropertyHashes();
-    }
+    yield this.LoadMediaPropertyHashes();
 
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
     force = force || (yield this.MediaPropertyShouldReload({mediaPropertySlugOrId}));
@@ -1445,6 +1453,8 @@ class MediaPropertyStore {
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
+
+    return force;
   });
 
   LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, force}) {

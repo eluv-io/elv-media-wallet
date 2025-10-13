@@ -119,7 +119,7 @@ const Video = forwardRef(function VideoComponent({
         ...(window.players || {}),
         [contentHash]: player,
       };
-
+      
       setPlayer(player);
 
       player.controls.RegisterVideoEventListener("canplay", event => {

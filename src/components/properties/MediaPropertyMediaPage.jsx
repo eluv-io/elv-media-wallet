@@ -16,10 +16,11 @@ import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
-import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 import MediaSidebar, {SidebarContent} from "Components/properties/MediaSidebar";
 import {Linkish} from "Components/common/UIComponents";
+
+import MediaErrorIcon from "Assets/icons/media-error-icon";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -44,6 +45,7 @@ const MediaVideo = observer(({
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
+  const [loadKey, setLoadKey] = useState(0);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
   let backgroundImage = SetImageUrlDimensions({
@@ -146,6 +148,7 @@ const MediaVideo = observer(({
 
   return (
     <Video
+      key={loadKey}
       ref={videoRef}
       link={mediaItem.media_link}
       isLive={display.live_video}
@@ -176,9 +179,16 @@ const MediaVideo = observer(({
       }
       settingsUpdateCallback={settingsUpdateCallback}
       onClose={onClose}
-      errorCallback={error => {
-        mediaPropertyStore.Log(error, true);
-        setError("Something went wrong");
+      errorCallback={async error => {
+        const shouldReload = await mediaPropertyStore.MediaPropertyShouldReload(match.params);
+
+        if(shouldReload) {
+          await mediaPropertyStore.LoadMediaProperty(match.params);
+          setLoadKey(loadKey + 1);
+        } else {
+          mediaPropertyStore.Log(error, true);
+          setError("Something went wrong");
+        }
       }}
       className={[S("media", "media__video"), className].join(" ")}
       containerProps={containerProps}
