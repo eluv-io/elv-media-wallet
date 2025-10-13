@@ -11,7 +11,7 @@ import {
   MediaItemMediaUrl,
   MediaItemScheduleInfo
 } from "../../utils/MediaPropertyUtils";
-import {Carousel, Description, ExpandableDescription, LoaderImage, PurchaseGate} from "Components/properties/Common";
+import {Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
@@ -707,10 +707,10 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   return (
-    <PurchaseGate id={mediaItem.id} permissions={permissions}>
+    <>
       { content }
       <MediaPropertyPageContent isMediaPage className={S("media-page__additional-content")} />
-    </PurchaseGate>
+    </>
   );
 });
 

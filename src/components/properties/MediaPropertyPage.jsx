@@ -16,9 +16,12 @@ import {
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
-export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) => {
+export const MediaPropertyPageContent = observer(({pageSlugOrId, isMediaPage, className=""}) => {
   const match = useRouteMatch();
-  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+  const page = mediaPropertyStore.MediaPropertyPage({
+    ...match.params,
+    pageSlugOrId: pageSlugOrId || match.params.pageSlugOrId
+  });
 
   if(!page) { return null; }
 
@@ -28,6 +31,7 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
         page.layout.sections.map((sectionId, index) => {
           const section = mediaPropertyStore.MediaPropertySection({
             ...match.params,
+            pageSlugOrId: pageSlugOrId || match.params.pageSlugOrId,
             sectionSlugOrId: sectionId
           });
 
@@ -78,9 +82,12 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
   );
 });
 
-const MediaPropertyPage = observer(() => {
+const MediaPropertyPage = observer(({pageSlugOrId}) => {
   const match = useRouteMatch();
-  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+  const page = mediaPropertyStore.MediaPropertyPage({
+    ...match.params,
+    pageSlugOrId: pageSlugOrId || match.params.pageSlugOrId
+  });
 
   if(!page) {
     return <Redirect to="/" />;
@@ -88,7 +95,7 @@ const MediaPropertyPage = observer(() => {
 
   return (
     <PageContainer className={S("page", "property-page")}>
-      <MediaPropertyPageContent />
+      <MediaPropertyPageContent pageSlugOrId={pageSlugOrId} />
     </PageContainer>
   );
 });

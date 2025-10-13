@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import Profile from "Components/profile";
 import Leaderboard from "Components/marketplace/Leaderboard";
 import UrlJoin from "url-join";
@@ -46,6 +46,7 @@ import EmailVerification from "Components/login/EmailVerification";
 import FAQ from "Components/properties/FAQ";
 import Subscription from "Components/profile/Subscription";
 import CodeLoginTest from "Components/login/CodeLoginTest";
+import {PurchaseGate} from "Components/properties/Common";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -264,6 +265,7 @@ const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
     }))),
   ].map(route => ({
     ...route,
+    propertyRoute: true,
     noBlock: route.noBlock || !route.includePageBlock
   }));
 };
@@ -463,6 +465,39 @@ const RouteWrapper = observer(({routes, children}) => {
   return children;
 });
 
+const PropertyRouteWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+  const permissions = mediaPropertyStore.ResolvePermission(match.params);
+  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+
+  if(page?.permissions?.authorized && permissions?.authorized) {
+    return children;
+  }
+
+  return (
+    <>
+      <PurchaseGate
+        routeParams={match.params}
+        purchasePageId={mediaProperty.metadata.page_ids.purchase_gate}
+        id={
+          !page?.permissions?.authorized ?
+            page.id :
+            permissions.causeId
+        }
+        permissions={
+          !page.permissions.authorized ?
+            page.permissions :
+            permissions
+        }
+      >
+        {children}
+      </PurchaseGate>
+      <MediaPropertyPurchaseModal />
+    </>
+  );
+});
+
 const GlobalWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
 
@@ -480,7 +515,6 @@ const GlobalWrapper = observer(({routes, children}) => {
     return (
       <>
         { children }
-        <MediaPropertyPurchaseModal />
         <RedeemableOfferModal />
       </>
     );
@@ -490,7 +524,6 @@ const GlobalWrapper = observer(({routes, children}) => {
     <div className="page-block page-block--main-content" key={currentRoute?.routeKey || `main-content-${match.url}`}>
       <div className="page-block__content">
         {children}
-        <MediaPropertyPurchaseModal />
         <RedeemableOfferModal />
       </div>
     </div>
@@ -542,12 +575,20 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
   return (
     <Switch>
       {
-        routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
+        routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, propertyRoute, Component}) => {
           let result = (
             <GlobalWrapper routes={[...routes]}>
               { Component ? <Component key={`component-${path}-${location.pathname}`} /> : null }
             </GlobalWrapper>
           );
+
+          if(propertyRoute) {
+            result = (
+              <PropertyRouteWrapper>
+                {result}
+              </PropertyRouteWrapper>
+            );
+          }
 
           if(includeUserProfile) {
             result = (

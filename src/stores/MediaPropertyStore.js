@@ -744,6 +744,7 @@ class MediaPropertyStore {
     let authorized = true;
     let behavior = this.PERMISSION_BEHAVIORS.HIDE;
     let cause;
+    let causeId;
     let permissionItemIds;
     let sectionItem;
     let isTestContent = false;
@@ -784,6 +785,7 @@ class MediaPropertyStore {
           authorized = false;
           permissionItemIds = section.permissions?.permission_item_ids || [];
           cause = "Section permissions";
+          causeId = section.id;
         }
 
         alternatePageId =
@@ -807,6 +809,7 @@ class MediaPropertyStore {
               authorized = false;
               permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
               cause = "Section item permissions";
+              causeId = sectionItem.id;
             }
 
             behavior = sectionItem.permissions?.behavior || behavior;
@@ -829,6 +832,7 @@ class MediaPropertyStore {
             authorized = false;
             behavior = this.PERMISSION_BEHAVIORS.DISABLE;
             cause = "Section item disabled";
+            causeId = sectionItem.id;
           }
         }
       }
@@ -848,6 +852,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media collection permissions";
+        causeId = mediaCollection.id;
       }
     }
 
@@ -859,6 +864,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media list permissions";
+        causeId = mediaList.id;
       }
     }
 
@@ -870,6 +876,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media permissions";
+        causeId = mediaItem.id;
       }
     }
 
@@ -945,7 +952,8 @@ class MediaPropertyStore {
       showAlternatePage,
       alternatePageId,
       permissionItemIds,
-      cause: cause || ""
+      cause: cause || "",
+      causeId
     };
   }
 

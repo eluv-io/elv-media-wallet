@@ -23,6 +23,7 @@ import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
+import MediaPropertyPage from "Components/properties/MediaPropertyPage";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -829,13 +830,13 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
   );
 };
 
-export const PurchaseGate = ({id, permissions, backPath, children}) => {
+export const PurchaseGate = ({routeParams, purchasePageId, id, permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
 
   useEffect(() => {
-    if(!permissions) { return; }
+    if(!permissions || purchasePageId) { return; }
 
     if(!permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
@@ -855,6 +856,10 @@ export const PurchaseGate = ({id, permissions, backPath, children}) => {
       history.replace(url.pathname + url.search);
     }
   }, [permissions]);
+
+  if(!permissions.authorized && purchasePageId) {
+    return <MediaPropertyPage pageSlugOrId={purchasePageId} />;
+  }
 
   return children;
 };

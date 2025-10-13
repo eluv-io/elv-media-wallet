@@ -9,7 +9,6 @@ import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import {LoginGate} from "Components/common/LoginGate";
-import {PurchaseGate} from "Components/properties/Common";
 import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "../../utils/Utils";
 import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
@@ -142,20 +141,16 @@ const PropertyWrapper = observer(({children}) => {
             digest={mediaProperty?.metadata?.preview_password_digest}
           >
             <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
-              <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
-                <PurchaseGate id={page?.id} permissions={page?.permissions}>
-                  <div
-                    style={
-                      useCustomBackgroundColor ?
-                        { "--property-background": backgroundColor } : {}
-                    }
-                    className={PropertyStyles["property"]}
-                  >
-                    { children }
-                    <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
-                  </div>
-                </PurchaseGate>
-              </PurchaseGate>
+              <div
+                style={
+                  useCustomBackgroundColor ?
+                    { "--property-background": backgroundColor } : {}
+                }
+                className={PropertyStyles["property"]}
+              >
+                { children }
+                <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
+              </div>
             </LoginGate>
           </PreviewPasswordGate>
         </PreviewPasswordGate>
