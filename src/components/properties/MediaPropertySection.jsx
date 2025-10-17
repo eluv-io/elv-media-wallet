@@ -511,6 +511,8 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
 });
 
 const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
+  sectionContent = sectionContent.slice(0, 100);
+
   return (
     <Carousel
       className={S(
