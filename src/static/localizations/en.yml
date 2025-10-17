@@ -98,6 +98,7 @@ actions:
   share: Share
   done: Done
   apply: Apply
+  select: Select
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?

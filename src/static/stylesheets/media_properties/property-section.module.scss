@@ -1,5 +1,13 @@
 @import "./variables";
 
+.purchase-gate-page {
+  padding: 0;
+
+  &__content {
+    padding: 10px var(--property-page-padding) 100px;
+  }
+}
+
 .section-page {
   &.page {
     padding-inline: 75px;
@@ -431,7 +439,7 @@
 
   &__background-image,
   &__background-video {
-    @include page-fade-in(1s, ease-out);
+    @include page-fade-in(0.3s, ease-out);
 
     min-width: 100vw;
   }

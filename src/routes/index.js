@@ -476,25 +476,23 @@ const PropertyRouteWrapper = observer(({children}) => {
   }
 
   return (
-    <>
-      <PurchaseGate
-        routeParams={match.params}
-        purchasePageId={mediaProperty.metadata.page_ids.purchase_gate}
-        id={
-          !page?.permissions?.authorized ?
-            page.id :
-            permissions.causeId
-        }
-        permissions={
-          !page.permissions.authorized ?
-            page.permissions :
-            permissions
-        }
-      >
-        {children}
-      </PurchaseGate>
-      <MediaPropertyPurchaseModal />
-    </>
+    <PurchaseGate
+      routeParams={match.params}
+      purchasePageSettings={mediaProperty.metadata.purchase_page || {}}
+      noPurchaseAvailablePageSettings={mediaProperty.metadata.no_purchase_available_page || {}}
+      id={
+        !page?.permissions?.authorized ?
+          page.id :
+          permissions.causeId
+      }
+      permissions={
+        !page.permissions.authorized ?
+          page.permissions :
+          permissions
+      }
+    >
+      {children}
+    </PurchaseGate>
   );
 });
 

@@ -1504,6 +1504,9 @@ class MediaPropertyStore {
           mediaItem.public ||
           !!mediaItem.permissions?.find(({permission_item_id}) => this.PermissionItem({permissionItemId: permission_item_id})?.authorized);
 
+        const CanPurchaseAccess = mediaItem =>
+          !!mediaItem.permissions?.find(({permission_item_id}) => this.PermissionItem({permissionItemId: permission_item_id})?.purchasable);
+
         runInAction(() => {
           this.mediaCatalogs[mediaCatalogId] = {
             name: metadata.name,
@@ -1521,6 +1524,8 @@ class MediaPropertyStore {
 
         Object.keys(media).forEach(mediaId => {
           media[mediaId].authorized = IsAuthorized(media[mediaId]);
+          media[mediaId].canPurchaseAccess = CanPurchaseAccess(media[mediaId]);
+
           if(media[mediaId].date) {
             media[mediaId].canonical_date = media[mediaId].date.split("T")[0];
           }

@@ -17,14 +17,13 @@ import {Swiper, SwiperSlide} from "swiper/react";
 import {A11y} from "swiper/modules";
 import {Loader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
+import Video from "Components/properties/Video";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
+import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaPropertySection";
 
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
-import Video from "Components/properties/Video";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
-import MediaPropertyPage from "Components/properties/MediaPropertyPage";
-
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
 export const PageContainer = ({children, className}) => {
@@ -99,6 +98,7 @@ export const PageHeader = observer(({
   fontSizes={},
   active=true,
   children,
+  descriptionMaxLines,
   className=""
 }) => {
   // Collapse expanded description if this header becomes inactive, e.g. hero section is scrolled to another header
@@ -159,7 +159,7 @@ export const PageHeader = observer(({
                 togglePosition={display.position?.toLowerCase() || "left"}
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
-                maxLines={rootStore.pageWidth < 800 ? 12 : 8}
+                maxLines={descriptionMaxLines || rootStore.pageWidth < 800 ? 12 : 8}
                 className={S("page-header__description")}
               />
           }
@@ -830,15 +830,16 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
   );
 };
 
-export const PurchaseGate = ({routeParams, purchasePageId, id, permissions, backPath, children}) => {
+export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSettings, id, permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
+  const showModal = !permissions.authorized && !purchasePageSettings?.enabled && !noPurchaseAvailablePageSettings?.enabled;
 
   useEffect(() => {
-    if(!permissions || purchasePageId) { return; }
+    if(!permissions) { return; }
 
-    if(!permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
+    if(showModal && !permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
       url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
         id,
@@ -857,8 +858,24 @@ export const PurchaseGate = ({routeParams, purchasePageId, id, permissions, back
     }
   }, [permissions]);
 
-  if(!permissions.authorized && purchasePageId) {
-    return <MediaPropertyPage pageSlugOrId={purchasePageId} />;
+  if(!permissions.authorized && permissions.purchaseGate) {
+    if(permissions.purchasable && purchasePageSettings?.enabled) {
+      return (
+        <MediaPropertyPurchaseGatePage
+          permissions={permissions}
+          settings={purchasePageSettings}
+        />
+      );
+    } else if(!permissions.purchasable && noPurchaseAvailablePageSettings?.enabled) {
+      return (
+        <MediaPropertyPurchaseGatePage
+          permissions={permissions}
+          settings={noPurchaseAvailablePageSettings}
+        />
+      );
+    } else {
+      return <PageContainer/>;
+    }
   }
 
   return children;

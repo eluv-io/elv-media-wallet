@@ -4,9 +4,7 @@ import React from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {
-  PageContainer,
-} from "Components/properties/Common";
+import {PageContainer} from "Components/properties/Common";
 import {
   MediaPropertyHeroSection,
   MediaPropertySection,

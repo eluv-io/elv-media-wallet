@@ -12,6 +12,7 @@ import {LoginGate} from "Components/common/LoginGate";
 import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "../../utils/Utils";
 import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -150,6 +151,7 @@ const PropertyWrapper = observer(({children}) => {
               >
                 { children }
                 <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
+                <MediaPropertyPurchaseModal />
               </div>
             </LoginGate>
           </PreviewPasswordGate>
