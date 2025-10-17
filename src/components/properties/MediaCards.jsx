@@ -476,7 +476,7 @@ const MediaCardVertical = observer(({
         {
           authorized || !rootStore.loggedIn ? null :
             <div className={S("media-card__unauthorized-indicator")}>
-              View Purchase Options
+              { rootStore.l10n.actions.purchase.view_purchase_options }
             </div>
         }
         {
@@ -665,7 +665,6 @@ const MediaCard = observer(({
   }, []);
 
   const permissions = (sectionItem || mediaItem)?.resolvedPermissions || {};
-
   if(permissions.hide) {
     rootStore.Log("Warning: Media card with 'hide' permissions - should be truncated earlier", "warn");
     rootStore.Log(sectionItem || mediaItem, "warn");
@@ -701,18 +700,7 @@ const MediaCard = observer(({
     !scheduleInfo.isLiveContent &&
     mediaPropertyStore.GetMediaProgress({mediaItemId: cardMediaItem.id});
 
-  disabled =
-    disabled ||
-    permissions.disable ||
-    // Behavior is purchase, but no purchasable items and 'no purchase page' not enabled
-    (
-      !permissions.authorized &&
-      permissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
-      !permissions.permissionItemIds?.find(permissionItemId =>
-        mediaPropertyStore.permissionItems[permissionItemId].purchasable
-      ) &&
-      !mediaPropertyStore.MediaProperty({...match.params})?.metadata.no_purchase_available_page?.enabled
-    );
+  disabled = disabled || permissions.disable;
 
   let linkPath, url, authorized, price;
   if(!disabled) {

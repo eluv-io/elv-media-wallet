@@ -40,7 +40,6 @@ import MediaPropertyMediaPage from "Components/properties/MediaPropertyMediaPage
 import MediaPropertyCollectionPage from "Components/properties/MediaPropertyCollectionPage";
 import MediaPropertySearchPage from "Components/properties/MediaPropertySearchPage";
 import ItemDetailsPage from "Components/properties/ItemDetailsPage";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 import EmailVerification from "Components/login/EmailVerification";
 import FAQ from "Components/properties/FAQ";

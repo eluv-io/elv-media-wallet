@@ -891,7 +891,7 @@ class MediaPropertyStore {
       this.permissionItems[permissionItemId]?.purchasable
     );
 
-    const purchaseAuthorized = permissionItemIds.find(permissionItemId =>
+    const purchaseAuthorized = !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchaseAuthorized
     );
 
@@ -940,12 +940,25 @@ class MediaPropertyStore {
       behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
+    let hide = !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0));
+    // Behavior is purchase, but no purchasable items and 'no purchase page' not enabled
+    if(
+      !authorized &&
+      behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+      !purchaseAuthorized &&
+      !this.MediaProperty({mediaPropertySlugOrId})?.metadata?.no_purchase_available_page?.enabled
+    ) {
+      hide = true;
+      cause = `${cause} and not purchasable`;
+    }
+
+
     return {
       authorized,
       purchasable: !!purchasable,
       behavior,
       // Hide by default, or if behavior is hide, or if no purchasable permissions are available
-      hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
+      hide,
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
       purchaseGate: purchaseGate && permissionItemIds.length > 0,
       secondaryPurchaseOption,

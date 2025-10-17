@@ -110,6 +110,7 @@ actions:
     claim: Claim Now
     view: View Details
     next_step: Next Step
+    view_purchase_options: View Purchase Options
   listings:
     create: List For Sale
     create_for: List Now For {price}
