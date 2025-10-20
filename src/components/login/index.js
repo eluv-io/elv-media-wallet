@@ -52,6 +52,7 @@ const params = {
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  nonce: searchParams.get("nonce"),
   oryFlow: searchParams.get("flow")
 };
 
@@ -559,7 +560,7 @@ const AuthenticateAuth0 = async (userData) => {
 
     await rootStore.auth0.handleRedirectCallback();
 
-    await rootStore.AuthenticateAuth0({userData});
+    await rootStore.AuthenticateAuth0({nonce: params.nonce, userData});
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -582,8 +583,6 @@ export const LogInAuth0 = async () => {
   }
 
   const callbackUrl = new URL(window.location.href);
-  callbackUrl.pathname = "";
-  callbackUrl.hash = window.location.pathname;
 
   callbackUrl.searchParams.delete("clear");
   callbackUrl.searchParams.set("source", "oauth");
@@ -596,6 +595,9 @@ export const LogInAuth0 = async () => {
   if(params.loginCode) {
     callbackUrl.searchParams.set("elvid", params.loginCode);
   }
+
+  callbackUrl.hash = `#${callbackUrl.pathname}`;
+  callbackUrl.pathname = "";
 
   await rootStore.auth0.loginWithRedirect({
     authorizationParams: {
@@ -735,9 +737,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.searchParams.delete("clear");
       returnURL.searchParams.delete("code");
-      returnURL.hash = `${returnURL.pathname}?${returnURL.searchParams.toString()}`;
 
-      rootStore.SignOut({returnUrl: returnURL.toString(), logOutAuth0: true});
+      rootStore.SignOut({returnUrl: returnURL.toString(), clearSavedLogin: !params.loginCode, logOutAuth0: true});
     };
 
     if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback)) {
@@ -842,7 +843,7 @@ const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
   useEffect(() => {
     if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
 
-    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
+    rootStore.AuthenticateOry({nonce: params.nonce, userData, sendWelcomeEmail: true})
       .finally(() => setFinished(true));
   }, [rootStore.loaded, rootStore.oryClient, userData]);
 
