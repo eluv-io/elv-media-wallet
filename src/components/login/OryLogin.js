@@ -170,7 +170,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
   }
 };
 
-const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing}) => {
+const OryLogin = observer(({customizationOptions, userData, codeAuth, nonce, origin, requiredOptionsMissing}) => {
   const isThirdPartyConflict = window.location.pathname === "/oidc";
   const [flowType, setFlowType] = useState(searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
@@ -435,18 +435,18 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
       switch(flowType) {
         case "login":
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
-          await rootStore.AuthenticateOry({userData});
+          await rootStore.AuthenticateOry({userData, nonce, origin});
           next = true;
 
           break;
         case "login_limited":
-          await rootStore.AuthenticateOry({userData, force: true});
+          await rootStore.AuthenticateOry({userData, nonce, origin, force: true});
           next = true;
 
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
-          await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true, sendVerificationEmail: true});
+          await rootStore.AuthenticateOry({userData, nonce, origin, sendWelcomeEmail: true, sendVerificationEmail: true});
           next = true;
 
           break;
@@ -473,7 +473,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
           if(response.data.state === "success") {
             setStatusMessage(rootStore.l10n.login.ory.messages.password_updated);
-            await rootStore.AuthenticateOry({userData, sendVerificationEmail: location.pathname.endsWith("/register")});
+            await rootStore.AuthenticateOry({userData, nonce, origin, sendVerificationEmail: location.pathname.endsWith("/register")});
           }
 
           setFlows({...flows, [flowType]: response.data});

@@ -352,6 +352,8 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
         <Logo customizationOptions={customizationOptions} />
         <OryLogin
           codeAuth={params.loginCode}
+          nonce={params.nonce}
+          origin={params.origin}
           customizationOptions={customizationOptions}
           userData={userData}
           requiredOptionsMissing={requiredOptionsMissing}
@@ -560,7 +562,7 @@ const AuthenticateAuth0 = async (userData) => {
 
     await rootStore.auth0.handleRedirectCallback();
 
-    await rootStore.AuthenticateAuth0({nonce: params.nonce, userData});
+    await rootStore.AuthenticateAuth0({nonce: params.nonce, origin: params.origin, userData});
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -708,7 +710,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           type: rootStore.AuthInfo()?.provider,
           authToken: rootStore.walletClient.AuthToken(),
           clusterToken: rootStore.walletClient.__authorization?.clusterToken,
-          expiresAt: rootStore.AuthInfo().expiresAt
+          expiresAt: rootStore.AuthInfo().expiresAt,
+          origin: params.origin || "Unknown"
         });
 
         setCodeAuthSet(true);
@@ -843,7 +846,7 @@ const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
   useEffect(() => {
     if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
 
-    rootStore.AuthenticateOry({nonce: params.nonce, userData, sendWelcomeEmail: true})
+    rootStore.AuthenticateOry({nonce: params.nonce, origin: params.origin, userData, sendWelcomeEmail: true})
       .finally(() => setFinished(true));
   }, [rootStore.loaded, rootStore.oryClient, userData]);
 

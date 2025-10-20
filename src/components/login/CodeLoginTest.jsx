@@ -15,6 +15,7 @@ const CodeLoginTest = observer(() => {
         url.searchParams.set("pid", rootStore.currentPropertySlug);
         url.searchParams.set("clear", "");
         url.searchParams.set("nonce", "TESTNONCE");
+        url.searchParams.set("origin", "CODE TEST LOGIN");
 
         setCodeInfo({...response, url: url.toString()});
       });

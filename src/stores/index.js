@@ -619,7 +619,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({nonce, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
+  AuthenticateOry = flow(function * ({nonce, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
     let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
@@ -631,6 +631,7 @@ class RootStore {
         force,
         provider: "ory",
         nonce,
+        origin,
         user: {
           name: email,
           email,
@@ -696,7 +697,7 @@ class RootStore {
     });
   });
 
-  AuthenticateAuth0 = flow(function * ({nonce, userData}={}) {
+  AuthenticateAuth0 = flow(function * ({nonce, origin, userData}={}) {
     try {
       // eslint-disable-next-line no-console
       console.time("Auth0 Authentication");
@@ -723,6 +724,7 @@ class RootStore {
           idToken: authInfo.__raw,
           provider: "auth0",
           nonce,
+          origin,
           user: {
             name: authInfo.name,
             email: authInfo.email,
@@ -775,6 +777,7 @@ class RootStore {
         "next"
       ];
 
+      // If on code login page, preserve the parameters so the page can be refreshed and still work
       const url = new URL(window.location.href);
       if(url.searchParams.has("elvid")) {
         paramKeys = [
@@ -805,6 +808,7 @@ class RootStore {
     externalWallet,
     walletName,
     nonce,
+    origin,
     user,
     saveAuthInfo=true,
     signerURIs,
@@ -849,7 +853,10 @@ class RootStore {
           email: user?.email,
           tenantId: this.currentPropertyTenantId,
           shareEmail: user?.userData?.share_email,
-          extraData: user?.userData || {},
+          extraData: {
+            ...(user?.userData || {}),
+            origin: origin || "Unknown"
+          },
           signerURIs,
           nonce: nonce || Utils.B58(ParseUUID(UUID())),
           createRemoteToken: !this.useLocalAuth,
