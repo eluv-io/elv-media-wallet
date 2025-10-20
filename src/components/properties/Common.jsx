@@ -834,7 +834,12 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
-  const showModal = !permissions.authorized && !purchasePageSettings?.enabled && !noPurchaseAvailablePageSettings?.enabled;
+  const showModal =
+    !permissions.authorized &&
+    (
+      (permissions.purchasable && !purchasePageSettings?.enabled) ||
+      (!permissions.purchasable && !noPurchaseAvailablePageSettings?.enabled)
+    );
 
   useEffect(() => {
     if(!permissions) { return; }

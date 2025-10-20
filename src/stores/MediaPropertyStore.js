@@ -887,7 +887,7 @@ class MediaPropertyStore {
 
     permissionItemIds = permissionItemIds || [];
 
-    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
+    const purchasable = (permissionItemIds.length > 0 && !!secondaryPurchaseOption) || !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchasable
     );
 
@@ -949,9 +949,7 @@ class MediaPropertyStore {
       !this.MediaProperty({mediaPropertySlugOrId})?.metadata?.no_purchase_available_page?.enabled
     ) {
       hide = true;
-      cause = `${cause} and not purchasable`;
     }
-
 
     return {
       authorized,
@@ -960,7 +958,7 @@ class MediaPropertyStore {
       // Hide by default, or if behavior is hide, or if no purchasable permissions are available
       hide,
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
-      purchaseGate: purchaseGate && permissionItemIds.length > 0,
+      purchaseGate,
       secondaryPurchaseOption,
       showAlternatePage,
       alternatePageId,

@@ -29,15 +29,15 @@ import {
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
 import Filters from "Components/properties/Filters";
+import {FormatPriceString} from "Components/common/UIComponents";
+import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
 import LeftArrow from "Assets/icons/left-arrow";
-
 import PoweredByImage from "Assets/images/apps/Eluvio";
 import RokuImage from "Assets/images/apps/roku";
 import AmazonImage from "Assets/images/apps/amazon";
 import AndroidImage from "Assets/images/apps/android";
 import AppleImage from "Assets/images/apps/apple";
-import {FormatPriceString} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -285,20 +285,27 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
             className={S("hero-section__header")}
           />
         </div>
-        <div className={S("purchase-gate-page__content")}>
-          <MediaGrid
-            wrapTitles
-            isFormattedContent
-            aspectRatio="Square"
-            justification={settings.position.toLowerCase()}
-            content={purchasableItems.map(item =>
-              <MediaCardWithButtonVertical
-                key={item.id}
-                {...item}
+        {
+          purchasableItems.length === 0 ? null :
+            <div className={S("purchase-gate-page__content")}>
+              <MediaGrid
+                wrapTitles
+                isFormattedContent
+                aspectRatio="Square"
+                justification={settings.position.toLowerCase()}
+                content={purchasableItems.map(item =>
+                  <MediaCardWithButtonVertical
+                    key={item.id}
+                    {...item}
+                  />
+                )}
               />
-            )}
-          />
-        </div>
+            </div>
+        }
+        <MediaPropertyPageContent
+          params={{mediaPropertySlugOrId: match.params.mediaPropertySlugOrId}}
+          sections={settings.sections}
+        />
       </div>
     </PageContainer>
   );

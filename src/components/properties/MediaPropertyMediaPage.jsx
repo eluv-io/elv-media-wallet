@@ -596,6 +596,7 @@ const MediaPropertyMediaPage = observer(() => {
 
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
   const context = new URLSearchParams(location.search).get("ctx");
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
 
   if(!mediaItem) {
     return <Redirect to={rootStore.backPath} />;
@@ -709,7 +710,11 @@ const MediaPropertyMediaPage = observer(() => {
   return (
     <>
       { content }
-      <MediaPropertyPageContent isMediaPage className={S("media-page__additional-content")} />
+      <MediaPropertyPageContent
+        isMediaPage
+        params={match.params}
+        sections={page.layout?.sections}
+      />
     </>
   );
 });
