@@ -710,6 +710,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           type: rootStore.AuthInfo()?.provider,
           authToken: rootStore.walletClient.AuthToken(),
           clusterToken: rootStore.walletClient.__authorization?.clusterToken,
+          refreshToken: rootStore.walletClient.__authorization?.refreshToken,
           expiresAt: rootStore.AuthInfo().expiresAt,
           origin: params.origin || "Unknown"
         });

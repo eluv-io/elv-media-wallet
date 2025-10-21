@@ -36,6 +36,9 @@ const CodeLoginTest = observer(() => {
       const authInfo = JSON.parse(response.payload);
       setState(authInfo);
 
+      // eslint-disable-next-line no-console
+      console.log(authInfo);
+
       /*
       authInfo.fabricToken = authInfo.token;
 

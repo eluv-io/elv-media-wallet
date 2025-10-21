@@ -34,7 +34,7 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.3.0",
     "@eluvio/crypto": "^1.1.1",
-    "@eluvio/elv-client-js": "^4.2.5",
+    "@eluvio/elv-client-js": "^4.2.7",
     "@eluvio/elv-paymentgate": "^1.0.0",
     "@eluvio/elv-player-js": "^2.1.8",
     "@mantine/core": "^7.11.2",
