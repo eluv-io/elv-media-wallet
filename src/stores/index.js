@@ -619,7 +619,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({nonce, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
+  AuthenticateOry = flow(function * ({nonce, installId, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
     let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
@@ -631,6 +631,7 @@ class RootStore {
         force,
         provider: "ory",
         nonce,
+        installId,
         origin,
         user: {
           name: email,
@@ -697,7 +698,7 @@ class RootStore {
     });
   });
 
-  AuthenticateAuth0 = flow(function * ({nonce, origin, userData}={}) {
+  AuthenticateAuth0 = flow(function * ({nonce, installId, origin, userData}={}) {
     try {
       // eslint-disable-next-line no-console
       console.time("Auth0 Authentication");
@@ -724,6 +725,7 @@ class RootStore {
           idToken: authInfo.__raw,
           provider: "auth0",
           nonce,
+          installId,
           origin,
           user: {
             name: authInfo.name,
@@ -807,6 +809,7 @@ class RootStore {
     provider="external",
     externalWallet,
     walletName,
+    installId,
     nonce,
     origin,
     user,
@@ -859,6 +862,7 @@ class RootStore {
           },
           signerURIs,
           nonce: nonce || Utils.B58(ParseUUID(UUID())),
+          installId,
           createRemoteToken: !this.useLocalAuth,
           force,
           tokenDuration: this.authTTL || 24
@@ -876,7 +880,8 @@ class RootStore {
         clientAuthToken,
         clientSigningToken,
         provider,
-        nonce: nonce,
+        nonce,
+        installId,
         save: this.authCode ? false : saveAuthInfo
       });
 
@@ -2568,7 +2573,7 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", nonce, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
@@ -2577,7 +2582,8 @@ class RootStore {
       provider,
       expiresAt,
       address,
-      nonce
+      nonce,
+      installId
     };
 
     if(save) {

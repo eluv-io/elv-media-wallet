@@ -6,13 +6,9 @@ import {observer} from "mobx-react";
 import {Button, Modal} from "Components/properties/Common";
 import {useHistory} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
+import {SHA512} from "../../utils/Utils";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
-
-const SHA512 = async (str) => {
-  const buf = await crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str));
-  return Array.prototype.map.call(new Uint8Array(buf), x=>(("00"+x.toString(16)).slice(-2))).join("");
-};
 
 const urlParams = new URLSearchParams(window.location.search);
 const PreviewPasswordGateComponent = observer(({id, name, digest, children, backPath="/"}) => {

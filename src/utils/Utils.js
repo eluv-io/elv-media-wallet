@@ -10,6 +10,11 @@ import UrlJoin from "url-join";
 import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
+export const SHA512 = async (str) => {
+  const buf = await crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str));
+  return Array.prototype.map.call(new Uint8Array(buf), x=>(("00"+x.toString(16)).slice(-2))).join("");
+};
+
 export const EmbedMediaTypes = {
   "v": "Video",
   "lv": "Live Video",

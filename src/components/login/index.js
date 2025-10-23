@@ -53,6 +53,7 @@ const params = {
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
   nonce: searchParams.get("nonce"),
+  installId: searchParams.get("installId"),
   oryFlow: searchParams.get("flow")
 };
 
@@ -353,6 +354,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
         <OryLogin
           codeAuth={params.loginCode}
           nonce={params.nonce}
+          installId={params.installId}
           origin={params.origin}
           customizationOptions={customizationOptions}
           userData={userData}
@@ -562,7 +564,12 @@ const AuthenticateAuth0 = async (userData) => {
 
     await rootStore.auth0.handleRedirectCallback();
 
-    await rootStore.AuthenticateAuth0({nonce: params.nonce, origin: params.origin, userData});
+    await rootStore.AuthenticateAuth0({
+      installId: params.installId,
+      nonce: params.nonce,
+      origin: params.origin,
+      userData
+    });
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -847,7 +854,13 @@ const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
   useEffect(() => {
     if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
 
-    rootStore.AuthenticateOry({nonce: params.nonce, origin: params.origin, userData, sendWelcomeEmail: true})
+    rootStore.AuthenticateOry({
+      nonce: params.nonce,
+      installId: params.installId,
+      origin: params.origin,
+      userData,
+      sendWelcomeEmail: true
+    })
       .finally(() => setFinished(true));
   }, [rootStore.loaded, rootStore.oryClient, userData]);
 

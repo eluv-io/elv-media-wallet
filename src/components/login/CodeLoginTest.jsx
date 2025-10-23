@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Linkish, QRCodeElement} from "Components/common/UIComponents";
+import {SHA512} from "../../utils/Utils";
 
 const CodeLoginTest = observer(() => {
   const [codeInfo, setCodeInfo] = useState(undefined);
@@ -10,11 +11,12 @@ const CodeLoginTest = observer(() => {
   // Generate code
   useEffect(() => {
     rootStore.walletClient.GenerateCodeAuth()
-      .then(response => {
+      .then(async response => {
         const url = new URL(response.url);
         url.searchParams.set("pid", rootStore.currentPropertySlug);
         url.searchParams.set("clear", "");
-        url.searchParams.set("nonce", "TESTNONCE");
+        //url.searchParams.set("nonce", "TESTNONCE");
+        url.searchParams.set("installId", await SHA512("TESTNONCE"));
         url.searchParams.set("origin", "CODE TEST LOGIN");
 
         setCodeInfo({...response, url: url.toString()});
