@@ -170,11 +170,11 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
   }
 };
 
-const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing}) => {
+const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing, loading}) => {
   const isThirdPartyConflict = window.location.pathname === "/oidc";
   const [flowType, setFlowType] = useState(searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [redirect, setRedirect] = useState(undefined);
@@ -206,9 +206,12 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
         break;
       case "login":
-        const returnUrl = new URL(location.origin);
+        const returnUrl = new URL(location.href);
         returnUrl.pathname = "/oidc";
-        returnUrl.searchParams.set("next", location.pathname);
+
+        if(!location.pathname.endsWith("login")) {
+          returnUrl.searchParams.set("next", location.pathname);
+        }
 
         const propertySlugOrId = rootStore.routeParams.mediaPropertySlugOrId || rootStore.customDomainPropertyId && searchParams.get("pid");
         if(propertySlugOrId) {
@@ -247,7 +250,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
   const LogOut = async () => {
     try {
-      setLoading(true);
+      setLoggingOut(true);
       const response = await rootStore.oryClient.createBrowserLogoutFlow();
       await rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
       setFlows({});
@@ -256,13 +259,13 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
     } catch(error) {
       rootStore.Log(error);
     } finally {
-      setLoading(false);
+      setLoggingOut(false);
     }
   };
 
   const flow = flows[flowType];
 
-  if(!flow || loading) {
+  if(!flow || loading || loggingOut) {
     return (
       <div className="ory-login">
         <Loader />

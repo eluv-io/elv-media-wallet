@@ -350,6 +350,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       <>
         <Logo customizationOptions={customizationOptions} />
         <OryLogin
+          loading={loading}
           codeAuth={params.loginCode}
           customizationOptions={customizationOptions}
           userData={userData}
@@ -582,8 +583,6 @@ export const LogInAuth0 = async () => {
   }
 
   const callbackUrl = new URL(window.location.href);
-  callbackUrl.pathname = "";
-  callbackUrl.hash = window.location.pathname;
 
   callbackUrl.searchParams.delete("clear");
   callbackUrl.searchParams.set("source", "oauth");
@@ -597,6 +596,9 @@ export const LogInAuth0 = async () => {
     callbackUrl.searchParams.set("elvid", params.loginCode);
   }
 
+  callbackUrl.hash = `#${callbackUrl.pathname}`;
+  callbackUrl.pathname = "";
+
   await rootStore.auth0.loginWithRedirect({
     authorizationParams: {
       redirect_uri: callbackUrl.toString()
@@ -607,12 +609,13 @@ export const LogInAuth0 = async () => {
 };
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
-  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
+  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback || params.isThirdPartyCallback);
   const [userDataSaved, setUserDataSaved] = useState(false);
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [finished, setFinished] = useState(false);
   const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback;
 
   // Handle login button clicked - Initiate popup/login flow
@@ -669,6 +672,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       }
     }
   };
+
+  useEffect(() => {
+    if(!rootStore.oryClient || !rootStore.loaded || !userData || !params.isThirdPartyCallback) { return; }
+
+    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
+      .then(() => setFinished(true))
+      .finally(() => setAuth0Authenticating(false));
+  }, [rootStore.loaded, rootStore.oryClient, userData]);
 
   // Handle login event, popup flow, and auth0 logout
   useEffect(() => {
@@ -735,7 +746,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.searchParams.delete("clear");
       returnURL.searchParams.delete("code");
-      returnURL.hash = `${returnURL.pathname}?${returnURL.searchParams.toString()}`;
 
       rootStore.SignOut({returnUrl: returnURL.toString(), logOutAuth0: true});
     };
@@ -802,6 +812,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     );
   }
 
+  if(finished && params.next) {
+    return <Redirect to={params.next} />;
+  }
+
   return (
     <div
       style={customizationOptions.styles}
@@ -819,59 +833,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           LogIn={LogIn}
           customizationOptions={customizationOptions}
           errorMessage={errorMessage}
-        />
-      </div>
-    </div>
-  );
-});
-
-const ThirdPartyLoginCallback = observer(({customizationOptions}) => {
-  const [finished, setFinished] = useState(false);
-  const [userData, setUserData] = useState(undefined);
-
-  useEffect(() => {
-    try {
-      setUserData(JSON.parse(rootStore.GetSessionStorage("user-data")) || {});
-    } catch(error) {
-      rootStore.Log("Failed to parse user data", true);
-      rootStore.Log(error, true);
-      setUserData({});
-    }
-  }, []);
-
-  useEffect(() => {
-    if(!rootStore.oryClient || !rootStore.loaded || !userData) { return; }
-
-    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
-      .finally(() => setFinished(true));
-  }, [rootStore.loaded, rootStore.oryClient, userData]);
-
-  if(finished) {
-    return <Redirect to={params.next || "/"} />;
-  }
-
-  if(!customizationOptions || !rootStore.loaded) {
-    return (
-      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}>
-        <PageLoader/>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={customizationOptions.styles}
-      className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
-    >
-      <Background customizationOptions={customizationOptions}/>
-
-      <div className="login-page__login-box">
-        <Form
-          userData={userData || {}}
-          setUserData={setUserData}
-          authenticating
-          loading
-          customizationOptions={customizationOptions}
         />
       </div>
     </div>
@@ -936,10 +897,6 @@ const Login = observer(({Close}) => {
       // eslint-disable-next-line no-empty
     } catch(error) {}
   };
-
-  if(params.isThirdPartyCallback) {
-    return <ThirdPartyLoginCallback customizationOptions={customizationOptions} />;
-  }
 
   return (
     <LoginComponent

@@ -1987,14 +1987,15 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * ({returnUrl, message, reload=true, logOutAuth0}={}) {
+ SignOut = flow(function * ({returnUrl, message, reload=true, clearSavedLogin=true, logOutAuth0=false}={}) {
     this.signingOut = true;
 
     clearInterval(this.tokenStatusInterval);
 
-    this.ClearAuthInfo();
-
-    this.SetLocalStorage("signed-out", "true");
+    if(clearSavedLogin) {
+      this.ClearAuthInfo();
+      this.SetLocalStorage("signed-out", "true");
+    }
 
     if(this.oryClient) {
       try {
@@ -2006,8 +2007,6 @@ class RootStore {
     }
 
     yield this.walletClient?.LogOut();
-
-    this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
     if(message) {
       this.SetAlertNotification(message);
