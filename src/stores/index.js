@@ -620,6 +620,8 @@ class RootStore {
   }
 
   AuthenticateOry = flow(function * ({nonce, installId, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
+    if(this.authenticating) { return; }
+
     let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});

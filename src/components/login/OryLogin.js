@@ -170,9 +170,23 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
   }
 };
 
-const OryLogin = observer(({customizationOptions, userData, codeAuth, nonce, installId, origin, requiredOptionsMissing, loading}) => {
-  const isThirdPartyConflict = window.location.pathname === "/oidc";
-  const [flowType, setFlowType] = useState(searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" : "login");
+const OryLogin = observer(({
+  customizationOptions,
+  userData,
+  codeAuth,
+  nonce,
+  installId,
+  origin,
+  requiredOptionsMissing,
+  isThirdPartyCallback,
+  isThirdPartyConflict,
+  loading,
+  next
+}) => {
+  const [flowType, setFlowType] = useState(
+    searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" :
+      isThirdPartyCallback ? "thirdPartyCallback" : "login"
+  );
   const [flows, setFlows] = useState({});
   const [loggingOut, setLoggingOut] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
@@ -203,6 +217,31 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, nonce, ins
               }
             });
         }
+
+        break;
+      case "thirdPartyCallback":
+        if(rootStore.authenticating) { return; }
+
+        rootStore.AuthenticateOry({
+          userData,
+          origin,
+          nonce,
+          installId,
+          sendWelcomeEmail: true
+        })
+          .catch(error => {
+            rootStore.Log(error, true);
+
+            if(error.login_limited) {
+              setFlows({...flows, login_limited: {}});
+              setFlowType("login_limited");
+            }
+          })
+          .then(() => {
+            if(rootStore.loggedIn && next) {
+              setRedirect(next);
+            }
+          });
 
         break;
       case "login":
