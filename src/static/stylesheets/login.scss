@@ -722,6 +722,8 @@
 .code-test {
   align-items: center;
   display: flex;
+  flex-direction: column;
+  gap: 30px;
   justify-content: center;
   min-height: calc(80 * var(--vh));
 
@@ -737,7 +739,7 @@
     height: max-content;
     min-height: 200px;
     padding: 40px 20px;
-    width: 300px;
+    width: 350px;
   }
 
   &__qr {
@@ -764,5 +766,16 @@
     font-size: 20px;
     justify-content: center;
     width: 100%;
+  }
+
+  &__response {
+    background-color: #2A2A2A;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+    padding: 10px;
+    white-space: pre-wrap;
+    width: 500px;
   }
 }
