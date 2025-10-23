@@ -2003,7 +2003,7 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * ({returnUrl, message, reload=true, clearSavedLogin=true, logOutAuth0=false}={}) {
+ SignOut = flow(function * ({returnUrl, message, reload=true, clearSavedLogin=true, logOutAuth0=false}={}) {
     this.signingOut = true;
 
     clearInterval(this.tokenStatusInterval);

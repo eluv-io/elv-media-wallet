@@ -98,7 +98,10 @@ const CodeLoginTest = observer(() => {
       <div className="code-test login-page">
         <div className="code-test__container">
           <div className="code-test__message">Login Successful!</div>
-          <div className="code-test__message">{state.email}</div>
+          {
+            !state.email ? null :
+              <div className="code-test__message">{state.email}</div>
+          }
         </div>
         <Button
           onClick={async () => {
