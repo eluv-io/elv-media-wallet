@@ -865,6 +865,7 @@ class RootStore {
           signerURIs,
           nonce: nonce || Utils.B58(ParseUUID(UUID())),
           installId,
+          appName: origin,
           createRemoteToken: !this.useLocalAuth,
           force,
           tokenDuration: this.authTTL || 24
