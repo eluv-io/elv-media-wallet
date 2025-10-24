@@ -2042,7 +2042,7 @@ class RootStore {
 
         // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
         returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
-        returnUrl.hash = returnUrl.pathname + returnUrl.search;
+        returnUrl.hash = returnUrl.pathname;
         returnUrl.pathname = "";
 
         setTimeout(() => {
