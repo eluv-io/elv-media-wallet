@@ -885,7 +885,22 @@ class MediaPropertyStore {
       behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
-    permissionItemIds = permissionItemIds || [];
+    permissionItemIds = (permissionItemIds || [])
+      .filter(permissionItemId => !!this.permissionItems[permissionItemId])
+      .sort((a, b) => {
+        const i1 = this.permissionItems[a];
+        const i2 = this.permissionItems[b];
+
+        if(typeof i1.priority === "undefined" && typeof i2.priority === "undefined") {
+          return 0;
+        } else if(typeof i2.priority === "undefined") {
+          return -1;
+        } else if(typeof i1.priority === "undefined") {
+          return 1;
+        }
+
+        return i1.priority > i2.priority ? -1 : 1;
+      });
 
     const purchasable = (permissionItemIds.length > 0 && !!secondaryPurchaseOption) || !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchasable

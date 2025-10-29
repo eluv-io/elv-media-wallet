@@ -29,6 +29,11 @@ const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" 
 
 const DiscountedPrice = ({item, discountCode={}}) => {
   const { currency } = PriceCurrency(item.marketplaceItem.price);
+
+  if(!currency) {
+    return {};
+  }
+
   const originalPrice = ParseMoney(item.marketplaceItem.price[currency], currency);
   let discountAmount = 0;
   if(discountCode?.percent) {

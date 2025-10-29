@@ -292,7 +292,7 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
                 wrapTitles
                 isFormattedContent
                 aspectRatio="Square"
-                justification={settings.position.toLowerCase()}
+                justification={settings.position?.toLowerCase() || "left"}
                 content={purchasableItems.map(item =>
                   <MediaCardWithButtonVertical
                     key={item.id}
