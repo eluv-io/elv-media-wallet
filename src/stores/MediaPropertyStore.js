@@ -899,7 +899,7 @@ class MediaPropertyStore {
           return 1;
         }
 
-        return i1.priority > i2.priority ? -1 : 1;
+        return i1.priority < i2.priority ? -1 : 1;
       });
 
     const purchasable = (permissionItemIds.length > 0 && !!secondaryPurchaseOption) || !!permissionItemIds.find(permissionItemId =>
