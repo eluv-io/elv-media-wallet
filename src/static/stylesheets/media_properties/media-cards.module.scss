@@ -27,7 +27,6 @@ a {
   &__unauthorized-indicator {
     align-items: center;
     background: rgb(0 0 0 / 60%);
-    border: 2px solid rgb(255 255 255 / 30%);
     border-radius: 10px;
     display: flex;
     font-size: 20px;
@@ -53,7 +52,7 @@ a {
 
       .media-card__unauthorized-indicator {
         opacity: 1;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.35s ease;
       }
     }
   }
@@ -489,6 +488,7 @@ a {
 
 .media-card-button-vertical {
   border-radius: 10px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 50%);
   display: flex;
   flex-direction: column;
   max-width: 375px;

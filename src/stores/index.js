@@ -109,7 +109,7 @@ class RootStore {
   activeModals = 0;
 
   authInfo = undefined;
-  authNonce;
+  authCode = searchParams.get("elvid");
   authTTL = searchParams.get("ttl") || parseFloat(this.GetSessionStorage("auth-ttl"));
   noSavedAuth = searchParams.has("refresh");
   useLocalAuth;
@@ -265,9 +265,6 @@ class RootStore {
     this.cryptoStore = new CryptoStore(this);
     this.notificationStore = new NotificationStore(this);
     this.mediaPropertyStore = new MediaPropertyStore(this);
-
-    this.authNonce = this.GetLocalStorage("auth-nonce") || Utils.B58(ParseUUID(UUID()));
-    this.SetLocalStorage("auth-nonce", this.authNonce);
 
     this.useLocalAuth = this.GetSessionStorage("local-auth") || searchParams.has("la");
     if(this.useLocalAuth) {
@@ -566,16 +563,6 @@ class RootStore {
         this.Log(error, true);
       }
 
-      if(!this.inFlow) {
-        if(this.AuthInfo()) {
-          this.Log("Authenticating from saved session");
-          yield this.Authenticate(this.AuthInfo());
-        } else if(this.auth0) {
-          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
-          yield this.AuthenticateAuth0({});
-        }
-      }
-
       try {
         // Auth parameter containing raw info
         const authInfo = searchParams.get("authorization");
@@ -590,7 +577,8 @@ class RootStore {
       }
 
       if(!this.inFlow) {
-        if(this.AuthInfo()) {
+        // If we have saved auth info and are not doing code login session, load it
+        if(this.AuthInfo() && !this.authCode) {
           this.Log("Authenticating from saved session");
           yield this.Authenticate(this.AuthInfo());
         } else if(this.auth0) {
@@ -631,7 +619,9 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
+  AuthenticateOry = flow(function * ({nonce, installId, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
+    if(this.authenticating) { return; }
+
     let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
@@ -642,6 +632,9 @@ class RootStore {
         idToken: jwtToken,
         force,
         provider: "ory",
+        nonce,
+        installId,
+        origin,
         user: {
           name: email,
           email,
@@ -707,7 +700,7 @@ class RootStore {
     });
   });
 
-  AuthenticateAuth0 = flow(function * ({userData}={}) {
+  AuthenticateAuth0 = flow(function * ({nonce, installId, origin, userData}={}) {
     try {
       // eslint-disable-next-line no-console
       console.time("Auth0 Authentication");
@@ -733,6 +726,9 @@ class RootStore {
         yield this.Authenticate({
           idToken: authInfo.__raw,
           provider: "auth0",
+          nonce,
+          installId,
+          origin,
           user: {
             name: authInfo.name,
             email: authInfo.email,
@@ -765,7 +761,7 @@ class RootStore {
   ClearLoginParams() {
     try {
       // Ensure login parameters are cleared
-      const paramKeys = [
+      let paramKeys = [
         "code",
         "origin",
         "source",
@@ -785,7 +781,20 @@ class RootStore {
         "next"
       ];
 
+      // If on code login page, preserve the parameters so the page can be refreshed and still work
       const url = new URL(window.location.href);
+      if(url.searchParams.has("elvid")) {
+        paramKeys = [
+          "code",
+          "data",
+          "state"
+        ];
+
+        if(url.searchParams.has("action")) {
+          url.searchParams.set("action", "login");
+        }
+      }
+
       paramKeys.forEach(key => url.searchParams.delete(key));
 
       window.history.replaceState({}, document.title, url.toString());
@@ -802,6 +811,9 @@ class RootStore {
     provider="external",
     externalWallet,
     walletName,
+    installId,
+    nonce,
+    origin,
     user,
     saveAuthInfo=true,
     signerURIs,
@@ -846,9 +858,14 @@ class RootStore {
           email: user?.email,
           tenantId: this.currentPropertyTenantId,
           shareEmail: user?.userData?.share_email,
-          extraData: user?.userData || {},
+          extraData: {
+            ...(user?.userData || {}),
+            origin: origin || "Unknown"
+          },
           signerURIs,
-          nonce: this.authNonce,
+          nonce: nonce || Utils.B58(ParseUUID(UUID())),
+          installId,
+          appName: origin,
           createRemoteToken: !this.useLocalAuth,
           force,
           tokenDuration: this.authTTL || 24
@@ -866,7 +883,9 @@ class RootStore {
         clientAuthToken,
         clientSigningToken,
         provider,
-        save: saveAuthInfo
+        nonce,
+        installId,
+        save: this.authCode ? false : saveAuthInfo
       });
 
       this.authToken = this.walletClient.AuthToken();
@@ -2024,7 +2043,7 @@ class RootStore {
 
         // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
         returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
-        returnUrl.hash = returnUrl.pathname + returnUrl.search;
+        returnUrl.hash = returnUrl.pathname;
         returnUrl.pathname = "";
 
         setTimeout(() => {
@@ -2557,7 +2576,7 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
@@ -2565,7 +2584,9 @@ class RootStore {
       clientAuthToken,
       provider,
       expiresAt,
-      address
+      address,
+      nonce,
+      installId
     };
 
     if(save) {

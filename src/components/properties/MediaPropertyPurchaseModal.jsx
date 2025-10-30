@@ -5,7 +5,7 @@ import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Store
 import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
-import {NFTInfo, ValidEmail} from "../../utils/Utils";
+import {NFTInfo, SHA512, ValidEmail} from "../../utils/Utils";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
 import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
@@ -25,13 +25,15 @@ import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
-const SHA512 = async (str) => {
-  const buf = await crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str));
-  return Array.prototype.map.call(new Uint8Array(buf), x=>(("00"+x.toString(16)).slice(-2))).join("");
-};
+
 
 const DiscountedPrice = ({item, discountCode={}}) => {
   const { currency } = PriceCurrency(item.marketplaceItem.price);
+
+  if(!currency) {
+    return {};
+  }
+
   const originalPrice = ParseMoney(item.marketplaceItem.price[currency], currency);
   let discountAmount = 0;
   if(discountCode?.percent) {

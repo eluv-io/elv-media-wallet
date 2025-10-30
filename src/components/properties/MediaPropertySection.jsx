@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-import MediaCard from "Components/properties/MediaCards";
+import MediaCard, {MediaCardWithButtonVertical} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import {
@@ -17,7 +17,7 @@ import {
 } from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import {ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
+import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
@@ -29,9 +29,10 @@ import {
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
 import Filters from "Components/properties/Filters";
+import {FormatPriceString} from "Components/common/UIComponents";
+import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
 import LeftArrow from "Assets/icons/left-arrow";
-
 import PoweredByImage from "Assets/images/apps/Eluvio";
 import RokuImage from "Assets/images/apps/roku";
 import AmazonImage from "Assets/images/apps/amazon";
@@ -218,6 +219,95 @@ const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
         )
       }
     </div>
+  );
+});
+
+export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) => {
+  const match = useRouteMatch();
+  const purchasableItems = (permissions.permissionItemIds || [])
+    .map(permissionItemId =>
+      mediaPropertyStore.permissionItems[permissionItemId]
+    )
+    .filter(item => item.purchasable)
+    .map(item => {
+      const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
+      const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
+
+      if(!marketplaceItem) { return; }
+
+      const itemInfo = NFTInfo({item: marketplaceItem});
+      const params = new URLSearchParams(location.search);
+
+      params.set(
+        "p",
+        CreateMediaPropertyPurchaseParams({
+          type: "purchase",
+          id: item.id,
+          permissionItemIds: [item.id]
+        })
+      );
+
+      return {
+        ...item,
+        display: {
+          ...item.display,
+          title: item.title || marketplaceItem.name,
+          subtitle: item.subtitle,
+          description: item.description
+        },
+        price: FormatPriceString(marketplaceItem.price, {stringOnly: true}),
+        imageUrl: (item.use_custom_image && item.image?.url) ||
+          marketplaceItem.image?.url ||
+          itemInfo?.mediaInfo?.imageUrl,
+        textDisplay: "all",
+        linkPath: `${match.url}?${params.toString()}`,
+        buttonText: settings.card_button_text || rootStore.l10n.actions.select,
+        aspectRatio: "square"
+      };
+    })
+    .filter(item => item);
+
+  return (
+    <PageContainer className={S("page", "purchase-gate-page")}>
+      <div className={S("hero-section")}>
+        <PageBackground
+          display={settings}
+          className={S("hero-section__background")}
+          imageClassName={S("hero-section__background-image")}
+          videoClassName={S("hero-section__background-video")}
+        />
+        <div
+          className={S("hero-section__content", "hero-section__content--active")}
+        >
+          <PageHeader
+            display={settings}
+            descriptionMaxLines={100}
+            className={S("hero-section__header")}
+          />
+        </div>
+        {
+          purchasableItems.length === 0 ? null :
+            <div className={S("purchase-gate-page__content")}>
+              <MediaGrid
+                wrapTitles
+                isFormattedContent
+                aspectRatio="Square"
+                justification={settings.position?.toLowerCase() || "left"}
+                content={purchasableItems.map(item =>
+                  <MediaCardWithButtonVertical
+                    key={item.id}
+                    {...item}
+                  />
+                )}
+              />
+            </div>
+        }
+        <MediaPropertyPageContent
+          params={{mediaPropertySlugOrId: match.params.mediaPropertySlugOrId}}
+          sections={settings.sections}
+        />
+      </div>
+    </PageContainer>
   );
 });
 
@@ -425,6 +515,7 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
 export const MediaGrid = observer(({
   content,
   isSectionContent=false,
+  isFormattedContent=false,
   aspectRatio,
   textDisplay="all",
   justification="left",
@@ -461,21 +552,22 @@ export const MediaGrid = observer(({
       ), className].join(" ")}
     >
       {
-        content.map(item =>
-          <MediaCard
-            size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
-            format={cardFormat || "vertical"}
-            key={`section-item-${item.id}`}
-            sectionItem={isSectionContent ? item : undefined}
-            mediaItem={isSectionContent ? undefined : item}
-            textDisplay={textDisplay}
-            aspectRatio={aspectRatio}
-            textJustification={textJustification}
-            wrapTitle={wrapTitles}
-            buttonText={item?.card_button_text || defaultButtonText}
-            navContext={navContext}
-          />
-        )
+        isFormattedContent ? content :
+          content.map(item =>
+            <MediaCard
+              size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
+              format={cardFormat || "vertical"}
+              key={`section-item-${item.id}`}
+              sectionItem={isSectionContent ? item : undefined}
+              mediaItem={isSectionContent ? undefined : item}
+              textDisplay={textDisplay}
+              aspectRatio={aspectRatio}
+              textJustification={textJustification}
+              wrapTitle={wrapTitles}
+              buttonText={item?.card_button_text || defaultButtonText}
+              navContext={navContext}
+            />
+          )
       }
     </div>
   );

@@ -16,7 +16,6 @@ import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {Redirect} from "react-router-dom";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -25,6 +24,7 @@ const params = {
 
   // Third party login (Ory) - If flow parameter is present, there was a conflict and the login form needs to be shown
   isThirdPartyCallback: window.location.pathname === "/oidc" && !searchParams.has("flow"),
+  isThirdPartyConflict: window.location.pathname === "/oidc" && searchParams.has("flow"),
   // Redirect path
   next: searchParams.get("next"),
   // Property ID
@@ -52,6 +52,8 @@ const params = {
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  nonce: searchParams.get("nonce"),
+  installId: searchParams.get("installId"),
   oryFlow: searchParams.get("flow")
 };
 
@@ -351,9 +353,15 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
         <Logo customizationOptions={customizationOptions} />
         <OryLogin
           loading={loading}
+          isThirdPartyCallback={params.isThirdPartyCallback}
+          isThirdPartyConflict={params.isThirdPartyConflict}
           codeAuth={params.loginCode}
+          nonce={params.nonce}
+          installId={params.installId}
+          origin={params.origin}
           customizationOptions={customizationOptions}
           userData={userData}
+          next={params.next}
           requiredOptionsMissing={requiredOptionsMissing}
         />
         {
@@ -560,7 +568,12 @@ const AuthenticateAuth0 = async (userData) => {
 
     await rootStore.auth0.handleRedirectCallback();
 
-    await rootStore.AuthenticateAuth0({userData});
+    await rootStore.AuthenticateAuth0({
+      installId: params.installId,
+      nonce: params.nonce,
+      origin: params.origin,
+      userData
+    });
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -609,13 +622,12 @@ export const LogInAuth0 = async () => {
 };
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
-  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback || params.isThirdPartyCallback);
+  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
   const [userDataSaved, setUserDataSaved] = useState(false);
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const [finished, setFinished] = useState(false);
   const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback;
 
   // Handle login button clicked - Initiate popup/login flow
@@ -673,14 +685,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     }
   };
 
-  useEffect(() => {
-    if(!rootStore.oryClient || !rootStore.loaded || !userData || !params.isThirdPartyCallback) { return; }
-
-    rootStore.AuthenticateOry({userData, sendWelcomeEmail: true})
-      .then(() => setFinished(true))
-      .finally(() => setAuth0Authenticating(false));
-  }, [rootStore.loaded, rootStore.oryClient, userData]);
-
   // Handle login event, popup flow, and auth0 logout
   useEffect(() => {
     const Respond = () => {
@@ -717,7 +721,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           type: rootStore.AuthInfo()?.provider,
           authToken: rootStore.walletClient.AuthToken(),
           clusterToken: rootStore.walletClient.__authorization?.clusterToken,
-          expiresAt: rootStore.AuthInfo().expiresAt
+          refreshToken: rootStore.walletClient.__authorization?.refreshToken,
+          expiresAt: rootStore.AuthInfo().expiresAt,
+          origin: params.origin || "Unknown"
         });
 
         setCodeAuthSet(true);
@@ -747,7 +753,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.searchParams.delete("clear");
       returnURL.searchParams.delete("code");
 
-      rootStore.SignOut({returnUrl: returnURL.toString(), logOutAuth0: true});
+      rootStore.SignOut({returnUrl: returnURL.toString(), clearSavedLogin: !params.loginCode, logOutAuth0: true});
     };
 
     if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback)) {
@@ -810,10 +816,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         <PageLoader />
       </div>
     );
-  }
-
-  if(finished && params.next) {
-    return <Redirect to={params.next} />;
   }
 
   return (

@@ -98,6 +98,7 @@ actions:
   share: Share
   done: Done
   apply: Apply
+  select: Select
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?
@@ -109,6 +110,7 @@ actions:
     claim: Claim Now
     view: View Details
     next_step: Next Step
+    view_purchase_options: View Purchase Options
   listings:
     create: List For Sale
     create_for: List Now For {price}

@@ -367,11 +367,12 @@ const Tables = observer(({nftInfo}) => {
 });
 
 const ContractPage = observer(({nftInfo}) => {
+  const match = useRouteMatch();
   const [burned, setBurned] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
 
   if(burned) {
-    return <Redirect to="/" />;
+    return <Redirect to={MediaPropertyBasePath(match.params)} />;
   }
 
   return (

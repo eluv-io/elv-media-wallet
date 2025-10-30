@@ -4,9 +4,7 @@ import React from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {
-  PageContainer,
-} from "Components/properties/Common";
+import {PageContainer} from "Components/properties/Common";
 import {
   MediaPropertyHeroSection,
   MediaPropertySection,
@@ -16,18 +14,17 @@ import {
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
-export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) => {
-  const match = useRouteMatch();
-  const page = mediaPropertyStore.MediaPropertyPage(match.params);
-
-  if(!page) { return null; }
+export const MediaPropertyPageContent = observer(({params, sections, isMediaPage, className=""}) => {
+  if(!sections || sections.length === 0) {
+    return null;
+  }
 
   return (
     <div className={[S("page__sections"), className].join(" ")}>
       {
-        page.layout.sections.map((sectionId, index) => {
+        sections.map((sectionId, index) => {
           const section = mediaPropertyStore.MediaPropertySection({
-            ...match.params,
+            ...params,
             sectionSlugOrId: sectionId
           });
 
@@ -78,9 +75,12 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
   );
 });
 
-const MediaPropertyPage = observer(() => {
+const MediaPropertyPage = observer(({pageSlugOrId}) => {
   const match = useRouteMatch();
-  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+  const page = mediaPropertyStore.MediaPropertyPage({
+    ...match.params,
+    pageSlugOrId: pageSlugOrId || match.params.pageSlugOrId
+  });
 
   if(!page) {
     return <Redirect to="/" />;
@@ -88,7 +88,10 @@ const MediaPropertyPage = observer(() => {
 
   return (
     <PageContainer className={S("page", "property-page")}>
-      <MediaPropertyPageContent />
+      <MediaPropertyPageContent
+        params={match.params}
+        sections={page.layout?.sections}
+      />
     </PageContainer>
   );
 });

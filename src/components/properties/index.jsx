@@ -9,10 +9,10 @@ import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import {LoginGate} from "Components/common/LoginGate";
-import {PurchaseGate} from "Components/properties/Common";
 import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "../../utils/Utils";
 import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -119,11 +119,11 @@ const PropertyWrapper = observer(({children}) => {
           const provider = rootStore.AuthInfo()?.provider || "external";
           const useAuth0 = !!(property?.metadata?.login?.settings?.use_auth0 && property?.metadata?.login?.settings?.auth0_domain);
           const propertyProvider = useAuth0 ? "auth0" : "ory";
+
           if(
             rootStore.loggedIn &&
             provider !== propertyProvider &&
-            // Only allow metamask for auth0
-            !(provider === "external" && propertyProvider === "auth0")
+            provider !== "external"
           ) {
             rootStore.Log("Signing out due to mismatched login provider with property");
             await rootStore.SignOut({reload: false});
@@ -142,20 +142,17 @@ const PropertyWrapper = observer(({children}) => {
             digest={mediaProperty?.metadata?.preview_password_digest}
           >
             <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
-              <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
-                <PurchaseGate id={page?.id} permissions={page?.permissions}>
-                  <div
-                    style={
-                      useCustomBackgroundColor ?
-                        { "--property-background": backgroundColor } : {}
-                    }
-                    className={PropertyStyles["property"]}
-                  >
-                    { children }
-                    <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
-                  </div>
-                </PurchaseGate>
-              </PurchaseGate>
+              <div
+                style={
+                  useCustomBackgroundColor ?
+                    { "--property-background": backgroundColor } : {}
+                }
+                className={PropertyStyles["property"]}
+              >
+                { children }
+                <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
+                <MediaPropertyPurchaseModal />
+              </div>
             </LoginGate>
           </PreviewPasswordGate>
         </PreviewPasswordGate>

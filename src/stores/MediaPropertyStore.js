@@ -744,6 +744,7 @@ class MediaPropertyStore {
     let authorized = true;
     let behavior = this.PERMISSION_BEHAVIORS.HIDE;
     let cause;
+    let causeId;
     let permissionItemIds;
     let sectionItem;
     let isTestContent = false;
@@ -784,6 +785,7 @@ class MediaPropertyStore {
           authorized = false;
           permissionItemIds = section.permissions?.permission_item_ids || [];
           cause = "Section permissions";
+          causeId = section.id;
         }
 
         alternatePageId =
@@ -807,6 +809,7 @@ class MediaPropertyStore {
               authorized = false;
               permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
               cause = "Section item permissions";
+              causeId = sectionItem.id;
             }
 
             behavior = sectionItem.permissions?.behavior || behavior;
@@ -829,6 +832,7 @@ class MediaPropertyStore {
             authorized = false;
             behavior = this.PERMISSION_BEHAVIORS.DISABLE;
             cause = "Section item disabled";
+            causeId = sectionItem.id;
           }
         }
       }
@@ -848,6 +852,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media collection permissions";
+        causeId = mediaCollection.id;
       }
     }
 
@@ -859,6 +864,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media list permissions";
+        causeId = mediaList.id;
       }
     }
 
@@ -870,6 +876,7 @@ class MediaPropertyStore {
         authorized = false;
         permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
         cause = "Media permissions";
+        causeId = mediaItem.id;
       }
     }
 
@@ -878,13 +885,28 @@ class MediaPropertyStore {
       behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
-    permissionItemIds = permissionItemIds || [];
+    permissionItemIds = (permissionItemIds || [])
+      .filter(permissionItemId => !!this.permissionItems[permissionItemId])
+      .sort((a, b) => {
+        const i1 = this.permissionItems[a];
+        const i2 = this.permissionItems[b];
 
-    const purchasable = !!secondaryPurchaseOption || !!permissionItemIds.find(permissionItemId =>
+        if(typeof i1.priority === "undefined" && typeof i2.priority === "undefined") {
+          return 0;
+        } else if(typeof i2.priority === "undefined") {
+          return -1;
+        } else if(typeof i1.priority === "undefined") {
+          return 1;
+        }
+
+        return i1.priority < i2.priority ? -1 : 1;
+      });
+
+    const purchasable = (permissionItemIds.length > 0 && !!secondaryPurchaseOption) || !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchasable
     );
 
-    const purchaseAuthorized = permissionItemIds.find(permissionItemId =>
+    const purchaseAuthorized = !!permissionItemIds.find(permissionItemId =>
       this.permissionItems[permissionItemId]?.purchaseAuthorized
     );
 
@@ -933,19 +955,31 @@ class MediaPropertyStore {
       behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
+    let hide = !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0));
+    // Behavior is purchase, but no purchasable items and 'no purchase page' not enabled
+    if(
+      !authorized &&
+      behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+      !purchaseAuthorized &&
+      !this.MediaProperty({mediaPropertySlugOrId})?.metadata?.no_purchase_available_page?.enabled
+    ) {
+      hide = true;
+    }
+
     return {
       authorized,
       purchasable: !!purchasable,
       behavior,
       // Hide by default, or if behavior is hide, or if no purchasable permissions are available
-      hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
+      hide,
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
-      purchaseGate: purchaseGate && permissionItemIds.length > 0,
+      purchaseGate,
       secondaryPurchaseOption,
       showAlternatePage,
       alternatePageId,
       permissionItemIds,
-      cause: cause || ""
+      cause: cause || "",
+      causeId
     };
   }
 
@@ -1496,6 +1530,9 @@ class MediaPropertyStore {
           mediaItem.public ||
           !!mediaItem.permissions?.find(({permission_item_id}) => this.PermissionItem({permissionItemId: permission_item_id})?.authorized);
 
+        const CanPurchaseAccess = mediaItem =>
+          !!mediaItem.permissions?.find(({permission_item_id}) => this.PermissionItem({permissionItemId: permission_item_id})?.purchasable);
+
         runInAction(() => {
           this.mediaCatalogs[mediaCatalogId] = {
             name: metadata.name,
@@ -1513,6 +1550,8 @@ class MediaPropertyStore {
 
         Object.keys(media).forEach(mediaId => {
           media[mediaId].authorized = IsAuthorized(media[mediaId]);
+          media[mediaId].canPurchaseAccess = CanPurchaseAccess(media[mediaId]);
+
           if(media[mediaId].date) {
             media[mediaId].canonical_date = media[mediaId].date.split("T")[0];
           }

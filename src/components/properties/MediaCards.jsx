@@ -15,13 +15,13 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
-const MediaCardWithButtonVertical = observer(({
+export const MediaCardWithButtonVertical = observer(({
   display,
   price,
   imageContainerRef,
   imageUrl,
   livePreviewUrl,
-  scheduleInfo,
+  scheduleInfo={},
   textDisplay,
   textJustification,
   aspectRatio,
@@ -137,7 +137,7 @@ const MediaCardWithButtonHorizontal = observer(({
   imageContainerRef,
   imageUrl,
   livePreviewUrl,
-  scheduleInfo,
+  scheduleInfo={},
   textDisplay,
   textJustification,
   aspectRatio,
@@ -476,7 +476,7 @@ const MediaCardVertical = observer(({
         {
           authorized || !rootStore.loggedIn ? null :
             <div className={S("media-card__unauthorized-indicator")}>
-              View Purchase Options
+              { rootStore.l10n.actions.purchase.view_purchase_options }
             </div>
         }
         {
@@ -664,7 +664,8 @@ const MediaCard = observer(({
     return () => clearInterval(previewUpdateInterval);
   }, []);
 
-  if((sectionItem || mediaItem)?.resolvedPermissions?.hide) {
+  const permissions = (sectionItem || mediaItem)?.resolvedPermissions || {};
+  if(permissions.hide) {
     rootStore.Log("Warning: Media card with 'hide' permissions - should be truncated earlier", "warn");
     rootStore.Log(sectionItem || mediaItem, "warn");
     return null;
@@ -699,7 +700,7 @@ const MediaCard = observer(({
     !scheduleInfo.isLiveContent &&
     mediaPropertyStore.GetMediaProgress({mediaItemId: cardMediaItem.id});
 
-  disabled = disabled || (sectionItem || mediaItem)?.resolvedPermissions?.disable;
+  disabled = disabled || permissions.disable;
 
   let linkPath, url, authorized, price;
   if(!disabled) {

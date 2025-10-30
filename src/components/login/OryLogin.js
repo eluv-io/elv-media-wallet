@@ -170,9 +170,23 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
   }
 };
 
-const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing, loading}) => {
-  const isThirdPartyConflict = window.location.pathname === "/oidc";
-  const [flowType, setFlowType] = useState(searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" : "login");
+const OryLogin = observer(({
+  customizationOptions,
+  userData,
+  codeAuth,
+  nonce,
+  installId,
+  origin,
+  requiredOptionsMissing,
+  isThirdPartyCallback,
+  isThirdPartyConflict,
+  loading,
+  next
+}) => {
+  const [flowType, setFlowType] = useState(
+    searchParams.has("flow") && !isThirdPartyConflict ? "initializeFlow" :
+      isThirdPartyCallback ? "thirdPartyCallback" : "login"
+  );
   const [flows, setFlows] = useState({});
   const [loggingOut, setLoggingOut] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
@@ -203,6 +217,31 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
               }
             });
         }
+
+        break;
+      case "thirdPartyCallback":
+        if(rootStore.authenticating) { return; }
+
+        rootStore.AuthenticateOry({
+          userData,
+          origin,
+          nonce,
+          installId,
+          sendWelcomeEmail: true
+        })
+          .catch(error => {
+            rootStore.Log(error, true);
+
+            if(error.login_limited) {
+              setFlows({...flows, login_limited: {}});
+              setFlowType("login_limited");
+            }
+          })
+          .then(() => {
+            if(rootStore.loggedIn && next) {
+              setRedirect(next);
+            }
+          });
 
         break;
       case "login":
@@ -438,18 +477,18 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
       switch(flowType) {
         case "login":
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
-          await rootStore.AuthenticateOry({userData});
+          await rootStore.AuthenticateOry({userData, nonce, installId, origin});
           next = true;
 
           break;
         case "login_limited":
-          await rootStore.AuthenticateOry({userData, force: true});
+          await rootStore.AuthenticateOry({userData, nonce, installId, origin, force: true});
           next = true;
 
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
-          await rootStore.AuthenticateOry({userData, sendWelcomeEmail: true, sendVerificationEmail: true});
+          await rootStore.AuthenticateOry({userData, nonce, installId, origin, sendWelcomeEmail: true, sendVerificationEmail: true});
           next = true;
 
           break;
@@ -476,7 +515,7 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
 
           if(response.data.state === "success") {
             setStatusMessage(rootStore.l10n.login.ory.messages.password_updated);
-            await rootStore.AuthenticateOry({userData, sendVerificationEmail: location.pathname.endsWith("/register")});
+            await rootStore.AuthenticateOry({userData, nonce, installId, origin, sendVerificationEmail: location.pathname.endsWith("/register")});
           }
 
           setFlows({...flows, [flowType]: response.data});

@@ -290,21 +290,10 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
   linkPath = !linkPath ? undefined : linkPath + (params.size > 0 ? `?${params.toString()}` : "");
 
-  // Purchase gate - include intended path to go to after successful purchase
   const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
-  if(!permissions.authorized && permissions.purchaseGate) {
-    params = new URLSearchParams(location.search);
-    params.set("p", CreateMediaPropertyPurchaseParams({
-      id: mediaItem?.id || sectionItem?.id,
-      gate: true,
-      permissionItemIds: permissions.permissionItemIds,
-      secondaryPurchaseOption: permissions.secondaryPurchaseOption,
-      successPath: linkPath
-    }));
 
-    linkPath = match.url + `?${params.toString()}`;
-    url = undefined;
-  } else if(!permissions.authorized && permissions.showAlternatePage) {
+  if(!permissions.authorized && permissions.showAlternatePage) {
+
     linkPath = MediaPropertyBasePath({
       ...match.params,
       pageSlugOrId: permissions.alternatePageId
