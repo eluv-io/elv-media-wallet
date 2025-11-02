@@ -134,7 +134,7 @@ const AdditionalView = observer(({
       }
     >
       <div className={S("item__text")}>
-        <div className={S("item__title")}>
+        <div title={item.label} className={S("item__title")}>
           {item.label}
         </div>
       </div>
@@ -247,12 +247,12 @@ const SidebarItem = observer(({
           </div>
       }
       <div className={S("item__text")}>
-        <div className={S("item__title")}>
+        <div title={mediaItem.title} className={S("item__title")}>
           {mediaItem.title}
         </div>
         {
           !mediaItem.subtitle ? null :
-            <div className={S("item__subtitle")}>
+            <div title={mediaItem.subtitle} className={S("item__subtitle")}>
               {mediaItem.subtitle}
             </div>
         }
@@ -331,7 +331,7 @@ const MediaSidebar = observer(({
   const upcomingContent = content.filter(item => item.scheduleInfo.isLiveContent && !item.scheduleInfo.started);
   const vodContent = content.filter(item => !item.scheduleInfo.isLiveContent);
 
-  if(!showSidebar || rootStore.pageWidth < 800) {
+  if(!showSidebar || rootStore.pageWidth < 650) {
     return (
       <div className={S("hidden-sidebar")}>
         <button onClick={() => setShowSidebar(true)} className={S("show-button")}>

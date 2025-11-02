@@ -68,7 +68,7 @@
   @media screen and (width <= 800px) {
     height: max-content;
     min-height: unset;
-    padding-top: 20px;
+    padding-top: 10px;
   }
 }
 
@@ -465,16 +465,13 @@
   }
 
   @media screen and (width <= 1200px) {
-    &__media-container {
-      flex-direction: column;
-    }
-
-    &__video {
-      max-height: calc(var(--vh) * 43);
-    }
+    grid-column-gap: 0;
+    grid-template-columns: 1fr max-content;
+    margin-top: 0;
+    padding: 0 15px;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 650px) {
     gap: 30px;
     grid-template-columns: 1fr;
     margin-top: 0;
@@ -553,7 +550,7 @@
     }
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     padding-bottom: 0;
 
     &__title {

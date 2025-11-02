@@ -290,7 +290,10 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
         // This is an additional view
 
         return {
-          mediaItem: { media_link: mediaIdOrItem.media_link },
+          index: mediaIdOrItem.index,
+          mediaItem: {
+            media_link: mediaIdOrItem.media_link
+          },
           display: { title: mediaIdOrItem.label }
         };
       }
@@ -330,7 +333,17 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
                 showTitle
                 onClose={
                   index === 0 ? undefined :
-                    () => setAdditionalMedia(additionalMedia.filter(id => id !== item.mediaItem.id))
+                    () => {
+                      setAdditionalMedia(
+                        additionalMedia.filter(idOrInfo =>
+                          typeof idOrInfo === "string" ?
+                            // Media ID
+                            idOrInfo !== item.mediaItem.id :
+                            // Additional media
+                            idOrInfo?.index !== item.index
+                        )
+                      );
+                    }
                 }
                 className={S("media-with-sidebar__video")}
                 containerProps={{
@@ -345,7 +358,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   }
 
   return (
-    <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
+    <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 650 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
         {media}
         {textContent}
