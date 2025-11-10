@@ -758,6 +758,11 @@ media_properties:
     description:
       show: Read More
       hide: Show Less
+    sidebar:
+      today: Today
+      upcoming: Upcoming
+      more_content: More Content
+      multiview: Multiview
     errors:
       default: This media is not available
       not_started: This live content has not yet started

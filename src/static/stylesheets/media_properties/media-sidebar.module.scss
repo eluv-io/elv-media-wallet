@@ -141,7 +141,12 @@
     align-items: center;
     display: flex;
     font-size: 14px;
-    gap: 10px;
+    gap: 0 10px;
+    flex-wrap: wrap;
+
+    &:not(:empty) {
+      margin-bottom: 10px;
+    }
   }
 
   &__header {

@@ -59,7 +59,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
-  uiLocalizations = ["pt-br"];
+  uiLocalizations = ["en", "de", "es", "fr", "it", "pt", "pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
 
   customDomainPropertyId;
@@ -195,7 +195,6 @@ class RootStore {
 
   analyticsInitialized = false;
 
-  headerText;
   routeChange;
 
   shortURLs = {};
@@ -329,29 +328,22 @@ class RootStore {
     this.discoverFilter = filter;
   }
 
-  SetLanguage = flow(function * (language, save=false) {
-    if(Array.isArray(language)) {
-      for(let i = 0; i < language.length; i++) {
-        if(yield this.SetLanguage(language[i], save)) {
-          return;
-        }
-      }
-
-      language = "en";
-    }
-
+  SetLanguage = flow(function * (language="en") {
     language = language.toLowerCase();
 
-    if(language.startsWith("en")) {
+    // Find matching preference (including variants, e.g. pt-br === pt)
+    const availableLocalizations = [...this.uiLocalizations, "test"];
+    language =
+      // Prefer exact match
+      availableLocalizations.find(key => key === language) ||
+      // Accept close match (e.g. pt -> pt-br)
+      availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
+
+    if(!language || language.startsWith("en")) {
       this.l10n = LocalizationEN;
       this.language = "en";
-      save ? this.SetLocalStorage("lang", "en") : this.RemoveLocalStorage("lang");
       return true;
     }
-
-    // Find matching preference (including variants, e.g. pt-br === pt)
-    const availableLocalizations = ["pt-br", "test"];
-    language = availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
 
     if(!language) {
       return false;
@@ -376,16 +368,8 @@ class RootStore {
     this.l10n = MergeLocalization(localization, LocalizationEN);
     this.language = language;
 
-    if(save) {
-      this.SetLocalStorage("lang", language);
-    }
-
     return true;
   });
-
-  SetHeaderText(text) {
-    this.headerText = text;
-  }
 
   SetCurrentProperty = flow(function * (mediaPropertySlugOrId) {
     if(!mediaPropertySlugOrId) {
@@ -428,7 +412,6 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
-      this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
         let oryUrl = EluvioConfiguration.ory_configuration.url;
@@ -680,9 +663,21 @@ class RootStore {
     }
   });
 
+  GetPropertySlugOrId() {
+    let id = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
+
+    if(id) {
+      return id;
+    } else if(window.location.pathname.includes("/p/")) {
+      return window.location.pathname.split("/p/").slice(-1)[0].split("/")[0];
+    } else {
+      return window.location.pathname.split("/")[1];
+    }
+  }
+
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
-      this.currentPropertyId || searchParams.get("pid") || window.location.pathname.split("/")[1]
+      this.GetPropertySlugOrId()
     );
 
     if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
@@ -956,7 +951,6 @@ class RootStore {
   });
 
   SetDomainCustomization = flow(function * (mediaPropertyId) {
-
     if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
@@ -1367,7 +1361,7 @@ class RootStore {
     );
   });
 
-  LoadMarketplace = flow(function * (marketplaceId) {
+  LoadMarketplace = flow(function * (marketplaceId, localizationKey) {
     if(!this.walletClient.marketplaceLoadingStarted) {
       this.walletClient.marketplaceLoadingStarted = true;
       yield this.walletClient.LoadAvailableMarketplaces();
@@ -1379,7 +1373,7 @@ class RootStore {
     }
 
     if(!this.marketplaces[marketplaceId]) {
-      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
+      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}, localizationKey});
 
       yield this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
       yield this.checkoutStore.MarketplacePrices({tenantId: marketplace.tenant_id});

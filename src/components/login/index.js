@@ -648,7 +648,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
-      } else if(provider === "oauth") {
+      } else if(provider === "oauth" && rootStore.auth0) {
         let auth0LoginParams = { appState: {} };
 
         if(rootStore.darkMode) {

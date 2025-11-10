@@ -1207,18 +1207,25 @@ class MediaPropertyStore {
         const storageKey = `customization-metadata-${versionHash}`;
 
         const metadata =
-          this.rootStore.GetSessionStorageJSON(storageKey, true) ||
+          (!this.previewAll && this.rootStore.GetSessionStorageJSON(storageKey, true)) ||
           await this.client.ContentObjectMetadata({
             versionHash,
             metadataSubtree: "/public/asset_metadata/info",
             produceLinkUrls: true,
             select: [
+              "language",
+              "localizations",
               "tenant",
               "login",
               "styling",
               "domain"
             ]
           });
+
+        console.log("METADATA", metadata, versionHash)
+
+        metadata.language = metadata.language || "en";
+        metadata.localizations = metadata.localizations || [];
 
         this.rootStore.SetSessionStorage(
           storageKey,
@@ -1296,6 +1303,58 @@ class MediaPropertyStore {
     });
   });
 
+  GetLocalizationKey = flow(function * ({mediaPropertyId}) {
+    // Localization
+    const customizationInfo = yield this.LoadMediaPropertyCustomizationMetadata({mediaPropertySlugOrId: mediaPropertyId});
+    console.log(customizationInfo)
+
+    // User's languages, in priority order
+    const userLanguages = [
+      localStorage.getItem(`lang-${mediaPropertyId}`),
+      ...navigator.languages
+    ]
+      .filter(l => l);
+
+    console.log(localStorage.getItem(`lang-${mediaPropertyId}`), mediaPropertyId, userLanguages)
+
+    // Available property languages
+    const availableLocalizations = [
+      customizationInfo.language || "en",
+      ...(customizationInfo.localizations || [])
+    ];
+    console.log(availableLocalizations)
+
+    let localizationKey;
+    userLanguages.forEach(userKey => {
+      if(localizationKey) { return; }
+
+      // Prefer exact match
+      localizationKey = availableLocalizations.find(key => userKey.toLowerCase() === key.toLowerCase());
+    });
+    console.log(localizationKey)
+
+    if(!localizationKey) {
+      userLanguages.forEach(userKey => {
+        if(localizationKey) { return; }
+
+        // Look for close matches, eg. pt-br =~ pt or pt-pt
+        localizationKey = availableLocalizations.find(key =>
+          userKey.split("-")[0].toLowerCase() === key.split("-")[0].toLowerCase()
+        );
+      });
+    }
+
+    console.log(localizationKey)
+
+    if(localizationKey === customizationInfo.language) {
+      localizationKey = undefined;
+    }
+
+    console.log(localizationKey)
+
+    return localizationKey;
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
 
@@ -1323,6 +1382,13 @@ class MediaPropertyStore {
 
         const mediaPropertyId = versionHash && Utils.DecodeVersionHash(versionHash).objectId;
 
+        const localizationKey = await this.GetLocalizationKey({mediaPropertyId});
+
+        this.SetPropertyLanguage({mediaPropertyId, localizationKey, reload: false});
+
+        this.rootStore.SetLanguage(localizationKey);
+        this.rootStore.walletClient.localization = localizationKey;
+
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
@@ -1330,15 +1396,17 @@ class MediaPropertyStore {
           resolveLinks: !isPreview,
           resolveIgnoreErrors: true,
           resolveIncludeSource: true,
-          linkDepthLimit: 1
+          linkDepthLimit: 1,
+          localizationSubtree: !localizationKey ? undefined :
+            `/public/asset_metadata/localizations/${localizationKey}/info`
         });
 
         metadata.mediaPropertyId = mediaPropertyId;
 
         // Start loading associated marketplaces and owned items in those marketplaces but don't block on it
         (metadata.associated_marketplaces || []).map(({marketplace_id}) => {
-          this.LoadMarketplace({marketplaceId: marketplace_id, force});
-          this.LoadOwnedItems({marketplaceId: marketplace_id, force});
+          this.LoadMarketplace({marketplaceId: marketplace_id, localizationKey, force});
+          this.LoadOwnedItems({marketplaceId: marketplace_id, localizationKey, force});
         });
 
         if(!isPreview && metadata.permission_set_links) {
@@ -1348,6 +1416,7 @@ class MediaPropertyStore {
               await this.LoadPermissionSet({
                 permissionSetId,
                 metadata: metadata.permission_set_links[permissionSetId],
+                localizationKey,
                 force
               })
             )
@@ -1356,7 +1425,7 @@ class MediaPropertyStore {
           // Load latest versions
           await Promise.all(
             (metadata.permission_sets || []).map(async permissionSetId =>
-              await this.LoadPermissionSet({permissionSetId, force})
+              await this.LoadPermissionSet({permissionSetId, localizationKey, force})
             )
           );
         }
@@ -1370,6 +1439,7 @@ class MediaPropertyStore {
               await this.LoadMediaCatalog({
                 mediaCatalogId,
                 metadata: metadata.media_catalog_links[mediaCatalogId],
+                localizationKey,
                 force
               })
             )
@@ -1378,7 +1448,7 @@ class MediaPropertyStore {
           // Load latest versions
           mediaCatalogContent = await Promise.all(
             (metadata.media_catalogs || []).map(async mediaCatalogId =>
-              await this.LoadMediaCatalog({mediaCatalogId, force})
+              await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force})
             )
           );
         }
@@ -1491,7 +1561,7 @@ class MediaPropertyStore {
     return force;
   });
 
-  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, force}) {
+  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, localizationKey, force}) {
     if(mediaCatalogHash) {
       mediaCatalogId = this.client.utils.DecodeVersionHash(mediaCatalogHash).objectId;
     } else {
@@ -1500,7 +1570,7 @@ class MediaPropertyStore {
 
     return yield this.LoadResource({
       key: "MediaCatalog",
-      id: mediaCatalogHash,
+      id: `${mediaCatalogHash}-${localizationKey}`,
       force,
       Load: async () => {
         if(!metadata) {
@@ -1516,13 +1586,15 @@ class MediaPropertyStore {
               "attributes",
               "tags"
             ],
-            produceLinkUrls: true
+            produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? null :
+              `/public/asset_metadata/localizations/${localizationKey}/info`
           });
         }
 
         await Promise.all(
           (metadata.permission_sets || []).map(async permissionSetId =>
-            await this.LoadPermissionSet({permissionSetId})
+            await this.LoadPermissionSet({permissionSetId, localizationKey})
           )
         );
 
@@ -1565,7 +1637,7 @@ class MediaPropertyStore {
     });
   });
 
-  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, metadata, force}) {
+  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, metadata, localizationKey, force}) {
     if(permissionSetHash) {
       permissionSetId = this.client.utils.DecodeVersionHash(permissionSetHash).objectId;
     } else {
@@ -1575,14 +1647,16 @@ class MediaPropertyStore {
     yield this.LoadResource({
       key: "PermissionSet",
       force,
-      id: permissionSetId,
+      id: `${permissionSetId}-${localizationKey}`,
       Load: async () => {
         let permissionItems = metadata?.permissionItems;
         if(!permissionItems) {
           permissionItems = (await this.client.ContentObjectMetadata({
             versionHash: permissionSetHash,
             metadataSubtree: "/public/asset_metadata/info/permission_items",
-            produceLinkUrls: true
+            produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? null :
+              `/public/asset_metadata/localizations/${localizationKey}/info/permission_items`
           })) || {};
         }
 
@@ -1594,7 +1668,7 @@ class MediaPropertyStore {
               return;
             }
 
-            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
+            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id, localizationKey});
 
             const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
               ?.find(item => item.sku === permissionItem.marketplace_sku);
@@ -1659,12 +1733,12 @@ class MediaPropertyStore {
     });
   });
 
-  LoadMarketplace = flow(function * ({marketplaceId, force=false}) {
+  LoadMarketplace = flow(function * ({marketplaceId, localizationKey, force=false}) {
     yield this.LoadResource({
       key: "Marketplace",
       id: marketplaceId,
       force,
-      Load: async () => await this.rootStore.LoadMarketplace(marketplaceId)
+      Load: async () => await this.rootStore.LoadMarketplace(marketplaceId, localizationKey)
     });
   });
 
@@ -1788,6 +1862,19 @@ class MediaPropertyStore {
       }
     });
   });
+
+  SetPropertyLanguage({mediaPropertyId, localizationKey, reload=false}) {
+    console.log("SPL", mediaPropertyId, localizationKey)
+    if(localizationKey) {
+      localStorage.setItem(`lang-${mediaPropertyId}`, localizationKey);
+    } else {
+      localStorage.removeItem(`lang-${mediaPropertyId}`);
+    }
+
+    if(reload) {
+      window.location.href = window.location.href;
+    }
+  }
 
   /* Media */
 

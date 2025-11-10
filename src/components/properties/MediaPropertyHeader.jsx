@@ -15,6 +15,7 @@ import {Button} from "Components/properties/Common";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {SetImageUrlDimensions} from "../../utils/Utils";
+import {LogInAuth0} from "Components/login";
 
 import HomeIcon from "Assets/icons/home.svg";
 import SearchIcon from "Assets/icons/search.svg";
@@ -23,7 +24,7 @@ import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import SelectIcon from "Assets/icons/select";
-import {LogInAuth0} from "Components/login";
+import LanguageIcon from "Assets/icons/header/language";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -378,6 +379,57 @@ const SearchBar = observer(({autoFocus}) => {
   );
 });
 
+const LanguageMenu = observer(() => {
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const combobox = useCombobox();
+  const availableLocalizations = [
+    mediaProperty.metadata.language || "",
+    ...(mediaProperty.metadata.localizations || [])
+  ]
+    .filter(l => l)
+    .map(key => ({
+      value: key,
+      label: new Intl.DisplayNames([rootStore.language], {type: "language"}).of(key).capitalize()
+    }));
+
+  if(availableLocalizations.length <= 1) {
+    return null;
+  }
+
+  return (
+    <Combobox
+      store={combobox}
+      width={200}
+      position="bottom-end"
+      onOptionSubmit={value => mediaPropertyStore.SetPropertyLanguage({
+        mediaPropertyId: rootStore.currentPropertyId,
+        localizationKey: value,
+        reload: true
+      })}
+      classNames={{
+        option: S("language-menu__option")
+      }}
+    >
+      <Combobox.Target>
+        <Linkish onClick={() => combobox.toggleDropdown()} className={S("button")}>
+          <ImageIcon icon={LanguageIcon} label="Language" className={S("button__icon")}/>
+        </Linkish>
+      </Combobox.Target>
+      <Combobox.Dropdown>
+        <Combobox.Options>
+          {
+            availableLocalizations.map(({label, value}) =>
+              <Combobox.Option key={value} value={value}>
+                { label }
+              </Combobox.Option>
+            )
+          }
+        </Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
+  );
+});
+
 const HeaderLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
@@ -388,7 +440,6 @@ const HeaderLinks = observer(() => {
   if(mediaProperty?.metadata?.login?.settings?.disable_login) {
     return null;
   }
-
 
   if(!rootStore.loggedIn) {
     if(rootStore.authenticating) { return null; }
@@ -401,6 +452,7 @@ const HeaderLinks = observer(() => {
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
+        <LanguageMenu />
         <Button
           onClick={() => {
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
@@ -427,6 +479,7 @@ const HeaderLinks = observer(() => {
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
+        <LanguageMenu />
         <button
           className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}

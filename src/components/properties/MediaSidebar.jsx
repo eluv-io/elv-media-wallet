@@ -279,19 +279,19 @@ const MediaSidebar = observer(({
               {
                 sidebarContent.additionalViews.length > 0 ?
                   <div className={[S("content__title"), "_title"].join(" ")}>
-                    Today
+                    { rootStore.l10n.media_properties.media.sidebar.today }
                   </div> :
                   <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
                     <button
                       className={S("content__mode-tab")}
                     >
-                      Today
+                      { rootStore.l10n.media_properties.media.sidebar.today }
                     </button>
                     <button
                       onClick={() => setShowMultiviewSelectionModal(true)}
                       className={S("content__mode-tab")}
                     >
-                      Multiview
+                      { rootStore.l10n.media_properties.media.sidebar.multiview }
                     </button>
                   </div>
               }
@@ -322,7 +322,7 @@ const MediaSidebar = observer(({
           upcomingContent.length === 0 ? null :
             <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
-                Upcoming
+                { rootStore.l10n.media_properties.media.sidebar.upcoming }
               </div>
               {upcomingContent.map((item, index) => {
                 const {linkPath} = MediaPropertyLink({match, mediaItem: item.display, navContext}) || "";
@@ -344,7 +344,7 @@ const MediaSidebar = observer(({
           vodContent.length === 0 ? null :
             <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
-                { section?.display?.title || "More Content" }
+                { section?.display?.title || rootStore.l10n.media_properties.media.sidebar.more_content }
               </div>
               {vodContent.map((item, index) => {
                 const {linkPath} = MediaPropertyLink({match, mediaItem: item.display, navContext}) || "";
