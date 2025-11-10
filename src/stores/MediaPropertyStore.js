@@ -1222,8 +1222,6 @@ class MediaPropertyStore {
             ]
           });
 
-        console.log("METADATA", metadata, versionHash)
-
         metadata.language = metadata.language || "en";
         metadata.localizations = metadata.localizations || [];
 
@@ -1306,7 +1304,6 @@ class MediaPropertyStore {
   GetLocalizationKey = flow(function * ({mediaPropertyId}) {
     // Localization
     const customizationInfo = yield this.LoadMediaPropertyCustomizationMetadata({mediaPropertySlugOrId: mediaPropertyId});
-    console.log(customizationInfo)
 
     // User's languages, in priority order
     const userLanguages = [
@@ -1315,14 +1312,11 @@ class MediaPropertyStore {
     ]
       .filter(l => l);
 
-    console.log(localStorage.getItem(`lang-${mediaPropertyId}`), mediaPropertyId, userLanguages)
-
     // Available property languages
     const availableLocalizations = [
       customizationInfo.language || "en",
       ...(customizationInfo.localizations || [])
     ];
-    console.log(availableLocalizations)
 
     let localizationKey;
     userLanguages.forEach(userKey => {
@@ -1331,7 +1325,6 @@ class MediaPropertyStore {
       // Prefer exact match
       localizationKey = availableLocalizations.find(key => userKey.toLowerCase() === key.toLowerCase());
     });
-    console.log(localizationKey)
 
     if(!localizationKey) {
       userLanguages.forEach(userKey => {
@@ -1344,14 +1337,10 @@ class MediaPropertyStore {
       });
     }
 
-    console.log(localizationKey)
-
     if(localizationKey === customizationInfo.language) {
       localizationKey = undefined;
     }
-
-    console.log(localizationKey)
-
+    
     return localizationKey;
   });
 
@@ -1864,7 +1853,7 @@ class MediaPropertyStore {
   });
 
   SetPropertyLanguage({mediaPropertyId, localizationKey, reload=false}) {
-    console.log("SPL", mediaPropertyId, localizationKey)
+    console.log("SPL", mediaPropertyId, localizationKey);
     if(localizationKey) {
       localStorage.setItem(`lang-${mediaPropertyId}`, localizationKey);
     } else {

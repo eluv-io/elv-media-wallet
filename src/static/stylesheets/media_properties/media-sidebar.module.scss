@@ -140,9 +140,9 @@
   &__headers {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     font-size: 14px;
     gap: 0 10px;
-    flex-wrap: wrap;
 
     &:not(:empty) {
       margin-bottom: 10px;

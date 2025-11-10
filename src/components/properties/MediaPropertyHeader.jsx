@@ -399,7 +399,9 @@ const LanguageMenu = observer(() => {
   return (
     <Combobox
       store={combobox}
+      value={rootStore.language}
       width={200}
+      offset={23}
       position="bottom-end"
       onOptionSubmit={value => mediaPropertyStore.SetPropertyLanguage({
         mediaPropertyId: rootStore.currentPropertyId,
@@ -407,20 +409,29 @@ const LanguageMenu = observer(() => {
         reload: true
       })}
       classNames={{
+        root: S("language-menu"),
+        dropdown: S("language-menu__dropdown"),
         option: S("language-menu__option")
       }}
     >
       <Combobox.Target>
-        <Linkish onClick={() => combobox.toggleDropdown()} className={S("button")}>
-          <ImageIcon icon={LanguageIcon} label="Language" className={S("button__icon")}/>
-        </Linkish>
+        <button
+          className={S("button", combobox.dropdownOpened ? "button--active" : "")}
+          onClick={() => {
+            combobox.toggleDropdown();
+            combobox.focusTarget();
+          }}
+        >
+          <ImageIcon icon={LanguageIcon} label="Select Language" className={S("button__icon")}/>
+          <ImageIcon icon={XIcon} label="Hide Language Options" className={S("button__icon-close")}/>
+        </button>
       </Combobox.Target>
       <Combobox.Dropdown>
         <Combobox.Options>
           {
             availableLocalizations.map(({label, value}) =>
-              <Combobox.Option key={value} value={value}>
-                { label }
+              <Combobox.Option selected={rootStore.language === value} key={value} value={value}>
+                {label}
               </Combobox.Option>
             )
           }
