@@ -312,6 +312,7 @@ export const Modal = observer(({
   contentClassName,
   headerClassName,
   bodyClassName,
+  childrenContainerClassName,
   ...args
 }) => {
   const showCloseButton = args.fullScreen ||
@@ -354,7 +355,7 @@ export const Modal = observer(({
           </div>
       }
 
-      <div className={S("modal__children")}>
+      <div className={[S("modal__children"), childrenContainerClassName].join(" ")}>
         { args.children }
       </div>
     </MantineModal>

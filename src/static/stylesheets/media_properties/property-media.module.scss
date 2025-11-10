@@ -54,11 +54,6 @@
   &--sidebar {
     min-height: unset;
     padding-bottom: 50px;
-
-    .media-container,
-    .media-with-sidebar {
-      min-height: calc(var(--vh) * 65);
-    }
   }
 
   &__additional-content {
@@ -68,7 +63,6 @@
   @media screen and (width <= 800px) {
     height: max-content;
     min-height: unset;
-    padding-top: 10px;
   }
 }
 
@@ -222,7 +216,6 @@
   }
 
   @media screen and (width <= 800px) {
-    margin-top: 50px;
     min-height: unset;
 
     &__error {
@@ -270,25 +263,19 @@
 
 .media-with-sidebar {
   display: grid;
-  grid-column-gap: 10px;
   grid-template-columns: 1fr auto;
-  height: 100%;
-  margin-top: 20px;
+  height: max-content;
   max-width: 100%;
   min-height: 500px;
   overflow: hidden;
-  padding: 0 30px 0 40px;
+  padding: 0;
   position: relative;
   width: 100%;
-
-  &--sidebar-hidden {
-    margin-top: 10px;
-  }
 
   &__media {
     align-items: center;
     display: grid;
-    height: 100%;
+    height: max-content;
   }
 
   &__media-container {
@@ -296,18 +283,16 @@
     display: flex;
     gap: 10px;
     height: max-content;
-    min-height: calc(var(--vh, 1vh) * 100 - 300px);
     position: relative;
   }
 
   &__media-grid-container {
     align-items: center;
     background-color: var(--property-background-secondary);
-    border-radius: 5px;
     display: flex;
     height: 100%;
     min-height: calc(var(--vh, 1vh) * 100 - 200px);
-    padding: 10px;
+    position: relative;
     width: 100%;
 
     &--single {
@@ -320,7 +305,7 @@
   &__media-grid {
     align-items: center;
     display: grid;
-    gap: 5px;
+    gap: 2px;
     justify-content: center;
     margin-inline: auto;
     width: 100%;
@@ -346,6 +331,7 @@
               "video-1 video-1 video-2 video-2"
               ". video-3 video-3 .";
       grid-template-columns: 1fr 1fr 1fr 1fr;
+      max-width: calc(83vh * 16 / 9);
     }
 
     &--4 {
@@ -353,6 +339,7 @@
               "video-1 video-2"
               "video-3 video-4";
       grid-template-columns: 1fr 1fr;
+      max-width: calc(83vh * 16 / 9);
     }
 
     &--5 {
@@ -403,14 +390,27 @@
     }
   }
 
+  &__media-grid-fullscreen-button {
+    bottom: -40px;
+    height: 15px;
+    position: absolute;
+    right: 40px;
+    width: 15px;
+    z-index: 100;
+  }
+
   .media__error {
     max-height: calc(var(--property-full-content-height) - 10px)!important;
   }
 
   &__video {
     flex: 1 1 100%;
-    max-height: calc(var(--property-full-content-height) - 10px);
+    max-height: calc(var(--property-full-content-height) - 100px);
     min-height: unset;
+
+    * {
+      max-height: calc(var(--property-full-content-height) - 100px);
+    }
 
     &.media__error {
       aspect-ratio: 16/9;
@@ -464,21 +464,67 @@
     margin: 0;
   }
 
+  &__stream-selection {
+    align-items: center;
+    display: none;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  &__stream-selection-button {
+    font-size: 12px;
+    min-height: 30px;
+  }
+
+  &__fullscreen {
+    .media-with-sidebar__video {
+      max-height: 100vh!important;
+
+      * {
+        max-height: 100vh!important;
+      }
+    }
+  }
+
   @media screen and (width <= 1200px) {
     grid-column-gap: 0;
     grid-template-columns: 1fr max-content;
     margin-top: 0;
     padding: 0 15px;
+
+    &__video {
+      max-height: calc(var(--property-full-content-height) - 10px);
+      min-height: unset;
+
+      * {
+        max-height: calc(var(--property-full-content-height) - 10px);
+      }
+    }
   }
 
-  @media screen and (width <= 650px) {
+  @media screen and (width <= 850px) {
     gap: 30px;
     grid-template-columns: 1fr;
     margin-top: 0;
     padding: 0;
 
+    &__stream-selection {
+      display: flex;
+    }
+
     &__video {
       max-height: unset;
+    }
+  }
+
+  @media screen and (width <= 750px) {
+    &__media-grid {
+      &--2 {
+        grid-template-areas:
+                "video-1 video-1"
+                "video-2 video-2";
+        justify-content: unset;
+      }
     }
   }
 }

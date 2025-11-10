@@ -306,11 +306,11 @@ class RootStore {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         // Only update VH if height has changed significantly enough
-        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 100) {
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 50) {
           SetVH();
           this.originalViewportHeight = window.innerHeight;
         }
-      }, 100);
+      }, 10);
     });
 
     this.logTiming = new URLSearchParams(location.search).has("logTiming") || this.GetSessionStorage("log-timing");
