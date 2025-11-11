@@ -525,6 +525,25 @@
                 "video-2 video-2";
         justify-content: unset;
       }
+
+      /*
+      &--3 {
+        grid-template-areas:
+                "video-1 video-1"
+                "video-2 video-2"
+                "video-3 video-3";
+        justify-content: unset;
+      }
+      &--4 {
+        grid-template-areas:
+                "video-1 video-1"
+                "video-2 video-2"
+                "video-3 video-3"
+                "video-4 video-4";
+        justify-content: unset;
+      }
+
+       */
     }
   }
 }

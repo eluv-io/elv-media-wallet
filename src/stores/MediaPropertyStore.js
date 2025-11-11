@@ -1206,12 +1206,18 @@ class MediaPropertyStore {
 
         const storageKey = `customization-metadata-${versionHash}`;
 
+        const localizationKey = await this.GetLocalizationKey({
+          mediaPropertyId: this.client.utils.DecodeVersionHash(versionHash).objectId
+        });
+
         const metadata =
           (!this.previewAll && this.rootStore.GetSessionStorageJSON(storageKey, true)) ||
           await this.client.ContentObjectMetadata({
             versionHash,
             metadataSubtree: "/public/asset_metadata/info",
             produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? undefined :
+              `/public/asset_metadata/localizations/${localizationKey}/info`,
             select: [
               "language",
               "localizations",
@@ -1302,46 +1308,75 @@ class MediaPropertyStore {
   });
 
   GetLocalizationKey = flow(function * ({mediaPropertyId}) {
-    // Localization
-    const customizationInfo = yield this.LoadMediaPropertyCustomizationMetadata({mediaPropertySlugOrId: mediaPropertyId});
+    return yield this.LoadResource({
+      key: "LocalizationKey",
+      id: `localization-key-${mediaPropertyId}`,
+      ttl: 60,
+      anonymous: true,
+      Load: async () => {
+        // Localization
+        const isPreview = this.previewAll || mediaPropertyId === this.previewPropertyId;
+        let versionHash = this.mediaPropertyHashes[mediaPropertyId];
+        if(isPreview) {
+          versionHash = await this.client.LatestVersionHash({
+            versionHash,
+            objectId: mediaPropertyId
+          });
+        }
 
-    // User's languages, in priority order
-    const userLanguages = [
-      localStorage.getItem(`lang-${mediaPropertyId}`),
-      ...navigator.languages
-    ]
-      .filter(l => l);
+        const localizationInfo = await this.client.ContentObjectMetadata({
+          versionHash,
+          metadataSubtree: "/public/asset_metadata/info",
+          produceLinkUrls: true,
+          select: [
+            "language",
+            "localizations",
+          ]
+        });
 
-    // Available property languages
-    const availableLocalizations = [
-      customizationInfo.language || "en",
-      ...(customizationInfo.localizations || [])
-    ];
+        // User's languages, in priority order
+        const userLanguages = [
+          localStorage.getItem(`lang-${mediaPropertyId}`),
+          ...navigator.languages
+        ]
+          .filter(l => l);
 
-    let localizationKey;
-    userLanguages.forEach(userKey => {
-      if(localizationKey) { return; }
+        // Available property languages
+        const availableLocalizations = [
+          localizationInfo.language || "en",
+          ...(localizationInfo.localizations || [])
+        ];
 
-      // Prefer exact match
-      localizationKey = availableLocalizations.find(key => userKey.toLowerCase() === key.toLowerCase());
+        let localizationKey;
+        userLanguages.forEach(userKey => {
+          if(localizationKey) {
+            return;
+          }
+
+          // Prefer exact match
+          localizationKey = availableLocalizations.find(key => userKey.toLowerCase() === key.toLowerCase());
+        });
+
+        if(!localizationKey) {
+          userLanguages.forEach(userKey => {
+            if(localizationKey) {
+              return;
+            }
+
+            // Look for close matches, eg. pt-br =~ pt or pt-pt
+            localizationKey = availableLocalizations.find(key =>
+              userKey.split("-")[0].toLowerCase() === key.split("-")[0].toLowerCase()
+            );
+          });
+        }
+
+        if(localizationKey === localizationInfo.language) {
+          localizationKey = undefined;
+        }
+
+        return localizationKey;
+      }
     });
-
-    if(!localizationKey) {
-      userLanguages.forEach(userKey => {
-        if(localizationKey) { return; }
-
-        // Look for close matches, eg. pt-br =~ pt or pt-pt
-        localizationKey = availableLocalizations.find(key =>
-          userKey.split("-")[0].toLowerCase() === key.split("-")[0].toLowerCase()
-        );
-      });
-    }
-
-    if(localizationKey === customizationInfo.language) {
-      localizationKey = undefined;
-    }
-    
-    return localizationKey;
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
@@ -1853,7 +1888,6 @@ class MediaPropertyStore {
   });
 
   SetPropertyLanguage({mediaPropertyId, localizationKey, reload=false}) {
-    console.log("SPL", mediaPropertyId, localizationKey);
     if(localizationKey) {
       localStorage.setItem(`lang-${mediaPropertyId}`, localizationKey);
     } else {
@@ -1861,6 +1895,7 @@ class MediaPropertyStore {
     }
 
     if(reload) {
+      // eslint-disable-next-line no-self-assign
       window.location.href = window.location.href;
     }
   }

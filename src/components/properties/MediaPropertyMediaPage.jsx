@@ -274,7 +274,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
 
   let streamLimit = 8;
   if(rootStore.pageWidth < 650) {
-    streamLimit = 2;
+    streamLimit = 4;
   } else if(rootStore.pageWidth < 1250) {
     streamLimit = 4;
   }

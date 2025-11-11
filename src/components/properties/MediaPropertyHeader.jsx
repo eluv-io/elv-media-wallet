@@ -389,7 +389,7 @@ const LanguageMenu = observer(() => {
     .filter(l => l)
     .map(key => ({
       value: key,
-      label: new Intl.DisplayNames([rootStore.language], {type: "language"}).of(key).capitalize()
+      label: new Intl.DisplayNames([key], {type: "language"}).of(key).capitalize()
     }));
 
   if(availableLocalizations.length <= 1) {
