@@ -30,6 +30,7 @@ import MediaPropertyStore from "Stores/MediaPropertyStore";
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
+import MergeWith from "lodash/mergeWith";
 
 import LocalizationEN from "Assets/localizations/en.yml";
 import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
@@ -1858,6 +1859,34 @@ class RootStore {
     }
 
     return this.userStats[userAddress];
+  });
+
+  UserItems = flow(function * (params) {
+    const response = yield this.walletClient.UserItems(params);
+
+    const localizationKey = yield this.mediaPropertyStore.GetLocalizationKey({mediaPropertyId: this.currentPropertyId});
+    if(localizationKey) {
+      response.results = yield Promise.all(
+        response.results.map(async item => {
+          try {
+            const localizedMetadata = (await this.client.ContentObjectMetadata({
+              versionHash: item.details.VersionHash,
+              metadataSubtree: UrlJoin("public", "asset_metadata", "localizations", localizationKey, "nft"),
+              produceLinkUrls: true
+            })) || {};
+
+            item.metadata = MergeWith({}, item.metadata, localizedMetadata, (a, b) => b === null || b === "" ? a : undefined);
+          } catch(error) {
+            this.Log("Error localizing user item", true);
+            this.Log(error);
+          }
+
+          return item;
+        })
+      );
+    }
+
+    return response;
   });
 
   RedeemCode = flow(function * ({tenantId, ntpId, code}) {
