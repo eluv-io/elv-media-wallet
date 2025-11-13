@@ -405,7 +405,6 @@
     &--5,
     &--6 {
       .media {
-        height: calc(var(--property-full-content-height) / 2);
         max-height: calc(var(--property-full-content-height) / 2);
       }
     }
@@ -414,7 +413,6 @@
     &--8,
     &--9 {
       .media {
-        height: calc(var(--property-full-content-height) / 3);
         max-height: calc(var(--property-full-content-height) / 3);
       }
     }
@@ -545,6 +543,20 @@
         .media {
           height: calc(var(--property-full-content-height) / 4);
           max-height: calc(var(--property-full-content-height) / 4);
+        }
+      }
+    }
+  }
+
+  @media screen and (height <= 600px) and (orientation: landscape) {
+    &__media-grid {
+      &--3,
+      &--4,
+      &--5,
+      &--6 {
+        .media {
+          max-height: calc(var(--property-full-content-height) / 2);
+          min-height: calc(90vh / 2);
         }
       }
     }
