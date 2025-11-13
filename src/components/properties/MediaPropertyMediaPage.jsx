@@ -202,6 +202,13 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
   const [primaryPIP, setPrimaryPIP] = useState(false);
 
+  useEffect(() => {
+    // If secondary media is removed, primary media should not be pip
+    if(!secondaryMedia) {
+      setPrimaryPIP(false);
+    }
+  }, [secondaryMedia]);
+
   if(!primaryMedia) {
     return (
       <div className={S("media-with-sidebar__video", "media", "media_video")}>
@@ -211,7 +218,6 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
       </div>
     );
   }
-
   const primaryVideo = (
     <MediaVideo
       key={`media-${primaryMedia.mediaItem.id}`}
@@ -284,9 +290,9 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
 
   let streamLimit = 8;
   if(rootStore.pageWidth < 650) {
-    streamLimit = 4;
+    streamLimit = 8;
   } else if(rootStore.pageWidth < 1250) {
-    streamLimit = 6;
+    streamLimit = 8;
   }
 
   useEffect(() => {
@@ -336,7 +342,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   let media;
   if(multiviewMode === "pip") {
     media = (
-      <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__fullscreen" : "")}>
+      <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar--fullscreen" : "")}>
         <PIPContent
           primaryMedia={mediaInfo[0]}
           secondaryMedia={mediaInfo[1]}

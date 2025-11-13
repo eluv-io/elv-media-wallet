@@ -110,7 +110,6 @@
 .media {
   background: #000;
   height: var(--property-full-content-height);
-  max-height: calc(var(--property-full-content-height) - 220px);
   min-height: 400px;
   position: relative;
 
@@ -283,6 +282,12 @@
   position: relative;
   width: 100%;
 
+  &--fullscreen {
+    .media-with-sidebar__video {
+      max-height: unset;
+    }
+  }
+
   &__media {
     align-items: center;
     display: grid;
@@ -427,10 +432,6 @@
     max-height: calc(var(--property-full-content-height) - 100px);
     min-height: unset;
 
-    * {
-      max-height: calc(var(--property-full-content-height) - 100px);
-    }
-
     &.media__error {
       aspect-ratio: 16/9;
       flex: 1 1 100%;
@@ -545,19 +546,103 @@
           max-height: calc(var(--property-full-content-height) / 4);
         }
       }
+
+      &--5,
+      &--6,
+      &--7,
+      &--8 {
+        .media {
+          width: 50vw;
+        }
+      }
+
+      &--5,
+      &--6 {
+        .media {
+          height: calc(var(--property-full-content-height) / 3);
+          max-height: calc(var(--property-full-content-height) / 3);
+        }
+      }
+
+      &--7,
+      &--8 {
+        .media {
+          height: calc(var(--property-full-content-height) / 4.5);
+          max-height: calc(var(--property-full-content-height) / 4.5);
+        }
+      }
+
+      &--5 {
+        grid-template-areas:
+                "video-1 video-1 video-2 video-2"
+                "video-3 video-3 video-4 video-4"
+                ". video-5 video-5 .";
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+
+      &--6 {
+        grid-template-areas:
+                "video-1 video-2"
+                "video-3 video-4"
+                "video-5 video-6";
+        grid-template-columns: 1fr 1fr;
+      }
+
+      &--7 {
+        grid-template-areas:
+                "video-1 video-1 video-2 video-2"
+                "video-3 video-3 video-4 video-4"
+                "video-5 video-5 video-6 video-6"
+                ". video-7 video-7 .";
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+
+      &--8 {
+        grid-template-areas:
+                "video-1 video-2"
+                "video-3 video-4"
+                "video-5 video-6"
+                "video-7 video-8";
+        grid-template-columns: 1fr 1fr;
+      }
     }
   }
 
   @media screen and (height <= 600px) and (orientation: landscape) {
     &__media-grid {
-      &--3,
-      &--4,
-      &--5,
-      &--6 {
+      height: max-content;
+      min-height: unset;
+
+      &--2 {
         .media {
-          max-height: calc(var(--property-full-content-height) / 2);
-          min-height: calc(90vh / 2);
+          height: var(--property-full-content-height);
+          max-height: var(--property-full-content-height);
+          width: 50vw;
         }
+      }
+
+      &--3,
+      &--4 {
+        .media {
+          height: calc(var(--property-full-content-height) / 2);
+          max-height: calc(var(--property-full-content-height) / 2);
+        }
+      }
+
+      &--5 {
+        grid-template-areas:
+                "video-1 video-2 ."
+                "video-1 video-2 video-5"
+                "video-3 video-4 video-5"
+                "video-3 video-4 .";
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      &--6 {
+        grid-template-areas:
+                "video-1 video-2 video-3"
+                "video-4 video-5 video-6";
+        grid-template-columns: 1fr 1fr 1fr;
       }
     }
   }
