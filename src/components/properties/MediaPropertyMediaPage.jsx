@@ -21,7 +21,7 @@ import MediaSidebar, {MultiviewSelectionModal, SidebarContent} from "Components/
 import {Linkish} from "Components/common/UIComponents";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
-import FullscreenIcon from "Assets/icons/grid";
+import PlusIcon from "Assets/icons/plus";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -202,6 +202,16 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
   const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
   const [primaryPIP, setPrimaryPIP] = useState(false);
 
+  if(!primaryMedia) {
+    return (
+      <div className={S("media-with-sidebar__video", "media", "media_video")}>
+        <div className={S("media__empty")}>
+          { rootStore.l10n.media_properties.media.select_media }
+        </div>
+      </div>
+    );
+  }
+
   const primaryVideo = (
     <MediaVideo
       key={`media-${primaryMedia.mediaItem.id}`}
@@ -276,7 +286,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   if(rootStore.pageWidth < 650) {
     streamLimit = 4;
   } else if(rootStore.pageWidth < 1250) {
-    streamLimit = 4;
+    streamLimit = 6;
   }
 
   useEffect(() => {
@@ -331,16 +341,6 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
           primaryMedia={mediaInfo[0]}
           secondaryMedia={mediaInfo[1]}
         />
-        {
-          !document.fullscreenEnabled || mediaInfo.length <= 1 ? null :
-            <button
-              title="View Full Screen"
-              onClick={() => mediaGridRef.requestFullscreen()}
-              className={S("media-with-sidebar__media-grid-fullscreen-button")}
-            >
-              <ImageIcon icon={FullscreenIcon} />
-            </button>
-        }
       </div>
     );
   } else {
@@ -375,15 +375,6 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
             )
           }
         </div>
-        {
-          !document.fullscreenEnabled || mediaInfo.length <= 1 ? null :
-            <button
-              onClick={() => mediaGridRef.requestFullscreen()}
-              className={S("media-with-sidebar__media-grid-fullscreen-button")}
-            >
-              <ImageIcon icon={FullscreenIcon} />
-            </button>
-        }
       </div>
     );
   }
@@ -395,9 +386,10 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
         <div className={S("media-with-sidebar__stream-selection")}>
           <Button
             className={S("media-with-sidebar__stream-selection-button")}
+            icon={PlusIcon}
             onClick={() => setShowMultiviewSelectionModal(true)}
           >
-            Select Streams
+            { rootStore.l10n.media_properties.media.add_streams }
           </Button>
         </div>
         {textContent}
@@ -410,8 +402,13 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
         showSidebar={showSidebar}
         setShowSidebar={setShowSidebar}
         displayedContent={displayedContent}
+        setDisplayedContent={setDisplayedContent}
+        multiviewMode={multiviewMode}
+        setMultiviewMode={setMultiviewMode}
         setSelectedView={view => setDisplayedContent([view])}
+        contentRef={mediaGridRef}
         setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
+        streamLimit={streamLimit}
       />
       <MultiviewSelectionModal
         streamLimit={streamLimit}

@@ -11,6 +11,9 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import XIcon from "Assets/icons/x.svg";
 import ChevronLeft from "Assets/icons/left-arrow.svg";
+import FullscreenIcon from "Assets/icons/grid";
+import PipVideoIcon from "Assets/icons/sidebar-pip.svg";
+import MultiviewIcon from "Assets/icons/eye.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -110,20 +113,42 @@ const Item = observer(({
   scheduleInfo,
   disabled,
   onClick,
-  to,
-  active,
   noBorder,
-  order
+  displayedContent,
+  setDisplayedContent,
+  primaryMediaId,
+  contentItem,
+  noActions,
+  noOrder,
+  multiviewMode
 }) => {
+  const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
+
+  const order = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id);
+  const isActive = order >= 0;
+
+  let linkPath;
+  if(!onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
+    const navContext = new URLSearchParams(location.search).get("ctx");
+    linkPath = MediaPropertyLink({match, mediaItem: rootStore.mediaPropertyStore.media[contentItem.id], navContext})?.linkPath || "";
+  }
 
   return (
     <Linkish
       disabled={disabled}
       role="button"
       tabIndex={0}
-      onClick={onClick}
-      to={to}
+      onClick={
+        onClick ? onClick :
+          linkPath ? undefined :
+            !isActive ?
+              () => setDisplayedContent([contentItem]) :
+              contentItem.id !== primaryMediaId ?
+                () => setDisplayedContent([{type: "media-item", id: primaryMediaId}]) :
+                undefined
+      }
+      to={linkPath}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={
@@ -132,21 +157,30 @@ const Item = observer(({
           disabled ? "item--disabled" : "",
           noBorder ? "item--no-border" : "",
           (hovering && !disabled) ? "item--hover" : "",
-          active ? "item--active" : ""
+          isActive ? "item--active" : ""
         )
       }
     >
       {
-        !imageUrl ? null :
-          <div
-            className={S("item__image-container", "item__image-container--landscape")}>
+        imageUrl ?
+          <div className={S("item__image-container", "item__image-container--landscape")}>
             <LoaderImage
               loaderAspectRatio={16 / 9}
               alt={title}
               className={S("item__image")}
               src={imageUrl}
             />
-          </div>
+            {
+              noOrder || order < 0 ? null :
+                <div className={S("item__order-badge")}>
+                  { order + 1 }
+                </div>
+            }
+          </div> :
+          noOrder || order < 0 ? null :
+            <div className={S("item__order-badge")}>
+              { order + 1 }
+            </div>
       }
       <div className={S("item__text")}>
         <div title={title} className={S("item__title")}>
@@ -166,9 +200,30 @@ const Item = observer(({
         }
       </div>
       {
-        typeof order === "undefined" || order < 0 ? null :
-          <div className={S("item__order-badge")}>
-            { order + 1 }
+        noActions ? null :
+          <div className={S("item__actions")}>
+            <Linkish
+              onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+
+                if(isActive) {
+                  setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
+                } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
+                  setDisplayedContent([displayedContent[0], contentItem]);
+                } else {
+                  setDisplayedContent([...displayedContent, contentItem]);
+                }
+              }}
+              className={S("item__action", isActive ? "item__action--active" : "")}
+            >
+              <ImageIcon
+                icon={
+                  multiviewMode === "pip" ?
+                    PipVideoIcon : MultiviewIcon
+                }
+              />
+            </Linkish>
           </div>
       }
     </Linkish>
@@ -182,11 +237,11 @@ const MediaSidebar = observer(({
   showSidebar,
   setShowSidebar,
   displayedContent,
-  setSelectedView,
-  setShowMultiviewSelectionModal
+  setDisplayedContent,
+  multiviewMode,
+  setMultiviewMode,
+  contentRef
 }) => {
-  const match = useRouteMatch();
-  const navContext = new URLSearchParams(location.search).get("ctx");
   const {content, section} = sidebarContent || {};
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
@@ -213,7 +268,7 @@ const MediaSidebar = observer(({
   return (
     <div className={S("sidebar", "sidebar--overlay")}>
       <button onClick={() => setShowSidebar(false)} className={S("hide-button")}>
-        <ImageIcon icon={XIcon} />
+        <ImageIcon icon={XIcon}/>
       </button>
       <div className={S("header")}>
         {
@@ -223,7 +278,7 @@ const MediaSidebar = observer(({
             </div>
         }
         <div className={[S("header__title"), "_title"].join(" ")}>
-          { display.title }
+          {display.title}
         </div>
         <div className={S("header__headers")}>
           {display.headers?.map?.((header, index) =>
@@ -231,73 +286,93 @@ const MediaSidebar = observer(({
           )}
         </div>
         <div className={S("header__subtitle")}>
-          { display.subtitle }
+          {display.subtitle}
         </div>
       </div>
+      {
+        sidebarContent.additionalViews.length === 0 &&
+        liveContent.length === 0 ? null :
+          <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
+            <button
+              onClick={() => setMultiviewMode("pip")}
+              className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
+            >
+              {
+                sidebarContent.additionalViews.length > 0 ?
+                  sidebarContent.additionalViewLabel || "Additional Views" :
+                  rootStore.l10n.media_properties.media.sidebar.today
+              }
+            </button>
+            <button
+              onClick={() => setMultiviewMode("multiview")}
+              className={S("content__mode-tab", multiviewMode === "multiview" ? "content__mode-tab--active" : "")}
+            >
+              Multiview
+            </button>
+            {
+              !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
+                <button
+                  onClick={() => contentRef.requestFullscreen()}
+                  title="View Content in Full Screen"
+                  className={S("content__fullscreen-button")}
+                >
+                  <ImageIcon icon={FullscreenIcon}/>
+                </button>
+            }
+          </div>
+      }
       <div className={S("content")}>
         {
           sidebarContent.additionalViews.length === 0 ? null :
             <div className={S("content__section")}>
-              <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
-                <button
-                  className={S("content__mode-tab")}
-                >
-                  { sidebarContent.additionalViewLabel || "Additional Views" }
-                </button>
-                <button
-                  onClick={() => setShowMultiviewSelectionModal(true)}
-                  className={S("content__mode-tab")}
-                >
-                  Multiview
-                </button>
-              </div>
-              {sidebarContent.additionalViews.map((item, index) => {
-                const isActive = displayedContent.find(otherItem => otherItem.type === "additional-view" && otherItem.id === index);
-                return (
+              <Item
+                noBorder
+                imageUrl={MediaItemImageUrl({mediaItem, display, aspectRatio: "Landscape"})?.imageUrl}
+                title={mediaItem.primary_view_label || rootStore.l10n.media_properties.media.sidebar.main_view}
+                contentItem={{type: "media-item", id: mediaItem.id}}
+                primaryMediaId={mediaItem.id}
+                displayedContent={displayedContent}
+                setDisplayedContent={setDisplayedContent}
+                multiviewMode={multiviewMode}
+              />
+              {sidebarContent.additionalViews.map((item, index) =>
                   <Item
-                    noBorder={index === 0}
                     imageUrl={item.image?.url}
                     title={item.label}
+                    contentItem={{...item, type: "additional-view", index, id: index}}
+                    displayedContent={displayedContent}
+                    setDisplayedContent={setDisplayedContent}
+                    key={`item-${index}`}
+                    multiviewMode={multiviewMode}
+                    primaryMediaId={mediaItem.id}
+
+                    /*
                     active={isActive}
                     onClick={
                       !isActive ?
-                        () => setSelectedView({...item, type: "additional-view", index, id: index}) :
+                        () => setDisplayedContent([{...item, type: "additional-view", index, id: index}]) :
                         displayedContent.length === 1 && isActive ?
-                          () => setSelectedView({type: "media-item", id: mediaItem.id}) :
+                          () => setDisplayedContent([{type: "media-item", id: mediaItem.id}]) :
                           undefined
 
                     }
-                    key={`item-${index}`}
+
+                     */
+
                   />
-                );
-              })}
+              )}
             </div>
         }
         {
           liveContent.length === 0 ? null :
             <div className={S("content__section")}>
               {
-                sidebarContent.additionalViews.length > 0 ?
+                sidebarContent.additionalViews.length === 0 ? null :
                   <div className={[S("content__title"), "_title"].join(" ")}>
-                    { rootStore.l10n.media_properties.media.sidebar.today }
-                  </div> :
-                  <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
-                    <button
-                      className={S("content__mode-tab")}
-                    >
-                      { rootStore.l10n.media_properties.media.sidebar.today }
-                    </button>
-                    <button
-                      onClick={() => setShowMultiviewSelectionModal(true)}
-                      className={S("content__mode-tab")}
-                    >
-                      { rootStore.l10n.media_properties.media.sidebar.multiview }
-                    </button>
+                    {rootStore.l10n.media_properties.media.sidebar.today}
                   </div>
               }
               {liveContent.map((item, index) => {
-                const isActive = !!displayedContent.find(otherItem => otherItem.id === (item.mediaItem?.id || item.id));
-                const {linkPath} = MediaPropertyLink({match, mediaItem: item.display, navContext}) || "";
                 let {imageUrl} = MediaItemImageUrl({
                   mediaItem: item,
                   display: item.display
@@ -306,13 +381,18 @@ const MediaSidebar = observer(({
                 return (
                   <Item
                     noBorder={index === 0}
-                    to={linkPath}
-                    active={isActive}
                     imageUrl={imageUrl}
                     title={item.display.title}
                     subtitle={item.display.subtitle}
                     scheduleInfo={item.scheduleInfo}
                     key={`item-${item.id}`}
+                    contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
+                    primaryMediaId={mediaItem.id}
+                    displayedContent={displayedContent}
+                    setDisplayedContent={setDisplayedContent}
+                    multiviewMode={multiviewMode}
+                    noActions={item.mediaItem?.id === mediaItem.id}
+                    noOrder={item.mediaItem?.id === mediaItem.id}
                   />
                 );
               })}
@@ -322,44 +402,46 @@ const MediaSidebar = observer(({
           upcomingContent.length === 0 ? null :
             <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
-                { rootStore.l10n.media_properties.media.sidebar.upcoming }
+                {rootStore.l10n.media_properties.media.sidebar.upcoming}
               </div>
-              {upcomingContent.map((item, index) => {
-                const {linkPath} = MediaPropertyLink({match, mediaItem: item.display, navContext}) || "";
-
-                return (
-                  <Item
-                    noBorder={index === 0}
-                    to={linkPath}
-                    title={item.display.title}
-                    subtitle={item.display.subtitle}
-                    scheduleInfo={item.scheduleInfo}
-                    key={`item-${item.id}`}
-                  />
-                );
-              })}
+              {upcomingContent.map((item, index) =>
+                <Item
+                  noBorder={index === 0}
+                  title={item.display.title}
+                  subtitle={item.display.subtitle}
+                  scheduleInfo={item.scheduleInfo}
+                  key={`item-${item.id}`}
+                  contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
+                  primaryMediaId={mediaItem.id}
+                  displayedContent={displayedContent}
+                  setDisplayedContent={setDisplayedContent}
+                  multiviewMode={multiviewMode}
+                  noActions
+                />
+              )}
             </div>
         }
         {
           vodContent.length === 0 ? null :
             <div className={S("content__section")}>
               <div className={[S("content__title"), "_title"].join(" ")}>
-                { section?.display?.title || rootStore.l10n.media_properties.media.sidebar.more_content }
+                {section?.display?.title || rootStore.l10n.media_properties.media.sidebar.more_content}
               </div>
-              {vodContent.map((item, index) => {
-                const {linkPath} = MediaPropertyLink({match, mediaItem: item.display, navContext}) || "";
-
-                return (
-                  <Item
-                    noBorder={index === 0}
-                    to={linkPath}
-                    title={item.display.title}
-                    subtitle={item.display.subtitle}
-                    scheduleInfo={item.scheduleInfo}
-                    key={`item-${item.id}`}
-                  />
-                );
-              })}
+              {vodContent.map((item, index) =>
+                <Item
+                  noBorder={index === 0}
+                  title={item.display.title}
+                  subtitle={item.display.subtitle}
+                  scheduleInfo={item.scheduleInfo}
+                  key={`item-${item.id}`}
+                  contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
+                  primaryMediaId={mediaItem.id}
+                  displayedContent={displayedContent}
+                  setDisplayedContent={setDisplayedContent}
+                  multiviewMode={multiviewMode}
+                  noActions
+                />
+              )}
             </div>
         }
       </div>
@@ -431,7 +513,7 @@ export const MultiviewSelectionModal = observer(({
             <ImageIcon icon={ChevronLeft} />
           </Linkish>
           <div>
-            Select Streams
+            { rootStore.l10n.media_properties.media.add_streams }
           </div>
         </div>
       }
@@ -462,7 +544,7 @@ export const MultiviewSelectionModal = observer(({
         {
           list.map(item => {
             const imageUrl = item.type === "additional-view" ? item.image?.url :
-              MediaItemImageUrl({mediaItem: item, display: item?.display})?.imageUrl;
+              MediaItemImageUrl({mediaItem: item?.mediaItem || item, display: item?.mediaItem?.display || item.display})?.imageUrl;
 
             return (
               <Item
@@ -472,8 +554,14 @@ export const MultiviewSelectionModal = observer(({
                 title={item.display?.title || item.label}
                 subtitle={item.display?.subtitle}
                 scheduleInfo={item.scheduleInfo}
-                active={item.active}
-                order={item.order}
+                primaryMediaId={mediaItem.id}
+                noActions
+                contentItem={
+                  item.type === "additional-view" ? item :
+                    { type: "media-item", id: item.mediaItem?.id || item.id }
+                }
+                displayedContent={selectedContent}
+                setDisplayedContent={setDisplayedContent}
                 onClick={
                   () => item.active ?
                     setSelectedContent(selectedContent.filter(otherItem => otherItem.id !== (item.mediaItem?.id || item.id))) :

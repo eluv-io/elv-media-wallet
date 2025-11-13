@@ -755,12 +755,15 @@ media_properties:
   media:
     live: Live
     upcoming: UPCOMING
+    select_media: Select Media
+    add_streams: Add Streams
     description:
       show: Read More
       hide: Show Less
     sidebar:
       today: Today
       upcoming: Upcoming
+      main_view: Main View
       more_content: More Content
       multiview: Multiview
     errors:
