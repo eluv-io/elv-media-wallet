@@ -800,7 +800,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
       SetCodeAuth();
     }
-  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
+  }, [rootStore.loaded, rootStore.auth0, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
 
   const loading =
     !rootStore.loaded ||

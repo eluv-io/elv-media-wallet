@@ -672,7 +672,11 @@ class RootStore {
     } else if(window.location.pathname.includes("/p/")) {
       return window.location.pathname.split("/p/").slice(-1)[0].split("/")[0];
     } else {
-      return window.location.pathname.split("/")[1];
+      const slug = window.location.pathname.split("/")[1];
+
+      if(slug !== "login") {
+        return slug;
+      }
     }
   }
 
