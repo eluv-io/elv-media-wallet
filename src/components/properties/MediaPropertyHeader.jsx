@@ -452,18 +452,34 @@ const HeaderLinks = observer(() => {
     return null;
   }
 
+  const customButtons = rootStore.headerButtons
+    .filter(({mobileOnly}) => !mobileOnly || rootStore.pageWidth < 850)
+    .map(({title, onClick, active, icon}) =>
+      <button
+        key={`custom-button-${title}`}
+        className={S("button", "button--custom", active ? "button--active" : "")}
+        onClick={onClick}
+      >
+        <ImageIcon icon={icon} label={title} className={S("button__icon")}/>
+        <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")}/>
+      </button>
+    );
+
   if(!rootStore.loggedIn) {
-    if(rootStore.authenticating) { return null; }
+    if(rootStore.authenticating) {
+      return null;
+    }
 
     return (
       <>
+        { customButtons }
         {
           discoverDisabled ? null :
             <Linkish to="/" className={S("button")}>
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
-        <LanguageMenu />
+        <LanguageMenu/>
         <Button
           onClick={() => {
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
@@ -484,6 +500,7 @@ const HeaderLinks = observer(() => {
       <>
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
+        { customButtons }
         {
           discoverDisabled ? null :
             <Linkish to="/" className={S("button")}>
@@ -507,7 +524,7 @@ const HeaderLinks = observer(() => {
   }
 });
 
-const PropertySelector = observer(({logo, basePath, mobile=false}) => {
+const PropertySelector = observer(({logo, basePath, mobile = false}) => {
   const history = useHistory();
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
@@ -672,7 +689,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
         }
       </div>
       <div className={S("links")}>
-        <HeaderLinks />
+        <HeaderLinks mobile />
       </div>
     </div>
   );

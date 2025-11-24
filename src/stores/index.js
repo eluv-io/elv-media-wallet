@@ -200,6 +200,8 @@ class RootStore {
 
   shortURLs = {};
 
+  headerButtons = [];
+
   _resources = {};
   logTiming = false;
 
@@ -2920,6 +2922,10 @@ class RootStore {
       this.alertNotification = message;
       this.SetSessionStorage("alert-notification", message);
     }
+  }
+
+  SetHeaderButtons(buttonInfo) {
+    this.headerButtons = buttonInfo;
   }
 
   SetDebugMessage(message) {

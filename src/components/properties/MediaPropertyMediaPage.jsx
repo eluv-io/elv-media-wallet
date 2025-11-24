@@ -11,7 +11,7 @@ import {
   MediaItemMediaUrl,
   MediaItemScheduleInfo
 } from "../../utils/MediaPropertyUtils";
-import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
+import {Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
@@ -21,7 +21,7 @@ import MediaSidebar, {MultiviewSelectionModal, SidebarContent} from "Components/
 import {Linkish} from "Components/common/UIComponents";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
-import PlusIcon from "Assets/icons/plus";
+import MultiviewIcon from "Assets/icons/media/multiview";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -296,7 +296,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   }
 
   useEffect(() => {
-    if(window.innerWidth < 600 || window.innerHeight < 600) {
+    if(window.innerWidth < 850 || window.innerHeight < 600) {
       setMultiviewMode("multiview");
     }
   }, [rootStore.pageWidth, rootStore.pageHeight]);
@@ -308,6 +308,22 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
 
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
+
+  useEffect(() => {
+    if(rootStore.pageWidth > 850) {
+      rootStore.SetHeaderButtons([]);
+    }
+
+    rootStore.SetHeaderButtons([{
+      title: "Show Multiview Options",
+      icon: MultiviewIcon,
+      active: showMultiviewSelectionModal,
+      mobileOnly: true,
+      onClick: () => setShowMultiviewSelectionModal(!showMultiviewSelectionModal),
+    }]);
+
+    return () => rootStore.SetHeaderButtons([]);
+  }, [rootStore.pageWidth, showMultiviewSelectionModal]);
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
@@ -340,7 +356,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     .slice(0, streamLimit);
 
   let media;
-  if(multiviewMode === "pip") {
+  if(multiviewMode === "pip" || mediaInfo.length === 1) {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar--fullscreen" : "")}>
         <PIPContent
@@ -389,15 +405,6 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
         {media}
-        <div className={S("media-with-sidebar__stream-selection")}>
-          <Button
-            className={S("media-with-sidebar__stream-selection-button")}
-            icon={PlusIcon}
-            onClick={() => setShowMultiviewSelectionModal(true)}
-          >
-            { rootStore.l10n.media_properties.media.add_streams }
-          </Button>
-        </div>
         {textContent}
       </div>
       <MediaSidebar

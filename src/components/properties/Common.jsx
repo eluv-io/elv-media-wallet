@@ -349,7 +349,7 @@ export const Modal = observer(({
     >
       {
         !header ? closeButton :
-          <div className={S("modal__top-header")}>
+          <div className={[S("modal__top-header"), headerClassName].join(" ")}>
             {header}
             {closeButton}
           </div>

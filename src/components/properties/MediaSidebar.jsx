@@ -119,6 +119,7 @@ const Item = observer(({
   primaryMediaId,
   contentItem,
   noActions,
+  dummyActions,
   noOrder,
   multiviewMode
 }) => {
@@ -204,6 +205,8 @@ const Item = observer(({
           <div className={S("item__actions")}>
             <Linkish
               onClick={event => {
+                if(dummyActions) { return; }
+
                 event.stopPropagation();
                 event.preventDefault();
 
@@ -454,26 +457,15 @@ export const MultiviewSelectionModal = observer(({
   sidebarContent,
   displayedContent,
   setDisplayedContent,
-  multiviewMode,
-  setMultiviewMode,
   opened,
   streamLimit,
   Close
 }) => {
   const [selectedContent, setSelectedContent] = useState(displayedContent);
-  const [mode, setMode] = useState(multiviewMode || "pip");
-
-  const noPip = window.innerWidth < 600 || window.innerHeight < 600;
-  streamLimit = mode === "pip" ? 2 : streamLimit;
 
   useEffect(() => {
     if(opened) {
-      setMode(multiviewMode);
       setSelectedContent(displayedContent);
-    }
-
-    if(noPip) {
-      setMode("multiview");
     }
   }, [opened]);
 
@@ -513,30 +505,15 @@ export const MultiviewSelectionModal = observer(({
             <ImageIcon icon={ChevronLeft} />
           </Linkish>
           <div>
-            { rootStore.l10n.media_properties.media.add_streams }
+            { rootStore.l10n.media_properties.media.select_streams }
           </div>
         </div>
       }
+      bodyClassName={S("multiview-selection-modal__body")}
+      headerClassName={S("multiview-selection-modal__header")}
       contentClassName={S("multiview-selection-modal")}
       childrenContainerClassName={S("multiview-selection-modal__content")}
     >
-      {
-        noPip ? null :
-          <div className={S("multiview-selection-modal__mode")}>
-            <div
-              onClick={() => setMode("pip")}
-              className={S("multiview-selection-modal__mode-option", mode === "pip" ? "multiview-selection-modal__mode-option--selected" : "")}
-            >
-              Picture-in-Picture
-            </div>
-            <div
-              onClick={() => setMode("multiview")}
-              className={S("multiview-selection-modal__mode-option", mode !== "pip" ? "multiview-selection-modal__mode-option--selected" : "")}
-            >
-              Multiview
-            </div>
-          </div>
-      }
       <div className={S("multiview-selection-modal__limit")}>
         Select up to {streamLimit} streams
       </div>
@@ -555,7 +532,8 @@ export const MultiviewSelectionModal = observer(({
                 subtitle={item.display?.subtitle}
                 scheduleInfo={item.scheduleInfo}
                 primaryMediaId={mediaItem.id}
-                noActions
+                multiviewMode="multiview"
+                dummyActions
                 contentItem={
                   item.type === "additional-view" ? item :
                     { type: "media-item", id: item.mediaItem?.id || item.id }
@@ -583,7 +561,6 @@ export const MultiviewSelectionModal = observer(({
         <Button
           disabled={selectedContent.length === 0}
           onClick={() => {
-            setMultiviewMode(mode);
             setDisplayedContent(selectedContent);
             Close();
           }}

@@ -1,14 +1,12 @@
 @import "./variables";
 
 .sidebar {
-  background: linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
+  background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin-right: 10px;
   max-height: calc(var(--property-full-content-height));
   min-width: 400px;
-  padding: 15px 0 15px 15px;
   position: relative;
   width: 400px;
   z-index: 100;
@@ -37,7 +35,7 @@
     }
 
     .item {
-      padding-left: 10px;
+      padding-left: 15px;
 
       * {
         font-size: 12px;
@@ -130,7 +128,7 @@
   flex-direction: column;
   gap: 3px;
   height: max-content;
-  padding: 0 35px 20px 0;
+  padding: 15px 35px 20px 15px;
   position: relative;
 
   &__title {
@@ -170,13 +168,16 @@
   gap: 10px;
   height: 100%;
   max-height: 100%;
-  overflow-y: auto;
+  overflow-y: scroll;
   overscroll-behavior-y: contain;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
+  scrollbar-color: #343434 #141414;
+  scrollbar-width: thin;
 
   &__title {
     font-weight: 600;
     padding-bottom: 10px;
+    padding-inline: 15px;
     text-transform: uppercase;
     top: 0;
     z-index: 10;
@@ -205,11 +206,25 @@
   &__fullscreen-button {
     @include page-fade-in;
 
-    height: 20px;
+    bottom: 3px;
+    height: 30px;
+    padding: 6px;
     position: absolute;
-    right: 10px;
-    width: 20px;
+    right: 25px;
+    transition: opacity 0.25s ease;
+    width: 30px;
     z-index: 100;
+
+    * {
+      opacity: 0.7;
+      transition: opacity 0.25s ease;
+    }
+
+    &:hover {
+      * {
+        opacity: 1;
+      }
+    }
   }
 }
 
@@ -220,14 +235,14 @@
   gap: 5px;
   height: max-content;
   min-height: 50px;
-  padding: 12px 0 12px 12px;
+  padding: 12px 7px 12px 15px;
   text-align: left;
   transition: background-color 0.1s ease, opacity 0.1s ease, color 0.25s ease;
   user-select: none;
   width: 100%;
 
   * {
-  transition: background-color 0.1s ease, opacity 0.1s ease, color 0.1s ease;
+    transition: background-color 0.1s ease, opacity 0.1s ease, color 0.1s ease;
   }
 
   &--disabled {
@@ -252,7 +267,7 @@
 
   &--additional-view {
     cursor: pointer;
-    padding-left: 10px;
+    padding-left: 25px;
 
     .item__title {
       color: var(--property-text-secondary);
@@ -351,17 +366,21 @@
     display: flex;
     font-size: 14px;
     font-weight: 900;
-    height: 25px;
+    height: 30px;
     justify-content: center;
     margin-right: 5px;
     opacity: 0.5;
-    padding: 4px;
+    padding: 6px;
     transition: opacity 0.25s ease, background-color 0.25s ease, color 0.25s ease;
-    width: 25px;
+    width: 30px;
 
     svg {
       height: 100%;
       width: 100%;
+    }
+
+    &:hover {
+      opacity: 1;
     }
 
     &--active {
@@ -409,10 +428,6 @@
   .content {
     overscroll-behavior-y: initial;
   }
-
-  .item__actions {
-    display: none;
-  }
 }
 
 
@@ -422,8 +437,13 @@
   padding: 0;
 
   &__content {
+    background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
     overflow: hidden;
     padding: 0;
+  }
+
+  &__top-header {
+    background: black!important;
   }
 
   &__header {
@@ -440,16 +460,16 @@
     border-radius: 100%;
     color: white;
     display: flex;
-    height: 25px;
+    height: 35px;
     justify-content: center;
     left: 0;
-    padding: 7px;
+    padding-right: 2px;
     position: absolute;
-    width: 25px;
+    width: 35px;
 
     svg {
-      height: 100%;
-      width: 100%;
+      height: 50%;
+      width: 50%;
     }
   }
 
@@ -490,7 +510,6 @@
 
   &__actions {
     align-items: center;
-    background-color: var(--property-background-secondary);
     bottom: 0;
     display: flex;
     gap: 10px;

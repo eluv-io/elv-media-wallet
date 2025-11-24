@@ -756,7 +756,7 @@ media_properties:
     live: Live
     upcoming: UPCOMING
     select_media: Select Media
-    add_streams: Add Streams
+    select_streams: Select Streams
     description:
       show: Read More
       hide: Show Less
