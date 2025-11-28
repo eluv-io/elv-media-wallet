@@ -72,6 +72,89 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  SidebarContent = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return []; }
+
+    const tabs = (yield Promise.all(
+      (mediaProperty?.metadata?.sidebar_config?.tabs || []).map(async tab => ({
+          ...tab,
+          groups: (await Promise.all(
+            tab.groups.map(async group => {
+              let content;
+              if(group.type === "section") {
+                content = (await this.MediaPropertySectionContent({
+                  mediaPropertySlugOrId,
+                  sectionSlugOrId: group.section_id,
+                  filterOptions: {contentType: "media"}
+                }))
+                  .filter(item => item?.mediaItem);
+              } else if(group.type === "automatic") {
+                const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
+                const media = Object.values(this.media)
+                  .filter(mediaItem =>
+                    associatedCatalogIds.includes(mediaItem.media_catalog_id)
+                  );
+
+                content = await this.FilteredMedia({
+                  media,
+                  mediaCatalogIds: associatedCatalogIds,
+                  select: {
+                    ...(group.select || {}),
+                    content_type: "media"
+                  }
+                });
+              } else {
+                content = group.content
+                  .map(mediaItemId => this.media[mediaItemId])
+                  .filter(item => item);
+              }
+
+              content = content.map(item => {
+                const mediaItem = item.mediaItem || item;
+                const additionalViews = (mediaItem?.additional_views || [])
+                  .filter(view => !!view.media_link)
+                  .map((view, index) => ({...view, index}));
+                const additionalViewLabel = mediaItem?.additional_views_label;
+
+                return {
+                  ...item,
+                  mediaItem: item.mediaItem || item,
+                  display: {
+                    ...(item.mediaItem || item)
+                  },
+                  scheduleInfo: MediaItemScheduleInfo(mediaItem),
+                  additionalViews,
+                  additionalViewLabel
+                };
+              });
+
+              return {
+                ...group,
+                content
+              };
+            }))
+          )
+            .filter(group => group.content?.length > 0)
+      }))
+    ))
+      .filter(tab => tab.groups?.length > 0);
+
+    const anyMultiview = !!tabs.find(tab =>
+      !!tab.groups.find(group =>
+        !!group.content.find(item =>
+          item.authorized && item.scheduleInfo.currentlyLive
+        )
+      )
+    );
+
+    return {
+      tabs,
+      anyMultiview,
+    };
+  });
+
   MediaPropertyIdToSlug(mediaPropertyId) {
     const propertyHash = this.mediaPropertyHashes[mediaPropertyId];
 
@@ -628,7 +711,7 @@ class MediaPropertyStore {
 
   FilteredMedia = flow(function * ({media, mediaCatalogIds, select}) {
     const now = new Date();
-    return media.filter(mediaItem => {
+    let filteredMedia = media.filter(mediaItem => {
       mediaItem = mediaItem?.mediaItem || mediaItem;
 
       // Media catalog
@@ -717,6 +800,41 @@ class MediaPropertyStore {
       }
 
       return true;
+    });
+
+    if(!select.sort_order) { return filteredMedia; }
+
+    return filteredMedia.sort((a, b) => {
+      let titleComparison = (a.catalog_title || a.title) < (b.catalog_title || b.title) ? -1 : 1;
+      let scheduleComparison = 0;
+      let timeComparison = 0;
+
+      // For live comparison, regardless of direction we want live content to show first, followed by vod content
+      if(a.live_video) {
+        if(b.live_video) {
+          timeComparison =
+            a.start_time === b.start_time ? titleComparison :
+              a.start_time < b.start_time ? -1 : 1;
+        } else {
+          timeComparison = -1;
+          scheduleComparison = -1;
+        }
+      } else if(b.live_video) {
+        scheduleComparison = 1;
+        timeComparison = 1;
+      }
+
+      switch(select.sort_order) {
+        case "title_asc":
+          return titleComparison;
+        case "title_desc":
+          return -1 * titleComparison;
+        case "time_desc":
+          return scheduleComparison || (-1 * timeComparison) || titleComparison;
+        // "time_asc" is the default case
+        default:
+          return scheduleComparison || timeComparison || titleComparison;
+      }
     });
   });
 

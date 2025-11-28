@@ -11,6 +11,24 @@
   width: 400px;
   z-index: 100;
 
+  &--with-multiview {
+    .header {
+      padding-right: 90px;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    padding: 10px 0 10px 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: max-content;
+    z-index: 1;
+  }
+
   @media screen and (width <= 1200px) {
     min-width: 350px;
     width: 350px;
@@ -81,10 +99,10 @@
     }
 
     svg {
-      height: 13px;
-      max-height: 13px;
-      max-width: 13px;
-      width: 13px;
+      height: 15px;
+      max-height: 15px;
+      max-width: 15px;
+      width: 15px;
 
       * {
         color: var(--property-button-text);
@@ -100,15 +118,16 @@
 .hide-button {
   cursor: pointer;
   height: 25px;
-  position: absolute;
-  right: 10px;
-  top: 10px;
   width: 25px;
   z-index: 1;
 
+  * {
+    color: var(--property-text-extra-faded);
+  }
+
   svg {
-    height: 25px;
-    width: 25px;
+    height: 100%;
+    width: 100%;
   }
 }
 
@@ -155,6 +174,7 @@
   &__subtitle {
     color: var(--property-text-faded);
     font-size: 14px;
+    padding-right: 50px;
   }
 
   .live-badge {
@@ -176,44 +196,31 @@
 
   &__title {
     font-weight: 600;
-    padding-bottom: 10px;
-    padding-inline: 15px;
+    padding: 20px 15px 5px;
     text-transform: uppercase;
     top: 0;
     z-index: 10;
   }
 
-  &__mode {
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    gap: 30px;
-    height: max-content;
-    padding-bottom: 0;
-    position: relative;
+  &__subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 5px 0;
+    padding-left: 25px;
   }
 
-  &__mode-tab {
-    border-bottom: 2px solid transparent;
-    line-height: 2em;
-    transition: border 0.25s ease;
-
-    &--active {
-      border-bottom: 2px solid white;
-    }
+  &__section {
+    @include page-fade-in;
   }
 
   &__fullscreen-button {
     @include page-fade-in;
 
-    bottom: 3px;
     height: 30px;
     padding: 6px;
-    position: absolute;
-    right: 25px;
     transition: opacity 0.25s ease;
     width: 30px;
-    z-index: 100;
+    z-index: 1;
 
     * {
       opacity: 0.7;
@@ -225,6 +232,91 @@
         opacity: 1;
       }
     }
+  }
+
+  &__actions {
+    align-items: center;
+    bottom: 2px;
+    display: flex;
+    gap: 10px;
+    position: absolute;
+    right: 5px;
+    z-index: 1;
+  }
+}
+
+.multiview-switch {
+  align-items: center;
+  background: var(--property-button-background);
+  background-color: #3C3C3C;
+  border-radius: 3px;
+  display: flex;
+  overflow: hidden;
+
+  * {
+    transition: background-color 0.25s ease, color 0.25s ease, opacity 0.25s ease;
+  }
+
+  &__button {
+    height: 30px;
+    padding: 7px;
+    width: 30px;
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &--active {
+      background-color: white;
+      color: black;
+
+      * {
+        color: black;
+      }
+    }
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+.tabs-container {
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  max-width: 100%;
+  padding-right: 50px;
+  position: relative;
+  width: 100%;
+}
+
+.tabs {
+  align-items: flex-end;
+  display: flex;
+  gap: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 0;
+  padding-inline: 15px;
+  position: relative;
+  scrollbar-color: #343434 #141414;
+  scrollbar-width: thin;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.tab {
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  height: min-content;
+  line-height: 2em;
+  transition: border 0.25s ease;
+
+  &--active {
+    border-bottom: 2px solid white;
   }
 }
 
@@ -266,12 +358,14 @@
   }
 
   &--additional-view {
-    cursor: pointer;
     padding-left: 25px;
 
     .item__title {
-      color: var(--property-text-secondary);
       font-size: 14px;
+    }
+
+    .item__image-container {
+      width: 75px;
     }
   }
 
@@ -323,7 +417,8 @@
     gap: 5px;
     height: max-content;
     max-width: 100%;
-    padding-right: 20px;
+    padding-right: 5px;
+    text-align: left;
   }
 
   &__headers {
@@ -357,7 +452,10 @@
     align-items: center;
     display: flex;
     gap: 5px;
+    height: 100%;
     justify-content: center;
+    max-height: 100%;
+    padding-left: 5px;
   }
 
   &__action {
@@ -381,6 +479,10 @@
 
     &:hover {
       opacity: 1;
+    }
+
+    &:disabled {
+      opacity: 0.2;
     }
 
     &--active {
@@ -434,12 +536,17 @@
 .multiview-selection-modal {
   max-height: calc(100 * var(--vh));
   min-width: 450px;
-  padding: 0;
+
+  .tabs-container {
+    padding-top: 10px;
+  }
 
   &__content {
     background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
+    height: calc(var(--vh) * 100 - 60px);
     overflow: hidden;
     padding: 0;
+    position: relative;
   }
 
   &__top-header {
@@ -478,7 +585,7 @@
     max-height: calc(75 * var(--vh) - 250px);
     min-height: 100px;
     overflow-y: auto;
-    padding: 10px;
+    padding: 10px 0 60px;
   }
 
   &__mode {
@@ -505,11 +612,12 @@
     color: var(--property-text-primary);
     font-size: 14px;
     font-weight: 500;
-    padding: 15px 20px 7px;
+    padding: 15px 15px 7px;
   }
 
   &__actions {
     align-items: center;
+    background-color: #0f0f0f;
     bottom: 0;
     display: flex;
     gap: 10px;
@@ -531,7 +639,7 @@
     max-width: unset;
     min-height: calc(100 * var(--vh));
     min-width: 100vw;
-
+    
     &__items {
       max-height: calc(100 * var(--vh) - 175px);
     }

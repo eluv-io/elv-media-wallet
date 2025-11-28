@@ -281,6 +281,7 @@
 
 .media-with-sidebar {
   display: grid;
+  gap: 10px;
   grid-template-columns: 1fr auto;
   height: max-content;
   max-width: 100%;
@@ -289,12 +290,6 @@
   padding: 0;
   position: relative;
   width: 100%;
-
-  &__fullscreen {
-    .media-with-sidebar__video {
-      max-height: unset!important;
-    }
-  }
 
   &__media {
     align-items: center;
@@ -306,11 +301,14 @@
     align-items: center;
     display: flex;
     height: max-content;
-    max-height: calc(var(--property-full-content-height) - 175px);
     position: relative;
 
-    * {
+    &:not(&--fullscreen) {
       max-height: calc(var(--property-full-content-height) - 175px);
+
+      * {
+        max-height: calc(var(--property-full-content-height) - 175px);
+      }
     }
   }
 
@@ -337,6 +335,14 @@
     justify-content: center;
     margin-inline: auto;
     width: 100%;
+
+    &--fullscreen {
+      color: red;
+
+      .media {
+        max-height: unset!important;
+      }
+    }
 
     .media__error {
       aspect-ratio: 16/9;
@@ -441,7 +447,6 @@
 
   &__video {
     flex: 1 1 100%;
-    max-height: calc(var(--property-full-content-height) - 100px);
     min-height: unset;
 
     &.media__error {
@@ -563,14 +568,13 @@
       &--7,
       &--8 {
         .media {
-          width: 50vw;
+          max-width: 50vw;
         }
       }
 
       &--5,
       &--6 {
         .media {
-          height: calc(var(--property-full-content-height) / 3);
           max-height: calc(var(--property-full-content-height) / 3);
         }
       }
@@ -578,8 +582,7 @@
       &--7,
       &--8 {
         .media {
-          height: calc(var(--property-full-content-height) / 4.5);
-          max-height: calc(var(--property-full-content-height) / 4.5);
+          max-height: calc(var(--property-full-content-height) / 7.5);
         }
       }
 
@@ -620,20 +623,31 @@
   }
 
   @media screen and (height <= 600px) and (orientation: landscape) {
+    &__media-container {
+      &:not(&--fullscreen) {
+        max-height: calc(var(--property-full-content-height));
+
+        * {
+          max-height: calc(var(--property-full-content-height));
+        }
+      }
+    }
+
     &__media-grid {
       height: max-content;
       min-height: unset;
 
       &--2 {
         .media {
-          height: var(--property-full-content-height);
           max-height: var(--property-full-content-height);
           width: 50vw;
         }
       }
 
       &--3,
-      &--4 {
+      &--4,
+      &--5,
+      &--6 {
         .media {
           height: calc(var(--property-full-content-height) / 2);
           max-height: calc(var(--property-full-content-height) / 2);

@@ -94,11 +94,11 @@
   width: 35px;
 
   &--custom {
-    color: var(--property-button-text--custom, var(--property-button-text));
-    background: var(--property-button-background--custom, var(--property-button-background));
+    background: var(--property-button-background);
+    color: var(--property-button-text);
 
     * {
-      color: var(--property-button-text--custom, var(--property-button-text));
+      color: var(--property-button-text);
     }
   }
 

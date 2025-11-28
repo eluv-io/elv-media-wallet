@@ -675,12 +675,12 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
     <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
-          !rootStore.backPath ? null :
+          !rootStore.backPath ?
+            <PropertySelector logo={logo} basePath={basePath} mobile /> :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
-        <PropertySelector logo={logo} basePath={basePath} mobile />
         {
           searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>

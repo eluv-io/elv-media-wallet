@@ -3,108 +3,20 @@ import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.mod
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
-import {rootStore, mediaPropertyStore} from "Stores";
+import {rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
 import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
-import XIcon from "Assets/icons/x.svg";
-import ChevronLeft from "Assets/icons/left-arrow.svg";
-import FullscreenIcon from "Assets/icons/grid";
-import PipVideoIcon from "Assets/icons/sidebar-pip.svg";
-import MultiviewIcon from "Assets/icons/eye.svg";
+import HideIcon from "Assets/icons/chevron-compact-right";
+import ShowIcon from "Assets/icons/left-arrow";
+import FullscreenIcon from "Assets/icons/full screen";
+import PipVideoIcon from "Assets/icons/pip";
+import MultiviewIcon from "Assets/icons/media/multiview";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
-
-export const SidebarContent = async ({match}) => {
-  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
-  const sidebarOptions = mediaProperty.metadata.media_sidebar || {};
-  const currentNavContext = new URLSearchParams(window.location.search).get("ctx");
-  const currentSection = mediaPropertyStore.MediaPropertySection({
-    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-    sectionSlugOrId: match.params.sectionSlugOrId || currentNavContext,
-    mediaListSlugOrId: match.params.mediaListSlugOrId
-  });
-
-  const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({...match.params});
-
-  const additionalViews = (mediaItem?.additional_views || [])
-    .filter(view => !!view.media_link)
-    .map((view, index) => ({...view, index}));
-  const additionalViewLabel = mediaItem?.additional_views_label;
-
-  if(!sidebarOptions.show_media_sidebar) {
-    return { content: [], additionalViews, additionalViewLabel };
-  }
-
-  if(sidebarOptions.sidebar_content === "live" || (!currentSection && sidebarOptions.default_sidebar_content === "live")) {
-    let content = await mediaPropertyStore.SearchMedia({
-      ...match.params,
-      searchOptions: {schedule: "live_and_upcoming"}
-    });
-
-    content = content
-      .map(result => ({
-        ...result,
-        scheduleInfo: MediaItemScheduleInfo(result.mediaItem)
-      }))
-      .sort((a, b) => a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1);
-
-    return { content, additionalViews, additionalViewLabel };
-  } else {
-    let section = sidebarOptions.sidebar_content === "current_section" && currentSection;
-    if(
-      sidebarOptions.sidebar_content === "specific_section" ||
-      (
-        sidebarOptions.sidebar_content === "current_section" &&
-        !section &&
-        sidebarOptions.default_sidebar_content === "specific_section"
-      )
-    ) {
-      section = mediaPropertyStore.MediaPropertySection({
-        mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-        mediaListSlugOrId: match.params.mediaListSlugOrId,
-        sectionSlugOrId: sidebarOptions.sidebar_content_section_id
-      });
-    }
-
-    if(!section) {
-      return { content: [], additionalViews, additionalViewLabel };
-    }
-
-    let content = await mediaPropertyStore.MediaPropertySectionContent({
-      ...match.params,
-      sectionSlugOrId: section.id
-    });
-
-    content = content
-      .map(result => ({
-        ...result,
-        scheduleInfo: MediaItemScheduleInfo(result.mediaItem)
-      }))
-      .sort((a, b) => {
-        if(a.scheduleInfo.isLiveContent) {
-          if(b.scheduleInfo.isLiveContent) {
-            return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
-          }
-
-          return -1;
-        } else if(b.scheduleInfo.isLiveContent) {
-          return 1;
-        }
-
-        return 0;
-      });
-
-    return {
-      content,
-      section,
-      additionalViews,
-      additionalViewLabel
-    };
-  }
-};
 
 const Item = observer(({
   imageUrl,
@@ -113,43 +25,38 @@ const Item = observer(({
   scheduleInfo,
   disabled,
   onClick,
-  noBorder,
   displayedContent,
   setDisplayedContent,
   primaryMediaId,
   contentItem,
+  noBorder,
   noActions,
-  dummyActions,
-  noOrder,
-  multiviewMode
+  noLink,
+  noClick,
+  multiviewMode,
+  streamLimit
 }) => {
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
 
-  const order = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id);
-  const isActive = order >= 0;
+  const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
 
   let linkPath;
-  if(!onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
+  if(!noLink && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
     const navContext = new URLSearchParams(location.search).get("ctx");
     linkPath = MediaPropertyLink({match, mediaItem: rootStore.mediaPropertyStore.media[contentItem.id], navContext})?.linkPath || "";
   }
 
+  onClick = onClick ? onClick :
+    linkPath || noClick ? undefined :
+      !isActive ?
+        () => setDisplayedContent([contentItem]) :
+        contentItem.id !== primaryMediaId ?
+          () => setDisplayedContent([{type: "media-item", id: primaryMediaId}]) :
+          undefined;
+
   return (
     <Linkish
-      disabled={disabled}
-      role="button"
-      tabIndex={0}
-      onClick={
-        onClick ? onClick :
-          linkPath ? undefined :
-            !isActive ?
-              () => setDisplayedContent([contentItem]) :
-              contentItem.id !== primaryMediaId ?
-                () => setDisplayedContent([{type: "media-item", id: primaryMediaId}]) :
-                undefined
-      }
-      to={linkPath}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={
@@ -158,32 +65,33 @@ const Item = observer(({
           disabled ? "item--disabled" : "",
           noBorder ? "item--no-border" : "",
           (hovering && !disabled) ? "item--hover" : "",
-          isActive ? "item--active" : ""
+          contentItem.id === primaryMediaId ? "item--active" : "",
+          contentItem.type === "additional-view" ? "item--additional-view" : "",
         )
       }
     >
       {
-        imageUrl ?
-          <div className={S("item__image-container", "item__image-container--landscape")}>
+        !imageUrl ? null :
+          <Linkish
+            onClick={onClick}
+            to={linkPath}
+            disabled={disabled}
+            className={S("item__image-container", "item__image-container--landscape")}
+          >
             <LoaderImage
               loaderAspectRatio={16 / 9}
               alt={title}
               className={S("item__image")}
               src={imageUrl}
             />
-            {
-              noOrder || order < 0 ? null :
-                <div className={S("item__order-badge")}>
-                  { order + 1 }
-                </div>
-            }
-          </div> :
-          noOrder || order < 0 ? null :
-            <div className={S("item__order-badge")}>
-              { order + 1 }
-            </div>
+          </Linkish>
       }
-      <div className={S("item__text")}>
+      <Linkish
+        onClick={onClick}
+        to={linkPath}
+        disabled={disabled}
+        className={S("item__text")}
+      >
         <div title={title} className={S("item__title")}>
           {title}
         </div>
@@ -199,17 +107,13 @@ const Item = observer(({
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
         }
-      </div>
+      </Linkish>
       {
         noActions ? null :
           <div className={S("item__actions")}>
             <Linkish
-              onClick={event => {
-                if(dummyActions) { return; }
-
-                event.stopPropagation();
-                event.preventDefault();
-
+              disabled={!isActive && displayedContent.length >= streamLimit}
+              onClick={() => {
                 if(isActive) {
                   setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
                 } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
@@ -243,36 +147,56 @@ const MediaSidebar = observer(({
   setDisplayedContent,
   multiviewMode,
   setMultiviewMode,
-  contentRef
+  contentRef,
+  streamLimit
 }) => {
-  const {content, section} = sidebarContent || {};
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const tab = sidebarContent?.tabs?.[tabIndex];
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
-  if(!content || content.length === 0 || rootStore.pageWidth < 800) {
+  if(sidebarContent?.tabs?.length === 0 || rootStore.pageWidth < 800) {
     return;
   }
 
-  const liveContent = content.filter(item => item.scheduleInfo.isLiveContent && item.scheduleInfo.started && !item.scheduleInfo.ended);
-  const upcomingContent = content.filter(item => item.scheduleInfo.isLiveContent && !item.scheduleInfo.started);
-  const vodContent = content.filter(item => !item.scheduleInfo.isLiveContent);
-
-  if(!showSidebar) {
+  if(!showSidebar && rootStore.pageWidth >= 850) {
     return (
       <div className={S("hidden-sidebar")}>
         <button onClick={() => setShowSidebar(true)} className={S("show-button")}>
-          <ImageIcon icon={ChevronLeft} />
+          <ImageIcon icon={ShowIcon} />
         </button>
       </div>
     );
   }
 
   return (
-    <div className={S("sidebar", "sidebar--overlay")}>
-      <button onClick={() => setShowSidebar(false)} className={S("hide-button")}>
-        <ImageIcon icon={XIcon}/>
-      </button>
+    <div className={S("sidebar", "sidebar--overlay", sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
+      <div className={S("sidebar__actions")}>
+        {
+          !sidebarContent.anyMultiview ? null :
+            <div className={S("multiview-switch")}>
+              <button
+                onClick={() => setMultiviewMode("pip")}
+                title="Picture-in-Picture Mode"
+                className={S("multiview-switch__button", multiviewMode === "pip" ? "multiview-switch__button--active" : "")}
+              >
+                <ImageIcon icon={PipVideoIcon}/>
+              </button>
+              <button
+                onClick={() => setMultiviewMode("multiview")}
+                title="Multiview Mode"
+                className={S("multiview-switch__button", multiviewMode === "multiview" ? "multiview-switch__button--active" : "")}
+              >
+                <ImageIcon icon={MultiviewIcon}/>
+              </button>
+            </div>
+        }
+        <button title="Hide Sidbar" onClick={() => setShowSidebar(false)} className={S("hide-button")}>
+          <ImageIcon icon={HideIcon}/>
+        </button>
+      </div>
       <div className={S("header")}>
         {
           !isLive ? null :
@@ -292,160 +216,95 @@ const MediaSidebar = observer(({
           {display.subtitle}
         </div>
       </div>
-      {
-        sidebarContent.additionalViews.length === 0 &&
-        liveContent.length === 0 ? null :
-          <div className={[S("content__title", "content__mode"), "_title"].join(" ")}>
-            <button
-              onClick={() => setMultiviewMode("pip")}
-              className={S("content__mode-tab", multiviewMode === "pip" ? "content__mode-tab--active" : "")}
-            >
-              {
-                sidebarContent.additionalViews.length > 0 ?
-                  sidebarContent.additionalViewLabel || "Additional Views" :
-                  rootStore.l10n.media_properties.media.sidebar.today
-              }
-            </button>
-            <button
-              onClick={() => setMultiviewMode("multiview")}
-              className={S("content__mode-tab", multiviewMode === "multiview" ? "content__mode-tab--active" : "")}
-            >
-              Multiview
-            </button>
-            {
-              !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
+      <div className={S("tabs-container")}>
+        <div className={S("tabs")}>
+          {
+            sidebarContent.tabs.length <= 1 ? null :
+              sidebarContent.tabs.map((tab, index) =>
                 <button
-                  onClick={() => contentRef.requestFullscreen()}
-                  title="View Content in Full Screen"
-                  className={S("content__fullscreen-button")}
+                  onClick={() => setTabIndex(index)}
+                  key={`tab-${tab.id}`}
+                  className={S("tab", tabIndex === index ? "tab--active" : "")}
                 >
-                  <ImageIcon icon={FullscreenIcon}/>
+                  {tab.title}
                 </button>
-            }
-          </div>
-      }
-      <div className={S("content")}>
+            )
+          }
+        </div>
         {
-          sidebarContent.additionalViews.length === 0 ? null :
-            <div className={S("content__section")}>
-              <Item
-                noBorder
-                imageUrl={MediaItemImageUrl({mediaItem, display, aspectRatio: "Landscape"})?.imageUrl}
-                title={mediaItem.primary_view_label || rootStore.l10n.media_properties.media.sidebar.main_view}
-                contentItem={{type: "media-item", id: mediaItem.id}}
-                primaryMediaId={mediaItem.id}
-                displayedContent={displayedContent}
-                setDisplayedContent={setDisplayedContent}
-                multiviewMode={multiviewMode}
-              />
-              {sidebarContent.additionalViews.map((item, index) =>
-                  <Item
-                    imageUrl={item.image?.url}
-                    title={item.label}
-                    contentItem={{...item, type: "additional-view", index, id: index}}
-                    displayedContent={displayedContent}
-                    setDisplayedContent={setDisplayedContent}
-                    key={`item-${index}`}
-                    multiviewMode={multiviewMode}
-                    primaryMediaId={mediaItem.id}
-
-                    /*
-                    active={isActive}
-                    onClick={
-                      !isActive ?
-                        () => setDisplayedContent([{...item, type: "additional-view", index, id: index}]) :
-                        displayedContent.length === 1 && isActive ?
-                          () => setDisplayedContent([{type: "media-item", id: mediaItem.id}]) :
-                          undefined
-
-                    }
-
-                     */
-
-                  />
-              )}
+          !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
+            <div className={S("content__actions")}>
+              <button
+                onClick={() => contentRef.requestFullscreen()}
+                title="View Content in Full Screen"
+                className={S("content__fullscreen-button")}
+              >
+                <ImageIcon icon={FullscreenIcon}/>
+              </button>
             </div>
         }
+      </div>
+      <div className={S("content")}>
         {
-          liveContent.length === 0 ? null :
-            <div className={S("content__section")}>
+          tab.groups.map(group =>
+            <div key={`group-${group.id}`} className={S("content__section")}>
               {
-                sidebarContent.additionalViews.length === 0 ? null :
+                !group.title ? null :
                   <div className={[S("content__title"), "_title"].join(" ")}>
-                    {rootStore.l10n.media_properties.media.sidebar.today}
+                    { group.title }
                   </div>
               }
-              {liveContent.map((item, index) => {
+              {group.content.map((item, index) => {
                 let {imageUrl} = MediaItemImageUrl({
-                  mediaItem: item,
+                  mediaItem: item.mediaItem,
                   display: item.display
                 });
 
                 return (
-                  <Item
-                    noBorder={index === 0}
-                    imageUrl={imageUrl}
-                    title={item.display.title}
-                    subtitle={item.display.subtitle}
-                    scheduleInfo={item.scheduleInfo}
-                    key={`item-${item.id}`}
-                    contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
-                    primaryMediaId={mediaItem.id}
-                    displayedContent={displayedContent}
-                    setDisplayedContent={setDisplayedContent}
-                    multiviewMode={multiviewMode}
-                    noActions={item.mediaItem?.id === mediaItem.id}
-                    noOrder={item.mediaItem?.id === mediaItem.id}
-                  />
+                  <>
+                    <Item
+                      noBorder={index === 0}
+                      imageUrl={imageUrl}
+                      title={item.display.title}
+                      subtitle={item.display.subtitle}
+                      scheduleInfo={item.scheduleInfo}
+                      key={`item-${item.id}`}
+                      contentItem={{type: "media-item", id: item.mediaItem.id}}
+                      primaryMediaId={mediaItem.id}
+                      displayedContent={displayedContent}
+                      setDisplayedContent={setDisplayedContent}
+                      multiviewMode={multiviewMode}
+                      noActions={!item.authorized || !item.scheduleInfo.currentlyLive}
+                      streamLimit={streamLimit}
+                    />
+                    {
+                      item.mediaItem.id !== mediaItem.id || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
+                        (item.additional_views || []).map((view, index) =>
+                          <Item
+                            noBorder={index === 0}
+                            imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                            title={view.label}
+                            key={`item-${item.id}-${index}`}
+                            contentItem={{
+                              ...view,
+                              type: "additional-view",
+                              id: `${item.id}-${index}`,
+                              index,
+                              label: `${item.display.title} - ${view.label}`
+                            }}
+                            primaryMediaId={mediaItem.id}
+                            displayedContent={displayedContent}
+                            setDisplayedContent={setDisplayedContent}
+                            multiviewMode={multiviewMode}
+                            streamLimit={streamLimit}
+                          />
+                        )
+                    }
+                  </>
                 );
               })}
             </div>
-        }
-        {
-          upcomingContent.length === 0 ? null :
-            <div className={S("content__section")}>
-              <div className={[S("content__title"), "_title"].join(" ")}>
-                {rootStore.l10n.media_properties.media.sidebar.upcoming}
-              </div>
-              {upcomingContent.map((item, index) =>
-                <Item
-                  noBorder={index === 0}
-                  title={item.display.title}
-                  subtitle={item.display.subtitle}
-                  scheduleInfo={item.scheduleInfo}
-                  key={`item-${item.id}`}
-                  contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
-                  primaryMediaId={mediaItem.id}
-                  displayedContent={displayedContent}
-                  setDisplayedContent={setDisplayedContent}
-                  multiviewMode={multiviewMode}
-                  noActions
-                />
-              )}
-            </div>
-        }
-        {
-          vodContent.length === 0 ? null :
-            <div className={S("content__section")}>
-              <div className={[S("content__title"), "_title"].join(" ")}>
-                {section?.display?.title || rootStore.l10n.media_properties.media.sidebar.more_content}
-              </div>
-              {vodContent.map((item, index) =>
-                <Item
-                  noBorder={index === 0}
-                  title={item.display.title}
-                  subtitle={item.display.subtitle}
-                  scheduleInfo={item.scheduleInfo}
-                  key={`item-${item.id}`}
-                  contentItem={{type: "media-item", id: item.mediaItem?.id || item.id}}
-                  primaryMediaId={mediaItem.id}
-                  displayedContent={displayedContent}
-                  setDisplayedContent={setDisplayedContent}
-                  multiviewMode={multiviewMode}
-                  noActions
-                />
-              )}
-            </div>
+          )
         }
       </div>
     </div>
@@ -461,7 +320,17 @@ export const MultiviewSelectionModal = observer(({
   streamLimit,
   Close
 }) => {
+  let tabs = sidebarContent.tabs.filter(tab =>
+    tab.groups.find(group =>
+      group.content.find(item =>
+        item.scheduleInfo.currentlyLive
+      )
+    )
+  );
+
   const [selectedContent, setSelectedContent] = useState(displayedContent);
+  const [tabIndex, setTabIndex] = useState(0);
+  const tab = tabs[tabIndex];
 
   useEffect(() => {
     if(opened) {
@@ -474,20 +343,6 @@ export const MultiviewSelectionModal = observer(({
       selectedContent.slice(0, streamLimit)
     );
   }, [streamLimit]);
-
-  const liveContent = sidebarContent.content.filter(item => item.scheduleInfo.isLiveContent && item.scheduleInfo.started && !item.scheduleInfo.ended);
-
-  const list = [
-    mediaItem,
-    ...sidebarContent.additionalViews.map((item, index) => ({...item, type: "additional-view", index, id: index})),
-    ...liveContent.filter(otherItem => (otherItem.mediaItem?.id || otherItem.id) !== mediaItem.id)
-  ]
-    .filter(item => item)
-    .map(item => ({
-      ...item,
-      active: !!selectedContent.find(otherItem => (item.mediaItem?.id || item.id) === otherItem.id),
-      order: selectedContent.findIndex(otherItem => (item.mediaItem?.id || item.id) === otherItem.id)
-    }));
 
   return (
     <Modal
@@ -502,10 +357,10 @@ export const MultiviewSelectionModal = observer(({
             className={S("multiview-selection-modal__back")}
             onClick={() => Close()}
           >
-            <ImageIcon icon={ChevronLeft} />
+            <ImageIcon icon={ShowIcon}/>
           </Linkish>
           <div>
-            { rootStore.l10n.media_properties.media.select_streams }
+            {rootStore.l10n.media_properties.media.select_streams}
           </div>
         </div>
       }
@@ -514,44 +369,93 @@ export const MultiviewSelectionModal = observer(({
       contentClassName={S("multiview-selection-modal")}
       childrenContainerClassName={S("multiview-selection-modal__content")}
     >
+      <div className={S("tabs-container")}>
+        <div className={S("tabs")}>
+          {
+            tabs.length <= 1 ? null :
+              tabs.map((tab, index) =>
+                <button
+                  onClick={() => setTabIndex(index)}
+                  key={`tab-${tab.id}`}
+                  className={S("tab", tabIndex === index ? "tab--active" : "")}
+                >
+                  {tab.title}
+                </button>
+              )
+          }
+        </div>
+      </div>
       <div className={S("multiview-selection-modal__limit")}>
         Select up to {streamLimit} streams
       </div>
       <div className={S("multiview-selection-modal__items")}>
         {
-          list.map(item => {
-            const imageUrl = item.type === "additional-view" ? item.image?.url :
-              MediaItemImageUrl({mediaItem: item?.mediaItem || item, display: item?.mediaItem?.display || item.display})?.imageUrl;
+          tab.groups.map(group =>
+            !group.content.find(item => item.authorized && item.scheduleInfo.currentlyLive) ? null :
+              <div key={`group-${group.id}`} className={S("content__section")}>
+                {
+                  !group.title ? null :
+                    <div className={[S("content__title"), "_title"].join(" ")}>
+                      {group.title}
+                    </div>
+                }
+                {group.content
+                  .filter(item => item.authorized)
+                  .map((item, index) => {
+                    let {imageUrl} = MediaItemImageUrl({
+                      mediaItem: item.mediaItem,
+                      display: item.display
+                    });
 
-            return (
-              <Item
-                disabled={!item.active && selectedContent.length >= streamLimit}
-                key={item.mediaItem?.id || item.id}
-                imageUrl={imageUrl}
-                title={item.display?.title || item.label}
-                subtitle={item.display?.subtitle}
-                scheduleInfo={item.scheduleInfo}
-                primaryMediaId={mediaItem.id}
-                multiviewMode="multiview"
-                dummyActions
-                contentItem={
-                  item.type === "additional-view" ? item :
-                    { type: "media-item", id: item.mediaItem?.id || item.id }
-                }
-                displayedContent={selectedContent}
-                setDisplayedContent={setDisplayedContent}
-                onClick={
-                  () => item.active ?
-                    setSelectedContent(selectedContent.filter(otherItem => otherItem.id !== (item.mediaItem?.id || item.id))) :
-                    setSelectedContent([
-                      ...selectedContent,
-                      item.type === "additional-view" ? item :
-                        { type: "media-item", id: item.mediaItem?.id || item.id }
-                    ])
-                }
-              />
-            );
-          })
+                    return (
+                      <>
+                        <Item
+                          noBorder={index === 0}
+                          imageUrl={imageUrl}
+                          noLink
+                          noClick
+                          title={item.display.title}
+                          subtitle={item.display.subtitle}
+                          scheduleInfo={item.scheduleInfo}
+                          key={`item-${item.id}`}
+                          contentItem={{type: "media-item", id: item.mediaItem.id}}
+                          primaryMediaId={mediaItem.id}
+                          displayedContent={selectedContent}
+                          setDisplayedContent={setSelectedContent}
+                          multiviewMode="multiview"
+                          onClick={() => {}}
+                          streamLimit={streamLimit}
+                        />
+                        {
+                          item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
+                            (item.additional_views || []).map((view, index) =>
+                              <Item
+                                noBorder={index === 0}
+                                noLink
+                                noClick
+                                imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                title={view.label}
+                                key={`item-${item.id}-${index}`}
+                                contentItem={{
+                                  ...view,
+                                  type: "additional-view",
+                                  id: `${item.id}-${index}`,
+                                  index,
+                                  label: `${item.display.title} - ${view.label}`
+                                }}
+                                primaryMediaId={mediaItem.id}
+                                displayedContent={selectedContent}
+                                setDisplayedContent={setSelectedContent}
+                                multiviewMode="multiview"
+                                streamLimit={streamLimit}
+                              />
+                            )
+                        }
+                      </>
+                    );
+                  })}
+              </div>
+          )
         }
       </div>
       <div className={S("multiview-selection-modal__actions")}>

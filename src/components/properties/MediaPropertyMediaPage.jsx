@@ -17,7 +17,7 @@ import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
-import MediaSidebar, {MultiviewSelectionModal, SidebarContent} from "Components/properties/MediaSidebar";
+import MediaSidebar, {MultiviewSelectionModal} from "Components/properties/MediaSidebar";
 import {Linkish} from "Components/common/UIComponents";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
@@ -288,12 +288,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  let streamLimit = 8;
-  if(rootStore.pageWidth < 650) {
-    streamLimit = 8;
-  } else if(rootStore.pageWidth < 1250) {
-    streamLimit = 8;
-  }
+  let streamLimit = rootStore.pageWidth < 900 ? 6 : 9;
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {
@@ -310,8 +305,9 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   }, []);
 
   useEffect(() => {
-    if(rootStore.pageWidth > 850) {
+    if(rootStore.pageWidth > 850 || !sidebarContent?.anyMultiview) {
       rootStore.SetHeaderButtons([]);
+      return;
     }
 
     rootStore.SetHeaderButtons([{
@@ -323,7 +319,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     }]);
 
     return () => rootStore.SetHeaderButtons([]);
-  }, [rootStore.pageWidth, showMultiviewSelectionModal]);
+  }, [rootStore.pageWidth, sidebarContent, showMultiviewSelectionModal]);
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
@@ -331,14 +327,16 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     .map(item => {
       if(item.type === "additional-view") {
         return {
-          id: item.index,
+          id: item.id,
           index: item.index,
           type: "additional-view",
           mediaItem: {
             media_link: item.media_link,
             media_link_info: item.media_link_info,
           },
-          display: { title: item.label }
+          display: {
+            title: item.label
+          }
         };
       } else {
         const mediaItem = mediaPropertyStore.media[item.id];
@@ -358,7 +356,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
   let media;
   if(multiviewMode === "pip" || mediaInfo.length === 1) {
     media = (
-      <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar--fullscreen" : "")}>
+      <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent
           primaryMedia={mediaInfo[0]}
           secondaryMedia={mediaInfo[1]}
@@ -367,8 +365,8 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     );
   } else {
     media = (
-      <div className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__fullscreen" : "", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
-        <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`)}>
+      <div className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
+        <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
               <MediaVideo
@@ -600,7 +598,7 @@ const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(sidebarContent?.content?.length > 0 || sidebarContent?.additionalViews?.length > 0) {
+    if(sidebarContent?.tabs?.length > 0) {
       return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} textContent={textContent} />;
     } else {
       return <MediaVideo mediaItem={mediaItem} display={display}/>;
@@ -671,14 +669,14 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   useEffect(() => {
-    SidebarContent({match})
+    mediaPropertyStore.SidebarContent(match.params)
       .then(setSidebarContent);
   }, []);
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-  const showSidebar = sidebarContent?.content?.length > 0 || sidebarContent?.additionalViews?.length > 0;
+  const showSidebar = sidebarContent?.tabs?.length > 0;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
