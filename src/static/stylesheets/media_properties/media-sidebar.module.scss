@@ -118,6 +118,7 @@
 .hide-button {
   cursor: pointer;
   height: 25px;
+  padding: 4px;
   width: 25px;
   z-index: 1;
 
@@ -161,10 +162,6 @@
     flex-wrap: wrap;
     font-size: 14px;
     gap: 0 10px;
-
-    &:not(:empty) {
-      margin-bottom: 10px;
-    }
   }
 
   &__header {
@@ -217,6 +214,7 @@
     @include page-fade-in;
 
     height: 30px;
+    margin-right: 18px;
     padding: 6px;
     transition: opacity 0.25s ease;
     width: 30px;
@@ -242,6 +240,22 @@
     position: absolute;
     right: 5px;
     z-index: 1;
+  }
+
+  &__views-container {
+    margin: 0 0 10px 20px;
+    padding-left: 8px;
+    position: relative;
+  }
+
+  &__views-line {
+    background-color: #2C2C2C;
+    border-radius: 3px;
+    height: calc(100% - 24px);
+    left: 0;
+    position: absolute;
+    top: 12px;
+    width: 2px;
   }
 }
 
@@ -358,14 +372,12 @@
   }
 
   &--additional-view {
-    padding-left: 25px;
-
     .item__title {
       font-size: 14px;
     }
 
     .item__image-container {
-      width: 75px;
+      width: 90px;
     }
   }
 
@@ -412,11 +424,13 @@
   }
 
   &__text {
+    align-items: center;
     display: grid;
     flex: 1 1 0;
     gap: 5px;
     height: max-content;
     max-width: 100%;
+    min-height: 40px;
     padding-right: 5px;
     text-align: left;
   }
@@ -514,21 +528,41 @@
   }
 }
 
-@media screen and (width <= 650px) {
+@media screen and (width <= 850px) {
+  // Hide / adjust elements for mobile sidebar
+
   .sidebar {
     border-radius: 0;
     margin-inline: auto;
-    max-width: 500px;
+    max-height: 75vh;
+    min-height: unset;
     min-width: unset;
     width: 100%;
+
+    .content {
+      padding-bottom: 0;
+
+      &__views-container {
+        display: none;
+      }
+    }
+
+    .item {
+      &__actions {
+        display: none;
+      }
+    }
   }
 
-  .hide-button {
+  .header,
+  .multiview-switch,
+  .hide-button,
+  .content__fullscreen-button {
     display: none;
   }
 
-  .content {
-    overscroll-behavior-y: initial;
+  .tabs-container {
+    padding-top: 10px;
   }
 }
 
@@ -639,7 +673,7 @@
     max-width: unset;
     min-height: calc(100 * var(--vh));
     min-width: 100vw;
-    
+
     &__items {
       max-height: calc(100 * var(--vh) - 175px);
     }

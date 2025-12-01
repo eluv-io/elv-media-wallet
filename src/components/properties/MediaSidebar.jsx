@@ -10,7 +10,7 @@ import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 
-import HideIcon from "Assets/icons/chevron-compact-right";
+import HideIcon from "Assets/icons/right-arrow";
 import ShowIcon from "Assets/icons/left-arrow";
 import FullscreenIcon from "Assets/icons/full screen";
 import PipVideoIcon from "Assets/icons/pip";
@@ -157,7 +157,7 @@ const MediaSidebar = observer(({
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
-  if(sidebarContent?.tabs?.length === 0 || rootStore.pageWidth < 800) {
+  if(sidebarContent?.tabs?.length === 0) {
     return;
   }
 
@@ -266,7 +266,6 @@ const MediaSidebar = observer(({
                       noBorder={index === 0}
                       imageUrl={imageUrl}
                       title={item.display.title}
-                      subtitle={item.display.subtitle}
                       scheduleInfo={item.scheduleInfo}
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
@@ -279,26 +278,31 @@ const MediaSidebar = observer(({
                     />
                     {
                       item.mediaItem.id !== mediaItem.id || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
-                        (item.additional_views || []).map((view, index) =>
-                          <Item
-                            noBorder={index === 0}
-                            imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
-                            title={view.label}
-                            key={`item-${item.id}-${index}`}
-                            contentItem={{
-                              ...view,
-                              type: "additional-view",
-                              id: `${item.id}-${index}`,
-                              index,
-                              label: `${item.display.title} - ${view.label}`
-                            }}
-                            primaryMediaId={mediaItem.id}
-                            displayedContent={displayedContent}
-                            setDisplayedContent={setDisplayedContent}
-                            multiviewMode={multiviewMode}
-                            streamLimit={streamLimit}
-                          />
-                        )
+                        <div className={S("content__views-container")}>
+                          {
+                            (item.additional_views || []).map((view, index) =>
+                              <Item
+                                noBorder
+                                imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                title={view.label}
+                                key={`item-${item.id}-${index}`}
+                                contentItem={{
+                                  ...view,
+                                  type: "additional-view",
+                                  id: `${item.id}-${index}`,
+                                  index,
+                                  label: `${item.display.title} - ${view.label}`
+                                }}
+                                primaryMediaId={mediaItem.id}
+                                displayedContent={displayedContent}
+                                setDisplayedContent={setDisplayedContent}
+                                multiviewMode={multiviewMode}
+                                streamLimit={streamLimit}
+                              />
+                            )
+                          }
+                          <div className={S("content__views-line")} />
+                        </div>
                     }
                   </>
                 );
@@ -428,28 +432,33 @@ export const MultiviewSelectionModal = observer(({
                         />
                         {
                           item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
-                            (item.additional_views || []).map((view, index) =>
-                              <Item
-                                noBorder={index === 0}
-                                noLink
-                                noClick
-                                imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
-                                title={view.label}
-                                key={`item-${item.id}-${index}`}
-                                contentItem={{
-                                  ...view,
-                                  type: "additional-view",
-                                  id: `${item.id}-${index}`,
-                                  index,
-                                  label: `${item.display.title} - ${view.label}`
-                                }}
-                                primaryMediaId={mediaItem.id}
-                                displayedContent={selectedContent}
-                                setDisplayedContent={setSelectedContent}
-                                multiviewMode="multiview"
-                                streamLimit={streamLimit}
-                              />
-                            )
+                            <div className={S("content__views-container")}>
+                              {
+                                (item.additional_views || []).map((view, index) =>
+                                  <Item
+                                    noBorder={index === 0}
+                                    noLink
+                                    noClick
+                                    imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                    title={view.label}
+                                    key={`item-${item.id}-${index}`}
+                                    contentItem={{
+                                      ...view,
+                                      type: "additional-view",
+                                      id: `${item.id}-${index}`,
+                                      index,
+                                      label: `${item.display.title} - ${view.label}`
+                                    }}
+                                    primaryMediaId={mediaItem.id}
+                                    displayedContent={selectedContent}
+                                    setDisplayedContent={setSelectedContent}
+                                    multiviewMode="multiview"
+                                    streamLimit={streamLimit}
+                                  />
+                                )
+                              }
+                              <div className={S("content__views-line")} />
+                            </div>
                         }
                       </>
                     );
