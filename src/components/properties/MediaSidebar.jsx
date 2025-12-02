@@ -31,8 +31,7 @@ const Item = observer(({
   contentItem,
   noBorder,
   noActions,
-  noLink,
-  noClick,
+  toggleOnClick,
   multiviewMode,
   streamLimit
 }) => {
@@ -42,18 +41,29 @@ const Item = observer(({
   const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
 
   let linkPath;
-  if(!noLink && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
+  if(!toggleOnClick && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
     const navContext = new URLSearchParams(location.search).get("ctx");
     linkPath = MediaPropertyLink({match, mediaItem: rootStore.mediaPropertyStore.media[contentItem.id], navContext})?.linkPath || "";
   }
 
+  const ToggleMultiview = () => {
+    if(isActive) {
+      setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
+    } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
+      setDisplayedContent([displayedContent[0], contentItem]);
+    } else {
+      setDisplayedContent([...displayedContent, contentItem]);
+    }
+  };
+
   onClick = onClick ? onClick :
-    linkPath || noClick ? undefined :
-      !isActive ?
-        () => setDisplayedContent([contentItem]) :
-        contentItem.id !== primaryMediaId ?
-          () => setDisplayedContent([{type: "media-item", id: primaryMediaId}]) :
-          undefined;
+    toggleOnClick ? ToggleMultiview :
+      linkPath ? undefined :
+        !isActive ?
+          () => setDisplayedContent([contentItem]) :
+          contentItem.id !== primaryMediaId ?
+            () => setDisplayedContent([{type: "media-item", id: primaryMediaId}]) :
+            undefined;
 
   return (
     <Linkish
@@ -113,15 +123,7 @@ const Item = observer(({
           <div className={S("item__actions")}>
             <Linkish
               disabled={!isActive && displayedContent.length >= streamLimit}
-              onClick={() => {
-                if(isActive) {
-                  setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
-                } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
-                  setDisplayedContent([displayedContent[0], contentItem]);
-                } else {
-                  setDisplayedContent([...displayedContent, contentItem]);
-                }
-              }}
+              onClick={ToggleMultiview}
               className={S("item__action", isActive ? "item__action--active" : "")}
             >
               <ImageIcon
@@ -415,8 +417,7 @@ export const MultiviewSelectionModal = observer(({
                         <Item
                           noBorder={index === 0}
                           imageUrl={imageUrl}
-                          noLink
-                          noClick
+                          toggleOnClick
                           title={item.display.title}
                           subtitle={item.display.subtitle}
                           scheduleInfo={item.scheduleInfo}
@@ -426,7 +427,6 @@ export const MultiviewSelectionModal = observer(({
                           displayedContent={selectedContent}
                           setDisplayedContent={setSelectedContent}
                           multiviewMode="multiview"
-                          onClick={() => {}}
                           streamLimit={streamLimit}
                         />
                         {
@@ -436,8 +436,7 @@ export const MultiviewSelectionModal = observer(({
                                 (item.additional_views || []).map((view, index) =>
                                   <Item
                                     noBorder={index === 0}
-                                    noLink
-                                    noClick
+                                    toggleOnClick
                                     imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                     title={view.label}
                                     key={`item-${item.id}-${index}`}
@@ -470,6 +469,8 @@ export const MultiviewSelectionModal = observer(({
           Cancel
         </Button>
         <Button
+          variant="primary"
+          defaultStyles
           disabled={selectedContent.length === 0}
           onClick={() => {
             setDisplayedContent(selectedContent);
