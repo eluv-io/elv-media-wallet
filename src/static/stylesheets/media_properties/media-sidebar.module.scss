@@ -243,19 +243,9 @@
   }
 
   &__views-container {
-    margin: 0 0 10px 20px;
+    margin: 0 0 10px 10px;
     padding-left: 8px;
     position: relative;
-  }
-
-  &__views-line {
-    background-color: #2C2C2C;
-    border-radius: 3px;
-    height: calc(100% - 24px);
-    left: 0;
-    position: absolute;
-    top: 12px;
-    width: 2px;
   }
 }
 

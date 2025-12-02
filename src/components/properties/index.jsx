@@ -122,7 +122,7 @@ const PropertyWrapper = observer(({children}) => {
           if(
             rootStore.loggedIn &&
             provider !== propertyProvider &&
-            provider !== "external"
+            !["code", "external"].includes(provider)
           ) {
             rootStore.Log("Signing out due to mismatched login provider with property");
             await rootStore.SignOut({reload: false});

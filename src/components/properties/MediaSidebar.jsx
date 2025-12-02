@@ -301,7 +301,6 @@ const MediaSidebar = observer(({
                               />
                             )
                           }
-                          <div className={S("content__views-line")} />
                         </div>
                     }
                   </>
@@ -457,7 +456,6 @@ export const MultiviewSelectionModal = observer(({
                                   />
                                 )
                               }
-                              <div className={S("content__views-line")} />
                             </div>
                         }
                       </>

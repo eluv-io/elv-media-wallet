@@ -605,6 +605,22 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
+  AuthenticateUserIdCode = flow(function * ({userIdCode, nonce}) {
+    const {authToken, signingToken} = yield this.walletClient.AuthenticateOAuth({
+      userIdCode,
+      tenantId: this.currentPropertyTenantId,
+      nonce: Utils.B58(ParseUUID(UUID()))
+    });
+
+    yield this.Authenticate({
+      clientAuthToken: authToken,
+      clientSigningToken: signingToken,
+      provider: "code",
+      nonce,
+      origin
+    });
+  });
+
   AuthenticateOry = flow(function * ({nonce, installId, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
     if(this.authenticating) { return; }
 
