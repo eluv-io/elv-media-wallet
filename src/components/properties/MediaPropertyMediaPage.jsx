@@ -11,7 +11,7 @@ import {
   MediaItemMediaUrl,
   MediaItemScheduleInfo
 } from "../../utils/MediaPropertyUtils";
-import {Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
+import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
@@ -21,6 +21,7 @@ import MediaSidebar, {SidebarContent} from "Components/properties/MediaSidebar";
 import {Linkish} from "Components/common/UIComponents";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
+import DownloadIcon from "Assets/icons/download.svg";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -698,6 +699,18 @@ const MediaPropertyMediaPage = observer(() => {
                   className={S("media-text__description")}
                 />
               </div>
+          }
+          {
+            mediaItem.live_video || !mediaItem.allow_download ? null :
+              <Button
+                title="Download"
+                onClick={async () => await mediaPropertyStore.StartDownloadJob({mediaItem, filename: display.title})}
+                rightIcon={DownloadIcon}
+                variant="outline"
+                className={S("media-info__download")}
+              >
+                <span>DOWNLOAD</span>
+              </Button>
           }
         </div>
     );

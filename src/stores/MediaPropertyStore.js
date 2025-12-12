@@ -6,7 +6,7 @@ import {
 } from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {NFTInfo} from "../utils/Utils";
+import {LinkTargetHash, NFTInfo} from "../utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -1861,6 +1861,106 @@ class MediaPropertyStore {
 
     return this.mediaProgress[mediaPropertyId]?.[mediaItemId];
   }
+
+  StartDownloadJob = flow(function * ({
+    mediaItem,
+    filename,
+    format="mp4",
+    offering="default"
+  }) {
+    try {
+      filename = filename || mediaItem.title;
+      const expectedExtension = format === "mp4" ? ".mp4" : ".mov";
+      if(!filename.endsWith(expectedExtension)) {
+        filename = `${filename}${expectedExtension}`;
+      }
+
+      let params = {
+        format,
+        offering,
+        filename
+      };
+
+      if(mediaItem.media_link_info) {
+        if(mediaItem.media_link_info.type === "composition") {
+          params.offering_type = "composition";
+          params.offering = mediaItem.media_link_info.composition_key;
+        } else if(!mediaItem.live_video && mediaItem.media_link_info.clip_start_time){
+          params.start_ms = mediaItem.media_link_info.clip_start_time;
+          params.end_ms = mediaItem.media_link_info.clip_end_time;
+        }
+      } else if(mediaItem.clip && !mediaItem.live_video) {
+        params.start_ms = mediaItem.clip_start_time;
+        params.end_ms = mediaItem.clip_end_time;
+      }
+
+      const versionHash = yield this.client.LatestVersionHash({
+        versionHash: LinkTargetHash(mediaItem.media_link)
+      });
+
+      const response = yield this.rootStore.client.MakeFileServiceRequest({
+        versionHash,
+        path: "/call/media/files",
+        method: "POST",
+        body: params
+      });
+
+      const status = yield this.DownloadJobStatus({
+        jobId: response.job_id,
+        versionHash
+      });
+
+      if(status?.status === "completed") {
+        return yield this.SaveDownloadJob({jobId: response.job_id, filename, versionHash});
+      }
+
+      return yield new Promise((resolve, reject) => {
+        let interval = setInterval(async () => {
+          const status = await this.DownloadJobStatus({jobId: response.job_id, versionHash}) || {};
+
+          if(status?.status === "completed") {
+            clearInterval(interval);
+            await this.SaveDownloadJob({jobId: response.job_id, filename, versionHash});
+            resolve();
+          }
+
+          if(status?.status !== "processing") {
+            clearInterval(interval);
+            clearInterval(interval);
+            reject(status);
+          }
+        }, 5000);
+      });
+    } catch(error) {
+      this.Log("Error performing download:", true);
+      this.Log(error, true);
+    }
+  });
+
+  DownloadJobStatus = flow(function * ({jobId, versionHash}) {
+    return yield this.rootStore.client.MakeFileServiceRequest({
+      versionHash,
+      path: UrlJoin("call", "media", "files", jobId)
+    });
+  });
+
+  SaveDownloadJob = flow(function * ({jobId, filename, versionHash}) {
+    const downloadUrl = yield this.rootStore.client.FabricUrl({
+      versionHash,
+      call: UrlJoin("media", "files", jobId, "download"),
+      service: "files",
+      queryParams: {
+        "header-x_set_content_disposition": `attachment; filename="${filename}"`
+      }
+    });
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.target = "_self";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
 }
 
 export default MediaPropertyStore;

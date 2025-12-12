@@ -746,7 +746,7 @@ export const AttributeFilter = observer(({
   );
 });
 
-export const Button = ({variant="primary", active, loading, icon, styles, defaultStyles=false, ...props}) => {
+export const Button = ({variant="primary", active, loading, icon, rightIcon, styles, defaultStyles=false, ...props}) => {
   const [isLoading, setIsLoading] = useState(loading);
 
   useEffect(() => {
@@ -818,6 +818,10 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
                 <ImageIcon icon={icon} className={S("button__icon")} />
             }
             { props.children }
+            {
+              !rightIcon ? null:
+                <ImageIcon icon={rightIcon} className={S("button__icon")} />
+            }
           </> :
           <>
             <Loader className={S("button__loader")}/>
