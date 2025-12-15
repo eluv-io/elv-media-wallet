@@ -190,7 +190,7 @@ const SidebarItem = observer(({
     mediaItem,
     display: mediaItem,
     aspectRatio: aspectRatio || "Landscape",
-    width: 400
+    width: 600
   });
 
   const itemIsLive = item.scheduleInfo?.currentlyLive;

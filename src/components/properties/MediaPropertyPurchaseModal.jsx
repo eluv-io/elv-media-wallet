@@ -169,7 +169,7 @@ const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, A
             <LoaderImage
               loaderAspectRatio={1}
               src={item.imageUrl}
-              width={400}
+              width={600}
               className={S("item-image")}
             />
         }

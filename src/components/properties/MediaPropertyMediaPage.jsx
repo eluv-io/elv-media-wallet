@@ -266,7 +266,7 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
 let lastSelectedMode = "pip";
 const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
   const [additionalMedia, setAdditionalMedia] = useState([]);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(rootStore.pageWidth > 900);
   const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
   const [selectedView, setSelectedView] = useState(null);
 
