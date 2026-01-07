@@ -891,11 +891,11 @@ class MediaPropertyStore {
         const i1 = this.permissionItems[a];
         const i2 = this.permissionItems[b];
 
-        if(typeof i1.priority === "undefined" && typeof i2.priority === "undefined") {
+        if(!i1.priority && typeof !i2.priority) {
           return 0;
-        } else if(typeof i2.priority === "undefined") {
+        } else if(!i2.priority) {
           return -1;
-        } else if(typeof i1.priority === "undefined") {
+        } else if(!i1.priority) {
           return 1;
         }
 

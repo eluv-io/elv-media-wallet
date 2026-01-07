@@ -242,7 +242,7 @@ const MediaCardWithButtonHorizontal = observer(({
   );
 });
 
-const ButtonCard = observer(({orientation="vertical", ...args}) => {
+export const ButtonCard = observer(({orientation="vertical", ...args}) => {
   const [showModal, setShowModal] = useState(false);
 
   const Component = orientation === "vertical" ?
@@ -626,7 +626,8 @@ const MediaCard = observer(({
   lazy=true,
   wrapTitle=false,
   onClick,
-  className=""
+  className="",
+  ...props
 }) => {
   const match = useRouteMatch();
   const display = sectionItem?.display || mediaItem;
@@ -734,6 +735,7 @@ const MediaCard = observer(({
   }
 
   let args = {
+    ...props,
     display,
     price,
     imageUrl,
