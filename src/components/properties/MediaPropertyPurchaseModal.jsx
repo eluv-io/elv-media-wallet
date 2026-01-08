@@ -340,10 +340,12 @@ const WalletBalanceSummary = observer(({item, fee}) => {
   );
 });
 
-const Purchase = async ({item, discountCode, paymentMethod, history}) => {
+const Purchase = async ({mediaPropertySlugOrId, item, price, discountCode, paymentMethod, history}) => {
   const successUrl = new URL(location.href);
   const params = MediaPropertyPurchaseParams() || {};
   params.itemId = item.id;
+  params.price = price;
+  params.discountCode = discountCode;
   successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
 
   if(item.purchaseRedirectPage) {
@@ -372,11 +374,13 @@ const Purchase = async ({item, discountCode, paymentMethod, history}) => {
   } else {
     const { currency } = PriceCurrency(item.price);
     result = await checkoutStore.CheckoutSubmit({
+      mediaPropertySlugOrId,
       provider: paymentMethod.provider,
       tenantId: rootStore.marketplaces[item.marketplace?.marketplace_id]?.tenant_id,
       marketplaceId: item.marketplace.marketplace_id,
       sku: item.marketplace_sku,
       quantity: 1,
+      price,
       discountCode,
       currency,
       successUrl,
@@ -395,6 +399,7 @@ const Purchase = async ({item, discountCode, paymentMethod, history}) => {
 const Payment = observer(({item, Back}) => {
   const history = useHistory();
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
+  const match = useRouteMatch();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [discountCodeInfo, setDiscountCodeInfo] = useState(null);
@@ -602,7 +607,9 @@ const Payment = observer(({item, Back}) => {
 
               try {
                 await Purchase({
+                  mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
                   item,
+                  price: discountedPrice || item.price?.[currency],
                   discountCode: discountCodeInfo.codeText,
                   paymentMethod,
                   history
@@ -685,6 +692,31 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
 
     return () => clearInterval(statusInterval);
   }, []);
+
+  useEffect(() => {
+    if(!item?.marketplaceItem || status?.status !== "complete") {
+      return;
+    }
+
+    const params = MediaPropertyPurchaseParams() || {};
+
+    mediaPropertyStore.AnalyticsEvent({
+      mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+      eventType: "purchase",
+      params: {
+        transaction_id: confirmationId,
+        currency: checkoutStore.currency,
+        price: params.price,
+        coupon: params.discountCode || "",
+        items: [{
+          item_id: item.marketplaceItem?.sku,
+          item_name: item.marketplaceItem?.name,
+          price: item.marketplaceItem?.price?.[checkoutStore.currency],
+          quantity: 1
+        }]
+      }
+    });
+  }, [status, item]);
 
   let content, actions;
   let loading = true;

@@ -1789,6 +1789,53 @@ class MediaPropertyStore {
     });
   });
 
+  AnalyticsEvent = flow(function * ({mediaPropertySlugOrId, eventType, params}) {
+    const mediaProperty = yield this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    yield this.LoadResource({
+      key: "Analytics",
+      // Ensure only one event fires per transactionID + type combo
+      id: `${mediaPropertySlugOrId}-${eventType}-${params?.transaction_id || Math.random()}`,
+      Load: async () => {
+        const analyticsIds = mediaProperty.metadata.analytics_ids || [];
+
+        for(const entry of analyticsIds) {
+          try {
+            switch(entry.type) {
+              case "google_analytics_id":
+              case "google_tag_manager_id":
+                this.Log(`Registering ${eventType} event to Google Analytics`, "warn");
+                window.gtag(
+                  "event",
+                  eventType === "checkout" ? "begin_checkout" : "purchase",
+                  params
+                );
+
+                break;
+
+              case "meta_pixel_id":
+                this.Log(`Registering ${eventType} event to Meta Analytics`, "warn");
+                fbq(
+                  "track",
+                  eventType === "checkout" ? "InitiateCheckout" : "Purchase",
+                  params
+                );
+                break;
+
+              default:
+                break;
+            }
+          } catch(error) {
+            this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+            this.Log(error, true);
+          }
+        }
+      }
+    });
+  });
+
   /* Media */
 
   SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
