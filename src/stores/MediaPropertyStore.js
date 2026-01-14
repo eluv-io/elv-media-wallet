@@ -664,15 +664,15 @@ class MediaPropertyStore {
         scheduleFiltersActive &&
         select.schedule
       ) {
-        if(!mediaItem.live_video || mediaItem.media_type !== "Video" || !mediaItem.start_time) {
+        if(!mediaItem.live_video || mediaItem.media_type !== "Video") {
           return false;
         }
 
-        const startTime = new Date(mediaItem.start_time);
+        const startTime = mediaItem.start_time && new Date(mediaItem.start_time);
         const endTime = mediaItem.end_time && new Date(mediaItem.end_time);
 
-        const started = startTime < now;
-        const ended = endTime < now;
+        const started = !startTime || startTime < now;
+        const ended = endTime && endTime < now;
         const afterStartLimit = !select.start_time || new Date(select.start_time) < startTime;
         const beforeEndLimit = !select.end_time || new Date(select.end_time) > startTime;
 
