@@ -28,6 +28,12 @@
   padding-inline: 3px;
 }
 
+.title,
+.description,
+.question {
+  margin-inline: 7vw;
+}
+
 .questions {
   font-size: 20px;
   user-select: none;
@@ -35,7 +41,6 @@
 
 .question {
   border-bottom: 1px solid var(--property-border-color-secondary);
-  margin-inline: 7vw;
 
   [data-rotate] {
     transform: none;
@@ -113,7 +118,8 @@
 @media screen and (width < 1000px) {
   .question {
     &__label {
-      font-size: 24px;
+      font-size: 16px;
+      padding-right: 10px;
     }
   }
 }
