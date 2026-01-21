@@ -20,7 +20,7 @@
   font-size: 32px;
   font-weight: 600;
   margin: 30px 0 10px;
-  padding-inline: 3px;
+  padding-inline: 2px;
 }
 
 .description {
@@ -28,17 +28,14 @@
   padding-inline: 3px;
 }
 
-.title,
-.description,
-.question {
-  margin-inline: 7vw;
+.container {
+  width: 90vw;
 }
 
 .questions {
   font-size: 20px;
-  padding: 20px 0 50px;
   user-select: none;
-  width: 86vw;
+  width: 100%;
 }
 
 .question {
