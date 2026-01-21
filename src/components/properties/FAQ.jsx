@@ -68,13 +68,7 @@ const FAQPage = observer(() => {
   });
 
   return (
-    <PageContainer
-      style={
-        faq.background_color && CSS.supports("color", faq.background_color) ?
-          {backgroundColor: faq.background_color} : {}
-      }
-      className={S("page", "faq-page")}
-    >
+    <PageContainer className={S("page", "faq-page")}>
       {
         !backgroundImageUrl ? null :
           <LoaderImage

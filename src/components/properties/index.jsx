@@ -82,7 +82,7 @@ const PropertyWrapper = observer(({children}) => {
     const page = mediaPropertyStore.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId});
 
     let backgroundColor = page?.background_color;
-    if(match.path.endsWith("/faq")) {
+    if(match.path.includes("/faq")) {
       backgroundColor = mediaProperty?.metadata?.faq?.background_color || backgroundColor;
     }
 
