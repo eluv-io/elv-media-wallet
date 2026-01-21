@@ -36,7 +36,9 @@
 
 .questions {
   font-size: 20px;
+  padding: 20px 0 50px;
   user-select: none;
+  width: 86vw;
 }
 
 .question {
@@ -53,6 +55,7 @@
     font-size: 28px;
     font-weight: 600;
     height: 100px;
+    padding-right: 10px;
   }
 
   & + .images {
@@ -119,7 +122,6 @@
   .question {
     &__label {
       font-size: 16px;
-      padding-right: 10px;
     }
   }
 }
