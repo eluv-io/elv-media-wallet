@@ -154,7 +154,6 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
-  // Note: Synchronize with live
   AnalyticsEvent({marketplace, analytics, eventName}) {
     try {
       if(!analytics) {
@@ -704,12 +703,14 @@ class CheckoutStore {
   });
 
   CheckoutSubmit = flow(function * ({
+    mediaPropertySlugOrId,
     provider="stripe",
     tenantId,
     marketplaceId,
     sku,
     quantity=1,
     currency,
+    price,
     confirmationId,
     email,
     address,
@@ -734,7 +735,8 @@ class CheckoutStore {
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, isGift ? "purchase-gift" : "purchase", confirmationId, `?provider=${provider}`);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
-      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price: item?.price?.USD, quantity, successPath});
+      let item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price, quantity, successPath});
 
       if(requiresPopup) {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
@@ -765,8 +767,6 @@ class CheckoutStore {
 
         return { confirmationId };
       }
-
-      let item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
 
       const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
       if(stock && (stock.max - stock.minted) < quantity) {
@@ -864,10 +864,21 @@ class CheckoutStore {
         requestParams,
         confirmationId,
         BeforeRedirect: async () => {
-          this.AnalyticsEvent({
-            marketplace: this.rootStore.marketplaces[marketplaceId],
-            analytics: item?.purchase_analytics,
-            eventName: "Item Purchase"
+          this.rootStore.mediaPropertyStore.AnalyticsEvent({
+            mediaPropertySlugOrId,
+            eventType: "checkout",
+            params: {
+              transaction_id: checkoutId,
+              currency: currency || this.currency,
+              value: price,
+              coupon: discountCode,
+              items: [{
+                item_id: item.sku,
+                item_name: item.name,
+                price: item.price?.[currency || this.currency],
+                quantity: 1
+              }]
+            }
           });
 
           await new Promise(resolve => setTimeout(resolve, 2000));

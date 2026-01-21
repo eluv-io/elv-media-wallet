@@ -747,15 +747,15 @@ class MediaPropertyStore {
         scheduleFiltersActive &&
         select.schedule
       ) {
-        if(!mediaItem.live_video || mediaItem.media_type !== "Video" || !mediaItem.start_time) {
+        if(!mediaItem.live_video || mediaItem.media_type !== "Video") {
           return false;
         }
 
-        const startTime = new Date(mediaItem.start_time);
+        const startTime = mediaItem.start_time && new Date(mediaItem.start_time);
         const endTime = mediaItem.end_time && new Date(mediaItem.end_time);
 
-        const started = startTime < now;
-        const ended = endTime < now;
+        const started = !startTime || startTime < now;
+        const ended = endTime && endTime < now;
         const afterStartLimit = !select.start_time || new Date(select.start_time) < startTime;
         const beforeEndLimit = !select.end_time || new Date(select.end_time) > startTime;
 
@@ -1009,11 +1009,11 @@ class MediaPropertyStore {
         const i1 = this.permissionItems[a];
         const i2 = this.permissionItems[b];
 
-        if(typeof i1.priority === "undefined" && typeof i2.priority === "undefined") {
+        if(!i1.priority && typeof !i2.priority) {
           return 0;
-        } else if(typeof i2.priority === "undefined") {
+        } else if(!i2.priority) {
           return -1;
-        } else if(typeof i1.priority === "undefined") {
+        } else if(!i1.priority) {
           return 1;
         }
 
@@ -2017,6 +2017,53 @@ class MediaPropertyStore {
       window.location.href = window.location.href;
     }
   }
+
+  AnalyticsEvent = flow(function * ({mediaPropertySlugOrId, eventType, params}) {
+    const mediaProperty = yield this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    yield this.LoadResource({
+      key: "Analytics",
+      // Ensure only one event fires per transactionID + type combo
+      id: `${mediaPropertySlugOrId}-${eventType}-${params?.transaction_id || Math.random()}`,
+      Load: async () => {
+        const analyticsIds = mediaProperty.metadata.analytics_ids || [];
+
+        for(const entry of analyticsIds) {
+          try {
+            switch(entry.type) {
+              case "google_analytics_id":
+              case "google_tag_manager_id":
+                this.Log(`Registering ${eventType} event to Google Analytics`, "warn");
+                window.gtag(
+                  "event",
+                  eventType === "checkout" ? "begin_checkout" : "purchase",
+                  params
+                );
+
+                break;
+
+              case "meta_pixel_id":
+                this.Log(`Registering ${eventType} event to Meta Analytics`, "warn");
+                fbq(
+                  "track",
+                  eventType === "checkout" ? "InitiateCheckout" : "Purchase",
+                  params
+                );
+                break;
+
+              default:
+                break;
+            }
+          } catch(error) {
+            this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+            this.Log(error, true);
+          }
+        }
+      }
+    });
+  });
 
   /* Media */
 

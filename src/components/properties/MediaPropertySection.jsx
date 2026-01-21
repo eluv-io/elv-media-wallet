@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-import MediaCard, {MediaCardWithButtonVertical} from "Components/properties/MediaCards";
+import MediaCard, {ButtonCard} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import {
@@ -228,7 +228,7 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
     .map(permissionItemId =>
       mediaPropertyStore.permissionItems[permissionItemId]
     )
-    .filter(item => item.purchasable)
+    .filter(item => item.purchasable && item.purchaseAuthorized)
     .map(item => {
       const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
       const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
@@ -292,9 +292,11 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
                 wrapTitles
                 isFormattedContent
                 aspectRatio="Square"
+                cardFormat="button_vertical"
                 justification={settings.position?.toLowerCase() || "left"}
                 content={purchasableItems.map(item =>
-                  <MediaCardWithButtonVertical
+                  <ButtonCard
+                    orientation="vertical"
                     key={item.id}
                     {...item}
                   />

@@ -26,9 +26,9 @@ import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
-export const PageContainer = ({children, className}) => {
+export const PageContainer = ({children, className, ...props}) => {
   return (
-    <div className={[S("page-container"), className].join(" ")}>
+    <div {...props} className={[S("page-container"), className].join(" ")}>
       { children }
     </div>
   );
