@@ -15,6 +15,7 @@ import ShowIcon from "Assets/icons/left-arrow";
 import FullscreenIcon from "Assets/icons/full screen";
 import PipVideoIcon from "Assets/icons/pip";
 import MultiviewIcon from "Assets/icons/media/multiview";
+import EyeIcon from "Assets/icons/eye.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -129,7 +130,7 @@ const Item = observer(({
               <ImageIcon
                 icon={
                   multiviewMode === "pip" ?
-                    PipVideoIcon : MultiviewIcon
+                    PipVideoIcon : EyeIcon
                 }
               />
             </Linkish>

@@ -322,6 +322,12 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
     return () => rootStore.SetHeaderButtons([]);
   }, [rootStore.pageWidth, sidebarContent, showMultiviewSelectionModal]);
 
+  useEffect(() => {
+    if(multiviewMode === "pip") {
+      setDisplayedContent(displayedContent.slice(0, 2));
+    }
+  }, [multiviewMode]);
+
   if(!mediaItem) { return <div className={S("media")} />; }
 
   const mediaInfo = displayedContent
