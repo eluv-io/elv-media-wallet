@@ -149,9 +149,8 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    height: var(--property-full-content-height);
+    height: calc(var(--property-full-content-height) - 175px);
     justify-content: center;
-    padding-bottom: 100px;
     position: relative;
     width: 100%;
     z-index: 1;

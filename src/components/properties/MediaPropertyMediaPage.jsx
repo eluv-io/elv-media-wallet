@@ -76,7 +76,11 @@ const MediaVideo = observer(({
 
     return (
       <div className={S("media__error", "media__error--countdown")} {...containerProps}>
-        <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
+        <LoaderImage
+          src={backgroundImage || imageUrl}
+          alt={mediaItem?.thumbnail_alt_text || mediaItem.title}
+          className={S("media__error-image")}
+        />
         <div className={S("media__error-cover")} />
         {
           icons.length === 0 ? null :
