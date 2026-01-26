@@ -691,7 +691,7 @@
 
 .media-info {
   background: var(--property-background-secondary);
-  min-height: 175px;
+  min-height: 100px;
   padding: 25px;
   position: relative;
 
@@ -704,6 +704,8 @@
 
   @media screen and (width <= 1200px) {
     margin: 0;
+    min-height: unset;
+    padding-inline: 15px;
 
     &__download {
       min-height: 35px;
@@ -733,6 +735,35 @@
     display: flex;
     font-size: 1.8em;
     font-weight: 600;
+    padding-right: 30px;
+  }
+
+  &__title-button {
+    background-color: white;
+    border-radius: 3px;
+    color: black;
+    height: 25px;
+    min-height: 28px;
+    min-width: 28px;
+    padding: 5px;
+    position: absolute;
+    right: 15px;
+    transition: opacity 0.25s ease;
+    width: 25px;
+
+    * {
+      color: black;
+    }
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.8;
+    }
   }
 
   &__icons {

@@ -281,10 +281,16 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
 });
 
 let lastSelectedMode = "pip";
-const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, textContent}) => {
+const MediaVideoWithSidebar = observer(({
+  mediaItem,
+  display,
+  sidebarContent,
+  textContent,
+  showMultiviewSelectionModal,
+  setShowMultiviewSelectionModal
+}) => {
   const [showSidebar, setShowSidebar] = useState(rootStore.pageWidth > 800);
   const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
-  const [showMultiviewSelectionModal, setShowMultiviewSelectionModal] = useState(false);
   const [displayedContent, setDisplayedContent] = useState([{type: "media-item", id: mediaItem.id}]);
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -304,23 +310,6 @@ const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent, tex
 
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
-
-  useEffect(() => {
-    if(rootStore.pageWidth > 850 || !sidebarContent?.anyMultiview) {
-      rootStore.SetHeaderButtons([]);
-      return;
-    }
-
-    rootStore.SetHeaderButtons([{
-      title: "Show Multiview Options",
-      icon: MultiviewIcon,
-      active: showMultiviewSelectionModal,
-      mobileOnly: true,
-      onClick: () => setShowMultiviewSelectionModal(!showMultiviewSelectionModal),
-    }]);
-
-    return () => rootStore.SetHeaderButtons([]);
-  }, [rootStore.pageWidth, sidebarContent, showMultiviewSelectionModal]);
 
   useEffect(() => {
     if(multiviewMode === "pip") {
@@ -601,12 +590,21 @@ const SectionNavButtons = observer(() => {
 });
 
 
-const Media = observer(({mediaItem, display, sidebarContent, textContent}) => {
+const Media = observer(({mediaItem, display, sidebarContent, textContent, showMultiviewSelectionModal, setShowMultiviewSelectionModal}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
     if(sidebarContent?.tabs?.length > 0) {
-      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} textContent={textContent} />;
+      return (
+        <MediaVideoWithSidebar
+          mediaItem={mediaItem}
+          display={display}
+          sidebarContent={sidebarContent}
+          textContent={textContent}
+          showMultiviewSelectionModal={showMultiviewSelectionModal}
+          setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
+        />
+      );
     } else {
       return <MediaVideo mediaItem={mediaItem} display={display}/>;
     }
@@ -666,6 +664,7 @@ const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
 
   const [sidebarContent, setSidebarContent] = useState(undefined);
+  const [showMultiviewSelectionModal, setShowMultiviewSelectionModal] = useState(false);
 
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
   const context = new URLSearchParams(location.search).get("ctx");
@@ -733,6 +732,17 @@ const MediaPropertyMediaPage = observer(() => {
                           </div>
                       }
                       {display.title}
+
+                      {
+                        !sidebarContent?.anyMultiview ? null :
+                          <button
+                            onClick={() => setShowMultiviewSelectionModal(!showMultiviewSelectionModal)}
+                            title="Show Multiview Options"
+                            className={S("media-text__title-button", showMultiviewSelectionModal ? "media-text__title-button--active" : "")}
+                          >
+                            <ImageIcon icon={MultiviewIcon} />
+                          </button>
+                      }
                     </h1>
                 }
                 {
@@ -782,6 +792,8 @@ const MediaPropertyMediaPage = observer(() => {
             display={display}
             sidebarContent={sidebarContent}
             textContent={textContent}
+            showMultiviewSelectionModal={showMultiviewSelectionModal}
+            setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
           />
           {
             showSidebar ? null :

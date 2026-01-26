@@ -34,7 +34,7 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.3.0",
     "@eluvio/crypto": "^1.1.1",
-    "@eluvio/elv-client-js": "^4.2.10",
+    "@eluvio/elv-client-js": "^4.2.14",
     "@eluvio/elv-paymentgate": "^1.0.0",
     "@eluvio/elv-player-js": "git+https://github.com/eluv-io/elv-player-js#spatial-nav",
     "@mantine/core": "^7.11.2",

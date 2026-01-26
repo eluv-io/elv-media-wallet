@@ -40,6 +40,7 @@ const Item = observer(({
   const [hovering, setHovering] = useState(false);
 
   const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
+  const isPrimary = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id) === 0;
 
   let linkPath;
   if(!toggleOnClick && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
@@ -76,7 +77,7 @@ const Item = observer(({
           disabled ? "item--disabled" : "",
           noBorder ? "item--no-border" : "",
           (hovering && !disabled) ? "item--hover" : "",
-          contentItem.id === primaryMediaId ? "item--active" : "",
+          isPrimary ? "item--active" : "",
           contentItem.type === "additional-view" ? "item--additional-view" : "",
         )
       }
@@ -220,20 +221,22 @@ const MediaSidebar = observer(({
         </div>
       </div>
       <div className={S("tabs-container")}>
-        <div className={S("tabs")}>
-          {
-            sidebarContent.tabs.length <= 1 ? null :
-              sidebarContent.tabs.map((tab, index) =>
-                <button
-                  onClick={() => setTabIndex(index)}
-                  key={`tab-${tab.id}`}
-                  className={S("tab", tabIndex === index ? "tab--active" : "")}
-                >
-                  {tab.title}
-                </button>
-            )
-          }
-        </div>
+        {
+          sidebarContent.tabs.length <= 1 ? null :
+            <div className={S("tabs")}>
+              {
+                sidebarContent.tabs.map((tab, index) =>
+                  <button
+                    onClick={() => setTabIndex(index)}
+                    key={`tab-${tab.id}`}
+                    className={S("tab", tabIndex === index ? "tab--active" : "")}
+                  >
+                    {tab.title}
+                  </button>
+                )
+              }
+            </div>
+        }
         {
           !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
             <div className={S("content__actions")}>
@@ -280,12 +283,11 @@ const MediaSidebar = observer(({
                       streamLimit={streamLimit}
                     />
                     {
-                      item.mediaItem.id !== mediaItem.id || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
+                      (item?.additional_views || [])?.length === 0 || item.mediaItem.id !== mediaItem.id || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
                               <Item
-                                noBorder
                                 imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                 title={view.label}
                                 key={`item-${item.id}-${index}`}
@@ -375,25 +377,24 @@ export const MultiviewSelectionModal = observer(({
       contentClassName={S("multiview-selection-modal")}
       childrenContainerClassName={S("multiview-selection-modal__content")}
     >
-      <div className={S("tabs-container")}>
-        <div className={S("tabs")}>
-          {
-            tabs.length <= 1 ? null :
-              tabs.map((tab, index) =>
-                <button
-                  onClick={() => setTabIndex(index)}
-                  key={`tab-${tab.id}`}
-                  className={S("tab", tabIndex === index ? "tab--active" : "")}
-                >
-                  {tab.title}
-                </button>
-              )
-          }
-        </div>
-      </div>
-      <div className={S("multiview-selection-modal__limit")}>
-        Select up to {streamLimit} streams
-      </div>
+      {
+        tabs.length <= 1 ? null :
+          <div className={S("tabs-container")}>
+            <div className={S("tabs")}>
+              {
+                tabs.map((tab, index) =>
+                  <button
+                    onClick={() => setTabIndex(index)}
+                    key={`tab-${tab.id}`}
+                    className={S("tab", tabIndex === index ? "tab--active" : "")}
+                  >
+                    {tab.title}
+                  </button>
+                )
+              }
+            </div>
+          </div>
+      }
       <div className={S("multiview-selection-modal__items")}>
         {
           tab.groups.map(group =>
@@ -431,7 +432,7 @@ export const MultiviewSelectionModal = observer(({
                           streamLimit={streamLimit}
                         />
                         {
-                          item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
+                          (item?.additional_views || [])?.length === 0 || item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
                             <div className={S("content__views-container")}>
                               {
                                 (item.additional_views || []).map((view, index) =>
