@@ -738,7 +738,7 @@ const MediaPropertyMediaPage = observer(() => {
                       {display.title}
 
                       {
-                        !sidebarContent?.anyMultiview ? null :
+                        !sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
                           <button
                             onClick={() => setShowMultiviewSelectionModal(!showMultiviewSelectionModal)}
                             title="Show Multiview Options"

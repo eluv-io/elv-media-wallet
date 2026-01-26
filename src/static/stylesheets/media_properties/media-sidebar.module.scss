@@ -673,7 +673,13 @@
     }
 
     &__content {
-      padding-left: 30px;
+      width: 100%;
+      padding-inline: 30px;
+    }
+
+    &__actions {
+      padding: 0;
+      width: calc(100vw - 60px);
     }
   }
 }

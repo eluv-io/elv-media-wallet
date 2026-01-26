@@ -238,7 +238,7 @@ const MediaSidebar = observer(({
             </div>
         }
         {
-          !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
+          rootStore.pageWidth <= 850 || !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
             <div className={S("content__actions")}>
               <button
                 onClick={() => contentRef.requestFullscreen()}
