@@ -19,6 +19,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 import MediaSidebar, {MultiviewSelectionModal} from "Components/properties/MediaSidebar";
 import {Linkish} from "Components/common/UIComponents";
+import {ActionIcon, Menu} from "@mantine/core";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import MultiviewIcon from "Assets/icons/media/multiview";
@@ -223,7 +224,7 @@ const PIPContent = observer(({mediaInfo, displayedContent, setDisplayedContent})
       key={`media-${displayedContent[0].id}`}
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
-      showTitle
+      showTitle={!!secondaryMedia}
       settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
       className={S("media-with-sidebar__video")}
     />
@@ -353,7 +354,7 @@ const MediaVideoWithSidebar = observer(({
                 mute={index > 0}
                 mediaItem={item.mediaItem}
                 display={item.display || display}
-                showTitle
+                showTitle={displayedContent.length > 1}
                 onClose={
                   mediaInfo.length === 1 ? undefined :
                     () => {
@@ -571,6 +572,106 @@ const SectionNavButtons = observer(() => {
   );
 });
 
+const DownloadButton = observer(({mediaItem, title}) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const [status, setStatus] = useState();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if(status?.status === "completed") {
+      setTimeout(() => setStatus(undefined), 1000);
+    }
+  }, [status]);
+
+  let button;
+  if(rootStore.pageWidth > 850) {
+    button = (
+      <Button
+        title="Download"
+        loading={loading && !status}
+        onClick={() => setShowMenu(!showMenu)}
+        disabled={!!status}
+        rightIcon={status ? undefined : DownloadIcon}
+        variant="outline"
+        className={S("download-menu__button", showMenu ? "download-menu__button--active" : "")}
+      >
+        {
+          !status ? "DOWNLOAD" :
+            `PREPARING: ${(status?.progress || 0).toFixed(0)}%`
+        }
+      </Button>
+    );
+  } else {
+    button = (
+      <ActionIcon
+        title="Download"
+        onClick={() => setShowMenu(!showMenu)}
+        disabled={!!status}
+        loading={loading}
+        variant="outline"
+        color="var(--property-border-color-secondary)"
+        p={5}
+        size={30}
+        className={S("icon-button")}
+      >
+        <ImageIcon icon={DownloadIcon} />
+      </ActionIcon>
+    );
+  }
+
+  return (
+    <Menu
+      opened={showMenu}
+      onChange={setShowMenu}
+      position="bottom-end"
+      offset={5}
+      classNames={{
+        dropdown: S("download-menu"),
+        item: S("download-menu__item"),
+      }}
+    >
+      <Menu.Target>
+        <div>
+          {button}
+        </div>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {
+          mediaItem.media_link_info.representations.map((rep, index) =>
+            <Menu.Item
+              key={`rep-${rep.string}`}
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await mediaPropertyStore.StartDownloadJob({
+                    mediaItem,
+                    filename: `${title}${index > 0 ? ` (${rep.resolution})` : ""}`,
+                    representation: rep.key,
+                    SetStatus: setStatus
+                  });
+                } catch(error) {
+                  rootStore.Log(error, true);
+                } finally {
+                  setLoading(false);
+                }
+
+                setShowMenu(false);
+              }}
+             rightSection={
+               <ImageIcon
+                 icon={DownloadIcon}
+                 style={{height: 22, width: 22, marginLeft: 10}}
+               />
+             }
+            >
+              { rep.resolution }
+            </Menu.Item>
+          )
+        }
+      </Menu.Dropdown>
+    </Menu>
+  );
+});
 
 const Media = observer(({
   mediaItem,
@@ -712,36 +813,45 @@ const MediaPropertyMediaPage = observer(() => {
           {
             !hasText ? null :
               <div className={S("media-text")}>
-                {
-                  !display.title ? null :
-                    <h1 className={[S("media-text__title"), "_title"].join(" ")}>
-                      {
-                        icons.length === 0 ? null :
-                          <div className={S("media-text__icons")}>
-                            {icons.map(({icon, alt_text}, index) =>
-                              <img
-                                key={`icon-${index}`}
-                                src={icon.url}
-                                alt={alt_text}
-                                className={S("media-text__icon")}
-                              />
-                            )}
-                          </div>
-                      }
-                      {display.title}
+                <h1 className={[S("media-text__title"), "_title"].join(" ")}>
+                  <div className={S("media-text__title--left")}>
+                    {
+                      icons.length === 0 ? null :
+                        <div className={S("media-text__icons")}>
+                          {icons.map(({icon, alt_text}, index) =>
+                            <img
+                              key={`icon-${index}`}
+                              src={icon.url}
+                              alt={alt_text}
+                              className={S("media-text__icon")}
+                            />
+                          )}
+                        </div>
+                    }
+                    {display.title}
+                  </div>
 
-                      {
-                        !sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
-                          <button
-                            onClick={() => setShowMultiviewSelectionModal(!showMultiviewSelectionModal)}
-                            title="Show Multiview Options"
-                            className={S("media-text__title-button", showMultiviewSelectionModal ? "media-text__title-button--active" : "")}
-                          >
-                            <ImageIcon icon={MultiviewIcon} />
-                          </button>
-                      }
-                    </h1>
-                }
+                  <div className={S("media-text__title--right")}>
+                    {
+                      !rootStore.loggedIn || mediaItem.live_video || !mediaItem.allow_download || !mediaItem.media_link_info?.downloadable ? null :
+                        <DownloadButton title={display.title} mediaItem={mediaItem} />
+                    }
+                    {
+                      !sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
+                        <ActionIcon
+                          variant="filled"
+                          onClick={() => setShowMultiviewSelectionModal(!showMultiviewSelectionModal)}
+                          title="Show Multiview Options"
+                          p={5}
+                          color="white"
+                          size={30}
+                          className={S("icon-button", "icon-button--light")}
+                        >
+                          <ImageIcon icon={MultiviewIcon} />
+                        </ActionIcon>
+                    }
+                  </div>
+                </h1>
                 {
                   (display.headers || []).length === 0 ? null :
                     <div className={S("media-text__headers")}>
@@ -765,18 +875,6 @@ const MediaPropertyMediaPage = observer(() => {
                   className={S("media-text__description")}
                 />
               </div>
-          }
-          {
-            mediaItem.live_video || !mediaItem.allow_download ? null :
-              <Button
-                title="Download"
-                onClick={async () => await mediaPropertyStore.StartDownloadJob({mediaItem, filename: display.title})}
-                rightIcon={DownloadIcon}
-                variant="outline"
-                className={S("media-info__download")}
-              >
-                <span>DOWNLOAD</span>
-              </Button>
           }
         </div>
     );

@@ -2142,7 +2142,9 @@ class MediaPropertyStore {
     mediaItem,
     filename,
     format="mp4",
-    offering="default"
+    offering="default",
+    representation,
+    SetStatus
   }) {
     try {
       filename = filename || mediaItem.title;
@@ -2156,6 +2158,10 @@ class MediaPropertyStore {
         offering,
         filename
       };
+
+      if(representation) {
+        params.representation = representation;
+      }
 
       if(mediaItem.media_link_info) {
         if(mediaItem.media_link_info.type === "composition") {
@@ -2190,9 +2196,13 @@ class MediaPropertyStore {
         return yield this.SaveDownloadJob({jobId: response.job_id, filename, versionHash});
       }
 
+      SetStatus?.(status);
+
       return yield new Promise((resolve, reject) => {
         let interval = setInterval(async () => {
           const status = await this.DownloadJobStatus({jobId: response.job_id, versionHash}) || {};
+
+          SetStatus?.(status);
 
           if(status?.status === "completed") {
             clearInterval(interval);
@@ -2205,7 +2215,7 @@ class MediaPropertyStore {
             clearInterval(interval);
             reject(status);
           }
-        }, 5000);
+        }, 2000);
       });
     } catch(error) {
       this.Log("Error performing download:", true);

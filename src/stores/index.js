@@ -73,6 +73,7 @@ class RootStore {
 
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
+  isLocal = ["localhost", "192.168"].find(host => window.location.hostname.includes(host));
 
   discoverFilter = "";
 

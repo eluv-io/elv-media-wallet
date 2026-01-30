@@ -700,13 +700,6 @@
   padding: 25px;
   position: relative;
 
-  &__download {
-    min-width: 200px;
-    position: absolute;
-    right: 25px;
-    top: 25px;
-  }
-
   @media screen and (width <= 1200px) {
     margin: 0;
     min-height: unset;
@@ -731,6 +724,81 @@
   }
 }
 
+.download-menu {
+  background: var(--property-search-background);
+  border: 1px solid var(--property-border-color-secondary);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+
+  &__button {
+    background: var(--property-search-background);
+    border-radius: 8px;
+    font-weight: 800;
+    height: 50px;
+    min-width: 180px;
+
+    &--active {
+      background-color: var(--property-search-button-background);
+    }
+  }
+
+  &__item {
+    border-radius: 0;
+    height: 55px;
+    padding-inline: 50px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    * {
+      color: var(--property-text-secondary);
+      font-size: 18px;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background-color: #d9d9d9;
+
+      * {
+        color: black;
+      }
+    }
+  }
+
+  @media screen and (width <= 850px) {
+    &__item {
+      padding-inline: 30px;
+
+      * {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.icon-button {
+  transition: opacity 0.25s ease;
+
+  &--light {
+    --ai-hover: white!important;
+
+    * {
+      color: black;
+    }
+  }
+
+  svg {
+    height: 100%;
+    width: 100%;
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
+  }
+}
+
 .media-text {
   display: grid;
   gap: 5px;
@@ -740,42 +808,22 @@
     display: flex;
     font-size: 1.8em;
     font-weight: 600;
-    padding-right: 30px;
+    justify-content: space-between;
+    position: relative;
   }
 
-  &__title-button {
-    background-color: white;
-    border-radius: 3px;
-    color: black;
-    height: 25px;
-    min-height: 28px;
-    min-width: 28px;
-    padding: 5px;
-    position: absolute;
-    right: 15px;
-    transition: opacity 0.25s ease;
-    width: 25px;
-
-    * {
-      color: black;
-    }
-
-    svg {
-      height: 100%;
-      width: 100%;
-    }
-
-    &:hover,
-    &:focus-visible {
-      opacity: 0.8;
-    }
+  &__title--left,
+  &__title--right {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    position: relative;
   }
 
   &__icons {
     align-items: center;
     display: flex;
     gap: 10px;
-    margin-right: 20px;
   }
 
   &__icon {
@@ -818,10 +866,6 @@
 
     &__title {
       font-size: 1.3em;
-    }
-
-    &__icons {
-      margin-right: 10px;
     }
 
     &__icon {
