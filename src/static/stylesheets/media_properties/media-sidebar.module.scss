@@ -225,8 +225,8 @@
     position: relative;
   }
 
-  @media screen and (width <= 650px) {
-    overscroll-behavior-y: unset;
+  @media screen and (width <= 850px) {
+    overscroll-behavior-y: auto;
   }
 }
 
@@ -334,7 +334,7 @@
     border-top: 0;
   }
 
-  &--active {
+  &--primary {
     background-color: #262626;
   }
 
@@ -551,6 +551,10 @@
     &__actions {
       padding-right: 5px;
     }
+
+    &--active {
+      background-color: #262626;
+    }
   }
 }
 
@@ -673,8 +677,8 @@
     }
 
     &__content {
-      width: 100%;
       padding-inline: 30px;
+      width: 100%;
     }
 
     &__actions {

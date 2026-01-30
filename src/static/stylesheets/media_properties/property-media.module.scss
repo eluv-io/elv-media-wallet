@@ -649,7 +649,11 @@
       &--4,
       &--5,
       &--6 {
-        .media {
+        & > * {
+          height: calc(var(--property-full-content-height) / 2);
+        }
+
+        * {
           max-height: calc(var(--property-full-content-height) / 2);
         }
       }
@@ -689,6 +693,8 @@
 }
 
 .media-info {
+  @include page-fade-in;
+
   background: var(--property-background-secondary);
   min-height: 100px;
   padding: 25px;

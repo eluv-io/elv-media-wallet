@@ -77,7 +77,8 @@ const Item = observer(({
           disabled ? "item--disabled" : "",
           noBorder ? "item--no-border" : "",
           (hovering && !disabled) ? "item--hover" : "",
-          isPrimary ? "item--active" : "",
+          isPrimary ? "item--primary" : "",
+          isActive && !isPrimary ? "item--active" : "",
           contentItem.type === "additional-view" ? "item--additional-view" : "",
         )
       }
@@ -283,7 +284,7 @@ const MediaSidebar = observer(({
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || item.mediaItem.id !== mediaItem.id || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
+                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
@@ -295,6 +296,7 @@ const MediaSidebar = observer(({
                                   ...view,
                                   type: "additional-view",
                                   id: `${item.id}-${index}`,
+                                  mediaItemId: item.id,
                                   index,
                                   label: `${item.display.title} - ${view.label}`
                                 }}

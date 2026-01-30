@@ -202,19 +202,10 @@ const MediaVideo = observer(({
   );
 });
 
-const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
-  const [primaryMenuActive, setPrimaryMenuActive] = useState(false);
-  const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
-  const [primaryPIP, setPrimaryPIP] = useState(false);
+const PIPContent = observer(({mediaInfo, displayedContent, setDisplayedContent}) => {
+  const [menuActive, setMenuActive] = useState(false);
 
-  useEffect(() => {
-    // If secondary media is removed, primary media should not be pip
-    if(!secondaryMedia) {
-      setPrimaryPIP(false);
-    }
-  }, [secondaryMedia]);
-
-  if(!primaryMedia) {
+  if(mediaInfo.length === 0) {
     return (
       <div className={S("media-with-sidebar__video", "media", "media_video")}>
         <div className={S("media__empty")}>
@@ -223,25 +214,18 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
       </div>
     );
   }
+
+  const primaryMedia = mediaInfo[0];
+  const secondaryMedia = mediaInfo[1];
+
   const primaryVideo = (
     <MediaVideo
-      key={`media-${primaryMedia.mediaItem.id}`}
+      key={`media-${displayedContent[0].id}`}
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
-      showTitle={primaryPIP}
-      hideControls={primaryPIP}
-      mute={primaryPIP}
-      settingsUpdateCallback={player => setPrimaryMenuActive(player.controls.IsMenuVisible())}
-      onClick={
-        !primaryPIP? undefined :
-          () => setPrimaryPIP(false)
-      }
-      className={
-        S(
-          primaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
-          primaryPIP && secondaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
-        )
-      }
+      showTitle
+      settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
+      className={S("media-with-sidebar__video")}
     />
   );
 
@@ -251,36 +235,28 @@ const PIPContent = observer(({primaryMedia, secondaryMedia}) => {
 
   const secondaryVideo = (
     <MediaVideo
-      key={`media-${secondaryMedia.mediaItem.id}`}
+      key={`media-${displayedContent[1].id}`}
       mediaItem={secondaryMedia.mediaItem}
       display={secondaryMedia.display}
-      showTitle={!primaryPIP}
-      hideControls={!primaryPIP}
-      mute={!primaryPIP}
-      settingsUpdateCallback={player => setSecondaryMenuActive(player.controls.IsMenuVisible())}
-      onClick={
-        primaryPIP ? undefined :
-          () => setPrimaryPIP(true)
-      }
+      showTitle
+      hideControls
+      mute
+      settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
+      onClick={() => setDisplayedContent([displayedContent[1], displayedContent[0]])}
       className={
         S(
-          !primaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
-          !primaryPIP && primaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
+          "media-with-sidebar__pip-video",
+          menuActive ? "media-with-sidebar__pip-video--under-menu" : ""
         )
       }
     />
   );
 
   return (
-    primaryPIP ?
-      <>
-        { secondaryVideo }
-        { primaryVideo }
-      </> :
-      <>
-        { primaryVideo }
-        { secondaryVideo }
-      </>
+    <>
+      { primaryVideo }
+      { secondaryVideo }
+    </>
   );
 });
 
@@ -291,11 +267,12 @@ const MediaVideoWithSidebar = observer(({
   sidebarContent,
   textContent,
   showMultiviewSelectionModal,
-  setShowMultiviewSelectionModal
+  setShowMultiviewSelectionModal,
+  displayedContent,
+  setDisplayedContent
 }) => {
   const [showSidebar, setShowSidebar] = useState(rootStore.pageWidth > 800);
   const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
-  const [displayedContent, setDisplayedContent] = useState([{type: "media-item", id: mediaItem.id}]);
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -358,8 +335,9 @@ const MediaVideoWithSidebar = observer(({
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent
-          primaryMedia={mediaInfo[0]}
-          secondaryMedia={mediaInfo[1]}
+          mediaInfo={mediaInfo}
+          displayedContent={displayedContent}
+          setDisplayedContent={setDisplayedContent}
         />
       </div>
     );
@@ -594,7 +572,16 @@ const SectionNavButtons = observer(() => {
 });
 
 
-const Media = observer(({mediaItem, display, sidebarContent, textContent, showMultiviewSelectionModal, setShowMultiviewSelectionModal}) => {
+const Media = observer(({
+  mediaItem,
+  display,
+  displayedContent,
+  setDisplayedContent,
+  sidebarContent,
+  textContent,
+  showMultiviewSelectionModal,
+  setShowMultiviewSelectionModal
+}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
@@ -603,6 +590,8 @@ const Media = observer(({mediaItem, display, sidebarContent, textContent, showMu
         <MediaVideoWithSidebar
           mediaItem={mediaItem}
           display={display}
+          displayedContent={displayedContent}
+          setDisplayedContent={setDisplayedContent}
           sidebarContent={sidebarContent}
           textContent={textContent}
           showMultiviewSelectionModal={showMultiviewSelectionModal}
@@ -666,22 +655,26 @@ const Media = observer(({mediaItem, display, sidebarContent, textContent, showMu
 
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
+  const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
   const [sidebarContent, setSidebarContent] = useState(undefined);
   const [showMultiviewSelectionModal, setShowMultiviewSelectionModal] = useState(false);
+  const [displayedContent, setDisplayedContent] = useState([{type: "media-item", id: primaryMediaItem.id}]);
 
-  const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
+  const mediaItem = !displayedContent[0] ? primaryMediaItem :
+    mediaPropertyStore.MediaPropertyMediaItem({...match.params, mediaItemSlugOrId: displayedContent[0].mediaItemId || displayedContent[0].id});
+
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-
-  if(!mediaItem) {
-    return <Redirect to={rootStore.backPath} />;
-  }
 
   useEffect(() => {
     mediaPropertyStore.SidebarContent(match.params)
       .then(setSidebarContent);
   }, []);
+
+  if(!mediaItem) {
+    return <Redirect to={rootStore.backPath} />;
+  }
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
@@ -715,7 +708,7 @@ const MediaPropertyMediaPage = observer(() => {
   } else {
     const textContent = (
       !(hasText || !hasDescription) ? null :
-        <div className={S("media-info")}>
+        <div key={`media-info-${mediaItem.id}`} className={S("media-info")}>
           {
             !hasText ? null :
               <div className={S("media-text")}>
@@ -794,6 +787,8 @@ const MediaPropertyMediaPage = observer(() => {
           <Media
             mediaItem={mediaItem}
             display={display}
+            displayedContent={displayedContent}
+            setDisplayedContent={setDisplayedContent}
             sidebarContent={sidebarContent}
             textContent={textContent}
             showMultiviewSelectionModal={showMultiviewSelectionModal}

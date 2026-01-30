@@ -1442,7 +1442,7 @@ class MediaPropertyStore {
           });
         }
 
-        const localizationInfo = await this.client.ContentObjectMetadata({
+        const localizationInfo = (await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
           produceLinkUrls: true,
@@ -1450,7 +1450,7 @@ class MediaPropertyStore {
             "language",
             "localizations",
           ]
-        });
+        })) || {};
 
         // User's languages, in priority order
         const userLanguages = [
