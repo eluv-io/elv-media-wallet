@@ -138,18 +138,22 @@ const Video = forwardRef(function VideoComponent({
   }, [targetRef, contentHash]);
 
   useEffect(() => {
-    if(player) {
-      player.playerOptions.controls = EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"];
-      player.playerOptions.title = EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"];
+    if(!player) { return; }
 
-      if(mute) {
-        player.__wasMuted = player.controls.IsMuted();
-        player.controls.Mute();
-      } else if(!player.__wasMuted) {
-        player.controls.Unmute();
-      }
+    player.playerOptions.controls = EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"];
+    player.playerOptions.title = EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"];
+  }, [hideControls, showTitle]);
+
+  useEffect(() => {
+    if(!player) { return; }
+
+    if(mute) {
+      player.__wasMuted = player.controls.IsMuted();
+      player.controls.Mute();
+    } else if(!player.__wasMuted) {
+      player.controls.Unmute();
     }
-  }, [hideControls, showTitle, mute]);
+  }, [mute]);
 
   useEffect(() => {
     if(!saveProgress || isLive || !player || !mediaPropertySlugOrId || !mediaItemId) {
