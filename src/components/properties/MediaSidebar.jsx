@@ -3,7 +3,7 @@ import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.mod
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
 import {Linkish} from "Components/common/UIComponents";
@@ -30,16 +30,19 @@ const Item = observer(({
   scheduleInfo,
   disabled,
   onClick,
-  displayedContent,
-  setDisplayedContent,
   primaryMediaId,
   contentItem,
   noBorder,
   noActions,
   toggleOnClick,
   multiviewMode,
-  streamLimit
+  streamLimit,
+  displayedContent,
+  setDisplayedContent
 }) => {
+  displayedContent = displayedContent || mediaStore.displayedContent;
+  setDisplayedContent = setDisplayedContent || (content => mediaStore.SetDisplayedContent(content));
+
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
 
@@ -149,11 +152,6 @@ const Item = observer(({
 const MediaSidebar = observer(({
   mediaItem,
   display,
-  sidebarContent,
-  showSidebar,
-  setShowSidebar,
-  displayedContent,
-  setDisplayedContent,
   multiviewMode,
   setMultiviewMode,
   contentRef,
@@ -161,19 +159,19 @@ const MediaSidebar = observer(({
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const tab = sidebarContent?.tabs?.[tabIndex];
+  const tab = mediaStore.sidebarContent?.tabs?.[tabIndex];
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
-  if(sidebarContent?.tabs?.length === 0) {
+  if(mediaStore.sidebarContent?.tabs?.length === 0) {
     return;
   }
 
-  if(!showSidebar && rootStore.pageWidth >= 850) {
+  if(!mediaStore.showSidebar && rootStore.pageWidth >= 850) {
     return (
       <div className={S("hidden-sidebar")}>
-        <button onClick={() => setShowSidebar(true)} className={S("show-button")}>
+        <button onClick={() => mediaStore.SetShowSidebar(true)} className={S("show-button")}>
           <ImageIcon icon={ShowIcon} />
         </button>
       </div>
@@ -181,10 +179,10 @@ const MediaSidebar = observer(({
   }
 
   return (
-    <div className={S("sidebar", sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
+    <div className={S("sidebar", mediaStore.sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
       <div className={S("sidebar__actions")}>
         {
-          !sidebarContent.anyMultiview ? null :
+          !mediaStore.sidebarContent.anyMultiview ? null :
             <div className={S("multiview-switch")}>
               <button
                 onClick={() => setMultiviewMode("pip")}
@@ -202,11 +200,11 @@ const MediaSidebar = observer(({
               </button>
             </div>
         }
-        <button title="Hide Sidbar" onClick={() => setShowSidebar(false)} className={S("hide-button")}>
+        <button title="Hide Sidbar" onClick={() => mediaStore.SetShowSidebar(false)} className={S("hide-button")}>
           <ImageIcon icon={HideIcon}/>
         </button>
       </div>
-      <div className={S("header")}>
+      <div className={S("header", "header--sidebar")}>
         {
           !isLive ? null :
             <div className={S("live-badge")}>
@@ -227,10 +225,10 @@ const MediaSidebar = observer(({
       </div>
       <div className={S("tabs-container")}>
         {
-          sidebarContent.tabs.length <= 1 ? null :
+          mediaStore.sidebarContent.tabs.length <= 1 ? null :
             <div className={S("tabs")}>
               {
-                sidebarContent.tabs.map((tab, index) =>
+                mediaStore.sidebarContent.tabs.map((tab, index) =>
                   <button
                     onClick={() => setTabIndex(index)}
                     key={`tab-${tab.id}`}
@@ -243,7 +241,7 @@ const MediaSidebar = observer(({
             </div>
         }
         {
-          rootStore.pageWidth <= 850 || !contentRef || !document.fullscreenEnabled || displayedContent.length <= 1 ? null :
+          rootStore.pageWidth <= 850 || !contentRef || !document.fullscreenEnabled || mediaStore.displayedContent.length <= 1 ? null :
             <div className={S("content__actions")}>
               <button
                 onClick={() => contentRef.requestFullscreen()}
@@ -281,8 +279,6 @@ const MediaSidebar = observer(({
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
                       primaryMediaId={mediaItem.id}
-                      displayedContent={displayedContent}
-                      setDisplayedContent={setDisplayedContent}
                       multiviewMode={multiviewMode}
                       noActions={!item.authorized || !item.scheduleInfo.currentlyLive}
                       streamLimit={streamLimit}
@@ -305,8 +301,6 @@ const MediaSidebar = observer(({
                                   label: `${item.display.title} - ${view.label}`
                                 }}
                                 primaryMediaId={mediaItem.id}
-                                displayedContent={displayedContent}
-                                setDisplayedContent={setDisplayedContent}
                                 multiviewMode={multiviewMode}
                                 streamLimit={streamLimit}
                               />
@@ -327,14 +321,9 @@ const MediaSidebar = observer(({
 
 export const MultiviewSelectionModal = observer(({
   mediaItem,
-  sidebarContent,
-  displayedContent,
-  setDisplayedContent,
-  opened,
-  streamLimit,
-  Close
+  streamLimit
 }) => {
-  let tabs = sidebarContent.tabs.filter(tab =>
+  let tabs = mediaStore.sidebarContent.tabs.filter(tab =>
     tab.groups.find(group =>
       group.content.find(item =>
         item.scheduleInfo.currentlyLive
@@ -342,15 +331,15 @@ export const MultiviewSelectionModal = observer(({
     )
   );
 
-  const [selectedContent, setSelectedContent] = useState(displayedContent);
+  const [selectedContent, setSelectedContent] = useState([...mediaStore.displayedContent]);
   const [tabIndex, setTabIndex] = useState(0);
   const tab = tabs[tabIndex];
 
   useEffect(() => {
-    if(opened) {
-      setSelectedContent(displayedContent);
+    if(mediaStore.showMultiviewSelectionModal) {
+      setSelectedContent([...mediaStore.displayedContent]);
     }
-  }, [opened]);
+  }, [mediaStore.showMultiviewSelectionModal]);
 
   useEffect(() => {
     setSelectedContent(
@@ -362,14 +351,14 @@ export const MultiviewSelectionModal = observer(({
     <Modal
       size="sm"
       centered
-      opened={opened}
-      onClose={Close}
+      opened={mediaStore.showMultiviewSelectionModal}
+      onClose={() => mediaStore.SetShowMultiviewSelectionModal(false)}
       withCloseButton={false}
       header={
         <div className={S("multiview-selection-modal__header")}>
           <Linkish
             className={S("multiview-selection-modal__back")}
-            onClick={() => Close()}
+            onClick={() => mediaStore.SetShowMultiviewSelectionModal(false)}
           >
             <ImageIcon icon={ShowIcon}/>
           </Linkish>
@@ -432,10 +421,10 @@ export const MultiviewSelectionModal = observer(({
                           key={`item-${item.id}`}
                           contentItem={{type: "media-item", id: item.mediaItem.id}}
                           primaryMediaId={mediaItem.id}
-                          displayedContent={selectedContent}
-                          setDisplayedContent={setSelectedContent}
                           multiviewMode="multiview"
                           streamLimit={streamLimit}
+                          displayedContent={selectedContent}
+                          setDisplayedContent={setSelectedContent}
                         />
                         {
                           (item?.additional_views || [])?.length === 0 || item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
@@ -456,10 +445,10 @@ export const MultiviewSelectionModal = observer(({
                                       label: `${item.display.title} - ${view.label}`
                                     }}
                                     primaryMediaId={mediaItem.id}
-                                    displayedContent={selectedContent}
-                                    setDisplayedContent={setSelectedContent}
                                     multiviewMode="multiview"
                                     streamLimit={streamLimit}
+                                    displayedContent={selectedContent}
+                                    setDisplayedContent={setSelectedContent}
                                   />
                                 )
                               }
@@ -473,7 +462,7 @@ export const MultiviewSelectionModal = observer(({
         }
       </div>
       <div className={S("multiview-selection-modal__actions")}>
-        <Button onClick={Close} variant="subtle" className={S("multiview-selection-modal__action")}>
+        <Button onClick={() => mediaStore.SetShowMultiviewSelectionModal(false)} variant="subtle" className={S("multiview-selection-modal__action")}>
           Cancel
         </Button>
         <Button
@@ -481,8 +470,8 @@ export const MultiviewSelectionModal = observer(({
           defaultStyles
           disabled={selectedContent.length === 0}
           onClick={() => {
-            setDisplayedContent(selectedContent);
-            Close();
+            mediaStore.SetDisplayedContent(selectedContent);
+            mediaStore.SetShowMultiviewSelectionModal(false);
           }}
           className={S("multiview-selection-modal__action")}
         >
@@ -514,9 +503,8 @@ export const FormatTime = time => {
 window.formatTime = FormatTime;
 
 let filterTimeout;
-export const MediaTagSidebar = observer(({mediaItem, Close}) => {
+export const MediaTagSidebar = observer(({mediaItem}) => {
   const [tab, setTab] = useState("TRANSCRIPT");
-  const [tags, setTags] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
   const [filterInput, setFilterInput] = useState("");
   const [filter, setFilter] = useState("");
@@ -528,8 +516,7 @@ export const MediaTagSidebar = observer(({mediaItem, Close}) => {
 
   useEffect(() => {
     // Tags should already be loaded so this should be instant
-    mediaPropertyStore.LoadMediaTags({versionHash})
-      .then(setTags);
+    mediaStore.LoadMediaTags({versionHash});
   }, []);
 
   useEffect(() => {
@@ -557,15 +544,15 @@ export const MediaTagSidebar = observer(({mediaItem, Close}) => {
   }, [filterInput]);
 
   useEffect(() => {
-    if(!tags) { return; }
+    if(!mediaStore.mediaTags.hasTags) { return; }
 
     let tabTags = [];
     switch(tab) {
       case "TRANSCRIPT":
-        tabTags = tags.transcriptionTags || [];
+        tabTags = mediaStore.mediaTags.transcriptionTags || [];
         break;
       case "PLAY-BY-PLAY":
-        tabTags = tags.playByPlayTags || [];
+        tabTags = mediaStore.mediaTags.playByPlayTags || [];
         break;
     }
 
@@ -575,18 +562,18 @@ export const MediaTagSidebar = observer(({mediaItem, Close}) => {
           tag.tag.toLowerCase().includes(filter.toLowerCase())
         )
     );
-  }, [tab, filter, !!tags]);
+  }, [tab, filter, !!mediaStore.mediaTags.hasTags]);
 
-  if(!tags) {
+  if(!mediaStore.mediaTags.hasTags) {
     return (
       <div className={S("sidebar")} />
     );
   }
 
   const tabs = [
-    tags.hasChapters ? "CHAPTERS" : "",
-    tags.hasTranscription ? "TRANSCRIPT" : "",
-    tags.hasPlayByPlay ? "PLAY-BY-PLAY" : ""
+    mediaStore.mediaTags.hasChapters ? "CHAPTERS" : "",
+    mediaStore.mediaTags.hasTranscription ? "TRANSCRIPT" : "",
+    mediaStore.mediaTags.hasPlayByPlay ? "PLAY-BY-PLAY" : ""
   ]
     .filter(tab => tab);
 
@@ -597,7 +584,7 @@ export const MediaTagSidebar = observer(({mediaItem, Close}) => {
           IN THIS VIDEO
           <ImageIcon icon={AIDescriptionIcon} />
         </div>
-        <button onClick={Close} className={S("header__close")}>
+        <button onClick={() => mediaStore.SetShowTagSidebar(false)} className={S("header__close")}>
           <ImageIcon icon={XIcon} />
         </button>
       </div>
@@ -620,7 +607,7 @@ export const MediaTagSidebar = observer(({mediaItem, Close}) => {
         <TextInput
           value={filterInput}
           onChange={event => setFilterInput(event.target.value)}
-          placeholder={`Search ${tab}`}
+          placeholder={`SEARCH ${tab}`}
           leftSectionWidth={50}
           leftSection={
             <ImageIcon icon={SearchIcon} className={S("search__icon")}/>

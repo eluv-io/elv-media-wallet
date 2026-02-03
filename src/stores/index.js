@@ -26,6 +26,7 @@ import TransferStore from "Stores/TransferStore";
 import CryptoStore from "Stores/CryptoStore";
 import NotificationStore from "Stores/NotificationStore";
 import MediaPropertyStore from "Stores/MediaPropertyStore";
+import MediaStore from "Stores/MediaStore";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
@@ -268,6 +269,7 @@ class RootStore {
     this.cryptoStore = new CryptoStore(this);
     this.notificationStore = new NotificationStore(this);
     this.mediaPropertyStore = new MediaPropertyStore(this);
+    this.mediaStore = new MediaStore(this);
 
     this.useLocalAuth = this.GetSessionStorage("local-auth") || searchParams.has("la");
     if(this.useLocalAuth) {
@@ -2891,6 +2893,7 @@ export const transferStore = rootStore.transferStore;
 export const cryptoStore = rootStore.cryptoStore;
 export const notificationStore = rootStore.notificationStore;
 export const mediaPropertyStore = rootStore.mediaPropertyStore;
+export const mediaStore = rootStore.mediaStore;
 
 window.rootStore = rootStore;
 

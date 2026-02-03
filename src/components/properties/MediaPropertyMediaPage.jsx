@@ -3,7 +3,7 @@ import MediaStyles from "Assets/stylesheets/media_properties/property-media.modu
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import { Redirect, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {
@@ -204,7 +204,7 @@ const MediaVideo = observer(({
   );
 });
 
-const PIPContent = observer(({mediaInfo, displayedContent, setDisplayedContent}) => {
+const PIPContent = observer(({mediaInfo}) => {
   const [menuActive, setMenuActive] = useState(false);
 
   if(mediaInfo.length === 0) {
@@ -222,7 +222,7 @@ const PIPContent = observer(({mediaInfo, displayedContent, setDisplayedContent})
 
   const primaryVideo = (
     <MediaVideo
-      key={`media-${displayedContent[0].id}`}
+      key={`media-${mediaStore.displayedContent[0].id}`}
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
@@ -237,14 +237,17 @@ const PIPContent = observer(({mediaInfo, displayedContent, setDisplayedContent})
 
   const secondaryVideo = (
     <MediaVideo
-      key={`media-${displayedContent[1].id}`}
+      key={`media-${mediaStore.displayedContent[1].id}`}
       mediaItem={secondaryMedia.mediaItem}
       display={secondaryMedia.display}
       showTitle
       hideControls
       mute
       settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
-      onClick={() => setDisplayedContent([displayedContent[1], displayedContent[0]])}
+      onClick={() => mediaStore.SetDisplayedContent([
+        mediaStore.displayedContent[1],
+        mediaStore.displayedContent[0]
+      ])}
       className={
         S(
           "media-with-sidebar__pip-video",
@@ -266,16 +269,8 @@ let lastSelectedMode = "pip";
 const MediaVideoWithSidebar = observer(({
   mediaItem,
   display,
-  sidebarContent,
-  textContent,
-  showMultiviewSelectionModal,
-  setShowMultiviewSelectionModal,
-  displayedContent,
-  setDisplayedContent,
-  showTagSidebar,
-  setShowTagSidebar
+  textContent
 }) => {
-  const [showSidebar, setShowSidebar] = useState(rootStore.pageWidth > 800);
   const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -298,13 +293,13 @@ const MediaVideoWithSidebar = observer(({
 
   useEffect(() => {
     if(multiviewMode === "pip") {
-      setDisplayedContent(displayedContent.slice(0, 2));
+      mediaStore.SetDisplayedContent(mediaStore.displayedContent.slice(0, 2));
     }
   }, [multiviewMode]);
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
-  const mediaInfo = displayedContent
+  const mediaInfo = mediaStore.displayedContent
     .map(item => {
       if(item.type === "additional-view") {
         return {
@@ -338,11 +333,7 @@ const MediaVideoWithSidebar = observer(({
   if(multiviewMode === "pip" || mediaInfo.length === 1) {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
-        <PIPContent
-          mediaInfo={mediaInfo}
-          displayedContent={displayedContent}
-          setDisplayedContent={setDisplayedContent}
-        />
+        <PIPContent mediaInfo={mediaInfo} />
       </div>
     );
   } else {
@@ -357,12 +348,12 @@ const MediaVideoWithSidebar = observer(({
                 mute={index > 0}
                 mediaItem={item.mediaItem}
                 display={item.display || display}
-                showTitle={displayedContent.length > 1}
+                showTitle={mediaStore.displayedContent.length > 1}
                 onClose={
                   mediaInfo.length === 1 ? undefined :
                     () => {
-                      setDisplayedContent(
-                        displayedContent.filter(otherItem =>
+                      mediaStore.SetDisplayedContent(
+                        mediaStore.displayedContent.filter(otherItem =>
                           otherItem.type !== item.type ||
                           otherItem.id !== item.id
                         )
@@ -382,44 +373,33 @@ const MediaVideoWithSidebar = observer(({
   }
 
   return (
-    <div className={S("media-with-sidebar", showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
+    <div className={S("media-with-sidebar", mediaStore.showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
         {media}
-        {textContent}
+        {
+          mediaStore.showTagSidebar && rootStore.pageWidth <= 850 ? null :
+            textContent
+        }
       </div>
       {
-        showTagSidebar ?
-          <MediaTagSidebar
-            mediaItem={mediaItem}
-            Close={() => setShowTagSidebar(false)}
-          /> :
+        mediaStore.showTagSidebar ?
+          <MediaTagSidebar mediaItem={mediaItem} /> :
           <MediaSidebar
-            sidebarContent={sidebarContent}
             showActions
             mediaItem={mediaItem}
             display={display}
-            showSidebar={showSidebar}
-            setShowSidebar={setShowSidebar}
-            displayedContent={displayedContent}
-            setDisplayedContent={setDisplayedContent}
             multiviewMode={multiviewMode}
             setMultiviewMode={setMultiviewMode}
-            setSelectedView={view => setDisplayedContent([view])}
+            setSelectedView={view => mediaStore.SetDisplayedContent([view])}
             contentRef={mediaGridRef}
-            setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
             streamLimit={streamLimit}
           />
       }
       <MultiviewSelectionModal
         streamLimit={streamLimit}
         mediaItem={mediaItem}
-        opened={showMultiviewSelectionModal}
-        sidebarContent={sidebarContent}
-        displayedContent={displayedContent}
-        setDisplayedContent={setDisplayedContent}
         multiviewMode={multiviewMode}
         setMultiviewMode={setMultiviewMode}
-        Close={() => setShowMultiviewSelectionModal(false)}
       />
     </div>
   );
@@ -686,31 +666,17 @@ const DownloadButton = observer(({mediaItem, title}) => {
 const Media = observer(({
   mediaItem,
   display,
-  displayedContent,
-  setDisplayedContent,
-  sidebarContent,
-  textContent,
-  showMultiviewSelectionModal,
-  setShowMultiviewSelectionModal,
-  showTagSidebar,
-  setShowTagSidebar
+  textContent
 }) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(sidebarContent?.tabs?.length > 0 || showTagSidebar) {
+    if(mediaStore.sidebarContent?.tabs?.length > 0 || mediaStore.showTagSidebar) {
       return (
         <MediaVideoWithSidebar
           mediaItem={mediaItem}
           display={display}
-          displayedContent={displayedContent}
-          setDisplayedContent={setDisplayedContent}
-          sidebarContent={sidebarContent}
           textContent={textContent}
-          showMultiviewSelectionModal={showMultiviewSelectionModal}
-          setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
-          showTagSidebar={showTagSidebar}
-          setShowTagSidebar={setShowTagSidebar}
         />
       );
     } else {
@@ -772,35 +738,33 @@ const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
   const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
-  const [sidebarContent, setSidebarContent] = useState(undefined);
-  const [showMultiviewSelectionModal, setShowMultiviewSelectionModal] = useState(false);
-  const [displayedContent, setDisplayedContent] = useState([{type: "media-item", id: primaryMediaItem.id}]);
-  const [mediaTags, setMediaTags] = useState(undefined);
-  const [showTagSidebar, setShowTagSidebar] = useState(false);
-
-  const mediaItem = !displayedContent[0] ? primaryMediaItem :
-    mediaPropertyStore.MediaPropertyMediaItem({...match.params, mediaItemSlugOrId: displayedContent[0].mediaItemId || displayedContent[0].id});
+  const mediaItem = !mediaStore.displayedContent[0] ? primaryMediaItem :
+    mediaPropertyStore.MediaPropertyMediaItem({
+      ...match.params,
+      mediaItemSlugOrId: mediaStore.displayedContent[0].mediaItemId || mediaStore.displayedContent[0].id
+    });
 
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
   const mediaHash = LinkTargetHash(mediaItem.media_link);
 
   useEffect(() => {
+    mediaStore.Reset();
+    mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
     mediaPropertyStore.SidebarContent(match.params)
-      .then(setSidebarContent);
+      .then(content => mediaStore.SetSidebarContent(content));
+
+    return () => mediaStore.Reset();
   }, []);
 
   useEffect(() => {
-    setMediaTags(undefined);
-
     if(!mediaHash || mediaItem.media_link_info?.composition_key) {
       // TODO: Disable compositions until ready
       //return;
     }
 
     if(mediaHash) {
-      mediaPropertyStore.LoadMediaTags({versionHash: mediaHash})
-        .then(tags => setMediaTags(tags))
+      mediaStore.LoadMediaTags({versionHash: mediaHash})
         .catch(error => rootStore.Log(error, true));
     }
   }, [mediaHash]);
@@ -812,7 +776,7 @@ const MediaPropertyMediaPage = observer(() => {
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-  const showSidebar = sidebarContent?.tabs?.length > 0 || showTagSidebar;
+  const sidebarAvailable = mediaStore.sidebarContent?.tabs?.length > 0 || mediaStore.showTagSidebar;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
@@ -865,15 +829,15 @@ const MediaPropertyMediaPage = observer(() => {
 
                   <div className={S("media-text__title--right")}>
                     {
-                      !mediaTags?.hasTags ? null :
+                      !mediaStore.mediaTags?.hasTags ? null :
                         rootStore.pageWidth < 850 ?
                           <ActionIcon
                             variant="filled"
-                            onClick={() => setShowTagSidebar(!showTagSidebar)}
+                            onClick={() => mediaStore.SetShowTagSidebar(!mediaStore.showTagSidebar)}
                             title="In This Video"
                             p={5}
                             color={
-                              showTagSidebar ?
+                              mediaStore.showTagSidebar ?
                                 "var(--property-border-color-secondary)" :
                                 "var(--property-border-color)"
                             }
@@ -884,10 +848,10 @@ const MediaPropertyMediaPage = observer(() => {
                           </ActionIcon> :
                           <Button
                             title="In This Video"
-                            onClick={() => setShowTagSidebar(!showTagSidebar)}
+                            onClick={() => mediaStore.SetShowTagSidebar(!mediaStore.showTagSidebar)}
                             rightIcon={AIDescriptionIcon}
                             variant="outline"
-                            className={S("download-menu__button", showTagSidebar ? "download-menu__button--active" : "")}
+                            className={S("download-menu__button", mediaStore.showTagSidebar ? "download-menu__button--active" : "")}
                           >
                             IN THIS VIDEO
                           </Button>
@@ -897,10 +861,10 @@ const MediaPropertyMediaPage = observer(() => {
                         <DownloadButton title={display.title} mediaItem={mediaItem} />
                     }
                     {
-                      !sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
+                      !mediaStore.sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
                         <ActionIcon
                           variant="filled"
-                          onClick={() => setShowMultiviewSelectionModal(!showMultiviewSelectionModal)}
+                          onClick={() => mediaStore.SetShowMultiviewSelectionModal(!mediaStore.showMultiviewSelectionModal)}
                           title="Show Multiview Options"
                           p={5}
                           color="white"
@@ -940,22 +904,15 @@ const MediaPropertyMediaPage = observer(() => {
     );
 
     content = (
-      <div className={S("media-page", showSidebar ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
+      <div className={S("media-page", sidebarAvailable ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
         <div className={S("media-container")}>
           <Media
             mediaItem={mediaItem}
             display={display}
-            displayedContent={displayedContent}
-            setDisplayedContent={setDisplayedContent}
-            sidebarContent={sidebarContent}
             textContent={textContent}
-            showMultiviewSelectionModal={showMultiviewSelectionModal}
-            setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
-            showTagSidebar={showTagSidebar}
-            setShowTagSidebar={setShowTagSidebar}
           />
           {
-            showSidebar ? null :
+            sidebarAvailable ? null :
               textContent
           }
         </div>
