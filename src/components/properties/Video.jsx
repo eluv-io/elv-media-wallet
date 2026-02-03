@@ -40,6 +40,7 @@ const Video = forwardRef(function VideoComponent({
   const [player, setPlayer] = useState(undefined);
   const [reloadKey, setReloadKey] = useState(0);
   const targetRef = useRef();
+  const contentId = contentHash && mediaPropertyStore.client.utils.DecodeVersionHash(contentHash).objectId;
 
   useEffect(() => {
     if(link) {
@@ -115,9 +116,10 @@ const Video = forwardRef(function VideoComponent({
         }
       }
     ).then(player => {
+      player.id = `${contentHash}-${Math.random()}`;
       window.players = {
         ...(window.players || {}),
-        [contentHash]: player,
+        [contentId]: player,
       };
 
       setPlayer(player);
@@ -135,7 +137,7 @@ const Video = forwardRef(function VideoComponent({
         callback(player);
       }
     });
-  }, [targetRef, contentHash]);
+  }, [targetRef, contentId]);
 
   useEffect(() => {
     if(!player) { return; }
@@ -187,7 +189,7 @@ const Video = forwardRef(function VideoComponent({
 
       try {
         player.Destroy();
-        delete window.players?.[contentHash];
+        delete window.players?.[contentId];
       } catch(error) {
         // eslint-disable-next-line no-console
         console.log(error);

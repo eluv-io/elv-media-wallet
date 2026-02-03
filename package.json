@@ -36,7 +36,7 @@
     "@eluvio/crypto": "^1.1.1",
     "@eluvio/elv-client-js": "^4.2.14",
     "@eluvio/elv-paymentgate": "^1.0.0",
-    "@eluvio/elv-player-js": "git+https://github.com/eluv-io/elv-player-js#spatial-nav",
+    "@eluvio/elv-player-js": "^2.1.16",
     "@mantine/core": "^7.11.2",
     "@mantine/dates": "^7.11.2",
     "@mantine/hooks": "^7.11.2",

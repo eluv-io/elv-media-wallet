@@ -6,6 +6,7 @@
   font-family: var(--font-family-secondary);
   font-synthesis-weight: none;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 
   ::-webkit-scrollbar {
     opacity: 1;

@@ -1,6 +1,8 @@
 @import "./variables";
 
 .sidebar {
+  @include page-fade-in(0.5s);
+
   background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
   display: flex;
   flex-direction: column;
@@ -10,6 +12,10 @@
   position: relative;
   width: 400px;
   z-index: 100;
+
+  &--tags {
+    height: calc(var(--property-full-content-height));
+  }
 
   &--with-multiview {
     .header {
@@ -21,7 +27,7 @@
     align-items: center;
     display: flex;
     gap: 5px;
-    padding: 15px 0 10px 10px;
+    padding: 22px 0 10px 10px;
     position: absolute;
     right: 0;
     top: 0;
@@ -131,8 +137,17 @@
   position: relative;
 
   &__title {
-    font-size: 24px;
+    align-items: center;
+    display: flex;
+    font-size: 20px;
     font-weight: 600;
+    gap: 15px;
+    padding-right: 10px;
+
+    svg {
+      height: 30px;
+      margin-bottom: 2px;
+    }
   }
 
   &__headers {
@@ -155,6 +170,80 @@
 
   .live-badge {
     margin-bottom: 5px;
+  }
+
+  &__close {
+    height: 30px;
+    position: absolute;
+    right: 10px;
+    top: 19px;
+    transition: opacity 0.15s ease;
+    width: 30px;
+
+    * {
+      color: var(--property-text-faded);
+    }
+
+    &:hover,
+    &:focus-visible {
+      opacity: 0.8;
+    }
+  }
+}
+
+.search-container {
+  padding: 15px;
+}
+
+.search {
+  &__input {
+    background-color: #d7d7d7;
+    border-radius: 31px;
+    color: black;
+    font-weight: 600;
+    height: 45px;
+    padding-left: 55px;
+
+    &::placeholder {
+      color: #333;
+    }
+  }
+
+  &__icon {
+    margin-left: 10px;
+    padding: 10px;
+
+    * {
+      color: #333;
+    }
+  }
+}
+
+.tags {
+  @include page-fade-in(0.5s);
+
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.tag {
+  border-bottom: 1px solid var(--property-border-color);
+  display: flex;
+  padding: 15px;
+  text-align: left;
+  transition: background-color 0.25s ease;
+  width: 100%;
+
+  &--active {
+    background-color: var(--property-background-tertiary);
+  }
+
+  &__time {
+    width: 80px;
+  }
+
+  &__content {
+    width: 100%;
   }
 }
 

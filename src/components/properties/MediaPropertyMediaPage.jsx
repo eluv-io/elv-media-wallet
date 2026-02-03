@@ -13,17 +13,18 @@ import {
 } from "../../utils/MediaPropertyUtils";
 import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
-import MediaSidebar, {MultiviewSelectionModal} from "Components/properties/MediaSidebar";
+import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "Components/properties/MediaSidebar";
 import {Linkish} from "Components/common/UIComponents";
 import {ActionIcon, Menu} from "@mantine/core";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import MultiviewIcon from "Assets/icons/media/multiview";
 import DownloadIcon from "Assets/icons/download.svg";
+import AIDescriptionIcon from "Assets/icons/ai-description.svg";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -270,7 +271,9 @@ const MediaVideoWithSidebar = observer(({
   showMultiviewSelectionModal,
   setShowMultiviewSelectionModal,
   displayedContent,
-  setDisplayedContent
+  setDisplayedContent,
+  showTagSidebar,
+  setShowTagSidebar
 }) => {
   const [showSidebar, setShowSidebar] = useState(rootStore.pageWidth > 800);
   const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
@@ -384,22 +387,29 @@ const MediaVideoWithSidebar = observer(({
         {media}
         {textContent}
       </div>
-      <MediaSidebar
-        sidebarContent={sidebarContent}
-        showActions
-        mediaItem={mediaItem}
-        display={display}
-        showSidebar={showSidebar}
-        setShowSidebar={setShowSidebar}
-        displayedContent={displayedContent}
-        setDisplayedContent={setDisplayedContent}
-        multiviewMode={multiviewMode}
-        setMultiviewMode={setMultiviewMode}
-        setSelectedView={view => setDisplayedContent([view])}
-        contentRef={mediaGridRef}
-        setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
-        streamLimit={streamLimit}
-      />
+      {
+        showTagSidebar ?
+          <MediaTagSidebar
+            mediaItem={mediaItem}
+            Close={() => setShowTagSidebar(false)}
+          /> :
+          <MediaSidebar
+            sidebarContent={sidebarContent}
+            showActions
+            mediaItem={mediaItem}
+            display={display}
+            showSidebar={showSidebar}
+            setShowSidebar={setShowSidebar}
+            displayedContent={displayedContent}
+            setDisplayedContent={setDisplayedContent}
+            multiviewMode={multiviewMode}
+            setMultiviewMode={setMultiviewMode}
+            setSelectedView={view => setDisplayedContent([view])}
+            contentRef={mediaGridRef}
+            setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
+            streamLimit={streamLimit}
+          />
+      }
       <MultiviewSelectionModal
         streamLimit={streamLimit}
         mediaItem={mediaItem}
@@ -681,12 +691,14 @@ const Media = observer(({
   sidebarContent,
   textContent,
   showMultiviewSelectionModal,
-  setShowMultiviewSelectionModal
+  setShowMultiviewSelectionModal,
+  showTagSidebar,
+  setShowTagSidebar
 }) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(sidebarContent?.tabs?.length > 0) {
+    if(sidebarContent?.tabs?.length > 0 || showTagSidebar) {
       return (
         <MediaVideoWithSidebar
           mediaItem={mediaItem}
@@ -697,6 +709,8 @@ const Media = observer(({
           textContent={textContent}
           showMultiviewSelectionModal={showMultiviewSelectionModal}
           setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
+          showTagSidebar={showTagSidebar}
+          setShowTagSidebar={setShowTagSidebar}
         />
       );
     } else {
@@ -761,17 +775,35 @@ const MediaPropertyMediaPage = observer(() => {
   const [sidebarContent, setSidebarContent] = useState(undefined);
   const [showMultiviewSelectionModal, setShowMultiviewSelectionModal] = useState(false);
   const [displayedContent, setDisplayedContent] = useState([{type: "media-item", id: primaryMediaItem.id}]);
+  const [mediaTags, setMediaTags] = useState(undefined);
+  const [showTagSidebar, setShowTagSidebar] = useState(false);
 
   const mediaItem = !displayedContent[0] ? primaryMediaItem :
     mediaPropertyStore.MediaPropertyMediaItem({...match.params, mediaItemSlugOrId: displayedContent[0].mediaItemId || displayedContent[0].id});
 
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
+  const mediaHash = LinkTargetHash(mediaItem.media_link);
 
   useEffect(() => {
     mediaPropertyStore.SidebarContent(match.params)
       .then(setSidebarContent);
   }, []);
+
+  useEffect(() => {
+    setMediaTags(undefined);
+
+    if(!mediaHash || mediaItem.media_link_info?.composition_key) {
+      // TODO: Disable compositions until ready
+      //return;
+    }
+
+    if(mediaHash) {
+      mediaPropertyStore.LoadMediaTags({versionHash: mediaHash})
+        .then(tags => setMediaTags(tags))
+        .catch(error => rootStore.Log(error, true));
+    }
+  }, [mediaHash]);
 
   if(!mediaItem) {
     return <Redirect to={rootStore.backPath} />;
@@ -780,7 +812,7 @@ const MediaPropertyMediaPage = observer(() => {
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-  const showSidebar = sidebarContent?.tabs?.length > 0;
+  const showSidebar = sidebarContent?.tabs?.length > 0 || showTagSidebar;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
@@ -832,6 +864,34 @@ const MediaPropertyMediaPage = observer(() => {
                   </div>
 
                   <div className={S("media-text__title--right")}>
+                    {
+                      !mediaTags?.hasTags ? null :
+                        rootStore.pageWidth < 850 ?
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => setShowTagSidebar(!showTagSidebar)}
+                            title="In This Video"
+                            p={5}
+                            color={
+                              showTagSidebar ?
+                                "var(--property-border-color-secondary)" :
+                                "var(--property-border-color)"
+                            }
+                            size={30}
+                            className={S("icon-button", "icon-button--dark")}
+                          >
+                            <ImageIcon icon={AIDescriptionIcon} />
+                          </ActionIcon> :
+                          <Button
+                            title="In This Video"
+                            onClick={() => setShowTagSidebar(!showTagSidebar)}
+                            rightIcon={AIDescriptionIcon}
+                            variant="outline"
+                            className={S("download-menu__button", showTagSidebar ? "download-menu__button--active" : "")}
+                          >
+                            IN THIS VIDEO
+                          </Button>
+                    }
                     {
                       !rootStore.loggedIn || mediaItem.live_video || !mediaItem.allow_download || !mediaItem.media_link_info?.downloadable ? null :
                         <DownloadButton title={display.title} mediaItem={mediaItem} />
@@ -891,6 +951,8 @@ const MediaPropertyMediaPage = observer(() => {
             textContent={textContent}
             showMultiviewSelectionModal={showMultiviewSelectionModal}
             setShowMultiviewSelectionModal={setShowMultiviewSelectionModal}
+            showTagSidebar={showTagSidebar}
+            setShowTagSidebar={setShowTagSidebar}
           />
           {
             showSidebar ? null :

@@ -3,12 +3,13 @@ import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.mod
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
 import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
 import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {TextInput} from "@mantine/core";
 
 import HideIcon from "Assets/icons/right-arrow";
 import ShowIcon from "Assets/icons/left-arrow";
@@ -16,6 +17,9 @@ import FullscreenIcon from "Assets/icons/full screen";
 import PipVideoIcon from "Assets/icons/pip";
 import MultiviewIcon from "Assets/icons/media/multiview";
 import EyeIcon from "Assets/icons/eye.svg";
+import XIcon from "Assets/icons/x";
+import AIDescriptionIcon from "Assets/icons/ai-description";
+import SearchIcon from "Assets/icons/search";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -177,7 +181,7 @@ const MediaSidebar = observer(({
   }
 
   return (
-    <div className={S("sidebar", "sidebar--overlay", sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
+    <div className={S("sidebar", sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
       <div className={S("sidebar__actions")}>
         {
           !sidebarContent.anyMultiview ? null :
@@ -488,5 +492,172 @@ export const MultiviewSelectionModal = observer(({
     </Modal>
   );
 });
+
+/* Tag Sidebar */
+
+export const FormatTime = time => {
+  const useHours = time > 60 * 60;
+
+  const hours = Math.floor(time / 60 / 60);
+  const minutes = Math.floor(time / 60 % 60);
+  const seconds = Math.floor(time % 60);
+
+  let string = `${minutes.toString().padStart(useHours ? 2 : 1, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+  if(useHours) {
+    string = `${hours.toString()}:${string}`;
+  }
+
+  return string;
+};
+
+window.formatTime = FormatTime;
+
+let filterTimeout;
+export const MediaTagSidebar = observer(({mediaItem, Close}) => {
+  const [tab, setTab] = useState("TRANSCRIPT");
+  const [tags, setTags] = useState(undefined);
+  const [activeTags, setActiveTags] = useState([]);
+  const [filterInput, setFilterInput] = useState("");
+  const [filter, setFilter] = useState("");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const versionHash = LinkTargetHash(mediaItem.media_link);
+  const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
+  const player = window.players[objectId];
+
+  useEffect(() => {
+    // Tags should already be loaded so this should be instant
+    mediaPropertyStore.LoadMediaTags({versionHash})
+      .then(setTags);
+  }, []);
+
+  useEffect(() => {
+    setFilterInput("");
+    setFilter("");
+  }, [tab]);
+
+  useEffect(() => {
+    if(!player) { return; }
+
+    setCurrentTime(player.controls.GetCurrentTime());
+
+    const Disposer = player.controls.RegisterVideoEventListener(
+      "timeupdate",
+      () => setCurrentTime(player.controls.GetCurrentTime())
+    );
+
+    return () => Disposer?.();
+  }, [player?.id]);
+
+  useEffect(() => {
+    clearTimeout(filterTimeout);
+
+    filterTimeout = setTimeout(() => setFilter(filterInput), 500);
+  }, [filterInput]);
+
+  useEffect(() => {
+    if(!tags) { return; }
+
+    let tabTags = [];
+    switch(tab) {
+      case "TRANSCRIPT":
+        tabTags = tags.transcriptionTags || [];
+        break;
+      case "PLAY-BY-PLAY":
+        tabTags = tags.playByPlayTags || [];
+        break;
+    }
+
+    setActiveTags(
+      tabTags
+        .filter(tag =>
+          tag.tag.toLowerCase().includes(filter.toLowerCase())
+        )
+    );
+  }, [tab, filter, !!tags]);
+
+  if(!tags) {
+    return (
+      <div className={S("sidebar")} />
+    );
+  }
+
+  const tabs = [
+    tags.hasChapters ? "CHAPTERS" : "",
+    tags.hasTranscription ? "TRANSCRIPT" : "",
+    tags.hasPlayByPlay ? "PLAY-BY-PLAY" : ""
+  ]
+    .filter(tab => tab);
+
+  return (
+    <div className={S("sidebar", "sidebar--tags")}>
+      <div className={S("header")}>
+        <div className={[S("header__title"), "_title"].join(" ")}>
+          IN THIS VIDEO
+          <ImageIcon icon={AIDescriptionIcon} />
+        </div>
+        <button onClick={Close} className={S("header__close")}>
+          <ImageIcon icon={XIcon} />
+        </button>
+      </div>
+      <div className={S("tabs-container")}>
+        <div className={S("tabs")}>
+          {
+            tabs.map(t =>
+              <button
+                onClick={() => setTab(t)}
+                key={`tab-${t}`}
+                className={S("tab", t === tab ? "tab--active" : "")}
+              >
+                {t}
+              </button>
+            )
+          }
+        </div>
+      </div>
+      <div className={S("search-container")}>
+        <TextInput
+          value={filterInput}
+          onChange={event => setFilterInput(event.target.value)}
+          placeholder={`Search ${tab}`}
+          leftSectionWidth={50}
+          leftSection={
+            <ImageIcon icon={SearchIcon} className={S("search__icon")}/>
+          }
+          classNames={{
+            root: S("search"),
+            input: [S("search__input"), "_title"].join(" ")
+          }}
+        />
+      </div>
+      <div key={`tags-${tab}-${filter}`} className={S("tags")}>
+        {
+          activeTags.map(tag =>
+            <button
+              key={tag.id}
+              onClick={() => player?.controls.Seek({time: tag.start_time})}
+              className={
+                S(
+                  "tag",
+                  currentTime >= tag.start_time && currentTime <= tag.end_time ? "tag--active" : ""
+                )
+              }
+            >
+              <div className={S("tag__time")}>
+                { FormatTime(tag.start_time) }
+              </div>
+              <div className={S("tag__content")}>
+                { tag.tag }
+              </div>
+            </button>
+          )
+        }
+      </div>
+    </div>
+  );
+});
+
+/* End */
 
 export default MediaSidebar;
