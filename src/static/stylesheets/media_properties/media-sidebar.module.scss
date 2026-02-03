@@ -238,6 +238,10 @@
     background-color: var(--property-background-tertiary);
   }
 
+  * {
+    color: var(--property-text-secondary);
+  }
+
   &__time {
     width: 80px;
   }
