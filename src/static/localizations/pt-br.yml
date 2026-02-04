@@ -2,6 +2,8 @@ header:
   activity: Atividade
   collections: Coleções
   discover_projects: Explorar projetos
+  discover: Descubra
+  marketplace: Mercado
   leaderboard: Ranking de Líderes
   listings: Revenda
   profile: Perfil
@@ -10,11 +12,18 @@ header:
   items: Itens
   offers: Ofertas
   notifications: Notificações
+  gifts: Presentes
   media_wallet: Mídia na Carteira
+  title: Carteira de mídia
+  subtitle: Ativado pelo Tecido de Conteúdo
+  my_items: Meus itens
+  details: Detalhes da Carteira
+  preferences: Preferências
 login:
   sign_in: Entrar
   sign_up: Criar conta
   sign_out: Sair
+  signed_in: Assinado.
   signed_in_as: Conectato como
   signed_in_via: Acesso via
   connect_metamask: Associar carteira da Metamask
@@ -34,16 +43,64 @@ login:
   email_consent_tenant_clause: E compartilhado com {tenantName}
   login_code: 'Código: {code}'
   code_auth_success: Cadastro bem Sucedido
+  email_confirmed: Seu e-mail foi verificado.
   errors:
     missing_required_options: Por favor, selecione os campos obrigatórios
+    too_many_logins: >-
+      Esta conta foi acessada por muitos dispositivos. Por favor, espere 24
+      horas e tente novamente.
+    forced_logout: Você foi demitida porque outra sessão usando esta conta fez você sair.
+    session_expired: Sua sessão expirou. Por favor, assine novamente.
+    email_confirmation_failed: Incapaz de verificar seu endereço de e-mail. Por favor, tente de novo.
+  ory:
+    actions:
+      registration: Inscreva-se
+      recovery: Esqueceu a senha?
+      back_to_sign_in: De volta para entrar
+      update_password: Atualizar senha
+      proceed: Prossiga.
+      sign_out: Sair
+    refresh: Confirme sua identificação.
+    aal2: Autenticação de dois fatores
+    registration: Registre sua conta.
+    recovery: Recupere sua conta.
+    verification: Verifique sua conta.
+    update_password: Mudar a Senha
+    messages:
+      recovery_prompt: >-
+        Por favor, digite o endereço de e-mail associado à sua conta para
+        solicitar uma mudança de senha.
+      recovery_code_prompt: >-
+        Um código de recuperação foi enviado para o endereço de email
+        especificado. Por favor, digite o código de recuperação para continuar.
+      set_password: Por favor, escolha uma senha para sua conta.
+      password_updated: Senha atualizada com sucesso!
+      login_limited: >-
+        Número máximo de logins permitidos ultrapassados. Gostaria de forçar uma
+        sessão mais antiga?
+      third_party_conflict: >-
+        Você tentou assinar com {email} Mas essa conta já existe. Por favor,
+        digite sua senha para permitir este método de login com sua conta.
+    errors:
+      invalid_credentials: Credenciais Inválidos
+      invalid_verification_code: Verificação inválida Código
+      invalid_recovery_email: >-
+        O link que você usou não é mais válido. Por favor, insira seu endereço
+        de e-mail para obter um código de recuperação.
+      invalid_email: E-mail inválido
+      invalid_password_confirmation: A senha deve corresponder à senha.
 navigation:
   profile: Meu perfil
   collections: Minhas coleções
+  discover: Descubra
+  marketplace: Mercado
   items: Meus ítens
   listings: Minha lista de revenda
   offers: Minhas ofertas
   activity: Minhas atividades
   notifications: Notificações
+  gifts: Presentes
+  wallet_details: Detalhes da Carteira
   preferences: Preferências
   collectibles: Colecionáveis
 actions:
@@ -54,15 +111,21 @@ actions:
   cancel: Cancelar
   close: Fechar
   share: Compartilhar
+  done: Feito.
+  apply: Aplicar
+  select: Selecionar
   packs:
     open: Abrir {name}
     open_confirm: Você realmente quer abrir `{name}´?
   purchase:
     buy_now: Compre agora
+    buy_gift: Compre agora como um presente
     buy_now_for: Compre agora por {price}
     buy_now_for_pix_ebanx: Compre agora por {price} + Taxas
     claim: Resgate Grátis
     view: Ver Detalhes
+    next_step: Próximo Passo
+    view_purchase_options: Ver Opções de Compra
   listings:
     create: Colocar para venda
     create_for: Colocar para venda agora {price}
@@ -90,16 +153,20 @@ errors:
   general: Desculpe, deu algo errado
 profile:
   media_wallet: Carteira
+  media_wallet_details: Detalhes da Carteira de Mídia
   address: Meu endereço da Eluvio
   set_profile_image: >-
     Você pode usar as imagens das suas Artes Digitais para definir a imagem do
     seu perfil!
+  set_username: Defina seu nome de usuário
   do_not_send_funds: >-
     Não envie valores para este endereço. Este é um endereço interno da Eluvio e
     não deve ser usado para pagamentos
   connected_accounts: Contas conectadas
   add_funds: Adicionar valores
   withdraw_funds: Valor disponível para retirada
+  advanced_details: Detalhes Avançados
+  hide_advanced_details: Esconder detalhes avançados
   view:
     all_offers: Ver todas ofertas
     deposits: Ver depósitos
@@ -128,6 +195,31 @@ profile:
     total: Saldo total
     locked: Saldo bloqueado
     withdrawable: Saldo disponível para retirada
+  subscriptions:
+    title: Assinaturas
+    subscription: Assinatura
+    auto_renewal: Renovação Automática
+    next_payment_date: Próxima data de pagamento
+    manage: Gerenciar assinatura
+    manage_your_subscription: Gerencie sua assinatura.
+    manage_payment: Gerenciar pagamento Método
+    purchase_date: Data de compra
+    period: Período de assinatura
+    paid_to: Pagou
+    auto_renewing: Auto-renovação
+    renew_note: >-
+      Sua assinatura será renovada automaticamente nesta data, a menos que seja
+      cancelada com antecedência.
+    cancelled_on: Cancelado
+    optional_end_date: Data de término opcional
+    cancel: Cancelar assinatura
+    cancel_confirm: Confirmar cancelamento
+    confirm_cancel: Tem certeza que quer cancelar sua assinatura?
+    cancel_message: >-
+      Se você decidir cancelar, fará efeito sobre {date}. Ainda poderá assistir
+      até lá.
+    cancelled_message: O cancelamento terá efeito sobre {date}. Ainda poderá assistir até lá.
+    subscription_cancelled: Sua assinatura foi cancelada.
 preferences:
   preferences: Preferências
   language: Língua
@@ -166,6 +258,8 @@ notifications:
     nft_transfer: O item foi transferido.
   offer_expired: Oferta expirou
   offer_expired_message: Sua oferta para `{name}´ de {price} expirou.
+  gift_received: Presente Recebido
+  gift_received_message: Você recebeu um presente de {sender}!
 connected_accounts:
   connected_accounts: Contas conectadas
   wallet_address: Meu endereço de blockchain de conteúdo Eluvio
@@ -216,28 +310,44 @@ stats:
     highest: Preço mais alto
     lowest: Preço mais baixo
 purchase:
+  price: Preço
   service_fee: Taxa de serviço
   creator_royalty: Royalties para o criador
   total_payout: Pagamento total
+  available_wallet_balance: Balanceamento de carteira disponível
+  remaining_wallet_balance: Equilíbrio da Carteira
   available_balance: Saldo disponível {balanceType}
   total_balance: Saldo total {balanceType}
   remaining_balance: Saldo restante {balanceType}
   total_amount: montante total
   current_purchase_amount: Valor da compra atual
   select_country: Por favor, selecione o seu país
+  payment: Pagamento
   all_other_countries: Todos os países
   buy_with_wallet_balance: Comprar com saldo da carteira
   credit_card: Cartão de crédito
   wallet_balance: Saldo de carteira
   checkout: Confira
+  checkout_gift: Checkout - Compre como um presente
   sell_your_nft: Venda sua Arte Digital
   set_price: Definir preço
   min_listing_price: O preço mínimo de revenda é {price}
   max_listing_price: O preço máximo de revenda é {price}
+  list_for_sale: Lista item para venda
   conversion_amount: Conversão para dólar americano (USD)
   conversion_note: >-
     Os valores são baseados no dólar americano (USD). Todos os valores exibidos
     são aproximados com base nas taxas de câmbio atuais.
+  email: E-mail
+  gift_options:
+    title: Preencha os detalhes do presente (obrigatório)
+    gifter_name: Seu nome.
+    recipient: E-mail do destinatário ou endereço da carteira
+    recipient_note: Eluvio Carteira endereço não exigido
+    message: Mensagem do presente
+    message_characters_remaining: '{remaining} caracteres restantes'
+    errors:
+      invalid_recipient: 'Beneficiário inválido: {recipient}'
   purchase_methods:
     credit_card: Cartão de crédito
     crypto: Crypto
@@ -251,6 +361,7 @@ purchase:
     listing_unavailable: A revenda não está mais disponível
     insufficient_stock: Estoque insuficiente disponível para esta compra.
     out_of_stock: Este item está fora do estoque
+    insufficient_funds: Equilíbrio insuficiente da carteira.
     solana_insufficient_funds: >-
       A conta da Solana não possui saldo suficiente para realizar essa
       transação.
@@ -260,6 +371,7 @@ purchase:
     listing_failed: Não é possível listar essa Arte Digital
     nft_being_purchased: Essa Arte Digital está em processo de compra.
     nft_sold: Essa Arte Digital foi vendida pelo preço de {price} na data {date}
+    login_required: Você deve estar logado para completar esta compra.
 offers:
   offer: Oferta
   make_an_offer: Faça uma oferta
@@ -296,14 +408,18 @@ redeemables:
   successfully_redeemed: Resgate bem Sucedido
   code: Código de Resgate
   redeemed_message: >-
-    Acesse o link do formulário de credenciamento e insira o código de validação no campo indicado. Tanto o link quanto o código não devem ser compartilhados.
+    Acesse o link do formulário de credenciamento e insira o código de validação
+    no campo indicado. Tanto o link quanto o código não devem ser
+    compartilhados.
   redeemed_by_previous: Esse resgate foi feito pelo dono anterior
   redeeming: Processando seu Resgate
   redeeming_subheader: Isso pode demorar alguns minutos
   redeeming_footer: >-
-    Você pode sair dessa página se não quiser esperar, seu benefício estará disponível na sua carteira quando o processo estiver completo.
+    Você pode sair dessa página se não quiser esperar, seu benefício estará
+    disponível na sua carteira quando o processo estiver completo.
   popup_notice: >-
-    Atenção: Esse resgate precisa de uma assinatura. Por favor, veja o pop-up para assinar os resultados
+    Atenção: Esse resgate precisa de uma assinatura. Por favor, veja o pop-up
+    para assinar os resultados
 transfers:
   header: Transferir seu item
   network: Rede
@@ -363,6 +479,15 @@ tables:
   sold_items: Arte Digital vendida
   pending: Pendente
   available: Disponível
+  gifts_received: Presentes Recebidos
+  gifts_given: Presentes dados
+  claim: Reivindicação
+  claimed: Alegado.
+  unclaimed: Não reivindicado.
+  sent: Enviado.
+  remind: Lembre-se
+  edit_listing: Editar Listagem
+  view_listing: Ver Listando
   columns:
     address: Endereço
     amount: Volume total
@@ -371,6 +496,7 @@ tables:
     fee: taxa
     from: De
     list_price: Preço de lista
+    top_offers: Melhores Ofertas
     method: Método de compra
     name: Nome
     offer_price: Preço da oferta
@@ -385,8 +511,13 @@ tables:
     total_amount: Volume total
     total_collectibles: Total de colecionáveis
     username: Nome do usuário
+    giver: Dador
+    recipient: Destinatário
+    source: Fonte
 filters:
   all_filters: Todos os filtros
+  filter: Filtro
+  filter_placeholder: Digite para Filtrar
   search: Buscar
   search_projects: Pesquisar projetos
   search_projects_ext: >-
@@ -401,6 +532,9 @@ filters:
   filters:
     min: Min
     max: Max
+    start_date: Data de início
+    end_date: Data de Fim
+    to: para
     apply: Aplicar filtro
     reset: Restaurar filtro
     token_id: ID da Arte Digital
@@ -420,10 +554,12 @@ filters:
     marketplaces: Marketplaces
     all_marketplaces: Todas as marketplaces
     time: Horário
+    date: Intervalo de Datas
     all_time: Qualquer horário
     last_24_hours: Últimas 24 horas
     last_7_days: Últimos 7 dias
     last_30_days: Últimos 30 dias
+    custom: Personalizado
   sort:
     sort: Organizar por
     minted: Criados (do mais antigo para mais novo)
@@ -436,10 +572,13 @@ filters:
     price: preço (baixo para alto)
     price_desc: preço (alto para baixo)
 item_details:
+  item: Item
+  marketplace: Mercado
   properties: Propriedades
   details: Detalhes
   contract: Contrato
   contract_address: Endereço de contato
+  version_hash: Hash de Conteúdo
   media: Mídia
   trading: Negociações
   purchase_offers: Ofertas de compra
@@ -488,6 +627,7 @@ item_details:
     copy_item_url: Copiar item da revenda
     copy_media_url: Copiar URL da mídia
     share_on_twitter: Compartilhar no X
+    share_on_whatsapp: Compartilhar sobre o quê? App
   additional_media:
     view_ar: Veja essa experiência de Realidade Aumentada no seu smartphone.
     qr_code_instructions: Aponte a câmera do seu smartphone para esse QR code para acessar.
@@ -496,6 +636,8 @@ item_details:
     play_all: Play
     errors:
       default: Essa mídia não está mais disponível
+      not_started: Este conteúdo ao vivo ainda não começou
+      ended: Este conteúdo ao vivo terminou.
 status:
   back_to_profile: Voltar para o Meu Perfil
   back_to_marketplace: Voltar para a Marketplace
@@ -517,6 +659,14 @@ status:
     awaiting_payment: Aguardando pagamento...
     transferring: Seus itens estão sendo transferidos
     view_transaction: Veja suas transações em {location}
+    confirming_purchase: Confirmando Compra
+    gift_claim_header: Seu presente está sendo transferido para sua conta!
+    gift_purchase_1: Obrigado pela compra!
+    gift_purchase_2: O(s) destinatário(es) de seu dom foram notificados.
+    errors:
+      gift_code_not_found: Código do presente não encontrado.
+      gift_already_claimed: Este presente já foi reivindicado.
+      misc: A transferência falhou.
   deposits:
     header: Aguardando depósito
     subheader1: Pode demorar até 30 minutos para confirmar seu depósito
@@ -618,4 +768,71 @@ ago:
   minutes: '{minutes} minutos atrás'
   second: 1 segundo atrás
   seconds: '{seconds} segundos atrás'
-
+media_properties:
+  media_properties: Propriedades da Mídia
+  media_property: Propriedade da Mídia
+  header:
+    search: Busca.
+    filter: Filtro
+  footer:
+    social_links:
+      text: Fique ligado.
+  sections:
+    view_all: Ver tudo
+  search:
+    title: Resultados da pesquisa para "{query}"
+  purchase:
+    claim: Reclame agora.
+    select: Compre agora para {price}
+    secondary: Ver Listagens
+    purchase_now: Compre agora
+    purchase_now_listing: Compra de um proprietário
+    details:
+      show: Mostrar detalhes
+      hide: Esconder detalhes
+  purchase_status:
+    pending:
+      finalizing: Finalizando Compra
+      claiming: Alegando Item
+      info: Isso deve levar menos de um minuto...
+    failed: A compra falhou.
+    claim_failed: A alegação falhou. Por favor, tente novamente.
+    complete: Compra completa!
+    claim_complete: Alegada com sucesso!
+  discount_codes:
+    placeholder: Adicionar Código Promo
+    invalid_code: Código inválido, por favor tente novamente.
+    discounts:
+      discount: '{amount} Off'
+      month: '{amount} fora para o primeiro mês'
+      months: '{amount} para o primeiro {periods} meses'
+      year: '{amount} para o primeiro ano'
+      years: '{amount} para o primeiro {periods} anos.'
+  page:
+    actions:
+      item_details: Detalhes
+  item_details:
+    pages:
+      description: Descrição
+      details: Detalhes
+      contract: Contrato & Versão
+    tables:
+      trading: Negociação
+      offers: Ofertas de Compra
+      rewards: Recompensas
+  media:
+    live: Viva!
+    upcoming: VENDENDO
+    description:
+      show: Leia mais
+      hide: Mostre Menos
+    sidebar:
+      today: Hoje.
+      upcoming: Próximo.
+      more_content: Mais conteúdo
+      multiview: Multiview
+    errors:
+      default: Esta mídia não está disponível.
+      not_started: Este conteúdo ao vivo ainda não começou
+      ended: Este conteúdo ao vivo terminou.
+      unauthorized: Você não tem permissão para ver esse conteúdo.

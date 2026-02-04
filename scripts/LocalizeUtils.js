@@ -2,7 +2,7 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
 
-const LocalizationEN = yaml.load(fs.readFileSync(path.join(__dirname, "en.yml"), "UTF-8"));
+const LocalizationEN = yaml.load(fs.readFileSync(path.join(__dirname, "..", "src", "static", "localizations", "en.yml"), "UTF-8"));
 
 const RandomizeString = (str) => {
   let varActive = false;
@@ -56,7 +56,7 @@ if(process.argv[2] === "test") {
     yaml.dump(GenerateTest(LocalizationEN))
   );
 } else if(process.argv[2] === "missing") {
-  let loc = yaml.load(fs.readFileSync(path.join(__dirname, `${process.argv[3]}.yml`), "UTF-8"));
+  let loc = yaml.load(fs.readFileSync(path.join(__dirname, "..", "src", "static", "localizations", `${process.argv[3]}.yml`), "UTF-8"));
   loc = FindMissing(LocalizationEN, loc);
 
   // eslint-disable-next-line no-console

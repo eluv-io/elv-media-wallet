@@ -32,7 +32,7 @@
   z-index: 1;
 
   &--carousel {
-    padding-right: 0;
+    padding-right: 0!important;
   }
 
   &--grid {
@@ -64,6 +64,7 @@
 
   &--full-bleed {
     padding-inline: 0;
+    padding-right: 0!important;
   }
 
   &__separator {

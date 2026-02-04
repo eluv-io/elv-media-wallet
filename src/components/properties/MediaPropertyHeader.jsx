@@ -15,6 +15,7 @@ import {Button} from "Components/properties/Common";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {SetImageUrlDimensions} from "../../utils/Utils";
+import {LogInAuth0} from "Components/login";
 
 import HomeIcon from "Assets/icons/home.svg";
 import SearchIcon from "Assets/icons/search.svg";
@@ -23,7 +24,7 @@ import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import SelectIcon from "Assets/icons/select";
-import {LogInAuth0} from "Components/login";
+import LanguageIcon from "Assets/icons/header/language";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -378,6 +379,68 @@ const SearchBar = observer(({autoFocus}) => {
   );
 });
 
+const LanguageMenu = observer(() => {
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const combobox = useCombobox();
+  const availableLocalizations = [
+    mediaProperty.metadata.language || "",
+    ...(mediaProperty.metadata.localizations || [])
+  ]
+    .filter(l => l)
+    .map(key => ({
+      value: key,
+      label: new Intl.DisplayNames([key], {type: "language"}).of(key).capitalize()
+    }));
+
+  if(availableLocalizations.length <= 1) {
+    return null;
+  }
+
+  return (
+    <Combobox
+      store={combobox}
+      value={rootStore.language}
+      width={200}
+      offset={23}
+      position="bottom-end"
+      onOptionSubmit={value => mediaPropertyStore.SetPropertyLanguage({
+        mediaPropertyId: rootStore.currentPropertyId,
+        localizationKey: value,
+        reload: true
+      })}
+      classNames={{
+        root: S("language-menu"),
+        dropdown: S("language-menu__dropdown"),
+        option: S("language-menu__option")
+      }}
+    >
+      <Combobox.Target>
+        <button
+          className={S("button", combobox.dropdownOpened ? "button--active" : "")}
+          onClick={() => {
+            combobox.toggleDropdown();
+            combobox.focusTarget();
+          }}
+        >
+          <ImageIcon icon={LanguageIcon} label="Select Language" className={S("button__icon")}/>
+          <ImageIcon icon={XIcon} label="Hide Language Options" className={S("button__icon-close")}/>
+        </button>
+      </Combobox.Target>
+      <Combobox.Dropdown>
+        <Combobox.Options>
+          {
+            availableLocalizations.map(({label, value}) =>
+              <Combobox.Option selected={rootStore.language === value} key={value} value={value}>
+                {label}
+              </Combobox.Option>
+            )
+          }
+        </Combobox.Options>
+      </Combobox.Dropdown>
+    </Combobox>
+  );
+});
+
 const HeaderLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
@@ -389,18 +452,34 @@ const HeaderLinks = observer(() => {
     return null;
   }
 
+  const customButtons = rootStore.headerButtons
+    .filter(({mobileOnly}) => !mobileOnly || rootStore.pageWidth < 850)
+    .map(({title, onClick, active, icon}) =>
+      <button
+        key={`custom-button-${title}`}
+        className={S("button", "button--custom", active ? "button--active" : "")}
+        onClick={onClick}
+      >
+        <ImageIcon icon={icon} label={title} className={S("button__icon")}/>
+        <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")}/>
+      </button>
+    );
 
   if(!rootStore.loggedIn) {
-    if(rootStore.authenticating) { return null; }
+    if(rootStore.authenticating) {
+      return null;
+    }
 
     return (
       <>
+        { customButtons }
         {
           discoverDisabled ? null :
             <Linkish to="/" className={S("button")}>
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
+        <LanguageMenu/>
         <Button
           onClick={() => {
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
@@ -421,12 +500,14 @@ const HeaderLinks = observer(() => {
       <>
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
+        { customButtons }
         {
           discoverDisabled ? null :
             <Linkish to="/" className={S("button")}>
               <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
             </Linkish>
         }
+        <LanguageMenu />
         <button
           className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
@@ -443,7 +524,7 @@ const HeaderLinks = observer(() => {
   }
 });
 
-const PropertySelector = observer(({logo, basePath, mobile=false}) => {
+const PropertySelector = observer(({logo, basePath, mobile = false}) => {
   const history = useHistory();
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
@@ -594,12 +675,12 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
     <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
-          !rootStore.backPath ? null :
+          !rootStore.backPath ?
+            <PropertySelector logo={logo} basePath={basePath} mobile /> :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
-        <PropertySelector logo={logo} basePath={basePath} mobile />
         {
           searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>
@@ -608,7 +689,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
         }
       </div>
       <div className={S("links")}>
-        <HeaderLinks />
+        <HeaderLinks mobile />
       </div>
     </div>
   );

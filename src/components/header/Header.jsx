@@ -83,7 +83,7 @@ const Home = observer(() => {
         <Linkish to="/">
           <div className={S("home__text")}>
             <div className={S("home__title")}>
-              { rootStore.l10n.header.title}
+              Media Wallet
             </div>
             <div className={S("home__subtitle")}>
               { rootStore.l10n.header.subtitle}

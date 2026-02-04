@@ -755,9 +755,17 @@ media_properties:
   media:
     live: Live
     upcoming: UPCOMING
+    select_media: Select Media
+    select_streams: Select Streams
     description:
       show: Read More
       hide: Show Less
+    sidebar:
+      today: Today
+      upcoming: Upcoming
+      main_view: Main View
+      more_content: More Content
+      multiview: Multiview
     errors:
       default: This media is not available
       not_started: This live content has not yet started

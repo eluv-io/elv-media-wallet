@@ -90,7 +90,7 @@ const Video = forwardRef(function VideoComponent({
           muted: EluvioPlayerParameters.muted[mute ? "ON" : "OFF"],
           controls: EluvioPlayerParameters.controls[hideControls === "off_with_volume_toggle" ? "OFF_WITH_VOLUME_TOGGLE" : (hideControls ? "OFF" : "AUTO_HIDE")],
           title: EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"],
-          //maxBitrate: 50000,
+          maxBitrate: rootStore.isLocal ? 50000 : undefined,
           ui: EluvioPlayerParameters.ui.WEB,
           appName: mediaPropertyStore.rootStore.appId,
           backgroundColor: "black",
@@ -138,18 +138,22 @@ const Video = forwardRef(function VideoComponent({
   }, [targetRef, contentHash]);
 
   useEffect(() => {
-    if(player) {
-      player.playerOptions.controls = EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"];
-      player.playerOptions.title = EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"];
+    if(!player) { return; }
 
-      if(mute) {
-        player.__wasMuted = player.controls.IsMuted();
-        player.controls.Mute();
-      } else if(!player.__wasMuted) {
-        player.controls.Unmute();
-      }
+    player.playerOptions.controls = EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"];
+    player.playerOptions.title = EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"];
+  }, [hideControls, showTitle]);
+
+  useEffect(() => {
+    if(!player) { return; }
+
+    if(mute) {
+      player.__wasMuted = player.controls.IsMuted();
+      player.controls.Mute();
+    } else if(!player.__wasMuted) {
+      player.controls.Unmute();
     }
-  }, [hideControls, showTitle, mute]);
+  }, [mute]);
 
   useEffect(() => {
     if(!saveProgress || isLive || !player || !mediaPropertySlugOrId || !mediaItemId) {

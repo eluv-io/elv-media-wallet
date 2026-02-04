@@ -1,0 +1,857 @@
+header:
+  activity: Tätigkeit
+  collections: Sammlungen
+  discover_projects: Projekte entdecken
+  discover: Entdecken Sie
+  marketplace: Marktplatz
+  leaderboard: Leadership
+  listings: Einträge
+  profile: Profil
+  store: Store
+  stores: Geschäfte
+  items: Waren
+  offers: Angebote
+  notifications: Mitteilungen
+  gifts: Geschenke
+  media_wallet: Media Wallet
+  title: Media Wallet
+  subtitle: Ermöglicht durch den Inhaltsstoff
+  my_items: Meine Artikel
+  details: Wallet Details
+  preferences: Vorlieben
+login:
+  sign_in: Anmelden
+  sign_up: Anmelden
+  sign_out: Anmelden
+  signed_in: Eingetragen in
+  signed_in_as: Unterzeichnet als
+  signed_in_via: Signiert in Via
+  connect_metamask: Metamask verbinden
+  powered_by: Von
+  select_all_options: Alle anzeigen
+  accept: Ich nehme an
+  terms_and_conditions: Allgemeine Geschäftsbedingungen
+  terms: >-
+    <p>Durch die Erstellung eines Kontos oder die Anmeldung stimme ich der <a
+    href="https://live.eluv.io/privacy" target="_blank">Eluvio
+    Datenschutzerklärung</a> und <a href="https://live.eluv.io/terms"
+    target="_blank">Eluvio Geschäftsbedingungen</a>.</p>
+  email_consent: >-
+    <p>Durch die Überprüfung dieser Box gebe ich Zustimmung für meine
+    E-Mail-Adresse, die mit meiner Brieftasche Adresse gespeichert werden
+    soll{tenantClause}. Eluvio kann auch Informations- und Marketing-E-Mails an
+    diese Adresse senden.</p>
+  email_consent_tenant_clause: und teilen mit {tenantName}
+  login_code: 'Code: {code}'
+  code_auth_success: Erfolgreich anmelden!
+  email_confirmed: Ihre E-Mail wurde überprüft
+  errors:
+    missing_required_options: Bitte akzeptieren Sie die gewünschten Optionen unten
+    too_many_logins: >-
+      Dieses Konto wurde von zu vielen Geräten aufgerufen. Bitte warten Sie 24
+      Stunden und versuchen Sie es erneut.
+    forced_logout: >-
+      Sie wurden angemeldet, weil eine weitere Sitzung mit diesem Konto Sie
+      ausgeloggt hat.
+    session_expired: Ihre Sitzung ist abgelaufen. Bitte melden Sie sich wieder an.
+    email_confirmation_failed: >-
+      Unfähig, Ihre E-Mail-Adresse zu überprüfen. Bitte versuchen Sie es noch
+      mal.
+  ory:
+    actions:
+      registration: Anmelden
+      recovery: Passwort vergessen?
+      back_to_sign_in: Zurück zur Anmeldung
+      update_password: Passwort vergessen?
+      proceed: Verfahren
+      sign_out: Anmelden
+    refresh: Bestätigen Sie Ihre Identifikation
+    aal2: Zweistufige Authentifizierung
+    registration: Registrieren Sie Ihr Konto
+    recovery: Recover Ihr Konto
+    verification: Verifizieren Sie Ihr Konto
+    update_password: Passwort ändern
+    messages:
+      recovery_prompt: >-
+        Bitte geben Sie die mit Ihrem Konto verbundene E-Mail-Adresse ein, um
+        eine Passwortänderung anzufordern
+      recovery_code_prompt: >-
+        Ein Wiederherstellungscode wurde an die angegebene E-Mail-Adresse
+        gesendet. Bitte geben Sie den Wiederherstellungscode ein, um
+        fortzufahren.
+      set_password: Bitte wählen Sie ein Passwort für Ihr Konto
+      password_updated: Passwort erfolgreich aktualisiert!
+      login_limited: >-
+        Maximale Anzahl erlaubter Anmeldungen überschritten. Möchten Sie eine
+        ältere Sitzung ausloggen?
+      third_party_conflict: >-
+        Du hast versucht, dich zu unterschreiben {email} aber dieses Konto
+        existiert bereits. Bitte geben Sie Ihr Passwort ein, um diese
+        Anmeldemethode mit Ihrem Konto zu ermöglichen.
+    errors:
+      invalid_credentials: Ungültige Angaben
+      invalid_verification_code: Invalide Verifikation Code
+      invalid_recovery_email: >-
+        Der verwendete Link ist nicht mehr gültig. Bitte geben Sie Ihre
+        E-Mail-Adresse ein, um einen Wiederherstellungscode zu erhalten.
+      invalid_email: Invalid Email
+      invalid_password_confirmation: Passwortbestätigung muss Passwort übereinstimmen
+navigation:
+  profile: Profil
+  collections: Meine Sammlungen
+  discover: Entdecken Sie
+  marketplace: Marktplatz
+  items: Meine Artikel
+  listings: Meine Listings
+  offers: Meine Angebote
+  activity: Meine Tätigkeit
+  notifications: Mitteilungen
+  gifts: Geschenke
+  wallet_details: Wallet Details
+  preferences: Vorlieben
+  collectibles: Sammlerstücke
+actions:
+  confirm: bestätigen
+  continue: Fortsetzung
+  back: Zurück zur Übersicht
+  back_to: Zurück zur Übersicht {thing}
+  cancel: Abbrechen
+  close: Schließen
+  share: Anteil
+  done: Artikel 2
+  apply: Anwendung
+  select: Wählen
+  packs:
+    open: Öffnen {name}
+    open_confirm: Sind Sie sicher, dass Sie öffnen möchten '{name}'?
+  purchase:
+    buy_now: Jetzt kaufen
+    buy_gift: Jetzt kaufen als Geschenk
+    buy_now_for: Jetzt kaufen für {price}
+    buy_now_for_pix_ebanx: Jetzt kaufen für {price} + Steuern
+    claim: Jetzt kaufen
+    view: Details anzeigen
+    next_step: Nächster Schritt
+    view_purchase_options: Kaufoptionen anzeigen
+  listings:
+    create: Liste zum Verkauf
+    create_for: Jetzt anmelden {price}
+    edit: Eintrag bearbeiten
+    remove: Eintrag entfernen
+    remove_confirm: Sind Sie sicher, dass Sie diese Liste entfernen möchten?
+    view: Auflistungen anzeigen
+  offers:
+    create: Angebot machen
+    edit: Ihr Angebot ändern
+    confirm: Bestätigen Angebot für {price}
+    remove: Angebot entfernen
+    remove_confirm: Sind Sie sicher, dass Sie dieses Angebot stornieren möchten?
+    edit_offer: Bearbeiten
+    accept: Annahme
+    accept_offer: Angebot akzeptieren
+    accept_confirm: Möchten Sie dieses Angebot von {price} für {itemName}?
+    decline: Deko
+    decline_offer: Angebot von Decline
+    decline_confirm: Sind Sie sicher, dass Sie dieses Angebot von {price} für {itemName}?
+  transfers:
+    transfer: Über uns
+    transfer_confirm: >-
+      Sind Sie sicher, dass Sie diesen Artikel übertragen möchten
+      {targetAddress}?
+errors:
+  general: Es tut uns leid, etwas lief schief.
+profile:
+  media_wallet: Media Wallet
+  media_wallet_details: Media Wallet Details
+  address: Eluvio Content Stoff Adresse
+  set_profile_image: Sie können Ihr Profilbild von einem Ihrer eigenen Gegenstände einstellen!
+  set_username: Wählen Sie Ihren Benutzernamen
+  do_not_send_funds: >-
+    Senden Sie keine Mittel an diese Adresse. Dies ist eine Eluvio Content
+    Fabric Adresse und ist keine Zahlungsadresse.
+  connected_accounts: Vernetzte Konten
+  add_funds: Fonds hinzufügen
+  withdraw_funds: Fonds zurückziehen
+  advanced_details: Erweiterte Details
+  hide_advanced_details: Erweiterte Details verbergen
+  view:
+    all_offers: Alle Angebote anzeigen
+    deposits: Einlagen anzeigen
+    details: Details anzeigen
+    outstanding_offers: Hervorragende Angebote anzeigen
+    stripe_dashboard: Stripe Dashboard ansehen
+    transaction_history: Transaction History anzeigen
+    withdrawals: Rücktritte anzeigen
+  hide:
+    deposits: Mieteinlagen
+    outstanding_offers: Hervorragende Angebote verbergen
+    withdrawals: Rücktritte verbergen
+  payout_terms: >-
+    Funds Verfügbarkeitshinweis – Eine Haltefrist wird auf Beträge verhängt, die
+    aus dem Verkauf eines Gegenstands entstehen. Kontoinhaber erkennen an, dass
+    ein Verkäufer während dieser Haltezeit nicht in der Lage ist, die auf diesen
+    Verkauf(n) zurückzuführenden Beträge zurückzuziehen. Die aktuelle Haltezeit
+    für den Rückzug der Bilanz beträgt 15 Tage.
+  payout_terms_stripe: >-
+    Auszahlung wird von Stripe verwaltet. Siehe das Dashboard für den
+    Bearbeitungsstatus.
+  payout_terms_contact: >-
+    Für Fragen oder Anliegen wenden Sie sich bitte an
+    [payments@eluv.io](mailto:payments@eluv.io)
+  balance:
+    total: Gesamtbilanz
+    locked: Gesperrte Balance
+    withdrawable: Ausziehbare Waage
+  subscriptions:
+    title: Abonnements
+    subscription: Abonnement
+    auto_renewal: Autoerneuerung
+    next_payment_date: Nächstes Zahlungsdatum
+    manage: Abonnement verwalten
+    manage_your_subscription: Verwalten Sie Ihr Abonnement
+    manage_payment: Zahlungen Methode
+    purchase_date: Kaufdatum
+    period: Bezugsdauer
+    paid_to: Bezahlt durch
+    auto_renewing: Autoerneuerung
+    renew_note: >-
+      Ihr Abonnement verlängert sich automatisch zu diesem Zeitpunkt, es sei
+      denn, im Voraus storniert.
+    cancelled_on: Angemeldet
+    optional_end_date: Optionales Enddatum
+    cancel: Abbrechen Abonnement
+    cancel_confirm: Zurück zur Übersicht
+    confirm_cancel: Sind Sie sicher, dass Sie Ihr Abonnement stornieren möchten?
+    cancel_message: >-
+      Wenn Sie sich entscheiden, zu stornieren, wird es Auswirkungen auf {date}.
+      Bis dahin können Sie noch beobachten.
+    cancelled_message: Stornierungen werden wirksam {date}. Bis dahin können Sie noch beobachten.
+    subscription_cancelled: Ihr Abonnement wurde gestrichen.
+preferences:
+  preferences: Vorlieben
+  language: Sprache
+  display_currency: Anzeige Währung
+  marketplace_display_currency: Marktplatz Anzeige Währung
+  currency_conversion: Dies ist eine Konvertierung berechnet aus USD
+  notifications:
+    listing_sold: >-
+      Benachrichtigen Sie mich, wenn eine meiner aufgeführten Artikel verkauft
+      wird
+    token_updated: >-
+      Benachrichtigen Sie mich, wenn ein Artikel, den ich besitze, aktualisiert
+      wird (z.B. neue Medien)
+    offer_received: >-
+      Benachrichtigen Sie mich, wenn ich ein Kaufangebot für einen Artikel
+      bekomme
+    offer_accepted: Benachrichtigen Sie mich, wenn ein Kaufangebot angenommen wurde
+    offer_declined: Benachrichtigen Sie mich, wenn ein Kaufangebot abgelehnt wurde
+    offer_expired: >-
+      Benachrichtigen Sie mich, wenn ein Kaufangebot, das ich gemacht habe,
+      abgelaufen ist
+notifications:
+  notifications: Mitteilungen
+  disable: Ausschalten {type} Meldungen
+  load_more: Mehr erfahren
+  view_all: Alle anzeigen
+  mark_as_read: Mark als gelesen
+  new: Neu
+  all: Alle
+  no_new_notifications: Keine neuen Anmeldungen
+  no_new_notifications_desc: Sie haben keine neuen Benachrichtigungen
+  listing_sold: Auflistung verkauft
+  listing_sold_message: Du bist es.{name}' hat auf dem Markt verkauft {price}.
+  token_updated: Token aktualisiert
+  offer_received: Angebot empfangen
+  offer_received_message: Sie haben ein Angebot erhalten {price} "{name}'. `
+  offer_accepted: Angebot akzeptiert
+  offer_accepted_message: Ihr Angebot auf '{name}für {price} wurde angenommen.
+  offer_declined: Angebot abgeschnitten
+  offer_declined_message: Ihr Angebot auf '{name}für {price} wurde abgelehnt.
+  offer_declined_reasons:
+    listing_sold: die Liste wurde verkauft.
+    other_offer_accepted: ein alternatives Angebot wurde akzeptiert.
+    nft_transfer: der Gegenstand wurde übertragen.
+  offer_expired: Angebot abgelaufen
+  offer_expired_message: Ihr Angebot auf '{name}für {price} ist abgelaufen.
+  gift_received: Geschenk erhalten
+  gift_received_message: Sie haben ein Geschenk von {sender}!
+connected_accounts:
+  connected_accounts: Vernetzte Konten
+  wallet_address: Wallet Adresse
+  direct: >-
+    Akzeptieren Sie nur direkte Zahlung an diese verlinkte Geldbörse für meine
+    Listen
+  direct_info: >-
+    Die Prüfung dieser Option wird Ihre Listen nur mit USDC über verbundene
+    Geldbörse beschränken. Die Zahlung wird direkt an Ihre verlinkte Geldbörse
+    Adresse. Falls nicht überprüft, können Ihre Auflistungen auch über
+    Kreditkarte, Münzenbasis oder Geldbörsenguthaben erworben werden, und die
+    Erlöse werden an Ihre Eluvio Geldbörsenguthaben, die über Stripe erlöst
+    werden, gutgeschrieben.
+  link_wallet: Link Wallet
+  link_wallet_2: Link zur Seite {networkName} Zahlungs Wallet
+  unlink_wallet: Unlink Wallet
+  unlink_wallet_confirm: Sind Sie sicher, dass Sie dieses Konto trennen wollen?
+  description: >-
+    Um Produkte zu kaufen und zu verkaufen {usdcIcon} USDC auf {networkName} mit
+    direkter Bezahlung verbinden Sie Ihre Eluvio Media Wallet mit Ihrer
+    Zahlungsbörse.
+  how_to_link: Wie verlinke ich meine Phantom Wallet?
+  get_wallet: Komm schon. {walletName}
+  connect_wallet: Verbindung {walletName}
+  wallet_connected: '{walletName} Vernetzt'
+  linked_at: Linked {date}
+  errors:
+    general: >-
+      Etwas ging schief, wenn du deine Brieftasche verbindest. Bitte versuchen
+      Sie es noch mal.
+    incorrect_account: >-
+      Bitte wählen Sie das untenstehende Konto in Ihrem {walletName} Erweiterung
+      zur Verbindung
+    incorrect_account_2: Inkorrekt {walletName} Konto aktiv. Bitte wechseln {address}.
+    already_connected: >-
+      Das {walletName} Konto ist bereits mit einer anderen Eluvio Geldbörse
+      verbunden
+stats:
+  listings:
+    total: Aktive Einträge
+    value: Aktiver Eintragswert
+    average: Durchschnittliche Preisliste
+    highest: Höchster Preis
+    lowest: Niedrigster Preis
+    buy_from_collector: Kaufen Sie von einem Sammler
+  sales:
+    total: Gesamter Sekundärverkauf
+    value: Sekundärer Verkaufsvolumen
+    average: Durchschnittlicher Preis
+    highest: Höchster Preis
+    lowest: Niedrigster Preis
+purchase:
+  price: Preis
+  service_fee: Servicegebühr
+  creator_royalty: Schöpfer Königlich
+  total_payout: Gesamtsumme
+  available_wallet_balance: Verfügbare Wallet Balance
+  remaining_wallet_balance: Rest Wallet Balance
+  available_balance: Verfügbar {balanceType}
+  total_balance: Insgesamt {balanceType}
+  remaining_balance: Bleiben {balanceType}
+  total_amount: Insgesamt
+  current_purchase_amount: Aktueller Kauf
+  select_country: Bitte wählen Sie Ihr Land
+  payment: Zahlung
+  all_other_countries: Alle anderen Länder
+  buy_with_wallet_balance: Kaufen Sie mit Geldbörse Balance
+  credit_card: Kreditkarte
+  wallet_balance: Wallet Balance
+  checkout: Check-out
+  checkout_gift: Checkout - Kaufen als Geschenk
+  sell_your_nft: Verkaufen Sie Ihre Produkte
+  set_price: Preis
+  min_listing_price: Mindestanzahl {price}
+  max_listing_price: Maximaler Listenpreis ist {price}
+  list_for_sale: Artikel zum Verkauf
+  conversion_amount: USD Umrechnung
+  conversion_note: >-
+    Die tatsächlichen Werte liegen in USD. Alle angezeigten Werte basieren auf
+    aktuellen geschätzten USD Wechselkursen.
+  email: E-Mail senden
+  gift_options:
+    title: Füllen Sie Geschenkdetails (erforderlich)
+    gifter_name: Ihr Name
+    recipient: E-Mail oder Brieftasche Adresse des Empfängers
+    recipient_note: Eluvio Wallet Adresse nicht erforderlich
+    message: Geschenk-Nachricht
+    message_characters_remaining: '{remaining} Zeichen bleiben'
+    errors:
+      invalid_recipient: 'Invalide Empfänger: {recipient}'
+  purchase_methods:
+    credit_card: Kreditkarte
+    crypto: Krypto
+    usdc: USD
+    solana_usdc: USDC über Solana
+    eth_usdc: USDC über Ethereum
+    pix: Pix
+    wallet_balance: Wallet Balance
+  errors:
+    failed: Kaufen Verfehlt
+    listing_unavailable: Listing ist nicht mehr verfügbar
+    insufficient_stock: Nicht ausreichende Lagerbestände für diesen Kauf verfügbar
+    out_of_stock: Dieser Artikel ist nicht verfügbar
+    insufficient_funds: Unzureichende Geldbörse Balance
+    solana_insufficient_funds: >-
+      Solana-Konto verfügt über eine unzureichende Bilanz, um diese Transaktion
+      durchzuführen
+    ethereum_insufficient_funds: >-
+      Ethereum-Konto verfügt über eine unzureichende Bilanz, um diese
+      Transaktion durchzuführen
+    listing_failed: Diesen Artikel nicht auflisten
+    nft_being_purchased: Dieser Artikel befindet sich derzeit im Prozess der Beschaffung
+    nft_sold: Dieser Artikel wurde für {price} auf {date}
+    login_required: Sie müssen eingeloggt sein, um diesen Kauf abzuschließen.
+offers:
+  offer: Angebot
+  make_an_offer: Angebot machen
+  active_offers: Aktive Angebote für diesen Artikel
+  min_offer_price: Mindestangebotspreis ist {price}
+  max_offer_price: Maximaler Angebotspreis {price}
+  expires_in_single: Expires in 1 Tag
+  expires_in: Abzüge {number} Tage
+  set_offer_amount: Angebotsmenge einstellen
+  status:
+    active: Aktiv
+    expired: Ausgenommen
+    accepted: angenommen
+    declined: Entfällt
+    cancelled: gekündigt
+    invalid: Invalidität
+  errors:
+    failed: Unfähig, dieses Angebot zu machen.
+redeemables:
+  reward: Zurück
+  redeem: Jetzt wieder auftauchen
+  redeem_reward: Zurück zur Übersicht
+  reward_redeemed: Zurück zur Übersicht
+  claim_reward: Religiöse Organisationen
+  view_details: Details anzeigen
+  reward_valid: Angebot gültig
+  reward_expires: Angebot abgelaufen
+  expires: Entfällt
+  available: Verfügbar
+  view_redemption_code: Redemption anzeigen Code
+  redeemed_by: von {redeemer}
+  view_redemption: Redemption anzeigen
+  view_transaction: Sehen Sie die Transaktion
+  successfully_redeemed: Erfolg
+  code: Code
+  redeemed_message: >-
+    Um auf Ihre Belohnung zuzugreifen, scannen Sie den QR-Code unten oder
+    besuchen Sie die URL und geben Sie den Code ein.
+  redeemed_by_previous: Diese Belohnung wurde von einem früheren Besitzer erlöst.
+  redeeming: Erlösung im Fortschritt
+  redeeming_subheader: Dies kann mehrere Minuten dauern
+  redeeming_footer: >-
+    Sie können von dieser Seite navigieren, wenn Sie nicht warten wollen. Ihre
+    Belohnung wird in Ihrer Brieftasche verfügbar sein, wenn der Prozess
+    abgeschlossen ist.
+  popup_notice: >-
+    Anmerkung: Diese Erlösung erfordert eine Unterschrift. Bitte überprüfen Sie
+    den Pop-up, um die Ergebnisse zu unterschreiben.
+transfers:
+  header: Übernehmen Sie Ihren Artikel
+  network: Netzwerk
+  target_address: Zieladresse
+  transferring: Überweisung. Dies kann einige Minuten dauern.
+  errors:
+    address_warning: >-
+      Die Zieladresse besitzt derzeit keine Artikel. Sind Sie sicher, dass das
+      die richtige Adresse ist?
+    invalid_address: Invalide Zieladresse
+    no_self_transfer: Sie dürfen ein Produkt nicht selbst übertragen
+    failed: Versäumt
+collections:
+  collection: Erhebung
+  go_to_collection: Zur Sammlung
+  back_to_collection: Zurück zur Übersicht {collectionName}
+  back_to_collections: Zurück zur Übersicht {marketplaceName} Sammlungen
+  collection_complete: Ihre Sammlung ist komplett!
+  complete_to_redeem: Füllen Sie Ihre Sammlung, um die Belohnungen unten zu erlösen!
+  selected: Gewählt
+  redeem: Rede
+  select_token: Wählen Sie diesen Token
+  select_nfts: Wählen Sie Elemente aus
+  select_nfts_2: Wählen Sie die gewünschten Artikel aus
+  select_nfts_3: Wählen Sie einen Artikel pro Sammelschlitz
+  select_nfts_4: >-
+    Bitte wählen Sie ein Token aus, um für jeden Artikel in der Sammlung
+    einzulösen.
+  signature_warning: >-
+    Diese Operation erfordert eine Signatur pro eingelöstem Token. Bitte
+    überprüfen Sie Ihre Metamask Browser-Erweiterung und akzeptieren Sie alle
+    anhängigen Unterschriftsanfragen.
+  redemption_warning: >-
+    Klicken Sie auf Einlösen wird die ausgewählten Token dauerhaft verbrennen
+    und die Belohnungs-Token auf Ihr Konto mint. Ihre neuen Artikel werden in
+    Ihrer Brieftasche erscheinen, wenn Minting abgeschlossen ist. Diese
+    Operation kann nicht rückgängig gemacht werden und verbrannte Token können
+    nicht wiederhergestellt werden.
+  redemption_confirmation: >-
+    Sind Sie sicher, dass Sie diese Sammlung mit den ausgewählten Token einlösen
+    möchten? Diese Aktion kann nicht rückgängig gemacht werden.
+  errors:
+    listed_nft: Sie dürfen kein Token einlösen, während es zum Verkauf aufgeführt ist.
+tables:
+  pagination: Showing {min} - Ja. {max} von {total} Ergebnisse
+  no_results: Keine Ergebnisse
+  leaderboard: Klettern Sie das Leaderboard
+  activity: Vor kurzem verkauft
+  token_history_single: Transaction History for this Token
+  token_history_all: Transaktionsgeschichte für alle '{name}' Tokens
+  active_offers: Aktive Angebote
+  active_listings: Aktive Einträge
+  outstanding_offers: Hervorragende Angebote
+  offers_made: Angebote Made
+  offers_received: Angebote erhalten
+  withdrawals: Rücktritte
+  deposits: Einlagen
+  bought_items: Bought Items
+  sold_items: Verkaufte Artikel
+  pending: Ausgaben
+  available: Verfügbar
+  gifts_received: Geschenke erhalten
+  gifts_given: Geschenke
+  claim: Anspruch
+  claimed: Anspruch
+  unclaimed: Nicht beansprucht
+  sent: Zustimmung
+  remind: Reminiert
+  edit_listing: Eintrag bearbeiten
+  view_listing: Auflistung anzeigen
+  columns:
+    address: Anschrift
+    amount: Betrag
+    buyer: Käufer
+    expiration: Ablauf
+    fee: Gebühren
+    from: Von
+    list_price: Liste Preis
+    top_offers: Top Angebote
+    method: Methode
+    name: Name
+    offer_price: Angebot Preis
+    payout: Auszahlung
+    price: Preis
+    rank: Rang
+    seller: Verkäufer
+    status: Status
+    time: Zeit
+    to: Zu
+    token_id: Token
+    total_amount: Gesamtbetrag
+    total_collectibles: Insgesamt
+    username: Benutzername
+    giver: Geber
+    recipient: Empfänger
+    source: Quelle
+filters:
+  all_filters: Alle Filter
+  filter: Filter
+  filter_placeholder: Typ zum Filter
+  search: Suche
+  search_projects: Projekte suchen
+  search_projects_ext: Video, Musik, Audio, E-Book und App
+  marketplace_tags:
+    all: Alle
+    film: Film
+    music: Musik
+    software: Software
+    tv: TV
+  filters:
+    min: Min.
+    max: Max.
+    start_date: Startdatum
+    end_date: Enddatum
+    to: bis
+    apply: Filter anwenden
+    reset: Alle Filter zurücksetzen
+    token_id: Token ID
+    price: Preis
+    currency: Währung
+    any_currency: Währung
+    edition: Ausgabe
+    choose_editions: Wählen Sie Ausgaben
+    collection: Erhebung
+    choose_collections: Wählen Sie Sammlungen
+    drop: Fall
+    choose_drops: Wählen Sie Drops
+    rarity: Rarität
+    choose_rarity: Wählen Sie Rarität
+    choose_attributes: Wählen Sie Attribute
+    marketplace: Marktplatz
+    marketplaces: Marktplätze
+    all_marketplaces: Alle Marktplätze
+    time: Zeit
+    date: Datumsbereich
+    all_time: Alle Zeit
+    last_24_hours: Letzte 24 Stunden
+    last_7_days: Letzte 7 Tage
+    last_30_days: Letzte 30 Tage
+    custom: Zoll
+  sort:
+    sort: Sortierung
+    minted: Ältere
+    minted_desc: Neuheit
+    name: Name (A-Z)
+    name_desc: Name (Z-A)
+    listed: Neuheit
+    token_id: Token ID
+    ordinal: Ordinal
+    price: Preis (auf Hoch)
+    price_desc: Preis (hoch bis niedrig)
+item_details:
+  item: Gegenstand
+  marketplace: Marktplatz
+  properties: Eigenschaften
+  details: Details
+  contract: Vertrag
+  contract_address: Anschrift
+  version_hash: Inhalt Hash
+  media: Medien
+  trading: Handel
+  purchase_offers: Kaufangebote
+  redeemables: Wiedergutmachung
+  rewards: Einnahmen
+  reward: Zurück
+  reward_redeemed: Zurück zur Übersicht
+  held_message: >-
+    Diese Position ist in einer Haltezeit bis {heldDate}. Sie werden es bis
+    dahin nicht übertragen können.
+  secondary_unreleased: Der Sekundärhandel für diesen Artikel wird auf {heldDate}.
+  secondary_expired: Sekundärhandel für diesen Artikel endete am {heldDate}.
+  lookout_link: Weitere Informationen über Eluvio Lookout
+  token_url: Token URL
+  media_url: Medien-URL
+  image_url: Bild-URL
+  minted: Gemindert
+  available_single: Verfügbar
+  available: Verfügbar
+  creator: Schöpfer
+  edition: Ausgabe
+  token_id: Token ID
+  token_ordinal: Token Ordinal
+  number_minted: Anzahl Gemindert
+  number_in_circulation: Anzahl in Zirkulation
+  number_burned: Anzahl verbrannt
+  max_possible: Maximal möglich in Zirkulation
+  held_until: bis
+  cap: Kappe
+  minted_date: Mining on the Eluvio Content Fabric on {date}
+  rarity: Rarität
+  have_trait: '{rarity}% haben'
+  go_to_item: Gehen Sie zu meinem Artikel
+  status:
+    listings: Einträge
+    sale_ended: Verkauf abgeschlossen
+    private_offering: Privates Angebot
+    sold_out: Ausverkauft!
+    claim: Anspruch
+    buy: Kaufen
+    max_owned: Maximale Eigentümer!
+    release_date: Erscheinungsdatum
+  menu:
+    set_as_profile: Als Profilbild bezeichnen
+    copy_listing_url: Seite nicht gefunden
+    copy_item_url: Artikel entfernen URL
+    copy_media_url: Kopieren von Medien URL
+    share_on_twitter: Aktie auf X
+    share_on_whatsapp: Teilen auf Whats Anwendung
+  additional_media:
+    view_ar: Dieses AR-Erlebnis auf dem Handy ansehen
+    qr_code_instructions: >-
+      Zeigen Sie die Kamera Ihres Telefons auf diesem QR-Code, um auf Handy zu
+      sehen.
+    next: Nächste
+    previous: Vorherige
+    play_all: Spielen Sie alle
+    errors:
+      default: Diese Medien sind nicht verfügbar
+      not_started: Diese Live-Inhalte haben noch nicht begonnen
+      ended: Diese Live-Inhalte sind beendet
+status:
+  back_to_profile: Zurück zu Mein Profil
+  back_to_marketplace: Zurück zum Marktplatz
+  back_to_items: Zurück zu Artikeln
+  back_to_my_items: Zurück zu Meine Artikel
+  back_to_collection: Zurück zu My Collection
+  pack_opening: Ihr Pack öffnet
+  minting:
+    header: Ihre Artikel werden vorbereitet
+    subheader1: Dies kann mehrere Minuten dauern
+    subheader2: >-
+      Sie können von dieser Seite navigieren, wenn Sie nicht warten wollen. Ihre
+      Artikel werden in Ihrer Brieftasche verfügbar sein, wenn der Prozess
+      abgeschlossen ist.
+    success_header: Glückwunsch!
+    purchase: Vielen Dank für Ihren Kauf!
+    received_item_single: Sie haben den folgenden Artikel erhalten
+    received_item_multiple: Sie haben folgende Artikel erhalten
+    submitting_solana: Zahlungsabwicklung an Solana
+    awaiting_payment: Awaiting Zahlung...
+    transferring: Ihr Artikel wird übertragen
+    view_transaction: Ihre Transaktion anzeigen auf {location}
+    confirming_purchase: Kauf bestätigen
+    gift_claim_header: Ihr Geschenk wird auf Ihr Konto übertragen!
+    gift_purchase_1: Vielen Dank für Ihren Kauf!
+    gift_purchase_2: Der/die Empfänger(n) Ihres Geschenks wurden benachrichtigt
+    errors:
+      gift_code_not_found: Geschenkcode nicht gefunden
+      gift_already_claimed: Diese Gabe wurde bereits beansprucht
+      misc: Versäumt
+  deposits:
+    header: Awaiting Deposit
+    subheader1: Es kann bis zu 30 Minuten dauern, um Ihre Einzahlung zu bestätigen
+    subheader2: >-
+      Sie können von dieser Seite navigieren, wenn Sie nicht warten wollen. Ihre
+      Kaution wird in Ihrer Geldbörse verfügbar sein, wenn der Prozess
+      abgeschlossen ist. Ihr Einzahlungsstatus kann in Ihrem Profil angezeigt
+      werden
+    success_header: Einzahlung erfolgreich
+    success_subheader: Vielen Dank für Ihren Kauf! {amount} wurde zu Ihrer Geldbörse hinzugefügt.
+withdrawal:
+  withdraw_funds: Fonds zurückziehen
+  select_provider: Bitte wählen Sie einen Anbieter
+  select_country: Wählen Sie ein Land
+  select_country_to_continue: Bitte wählen Sie Ihr Land weiter
+  method: Methode
+  set_up_withdrawal: Entzug einrichten
+  set_up_withdrawal_stripe: Entzug mit Stripe Connect einrichten
+  withdraw_via_ebanx: Mittelüber EBANX zurückziehen
+  withdraw_via_stripe: Funds per Stripe zurückziehen
+  max_withdrawable: Maximale Rückzugsbilanz {max}
+  available_funds: Verfügbare Fonds
+  withdrawn_funds: Mittel zurückgezogen
+  processing_fee: Bearbeitungsgebühr
+  total_payout: Gesamtsumme
+  remaining_funds: Restfonds
+  remaining_withdrawable_funds: Zurückgezogene Fonds
+  successful_withdrawal: '{amount} erfolgreich auf Ihr Konto übertragen'
+  fields:
+    amount: Betrag
+    email: E-Mail senden
+    name: Name
+    phone: Telefon
+    birthdate: Geburtsdatum
+    cpf: CPF
+    pix_key: PIX Schlüssel
+    pix_key_placeholder: E-Mail, CPF, CNPJ oder Telefonnummer
+  errors:
+    general: Unfähig, Geld zurückzuziehen. Bitte versuchen Sie es später wieder.
+    setup: Unfähig, den Rücktritt einzurichten. Bitte versuchen Sie es später wieder.
+    stripe_not_set_up: >-
+      Ihr Stripe-Konto wurde erstellt, ist aber nicht bereit, Zahlungen zu
+      akzeptieren. Bitte beenden Sie Ihr Konto.
+deposits:
+  add_funds: Fonds hinzufügen
+  select_provider: Bitte wählen Sie einen Anbieter
+  supported_methods: >-
+    Dies ist eine sichere Zahlungsmethode mit Coinbase Commerce. Nur ETH, BTC,
+    BCH, USDC und DAI über das Ethereum Mainnet werden unterstützt.
+  specify_amount: Bitte geben Sie den Betrag an, den Sie einzahlen möchten.
+  max_deposit: Maximale Anzahlung beträgt $1000.
+  terms: >-
+    Die Bearbeitungszeit variiert je nach Netzwerk und kann mehrere Minuten
+    dauern. Es gelten Standardnetzgebühren. Einzahlungen sind auf $1000 pro
+    Transaktion und $10.000 pro Tag beschränkt und unterliegen den [Eluvio
+    Geschäftsbedingungen](https://live.eluv.io/terms). Durch Klicken auf
+    "Weiter" erkennen Sie an, dass Sie alle diese Bedingungen gelesen und
+    verstanden haben.
+codes:
+  redemption_code: Rücknahmecode
+  redeem_offer: Ein neues Angebot
+  errors:
+    failed: Versäumt, Code einlösen
+    not_yet_valid: Dieser Code ist erst verfügbar {date}
+voting:
+  voting: Abstimmung
+  vote: Abstimmung für diesen Eintrag
+  revoke: Entfernen Sie die Stimme für diesen Eintrag
+  vote_with_title: Stimmen Sie für diesen Eintrag in {title}
+  revoke_with_title: Stimmen Sie für diesen Eintrag in {title}
+  voting_window: 'Wahlfenster: {startDate} - Ja. {endDate}'
+  total_votes: 'Gesamtstimmen für diesen Eintrag: {votes}'
+  voted: Sie haben für diesen Eintrag gestimmt
+time_units:
+  day: Tag
+  days: Tage
+  hour: Stunde
+  hours: Stunden
+  minute: Minute
+  minutes: Minuten
+  second: zweiter
+  seconds: Sekunden
+time:
+  day: 1 Tag
+  days: '{days} Tage'
+  hour: 1 Stunde
+  hours: '{hours} Stunden'
+  minute: 1 Minute
+  minutes: '{minutes} Minuten'
+  second: 1 Sekunde
+  seconds: '{seconds} Sekunden'
+ago:
+  day: Vor 1 Tag
+  days: '{days} Vor ein paar Tagen'
+  hour: Vor 1 Stunde
+  hours: '{hours} vor'
+  minute: Vor 1 Minute
+  minutes: '{minutes} vor.'
+  second: Vor 2 Jahren
+  seconds: '{seconds} vor.'
+media_properties:
+  media_properties: Medieneigenschaften
+  media_property: Medienarchiv
+  header:
+    search: Suche
+    filter: Filter
+  footer:
+    social_links:
+      text: Vernetzt bleiben
+  sections:
+    view_all: Alle anzeigen
+  search:
+    title: Suchergebnisse für "{query}"
+  purchase:
+    claim: Jetzt kaufen
+    select: Jetzt kaufen für {price}
+    secondary: Auflistungen anzeigen
+    purchase_now: Jetzt kaufen
+    purchase_now_listing: Kauf von einem Eigentümer
+    details:
+      show: Details anzeigen
+      hide: Details verbergen
+  purchase_status:
+    pending:
+      finalizing: Endgültiger Kauf
+      claiming: Anspruchsgegenstand
+      info: Das sollte weniger als eine Minute dauern...
+    failed: fehlgeschlagen
+    claim_failed: Die Behauptung ist gescheitert. Bitte versuchen Sie es erneut
+    complete: Vollständig kaufen!
+    claim_complete: Erfolgreich behauptet!
+  discount_codes:
+    placeholder: Promo Code hinzufügen
+    invalid_code: Ungültiger Code, bitte versuchen Sie es erneut.
+    discounts:
+      discount: '{amount} Aus'
+      month: '{amount} für den ersten Monat'
+      months: '{amount} für den ersten {periods} Monate'
+      year: '{amount} für das erste Jahr'
+      years: '{amount} für den ersten {periods} Jahre'
+  page:
+    actions:
+      item_details: Details
+  item_details:
+    pages:
+      description: Warenbezeichnung
+      details: Details
+      contract: Vertrag und Version
+    tables:
+      trading: Handel
+      offers: Kaufangebote
+      rewards: Einnahmen
+  media:
+    live: Leben
+    upcoming: UNTERNEHMEN
+    description:
+      show: Mehr lesen
+      hide: Weniger anzeigen
+    sidebar:
+      today: Heute
+      upcoming: Aufkommen
+      more_content: Mehr zum Inhalt
+      multiview: Multiview
+    errors:
+      default: Diese Medien sind nicht verfügbar
+      not_started: Diese Live-Inhalte haben noch nicht begonnen
+      ended: Diese Live-Inhalte sind beendet
+      unauthorized: Sie haben keine Erlaubnis, diesen Inhalt anzuzeigen

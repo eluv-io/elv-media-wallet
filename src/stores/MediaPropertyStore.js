@@ -72,6 +72,89 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  SidebarContent = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return []; }
+
+    const tabs = (yield Promise.all(
+      (mediaProperty?.metadata?.sidebar_config?.tabs || []).map(async tab => ({
+          ...tab,
+          groups: (await Promise.all(
+            tab.groups.map(async group => {
+              let content;
+              if(group.type === "section") {
+                content = (await this.MediaPropertySectionContent({
+                  mediaPropertySlugOrId,
+                  sectionSlugOrId: group.section_id,
+                  filterOptions: {contentType: "media"}
+                }))
+                  .filter(item => item?.mediaItem);
+              } else if(group.type === "automatic") {
+                const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
+                const media = Object.values(this.media)
+                  .filter(mediaItem =>
+                    associatedCatalogIds.includes(mediaItem.media_catalog_id)
+                  );
+
+                content = await this.FilteredMedia({
+                  media,
+                  mediaCatalogIds: associatedCatalogIds,
+                  select: {
+                    ...(group.select || {}),
+                    content_type: "media"
+                  }
+                });
+              } else {
+                content = group.content
+                  .map(mediaItemId => this.media[mediaItemId])
+                  .filter(item => item);
+              }
+
+              content = content.map(item => {
+                const mediaItem = item.mediaItem || item;
+                const additionalViews = (mediaItem?.additional_views || [])
+                  .filter(view => !!view.media_link)
+                  .map((view, index) => ({...view, index}));
+                const additionalViewLabel = mediaItem?.additional_views_label;
+
+                return {
+                  ...item,
+                  mediaItem: item.mediaItem || item,
+                  display: {
+                    ...(item.mediaItem || item)
+                  },
+                  scheduleInfo: MediaItemScheduleInfo(mediaItem),
+                  additionalViews,
+                  additionalViewLabel
+                };
+              });
+
+              return {
+                ...group,
+                content
+              };
+            }))
+          )
+            .filter(group => group.content?.length > 0)
+      }))
+    ))
+      .filter(tab => tab.groups?.length > 0);
+
+    const anyMultiview = !!tabs.find(tab =>
+      !!tab.groups.find(group =>
+        !!group.content.find(item =>
+          item.authorized && item.scheduleInfo.currentlyLive
+        )
+      )
+    );
+
+    return {
+      tabs,
+      anyMultiview,
+    };
+  });
+
   MediaPropertyIdToSlug(mediaPropertyId) {
     const propertyHash = this.mediaPropertyHashes[mediaPropertyId];
 
@@ -628,7 +711,7 @@ class MediaPropertyStore {
 
   FilteredMedia = flow(function * ({media, mediaCatalogIds, select}) {
     const now = new Date();
-    return media.filter(mediaItem => {
+    let filteredMedia = media.filter(mediaItem => {
       mediaItem = mediaItem?.mediaItem || mediaItem;
 
       // Media catalog
@@ -717,6 +800,41 @@ class MediaPropertyStore {
       }
 
       return true;
+    });
+
+    if(!select.sort_order) { return filteredMedia; }
+
+    return filteredMedia.sort((a, b) => {
+      let titleComparison = (a.catalog_title || a.title) < (b.catalog_title || b.title) ? -1 : 1;
+      let scheduleComparison = 0;
+      let timeComparison = 0;
+
+      // For live comparison, regardless of direction we want live content to show first, followed by vod content
+      if(a.live_video) {
+        if(b.live_video) {
+          timeComparison =
+            a.start_time === b.start_time ? titleComparison :
+              a.start_time < b.start_time ? -1 : 1;
+        } else {
+          timeComparison = -1;
+          scheduleComparison = -1;
+        }
+      } else if(b.live_video) {
+        scheduleComparison = 1;
+        timeComparison = 1;
+      }
+
+      switch(select.sort_order) {
+        case "title_asc":
+          return titleComparison;
+        case "title_desc":
+          return -1 * titleComparison;
+        case "time_desc":
+          return scheduleComparison || (-1 * timeComparison) || titleComparison;
+        // "time_asc" is the default case
+        default:
+          return scheduleComparison || timeComparison || titleComparison;
+      }
     });
   });
 
@@ -1206,19 +1324,30 @@ class MediaPropertyStore {
 
         const storageKey = `customization-metadata-${versionHash}`;
 
+        const localizationKey = await this.GetLocalizationKey({
+          mediaPropertyId: this.client.utils.DecodeVersionHash(versionHash).objectId
+        });
+
         const metadata =
-          this.rootStore.GetSessionStorageJSON(storageKey, true) ||
+          (!this.previewAll && this.rootStore.GetSessionStorageJSON(storageKey, true)) ||
           await this.client.ContentObjectMetadata({
             versionHash,
             metadataSubtree: "/public/asset_metadata/info",
             produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? undefined :
+              `/public/asset_metadata/localizations/${localizationKey}/info`,
             select: [
+              "language",
+              "localizations",
               "tenant",
               "login",
               "styling",
               "domain"
             ]
           });
+
+        metadata.language = metadata.language || "en";
+        metadata.localizations = metadata.localizations || [];
 
         this.rootStore.SetSessionStorage(
           storageKey,
@@ -1296,6 +1425,78 @@ class MediaPropertyStore {
     });
   });
 
+  GetLocalizationKey = flow(function * ({mediaPropertyId}) {
+    return yield this.LoadResource({
+      key: "LocalizationKey",
+      id: `localization-key-${mediaPropertyId}`,
+      ttl: 60,
+      anonymous: true,
+      Load: async () => {
+        // Localization
+        const isPreview = this.previewAll || mediaPropertyId === this.previewPropertyId;
+        let versionHash = this.mediaPropertyHashes[mediaPropertyId];
+        if(isPreview) {
+          versionHash = await this.client.LatestVersionHash({
+            versionHash,
+            objectId: mediaPropertyId
+          });
+        }
+
+        const localizationInfo = (await this.client.ContentObjectMetadata({
+          versionHash,
+          metadataSubtree: "/public/asset_metadata/info",
+          produceLinkUrls: true,
+          select: [
+            "language",
+            "localizations",
+          ]
+        })) || {};
+
+        // User's languages, in priority order
+        const userLanguages = [
+          localStorage.getItem(`lang-${mediaPropertyId}`),
+          ...navigator.languages
+        ]
+          .filter(l => l);
+
+        // Available property languages
+        const availableLocalizations = [
+          localizationInfo.language || "en",
+          ...(localizationInfo.localizations || [])
+        ];
+
+        let localizationKey;
+        userLanguages.forEach(userKey => {
+          if(localizationKey) {
+            return;
+          }
+
+          // Prefer exact match
+          localizationKey = availableLocalizations.find(key => userKey.toLowerCase() === key.toLowerCase());
+        });
+
+        if(!localizationKey) {
+          userLanguages.forEach(userKey => {
+            if(localizationKey) {
+              return;
+            }
+
+            // Look for close matches, eg. pt-br =~ pt or pt-pt
+            localizationKey = availableLocalizations.find(key =>
+              userKey.split("-")[0].toLowerCase() === key.split("-")[0].toLowerCase()
+            );
+          });
+        }
+
+        if(localizationKey === localizationInfo.language) {
+          localizationKey = undefined;
+        }
+
+        return localizationKey;
+      }
+    });
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
 
@@ -1323,6 +1524,13 @@ class MediaPropertyStore {
 
         const mediaPropertyId = versionHash && Utils.DecodeVersionHash(versionHash).objectId;
 
+        const localizationKey = await this.GetLocalizationKey({mediaPropertyId});
+
+        this.SetPropertyLanguage({mediaPropertyId, localizationKey, reload: false});
+
+        this.rootStore.SetLanguage(localizationKey);
+        this.rootStore.walletClient.localization = localizationKey;
+
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
@@ -1330,15 +1538,17 @@ class MediaPropertyStore {
           resolveLinks: !isPreview,
           resolveIgnoreErrors: true,
           resolveIncludeSource: true,
-          linkDepthLimit: 1
+          linkDepthLimit: 1,
+          localizationSubtree: !localizationKey ? undefined :
+            `/public/asset_metadata/localizations/${localizationKey}/info`
         });
 
         metadata.mediaPropertyId = mediaPropertyId;
 
         // Start loading associated marketplaces and owned items in those marketplaces but don't block on it
         (metadata.associated_marketplaces || []).map(({marketplace_id}) => {
-          this.LoadMarketplace({marketplaceId: marketplace_id, force});
-          this.LoadOwnedItems({marketplaceId: marketplace_id, force});
+          this.LoadMarketplace({marketplaceId: marketplace_id, localizationKey, force});
+          this.LoadOwnedItems({marketplaceId: marketplace_id, localizationKey, force});
         });
 
         if(!isPreview && metadata.permission_set_links) {
@@ -1348,6 +1558,7 @@ class MediaPropertyStore {
               await this.LoadPermissionSet({
                 permissionSetId,
                 metadata: metadata.permission_set_links[permissionSetId],
+                localizationKey,
                 force
               })
             )
@@ -1356,7 +1567,7 @@ class MediaPropertyStore {
           // Load latest versions
           await Promise.all(
             (metadata.permission_sets || []).map(async permissionSetId =>
-              await this.LoadPermissionSet({permissionSetId, force})
+              await this.LoadPermissionSet({permissionSetId, localizationKey, force})
             )
           );
         }
@@ -1370,6 +1581,7 @@ class MediaPropertyStore {
               await this.LoadMediaCatalog({
                 mediaCatalogId,
                 metadata: metadata.media_catalog_links[mediaCatalogId],
+                localizationKey,
                 force
               })
             )
@@ -1378,7 +1590,7 @@ class MediaPropertyStore {
           // Load latest versions
           mediaCatalogContent = await Promise.all(
             (metadata.media_catalogs || []).map(async mediaCatalogId =>
-              await this.LoadMediaCatalog({mediaCatalogId, force})
+              await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force})
             )
           );
         }
@@ -1491,7 +1703,7 @@ class MediaPropertyStore {
     return force;
   });
 
-  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, force}) {
+  LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, metadata, localizationKey, force}) {
     if(mediaCatalogHash) {
       mediaCatalogId = this.client.utils.DecodeVersionHash(mediaCatalogHash).objectId;
     } else {
@@ -1500,7 +1712,7 @@ class MediaPropertyStore {
 
     return yield this.LoadResource({
       key: "MediaCatalog",
-      id: mediaCatalogHash,
+      id: `${mediaCatalogHash}-${localizationKey}`,
       force,
       Load: async () => {
         if(!metadata) {
@@ -1516,13 +1728,15 @@ class MediaPropertyStore {
               "attributes",
               "tags"
             ],
-            produceLinkUrls: true
+            produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? null :
+              `/public/asset_metadata/localizations/${localizationKey}/info`
           });
         }
 
         await Promise.all(
           (metadata.permission_sets || []).map(async permissionSetId =>
-            await this.LoadPermissionSet({permissionSetId})
+            await this.LoadPermissionSet({permissionSetId, localizationKey})
           )
         );
 
@@ -1565,7 +1779,7 @@ class MediaPropertyStore {
     });
   });
 
-  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, metadata, force}) {
+  LoadPermissionSet = flow(function * ({permissionSetId, permissionSetHash, metadata, localizationKey, force}) {
     if(permissionSetHash) {
       permissionSetId = this.client.utils.DecodeVersionHash(permissionSetHash).objectId;
     } else {
@@ -1575,14 +1789,16 @@ class MediaPropertyStore {
     yield this.LoadResource({
       key: "PermissionSet",
       force,
-      id: permissionSetId,
+      id: `${permissionSetId}-${localizationKey}`,
       Load: async () => {
         let permissionItems = metadata?.permissionItems;
         if(!permissionItems) {
           permissionItems = (await this.client.ContentObjectMetadata({
             versionHash: permissionSetHash,
             metadataSubtree: "/public/asset_metadata/info/permission_items",
-            produceLinkUrls: true
+            produceLinkUrls: true,
+            localizationSubtree: !localizationKey ? null :
+              `/public/asset_metadata/localizations/${localizationKey}/info/permission_items`
           })) || {};
         }
 
@@ -1594,7 +1810,7 @@ class MediaPropertyStore {
               return;
             }
 
-            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
+            await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id, localizationKey});
 
             const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
               ?.find(item => item.sku === permissionItem.marketplace_sku);
@@ -1659,12 +1875,12 @@ class MediaPropertyStore {
     });
   });
 
-  LoadMarketplace = flow(function * ({marketplaceId, force=false}) {
+  LoadMarketplace = flow(function * ({marketplaceId, localizationKey, force=false}) {
     yield this.LoadResource({
       key: "Marketplace",
       id: marketplaceId,
       force,
-      Load: async () => await this.rootStore.LoadMarketplace(marketplaceId)
+      Load: async () => await this.rootStore.LoadMarketplace(marketplaceId, localizationKey)
     });
   });
 
@@ -1788,6 +2004,19 @@ class MediaPropertyStore {
       }
     });
   });
+
+  SetPropertyLanguage({mediaPropertyId, localizationKey, reload=false}) {
+    if(localizationKey) {
+      localStorage.setItem(`lang-${mediaPropertyId}`, localizationKey);
+    } else {
+      localStorage.removeItem(`lang-${mediaPropertyId}`);
+    }
+
+    if(reload) {
+      // eslint-disable-next-line no-self-assign
+      window.location.href = window.location.href;
+    }
+  }
 
   AnalyticsEvent = flow(function * ({mediaPropertySlugOrId, eventType, params}) {
     const mediaProperty = yield this.MediaProperty({mediaPropertySlugOrId});
@@ -1913,7 +2142,9 @@ class MediaPropertyStore {
     mediaItem,
     filename,
     format="mp4",
-    offering="default"
+    offering="default",
+    representation,
+    SetStatus
   }) {
     try {
       filename = filename || mediaItem.title;
@@ -1927,6 +2158,10 @@ class MediaPropertyStore {
         offering,
         filename
       };
+
+      if(representation) {
+        params.representation = representation;
+      }
 
       if(mediaItem.media_link_info) {
         if(mediaItem.media_link_info.type === "composition") {
@@ -1961,9 +2196,13 @@ class MediaPropertyStore {
         return yield this.SaveDownloadJob({jobId: response.job_id, filename, versionHash});
       }
 
+      SetStatus?.(status);
+
       return yield new Promise((resolve, reject) => {
         let interval = setInterval(async () => {
           const status = await this.DownloadJobStatus({jobId: response.job_id, versionHash}) || {};
+
+          SetStatus?.(status);
 
           if(status?.status === "completed") {
             clearInterval(interval);
@@ -1976,7 +2215,7 @@ class MediaPropertyStore {
             clearInterval(interval);
             reject(status);
           }
-        }, 5000);
+        }, 2000);
       });
     } catch(error) {
       this.Log("Error performing download:", true);
