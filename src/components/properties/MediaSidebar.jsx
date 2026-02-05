@@ -354,6 +354,10 @@ export const MultiviewSelectionModal = observer(({
     );
   }, [streamLimit]);
 
+  if(tabs.length === 0) {
+    return null;
+  }
+
   return (
     <Modal
       size="sm"
@@ -399,7 +403,7 @@ export const MultiviewSelectionModal = observer(({
       }
       <div className={S("multiview-selection-modal__items")}>
         {
-          tab.groups.map(group =>
+          tab?.groups.map(group =>
             !group.content.find(item => item.authorized && item.scheduleInfo.currentlyLive) ? null :
               <div key={`group-${group.id}`} className={S("content__section")}>
                 {
