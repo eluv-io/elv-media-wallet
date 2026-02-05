@@ -26,6 +26,7 @@ const Video = forwardRef(function VideoComponent({
   hideControls,
   showTitle,
   mute,
+  noReactiveMute=false,
   autoAspectRatio=true,
   mediaPropertySlugOrId,
   mediaItemId,
@@ -147,7 +148,7 @@ const Video = forwardRef(function VideoComponent({
   }, [hideControls, showTitle]);
 
   useEffect(() => {
-    if(!player) { return; }
+    if(!player || noReactiveMute) { return; }
 
     if(mute) {
       player.__wasMuted = player.controls.IsMuted();

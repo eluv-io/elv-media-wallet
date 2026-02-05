@@ -505,10 +505,12 @@ window.formatTime = FormatTime;
 let filterTimeout;
 export const MediaTagSidebar = observer(({mediaItem}) => {
   const [tab, setTab] = useState("TRANSCRIPT");
+  const [containerRef, setContainerRef] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
   const [filterInput, setFilterInput] = useState("");
   const [filter, setFilter] = useState("");
   const [currentTime, setCurrentTime] = useState(0);
+  const [playing, setPlaying] = useState(false);
 
   const versionHash = LinkTargetHash(mediaItem.media_link);
   const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
@@ -529,13 +531,39 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
 
     setCurrentTime(player.controls.GetCurrentTime());
 
-    const Disposer = player.controls.RegisterVideoEventListener(
+    const TimeUpdateDisposer = player.controls.RegisterVideoEventListener(
       "timeupdate",
-      () => setCurrentTime(player.controls.GetCurrentTime())
+      () => {
+        setCurrentTime(player.controls.GetCurrentTime());
+        setPlaying(player.controls.IsPlaying());
+      }
     );
 
-    return () => Disposer?.();
+    return () => TimeUpdateDisposer?.();
   }, [player?.id]);
+
+  useEffect(() => {
+    if(!containerRef || filter) { return; }
+
+    const nearestCurrentTag = activeTags.find(tag => currentTime <= tag.end_time);// || activeTags[0];
+
+    if(!nearestCurrentTag) { return; }
+
+    const tagElement = document.querySelector(`#video-tag-${nearestCurrentTag.id}`);
+
+    if(!tagElement) { return; }
+
+    if(
+      tagElement.getBoundingClientRect().top - containerRef.getBoundingClientRect().top < 0 ||
+      tagElement.getBoundingClientRect().bottom - containerRef.getBoundingClientRect().bottom > 0
+    ) {
+      containerRef.scrollTo({
+        top: tagElement.offsetTop - 200,
+        left: 0,
+        behavior: "smooth"
+      });
+    }
+  }, [currentTime, activeTags.length]);
 
   useEffect(() => {
     clearTimeout(filterTimeout);
@@ -618,11 +646,19 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
           }}
         />
       </div>
-      <div key={`tags-${tab}-${filter}`} className={S("tags")}>
+      <div
+        key={`tags-${tab}-${filter}`}
+        className={S("tags")}
+        ref={setContainerRef}
+        style={{
+          overflowY: playing ? "hidden" : "auto"
+        }}
+      >
         {
           activeTags.map(tag =>
             <button
               key={tag.id}
+              id={`video-tag-${tag.id}`}
               onClick={() => player?.controls.Seek({time: tag.start_time})}
               className={
                 S(

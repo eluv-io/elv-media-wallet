@@ -38,6 +38,7 @@ const MediaVideo = observer(({
   hideControls,
   allowCasting=true,
   mute,
+  noReactiveMute,
   capLevelToPlayerSize,
   onClick,
   onClose,
@@ -164,6 +165,7 @@ const MediaVideo = observer(({
       showTitle={showTitle}
       hideControls={hideControls || mediaItem.player_controls}
       mute={mute || mediaItem.player_muted}
+      noReactiveMute={noReactiveMute}
       mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
       mediaItemId={mediaItem.id}
       saveProgress
@@ -346,6 +348,7 @@ const MediaVideoWithSidebar = observer(({
                 key={`media-${item.id}`}
                 capLevelToPlayerSize
                 mute={index > 0}
+                noReactiveMute
                 mediaItem={item.mediaItem}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
