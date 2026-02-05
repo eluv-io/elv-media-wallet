@@ -769,7 +769,10 @@ const MediaPropertyMediaPage = observer(() => {
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
 
   useEffect(() => {
-    mediaPropertyStore.SidebarContent(match.params)
+    mediaPropertyStore.SidebarContent({
+      ...match.params,
+      sectionSlugOrId: match.params.sectionSlugOrId || context
+    })
       .then(setSidebarContent);
   }, []);
 

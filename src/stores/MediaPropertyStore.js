@@ -72,7 +72,7 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
-  SidebarContent = flow(function * ({mediaPropertySlugOrId}) {
+  SidebarContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
     if(!mediaProperty) { return []; }
@@ -86,7 +86,8 @@ class MediaPropertyStore {
               if(group.type === "section") {
                 content = (await this.MediaPropertySectionContent({
                   mediaPropertySlugOrId,
-                  sectionSlugOrId: group.section_id,
+                  sectionSlugOrId: group.section_id || sectionSlugOrId,
+                  mediaListSlugOrId: !group.section_id && mediaListSlugOrId,
                   filterOptions: {contentType: "media"}
                 }))
                   .filter(item => item?.mediaItem);
