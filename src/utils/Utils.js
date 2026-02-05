@@ -15,13 +15,6 @@ export const SHA512 = async (str) => {
   return Array.prototype.map.call(new Uint8Array(buf), x=>(("00"+x.toString(16)).slice(-2))).join("");
 };
 
-String.prototype.capitalize =
-  function() {
-    return this.replace(/_/g, " ").replace(/\w\S*/g, function (txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-  };
-
 export const EmbedMediaTypes = {
   "v": "Video",
   "lv": "Live Video",

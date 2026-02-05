@@ -12,7 +12,6 @@
   padding: 0 50px 8px;
   position: sticky;
   top: 0;
-  user-select: none;
   width: 100%;
   z-index: 2;
 
@@ -93,19 +92,15 @@
   transition: background-color 0.25s ease, border 0.25s ease;
   width: 35px;
 
-  &--custom {
-    background: var(--property-button-background);
-    color: var(--property-button-text);
-
-    * {
-      color: var(--property-button-text);
-    }
-  }
-
   &:hover,
   &:focus-visible,
   &--active {
     background-color: #525252;
+  }
+
+  &:focus-visible,
+  &--active {
+    border: 1px solid #67676a;
   }
 
   &__icon,
@@ -463,27 +458,6 @@
   }
 }
 
-.language-menu {
-  &__dropdown {
-    @include page-fade-in;
-
-    background-color: #202023;
-    border: 0;
-    border-radius: 12px;
-  }
-
-  &__option {
-    font-size: 16px;
-    font-weight: 500;
-    padding: 10px;
-
-    &[data-combobox-selected] {
-      background-color: transparent;
-      color: var(--property-text-highlight);
-    }
-  }
-}
-
 
 /* Mobile header */
 
@@ -511,16 +485,12 @@
   &__controls {
     align-items: center;
     display: flex;
-    gap: 5px;
+    gap: 10px;
     height: 100%;
   }
 
   .logo-container {
     height: 70%;
     min-width: unset;
-  }
-
-  .links {
-    gap: 5px;
   }
 }

@@ -268,7 +268,6 @@ const Notifications = observer(({Hide}) => {
   const [more, setMore] = useState(false);
   const [onlyNew, setOnlyNew] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
-  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
 
@@ -317,14 +316,11 @@ const Notifications = observer(({Hide}) => {
               { rootStore.l10n.notifications.all }
             </button>
           </div>
-          {
-            secondaryDisabled ? null :
-              <div className={S("notifications__actions")}>
-                <button onClick={() => setShowPreferences(true)} className={S("notifications__action")}>
-                  { rootStore.l10n.preferences.preferences }
-                </button>
-              </div>
-          }
+          <div className={S("notifications__actions")}>
+            <button onClick={() => setShowPreferences(true)} className={S("notifications__action")}>
+              { rootStore.l10n.preferences.preferences }
+            </button>
+          </div>
         </div>
         <div className={S("notifications__list")}>
           {
@@ -335,7 +331,7 @@ const Notifications = observer(({Hide}) => {
         </div>
         <div className={S("notifications__actions", "notifications__actions--centered")}>
           {
-            !more || notifications.length === 0 || notifications.length !== filteredNotifications.length ? null :
+            !more || notifications.length !== filteredNotifications.length ? null :
               <ButtonWithLoader
                 disabled={!more || notifications.length !== filteredNotifications.length}
                 isLoading={loading}

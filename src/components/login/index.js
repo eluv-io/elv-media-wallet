@@ -648,7 +648,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
-      } else if(provider === "oauth" && rootStore.auth0) {
+      } else if(provider === "oauth") {
         let auth0LoginParams = { appState: {} };
 
         if(rootStore.darkMode) {
@@ -800,7 +800,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
       SetCodeAuth();
     }
-  }, [rootStore.loaded, rootStore.auth0, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
+  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
 
   const loading =
     !rootStore.loaded ||

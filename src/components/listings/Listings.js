@@ -35,12 +35,6 @@ const Listings = observer(({initialFilters, includeActivity=true}) => {
   const match = useRouteMatch();
   const [showActivity, setShowActivity] = useState(false);
 
-  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
-
-  if(secondaryDisabled) {
-    return null;
-  }
-
   if(!initialFilters && match.params.mediaPropertySlugOrId) {
     const mediaProperty = mediaPropertyStore.MediaProperty({
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId

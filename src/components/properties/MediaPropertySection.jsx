@@ -97,7 +97,7 @@ const ActionVisible = ({permissions, behavior, visibility}) => {
   }
 
   const hasPermissions = !!permissions?.find(permissionItemId =>
-    mediaPropertyStore.permissionItems[permissionItemId]?.authorized
+    mediaPropertyStore.permissionItems[permissionItemId].authorized
   );
 
   switch(visibility) {

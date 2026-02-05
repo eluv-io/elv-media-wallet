@@ -38,9 +38,9 @@ export const PageLoader = ({loader="default", className=""}) => {
 };
 
 
-export const Loader = ({loader="default", small, className=""}) => {
+export const Loader = ({loader="default", className=""}) => {
   return (
-    <div className={`loader ${small ? "loader--small" : ""} ${className}`}>
+    <div className={`loader ${className}`}>
       <LoaderComponent loader={loader} />
     </div>
   );

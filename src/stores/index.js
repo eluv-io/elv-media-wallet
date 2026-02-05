@@ -30,7 +30,6 @@ import MediaPropertyStore from "Stores/MediaPropertyStore";
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
-import MergeWith from "lodash/mergeWith";
 
 import LocalizationEN from "Assets/localizations/en.yml";
 import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
@@ -60,7 +59,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
-  uiLocalizations = ["en", "de", "es", "fr", "it", "pt", "pt-br"];
+  uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
 
   customDomainPropertyId;
@@ -73,7 +72,6 @@ class RootStore {
 
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
-  isLocal = ["localhost", "192.168"].find(host => window.location.hostname.includes(host));
 
   discoverFilter = "";
 
@@ -197,11 +195,10 @@ class RootStore {
 
   analyticsInitialized = false;
 
+  headerText;
   routeChange;
 
   shortURLs = {};
-
-  headerButtons = [];
 
   _resources = {};
   logTiming = false;
@@ -309,11 +306,11 @@ class RootStore {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         // Only update VH if height has changed significantly enough
-        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 50) {
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 100) {
           SetVH();
           this.originalViewportHeight = window.innerHeight;
         }
-      }, 10);
+      }, 100);
     });
 
     this.logTiming = new URLSearchParams(location.search).has("logTiming") || this.GetSessionStorage("log-timing");
@@ -332,22 +329,29 @@ class RootStore {
     this.discoverFilter = filter;
   }
 
-  SetLanguage = flow(function * (language="en") {
+  SetLanguage = flow(function * (language, save=false) {
+    if(Array.isArray(language)) {
+      for(let i = 0; i < language.length; i++) {
+        if(yield this.SetLanguage(language[i], save)) {
+          return;
+        }
+      }
+
+      language = "en";
+    }
+
     language = language.toLowerCase();
 
-    // Find matching preference (including variants, e.g. pt-br === pt)
-    const availableLocalizations = [...this.uiLocalizations, "test"];
-    language =
-      // Prefer exact match
-      availableLocalizations.find(key => key === language) ||
-      // Accept close match (e.g. pt -> pt-br)
-      availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
-
-    if(!language || language.startsWith("en")) {
+    if(language.startsWith("en")) {
       this.l10n = LocalizationEN;
       this.language = "en";
+      save ? this.SetLocalStorage("lang", "en") : this.RemoveLocalStorage("lang");
       return true;
     }
+
+    // Find matching preference (including variants, e.g. pt-br === pt)
+    const availableLocalizations = ["pt-br", "test"];
+    language = availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
 
     if(!language) {
       return false;
@@ -372,8 +376,16 @@ class RootStore {
     this.l10n = MergeLocalization(localization, LocalizationEN);
     this.language = language;
 
+    if(save) {
+      this.SetLocalStorage("lang", language);
+    }
+
     return true;
   });
+
+  SetHeaderText(text) {
+    this.headerText = text;
+  }
 
   SetCurrentProperty = flow(function * (mediaPropertySlugOrId) {
     if(!mediaPropertySlugOrId) {
@@ -416,6 +428,7 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
+      this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
         let oryUrl = EluvioConfiguration.ory_configuration.url;
@@ -606,22 +619,6 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateUserIdCode = flow(function * ({userIdCode, nonce}) {
-    const {authToken, signingToken} = yield this.walletClient.AuthenticateOAuth({
-      userIdCode,
-      tenantId: this.currentPropertyTenantId,
-      nonce: Utils.B58(ParseUUID(UUID()))
-    });
-
-    yield this.Authenticate({
-      clientAuthToken: authToken,
-      clientSigningToken: signingToken,
-      provider: "code",
-      nonce,
-      origin
-    });
-  });
-
   AuthenticateOry = flow(function * ({nonce, installId, origin, userData, sendWelcomeEmail, sendVerificationEmail, force=false}={}) {
     if(this.authenticating) { return; }
 
@@ -683,25 +680,9 @@ class RootStore {
     }
   });
 
-  GetPropertySlugOrId() {
-    let id = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
-
-    if(id) {
-      return id;
-    } else if(window.location.pathname.includes("/p/")) {
-      return window.location.pathname.split("/p/").slice(-1)[0].split("/")[0];
-    } else {
-      const slug = window.location.pathname.split("/")[1];
-
-      if(slug !== "login") {
-        return slug;
-      }
-    }
-  }
-
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
-      this.GetPropertySlugOrId()
+      this.currentPropertyId || searchParams.get("pid") || window.location.pathname.split("/")[1]
     );
 
     if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
@@ -975,6 +956,7 @@ class RootStore {
   });
 
   SetDomainCustomization = flow(function * (mediaPropertyId) {
+
     if(this.currentPropertyId === mediaPropertyId && this.domainSettings) {
       return;
     }
@@ -1385,7 +1367,7 @@ class RootStore {
     );
   });
 
-  LoadMarketplace = flow(function * (marketplaceId, localizationKey) {
+  LoadMarketplace = flow(function * (marketplaceId) {
     if(!this.walletClient.marketplaceLoadingStarted) {
       this.walletClient.marketplaceLoadingStarted = true;
       yield this.walletClient.LoadAvailableMarketplaces();
@@ -1397,7 +1379,7 @@ class RootStore {
     }
 
     if(!this.marketplaces[marketplaceId]) {
-      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}, localizationKey});
+      const marketplace = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
       yield this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
       yield this.checkoutStore.MarketplacePrices({tenantId: marketplace.tenant_id});
@@ -1882,34 +1864,6 @@ class RootStore {
     }
 
     return this.userStats[userAddress];
-  });
-
-  UserItems = flow(function * (params) {
-    const response = yield this.walletClient.UserItems(params);
-
-    const localizationKey = yield this.mediaPropertyStore.GetLocalizationKey({mediaPropertyId: this.currentPropertyId});
-    if(localizationKey) {
-      response.results = yield Promise.all(
-        response.results.map(async item => {
-          try {
-            const localizedMetadata = (await this.client.ContentObjectMetadata({
-              versionHash: item.details.VersionHash,
-              metadataSubtree: UrlJoin("public", "asset_metadata", "localizations", localizationKey, "nft"),
-              produceLinkUrls: true
-            })) || {};
-
-            item.metadata = MergeWith({}, item.metadata, localizedMetadata, (a, b) => b === null || b === "" ? a : undefined);
-          } catch(error) {
-            this.Log("Error localizing user item", true);
-            this.Log(error);
-          }
-
-          return item;
-        })
-      );
-    }
-
-    return response;
   });
 
   RedeemCode = flow(function * ({tenantId, ntpId, code}) {
@@ -2821,10 +2775,6 @@ class RootStore {
       this.alertNotification = message;
       this.SetSessionStorage("alert-notification", message);
     }
-  }
-
-  SetHeaderButtons(buttonInfo) {
-    this.headerButtons = buttonInfo;
   }
 
   SetDebugMessage(message) {

@@ -1088,7 +1088,7 @@ const MediaPropertyPurchaseModal = () => {
 
   if(params.unlessPermissions) {
     const hasPermissions = !!params.unlessPermissions?.find(permissionItemId =>
-      mediaPropertyStore.permissionItems[permissionItemId]?.authorized
+      mediaPropertyStore.permissionItems[permissionItemId].authorized
     );
 
     if(hasPermissions) {

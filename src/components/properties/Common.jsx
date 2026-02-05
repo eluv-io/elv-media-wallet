@@ -312,7 +312,6 @@ export const Modal = observer(({
   contentClassName,
   headerClassName,
   bodyClassName,
-  childrenContainerClassName,
   ...args
 }) => {
   const showCloseButton = args.fullScreen ||
@@ -349,13 +348,13 @@ export const Modal = observer(({
     >
       {
         !header ? closeButton :
-          <div className={[S("modal__top-header"), headerClassName].join(" ")}>
+          <div className={S("modal__top-header")}>
             {header}
             {closeButton}
           </div>
       }
 
-      <div className={[S("modal__children"), childrenContainerClassName].join(" ")}>
+      <div className={S("modal__children")}>
         { args.children }
       </div>
     </MantineModal>
@@ -820,7 +819,7 @@ export const Button = ({variant="primary", active, loading, icon, rightIcon, sty
             }
             { props.children }
             {
-              !rightIcon ? null :
+              !rightIcon ? null:
                 <ImageIcon icon={rightIcon} className={S("button__icon")} />
             }
           </> :

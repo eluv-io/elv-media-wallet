@@ -88,6 +88,7 @@ const PropertyWrapper = observer(({children}) => {
 
     const useCustomBackgroundColor = backgroundColor && CSS.supports("color", backgroundColor);
 
+
     return (
       <AsyncComponent
         // Store info is cleared when logged in
@@ -122,7 +123,7 @@ const PropertyWrapper = observer(({children}) => {
           if(
             rootStore.loggedIn &&
             provider !== propertyProvider &&
-            !["code", "external"].includes(provider)
+            provider !== "external"
           ) {
             rootStore.Log("Signing out due to mismatched login provider with property");
             await rootStore.SignOut({reload: false});
@@ -179,15 +180,17 @@ export const PropertyRoutes = observer(({basePath}) => {
 
 export const BundledPropertyRoutes = observer(() => {
   return (
-    <div className="page-container property-page">
-      <MediaPropertyHeader />
-      <Switch>
-        <RenderRoutes
-          basePath="/"
-          routeList="bundledProperty"
-          Wrapper={PropertyWrapper}
-        />
-      </Switch>
-    </div>
+    <LoginGate backPath="/">
+      <div className="page-container property-page">
+        <MediaPropertyHeader />
+        <Switch>
+          <RenderRoutes
+            basePath="/"
+            routeList="bundledProperty"
+            Wrapper={PropertyWrapper}
+          />
+        </Switch>
+      </div>
+    </LoginGate>
   );
 });

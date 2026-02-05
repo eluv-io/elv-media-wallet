@@ -6,6 +6,7 @@ import Modal from "Components/common/Modal";
 import {Select, SwitchButton} from "Components/common/UIComponents";
 import {checkoutStore, notificationStore, rootStore} from "Stores";
 import CountryCodesList from "country-codes-list";
+import LanguageCodes from "Assets/localizations/LanguageCodes";
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
@@ -28,10 +29,7 @@ const PreferencesMenu = observer(({Hide}) => {
 
   let availableLocalizations = [...(marketplace?.localizations || []), ...rootStore.uiLocalizations]
     .filter((x, i, a) => a.indexOf(x) === i)
-    .map(key => [
-      key.toLowerCase(),
-      new Intl.DisplayNames([key], {type: "language"}).of(key.toLowerCase()).capitalize()
-    ]) || []
+    .map(key => [key.toLowerCase(), LanguageCodes[key.toLowerCase()]]) || []
     .sort((a, b) => a[1] < b[1] ? -1 : 1);
 
   if(EluvioConfiguration["show-debug"]) {

@@ -47,7 +47,7 @@ const FilteredView = ({
         break;
 
       case "owned":
-        Method = async params => await rootStore.UserItems(params);
+        Method = async params => await rootStore.walletClient.UserItems(params);
         break;
 
       default:

@@ -156,7 +156,7 @@ class CheckoutStore {
 
   AnalyticsEvent({marketplace, analytics, eventName}) {
     try {
-      if(!analytics) {
+      if(!this.rootStore.analyticsInitialized || !analytics) {
         return;
       }
 
