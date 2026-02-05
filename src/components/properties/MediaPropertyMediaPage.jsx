@@ -754,7 +754,10 @@ const MediaPropertyMediaPage = observer(() => {
   useEffect(() => {
     mediaStore.Reset();
     mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
-    mediaPropertyStore.SidebarContent(match.params)
+    mediaPropertyStore.SidebarContent({
+      ...match.params,
+      sectionSlugOrId: match.params.sectionSlugOrId || context
+    })
       .then(content => mediaStore.SetSidebarContent(content));
 
     return () => mediaStore.Reset();

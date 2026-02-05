@@ -117,7 +117,8 @@
 
 .media {
   background: #000;
-  height: var(--property-full-content-height);
+  height: calc(var(--property-full-content-height) - 175px);
+  max-height: calc(var(--property-full-content-height) - 175px);
   min-height: 400px;
   position: relative;
 
