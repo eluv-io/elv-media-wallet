@@ -712,6 +712,10 @@ class MediaPropertyStore {
   });
 
   FilteredMedia = flow(function * ({media, mediaCatalogIds, select}) {
+    if(select.media_catalog) {
+      mediaCatalogIds = [select.media_catalog];
+    }
+
     const now = new Date();
     let filteredMedia = media.filter(mediaItem => {
       mediaItem = mediaItem?.mediaItem || mediaItem;
