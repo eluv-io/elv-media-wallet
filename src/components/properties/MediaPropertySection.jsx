@@ -1062,6 +1062,7 @@ const MediaPropertySectionPage = observer(() => {
     SectionContent({
       match,
       section: mediaPropertyStore.MediaPropertySection({...match.params}),
+      mediaListId: match.params.mediaListSlugOrId,
       activeFilters
     })
       .then(content => {
