@@ -707,6 +707,10 @@ class MediaPropertyStore {
           mediaItemSlugOrId: sectionItem.mediaItem?.id
         })
       }))
+      .map(sectionItem => ({
+        ...sectionItem,
+        authorized: sectionItem.resolvedPermissions?.authorized || sectionItem.mediaItem?.authorized
+      }))
       .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
