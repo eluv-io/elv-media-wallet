@@ -104,7 +104,27 @@ class MediaStore {
             end_time: tag.end_time / 1000
           }))
           .sort((a, b) => a.start_time < b.start_time ? -1 : 1);
-        
+
+        if(formattedTrack) {
+          // CSV
+          playByPlayTags = playByPlayTags
+            .map(tag => {
+              try {
+                const [action1, action2, player, team] = tag?.tag?.split(",").map(token => token.trim());
+
+                return {
+                  ...tag,
+                  tag: [`${action1} ${action2}`.trim(), player, team]
+                    .filter(item => item)
+                    .join(" - ").toUpperCase()
+                };
+              } catch(error) {
+                this.Log(`Error parsing tag ${JSON.stringify(tag)}`, true);
+                this.Log(error, true);
+              }
+            });
+        }
+
         let transcriptionTags = [];
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
