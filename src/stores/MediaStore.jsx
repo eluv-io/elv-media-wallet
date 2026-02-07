@@ -59,7 +59,7 @@ class MediaStore {
 
   /* Tags */
 
-  LoadMediaTags = flow(function * ({objectId, versionHash}) {
+  LoadMediaTags = flow(function * ({objectId, versionHash, compositionKey}) {
     if(versionHash) {
       objectId = this.client.utils.DecodeVersionHash(versionHash).objectId;
     }
@@ -87,8 +87,11 @@ class MediaStore {
           async ({name}) => (
             await this.QueryAIAPI({
               objectId,
-              path: UrlJoin("/tagstore", objectId, "tags"),
+              path: compositionKey ?
+                UrlJoin("/tagstore", "compositions", objectId, "tags") :
+                UrlJoin("/tagstore", objectId, "tags"),
               queryParams: {
+                channel_key: compositionKey,
                 limit: 1000000,
                 track: name
               },
@@ -129,8 +132,11 @@ class MediaStore {
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
             objectId,
-            path: UrlJoin("/tagstore", objectId, "tags"),
+            path: compositionKey ?
+              UrlJoin("/tagstore", "compositions", objectId, "tags") :
+              UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {
+              channel_key: compositionKey,
               limit: 1000000,
               track: "auto_captions"
             },

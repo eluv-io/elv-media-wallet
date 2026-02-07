@@ -764,13 +764,11 @@ const MediaPropertyMediaPage = observer(() => {
   }, []);
 
   useEffect(() => {
-    if(!mediaHash || mediaItem.media_link_info?.composition_key) {
-      // TODO: Disable compositions until ready
-      //return;
-    }
-
     if(mediaHash) {
-      mediaStore.LoadMediaTags({versionHash: mediaHash})
+      mediaStore.LoadMediaTags({
+        versionHash: mediaHash,
+        compositionKey: mediaItem.media_link_info?.composition_key
+      })
         .catch(error => rootStore.Log(error, true));
     }
   }, [mediaHash]);
