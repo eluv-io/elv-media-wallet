@@ -273,6 +273,7 @@ const MediaSidebar = observer(({
                       noBorder={index === 0}
                       imageUrl={imageUrl}
                       title={item.display.title}
+                      subtitle={item.display.subtitle}
                       scheduleInfo={item.scheduleInfo}
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
