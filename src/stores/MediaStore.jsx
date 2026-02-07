@@ -74,8 +74,12 @@ class MediaStore {
           format: "JSON"
         });
 
-        const playByPlayTracks = tracks
-          .filter(track => track.name.startsWith("game_events_all"));
+        const formattedTrack = tracks.find(track => track.name === "game_events_all_events_beautified") ;
+        const singleTrack = tracks.find(track => track.name.startsWith("game_events_all") && track.name.includes("single_track"));
+        const playByPlayTracks =
+          formattedTrack ? [formattedTrack] :
+            singleTrack ? [singleTrack] :
+              tracks.filter(track => track.name.startsWith("game_events_all"));
 
         let playByPlayTags = (await this.client.utils.LimitedMap(
           5,
@@ -100,7 +104,7 @@ class MediaStore {
             end_time: tag.end_time / 1000
           }))
           .sort((a, b) => a.start_time < b.start_time ? -1 : 1);
-
+        
         let transcriptionTags = [];
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
