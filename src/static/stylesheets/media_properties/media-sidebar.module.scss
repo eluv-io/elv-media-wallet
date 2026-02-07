@@ -484,7 +484,6 @@
     align-items: center;
     display: grid;
     flex: 1 1 0;
-    gap: 5px;
     height: max-content;
     max-width: 100%;
     min-height: 40px;
@@ -504,7 +503,7 @@
 
   &__subtitle {
     color: var(--property-text-faded);
-    font-size: 10px;
+    font-size: 12px;
   }
 
   &__title,
@@ -631,6 +630,10 @@
 
     &__image-container {
       width: 100px;
+    }
+
+    &__subtitle {
+      font-size: 12px;
     }
 
     &--live,
