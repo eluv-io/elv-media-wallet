@@ -278,7 +278,7 @@ const MediaVideoWithSidebar = observer(({
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   let streamLimit = rootStore.pageWidth > 1400 ? 16 :
-    rootStore.pageWidth > 900 ? 9 : 6;
+    rootStore.pageWidth > 850 ? 9 : 8;
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {
@@ -386,18 +386,19 @@ const MediaVideoWithSidebar = observer(({
         }
       </div>
       {
-        mediaStore.showTagSidebar ?
-          <MediaTagSidebar mediaItem={mediaItem} /> :
-          <MediaSidebar
-            showActions
-            mediaItem={mediaItem}
-            display={display}
-            multiviewMode={multiviewMode}
-            setMultiviewMode={setMultiviewMode}
-            setSelectedView={view => mediaStore.SetDisplayedContent([view])}
-            contentRef={mediaGridRef}
-            streamLimit={streamLimit}
-          />
+        rootStore.pageWidth < 850 && displayedContent.length > 1 ? null :
+          mediaStore.showTagSidebar ?
+            <MediaTagSidebar mediaItem={mediaItem} /> :
+            <MediaSidebar
+              showActions
+              mediaItem={mediaItem}
+              display={display}
+              multiviewMode={multiviewMode}
+              setMultiviewMode={setMultiviewMode}
+              setSelectedView={view => mediaStore.SetDisplayedContent([view])}
+              contentRef={mediaGridRef}
+              streamLimit={streamLimit}
+            />
       }
       <MultiviewSelectionModal
         streamLimit={streamLimit}

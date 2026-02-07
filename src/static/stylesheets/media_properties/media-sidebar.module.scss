@@ -32,6 +32,7 @@
   }
 
   @media screen and (width <= 1200px) {
+    margin-bottom: 50px;
     min-width: 350px;
     width: 350px;
 
@@ -589,8 +590,8 @@
 
   .sidebar {
     background: var(--property-background-secondary);
-    border-top: 1px solid var(--property-border-color);
     border-radius: 0;
+    border-top: 1px solid var(--property-border-color);
     margin-inline: auto;
     max-height: 75vh;
     min-height: unset;

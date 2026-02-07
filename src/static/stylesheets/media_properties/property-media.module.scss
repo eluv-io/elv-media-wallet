@@ -63,6 +63,10 @@
   @media screen and (width <= 800px) {
     height: max-content;
     min-height: unset;
+
+    &--sidebar {
+      padding-bottom: 0;
+    }
   }
 }
 
@@ -601,10 +605,6 @@
   }
 
   @media screen and (width <= 1000px) and (orientation: portrait) {
-    &__media-grid-container {
-      min-height: unset;
-    }
-
     &__media-grid {
       height: max-content;
       min-height: unset;
