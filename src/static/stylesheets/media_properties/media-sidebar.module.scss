@@ -588,6 +588,8 @@
   // Hide / adjust elements for mobile sidebar
 
   .sidebar {
+    background: var(--property-background-secondary);
+    border-top: 1px solid var(--property-border-color);
     border-radius: 0;
     margin-inline: auto;
     max-height: 75vh;
@@ -760,7 +762,7 @@
     min-width: 100vw;
 
     &__items {
-      max-height: calc(100 * var(--vh) - 175px);
+      max-height: calc(100 * var(--vh) - 150px);
     }
   }
 
