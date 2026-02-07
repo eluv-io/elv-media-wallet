@@ -479,7 +479,7 @@ export const MultiviewSelectionModal = observer(({
           }}
           className={S("multiview-selection-modal__action")}
         >
-          Select
+          Confirm
         </Button>
       </div>
     </Modal>
