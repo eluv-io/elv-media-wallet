@@ -277,7 +277,8 @@ const MediaVideoWithSidebar = observer(({
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  let streamLimit = rootStore.pageWidth < 900 ? 6 : 9;
+  let streamLimit = rootStore.pageWidth > 1400 ? 16 :
+    rootStore.pageWidth > 900 ? 9 : 6;
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {

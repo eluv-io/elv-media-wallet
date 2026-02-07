@@ -418,6 +418,67 @@
       grid-template-columns: 1fr 1fr 1fr;
     }
 
+    &--10 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              ". video-9 video-10 .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--11 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--12 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 video-12";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--13 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 video-12"
+              "video-13 . . .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--14 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 video-12"
+              "video-13 video-14 . .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--15 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 video-12"
+              "video-13 video-14 video-15 .";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    &--16 {
+      grid-template-areas:
+              "video-1 video-2 video-3 video-4"
+              "video-5 video-6 video-7 video-8"
+              "video-9 video-10 video-11 video-12"
+              "video-13 video-14 video-15 video-16";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+
     &--1,
     &--2 {
       .media {
@@ -436,9 +497,21 @@
 
     &--7,
     &--8,
-    &--9 {
+    &--9,
+    &--10,
+    &--11,
+    &--12 {
       .media {
         max-height: calc(var(--property-full-content-height) / 3);
+      }
+    }
+
+    &--13,
+    &--14,
+    &--15,
+    &--16 {
+      .media {
+        max-height: calc(var(--property-full-content-height) / 4);
       }
     }
   }
@@ -698,7 +771,7 @@
 
   background: var(--property-background-secondary);
   min-height: 100px;
-  padding: 25px;
+  padding: 10px 20px 20px;
   position: relative;
 
   @media screen and (width <= 1200px) {
