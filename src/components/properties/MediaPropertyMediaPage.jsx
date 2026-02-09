@@ -750,6 +750,7 @@ const MediaPropertyMediaPage = observer(() => {
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
   const mediaHash = LinkTargetHash(mediaItem.media_link);
+  const mediaId = mediaHash && rootStore.client.utils.DecodeVersionHash(mediaHash)?.objectId;
 
   useEffect(() => {
     mediaStore.Reset();
@@ -764,14 +765,29 @@ const MediaPropertyMediaPage = observer(() => {
   }, []);
 
   useEffect(() => {
-    if(mediaHash) {
+    if(!mediaHash) { return; }
+
+    const compositionKey = mediaItem.media_link_info?.composition_key;
+    if(compositionKey) {
       mediaStore.LoadMediaTags({
         versionHash: mediaHash,
-        compositionKey: mediaItem.media_link_info?.composition_key
+        compositionKey
       })
         .catch(error => rootStore.Log(error, true));
+    } else if(mediaStore.availablePlayers[mediaId]) {
+      // TODO: Record offering ID so we don't have to look it up
+      mediaStore.players[mediaId].__PlayoutOptions()
+        .then(options =>
+          mediaStore.LoadMediaTags({
+            versionHash: mediaHash,
+            offering: options.offering || "default",
+            clipStart: mediaItem.media_link_info?.clip_start_time,
+            clipEnd: mediaItem.media_link_info?.clip_end_time
+          })
+            .catch(error => rootStore.Log(error, true))
+        );
     }
-  }, [mediaHash]);
+  }, [mediaHash, mediaStore.availablePlayers[mediaId]]);
 
   if(!mediaItem) {
     return <Redirect to={rootStore.backPath} />;

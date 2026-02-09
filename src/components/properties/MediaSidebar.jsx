@@ -508,7 +508,7 @@ window.formatTime = FormatTime;
 
 let filterTimeout;
 export const MediaTagSidebar = observer(({mediaItem}) => {
-  const [tab, setTab] = useState("TRANSCRIPT");
+  const [tab, setTab] = useState("PLAY-BY-PLAY");
   const [containerRef, setContainerRef] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
   const [filterInput, setFilterInput] = useState("");
@@ -518,7 +518,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
 
   const versionHash = LinkTargetHash(mediaItem.media_link);
   const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
-  const player = window.players[objectId];
+  const player = mediaStore.availablePlayers[objectId] && mediaStore.players[objectId];
 
   useEffect(() => {
     // Tags should already be loaded so this should be instant
@@ -544,7 +544,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
     );
 
     return () => TimeUpdateDisposer?.();
-  }, [player?.id]);
+  }, [mediaStore.availablePlayers[objectId]]);
 
   useEffect(() => {
     if(!containerRef || filter) { return; }
@@ -604,8 +604,8 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
 
   const tabs = [
     mediaStore.mediaTags.hasChapters ? "CHAPTERS" : "",
-    mediaStore.mediaTags.hasTranscription ? "TRANSCRIPT" : "",
-    mediaStore.mediaTags.hasPlayByPlay ? "PLAY-BY-PLAY" : ""
+    mediaStore.mediaTags.hasPlayByPlay ? "PLAY-BY-PLAY" : "",
+    mediaStore.mediaTags.hasTranscription ? "TRANSCRIPT" : ""
   ]
     .filter(tab => tab);
 

@@ -2,7 +2,7 @@ import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss
 
 import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
-import {rootStore, mediaPropertyStore} from "Stores";
+import {rootStore, mediaPropertyStore, mediaStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
 import ImageIcon from "Components/common/ImageIcon";
 
@@ -118,10 +118,8 @@ const Video = forwardRef(function VideoComponent({
       }
     ).then(player => {
       player.id = `${contentHash}-${Math.random()}`;
-      window.players = {
-        ...(window.players || {}),
-        [contentId]: player,
-      };
+
+      mediaStore.SetPlayer({objectId: contentId, player});
 
       setPlayer(player);
 
@@ -190,11 +188,12 @@ const Video = forwardRef(function VideoComponent({
 
       try {
         player.Destroy();
-        delete window.players?.[contentId];
       } catch(error) {
         // eslint-disable-next-line no-console
         console.log(error);
       }
+
+      mediaStore.ClearPlayer({objectId});
     };
   }, [player]);
 

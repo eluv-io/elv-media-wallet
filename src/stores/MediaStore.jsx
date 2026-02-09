@@ -10,6 +10,10 @@ class MediaStore {
   showTagSidebar = false;
   showMultiviewSelectionModal = false;
 
+  // Dont want to observe entire player
+  players = {};
+  availablePlayers = {};
+
   get client() {
     return this.rootStore.client;
   }
@@ -21,7 +25,10 @@ class MediaStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
 
-    makeAutoObservable(this);
+    makeAutoObservable(
+      this,
+      { players: false }
+    );
 
     this.Log = this.rootStore.Log;
     this.LoadResource = this.rootStore.LoadResource;
@@ -57,9 +64,19 @@ class MediaStore {
     this.showMultiviewSelectionModal = show;
   }
 
+  SetPlayer({objectId, player}) {
+    this.players[objectId] = player;
+    this.availablePlayers[objectId] = player.id || true;
+  }
+
+  ClearPlayer({objectId}) {
+    delete this.players[objectId];
+    delete this.availablePlayers[objectId];
+  }
+
   /* Tags */
 
-  LoadMediaTags = flow(function * ({objectId, versionHash, compositionKey}) {
+  LoadMediaTags = flow(function * ({objectId, versionHash, compositionKey, offering, clipStart, clipEnd}) {
     if(versionHash) {
       objectId = this.client.utils.DecodeVersionHash(versionHash).objectId;
     }
@@ -87,13 +104,16 @@ class MediaStore {
           async ({name}) => (
             await this.QueryAIAPI({
               objectId,
-              path: compositionKey ?
-                UrlJoin("/tagstore", "compositions", objectId, "tags") :
+              path: offering || compositionKey ?
+                UrlJoin("/tagstore", objectId, "compositions", "tags") :
                 UrlJoin("/tagstore", objectId, "tags"),
               queryParams: {
                 channel_key: compositionKey,
+                offering_key: offering,
                 limit: 1000000,
-                track: name
+                track: name,
+                clip_start: clipStart,
+                clip_end: clipEnd
               },
               format: "JSON"
             })
@@ -132,13 +152,16 @@ class MediaStore {
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
             objectId,
-            path: compositionKey ?
-              UrlJoin("/tagstore", "compositions", objectId, "tags") :
+            path: offering || compositionKey ?
+              UrlJoin("/tagstore", objectId, "compositions", "tags") :
               UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {
               channel_key: compositionKey,
+              offering_key: offering,
               limit: 1000000,
-              track: "auto_captions"
+              track: "auto_captions",
+              clip_start: clipStart,
+              clip_end: clipEnd
             },
             format: "JSON"
           })).tags

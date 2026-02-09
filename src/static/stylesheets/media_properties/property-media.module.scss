@@ -733,11 +733,13 @@
   padding: 0;
 
   &__button {
+    @include page-fade-in;
+
     background: var(--property-search-background);
     border-radius: 8px;
     font-weight: 800;
     height: 50px;
-    min-width: 180px;
+    min-width: 185px;
 
     &--active {
       background-color: var(--property-search-button-background);
@@ -810,6 +812,7 @@
     font-size: 24px;
     font-weight: 600;
     justify-content: space-between;
+    min-height: 50px;
     position: relative;
   }
 
