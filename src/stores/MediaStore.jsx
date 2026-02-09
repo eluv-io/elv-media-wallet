@@ -6,6 +6,7 @@ class MediaStore {
   sidebarContent = {};
   mediaTags = {};
 
+  multiviewMode = "pip";
   showSidebar = true;
   showTagSidebar = false;
   showMultiviewSelectionModal = false;
@@ -50,6 +51,10 @@ class MediaStore {
 
   SetSidebarContent(sidebarContent) {
     this.sidebarContent = sidebarContent;
+  }
+
+  SetMultiviewMode(mode) {
+    this.multiviewMode = mode;
   }
 
   SetShowSidebar(show) {

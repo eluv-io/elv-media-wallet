@@ -267,13 +267,11 @@ const PIPContent = observer(({mediaInfo}) => {
   );
 });
 
-let lastSelectedMode = "pip";
 const MediaVideoWithSidebar = observer(({
   mediaItem,
   display,
   textContent
 }) => {
-  const [multiviewMode, setMultiviewMode] = useState(lastSelectedMode);
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -282,7 +280,7 @@ const MediaVideoWithSidebar = observer(({
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {
-      setMultiviewMode("multiview");
+      mediaStore.SetMultiviewMode("multiview");
     }
   }, [rootStore.pageWidth, rootStore.pageHeight]);
 
@@ -295,10 +293,10 @@ const MediaVideoWithSidebar = observer(({
   }, []);
 
   useEffect(() => {
-    if(multiviewMode === "pip") {
+    if(mediaStore.multiviewMode === "pip") {
       mediaStore.SetDisplayedContent(mediaStore.displayedContent.slice(0, 2));
     }
-  }, [multiviewMode]);
+  }, [mediaStore.multiviewMode]);
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
@@ -333,7 +331,7 @@ const MediaVideoWithSidebar = observer(({
     .slice(0, streamLimit);
 
   let media;
-  if(multiviewMode === "pip" || mediaInfo.length === 1) {
+  if(mediaStore.multiviewMode === "pip" || mediaInfo.length === 1) {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent mediaInfo={mediaInfo} />
@@ -386,15 +384,13 @@ const MediaVideoWithSidebar = observer(({
         }
       </div>
       {
-        rootStore.pageWidth < 850 && displayedContent.length > 1 ? null :
+        rootStore.pageWidth < 850 && mediaStore.displayedContent.length > 1 ? null :
           mediaStore.showTagSidebar ?
             <MediaTagSidebar mediaItem={mediaItem} /> :
             <MediaSidebar
               showActions
               mediaItem={mediaItem}
               display={display}
-              multiviewMode={multiviewMode}
-              setMultiviewMode={setMultiviewMode}
               setSelectedView={view => mediaStore.SetDisplayedContent([view])}
               contentRef={mediaGridRef}
               streamLimit={streamLimit}
@@ -403,8 +399,6 @@ const MediaVideoWithSidebar = observer(({
       <MultiviewSelectionModal
         streamLimit={streamLimit}
         mediaItem={mediaItem}
-        multiviewMode={multiviewMode}
-        setMultiviewMode={setMultiviewMode}
       />
     </div>
   );

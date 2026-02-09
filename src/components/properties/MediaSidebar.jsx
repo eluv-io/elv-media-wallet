@@ -35,11 +35,12 @@ const Item = observer(({
   noBorder,
   noActions,
   toggleOnClick,
-  multiviewMode,
   streamLimit,
+  multiviewMode,
   displayedContent,
   setDisplayedContent
 }) => {
+  multiviewMode = multiviewMode || mediaStore.multiviewMode;
   displayedContent = displayedContent || mediaStore.displayedContent;
   setDisplayedContent = setDisplayedContent || (content => mediaStore.SetDisplayedContent(content));
 
@@ -152,8 +153,6 @@ const Item = observer(({
 const MediaSidebar = observer(({
   mediaItem,
   display,
-  multiviewMode,
-  setMultiviewMode,
   contentRef,
   streamLimit
 }) => {
@@ -185,16 +184,16 @@ const MediaSidebar = observer(({
           !mediaStore.sidebarContent.anyMultiview ? null :
             <div className={S("multiview-switch")}>
               <button
-                onClick={() => setMultiviewMode("pip")}
+                onClick={() => mediaStore.SetMultiviewMode("pip")}
                 title="Picture-in-Picture Mode"
-                className={S("multiview-switch__button", multiviewMode === "pip" ? "multiview-switch__button--active" : "")}
+                className={S("multiview-switch__button", mediaStore.multiviewMode === "pip" ? "multiview-switch__button--active" : "")}
               >
                 <ImageIcon icon={PipVideoIcon}/>
               </button>
               <button
-                onClick={() => setMultiviewMode("multiview")}
+                onClick={() => mediaStore.SetMultiviewMode("multiview")}
                 title="Multiview Mode"
-                className={S("multiview-switch__button", multiviewMode === "multiview" ? "multiview-switch__button--active" : "")}
+                className={S("multiview-switch__button", mediaStore.multiviewMode === "multiview" ? "multiview-switch__button--active" : "")}
               >
                 <ImageIcon icon={MultiviewIcon}/>
               </button>
@@ -280,7 +279,6 @@ const MediaSidebar = observer(({
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
                       primaryMediaId={mediaItem.id}
-                      multiviewMode={multiviewMode}
                       noActions={!item.authorized || !item.scheduleInfo.currentlyLive}
                       streamLimit={streamLimit}
                     />
@@ -302,7 +300,6 @@ const MediaSidebar = observer(({
                                   label: `${item.display.title} - ${view.label}`
                                 }}
                                 primaryMediaId={mediaItem.id}
-                                multiviewMode={multiviewMode}
                                 streamLimit={streamLimit}
                               />
                             )
