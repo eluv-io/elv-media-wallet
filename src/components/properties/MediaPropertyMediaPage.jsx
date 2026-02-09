@@ -563,7 +563,7 @@ const SectionNavButtons = observer(() => {
 
 const DownloadButton = observer(({mediaItem, title}) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [status, setStatus] = useState();
+  const [status, setStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -639,6 +639,7 @@ const DownloadButton = observer(({mediaItem, title}) => {
                     SetStatus: setStatus
                   });
                 } catch(error) {
+                  setStatus(undefined);
                   rootStore.Log(error, true);
                 } finally {
                   setLoading(false);

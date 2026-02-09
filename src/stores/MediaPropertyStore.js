@@ -2225,6 +2225,8 @@ class MediaPropertyStore {
     } catch(error) {
       this.Log("Error performing download:", true);
       this.Log(error, true);
+
+      throw error;
     }
   });
 
