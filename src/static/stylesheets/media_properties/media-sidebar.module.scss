@@ -7,7 +7,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: calc(var(--property-full-content-height) - 52px);
+  max-height: calc(var(--property-full-content-height));
+  min-height: calc(var(--property-full-content-height));
   min-width: 400px;
   position: relative;
   width: 400px;
@@ -441,7 +442,7 @@
   }
 
   &:last-child {
-    border-bottom: 1px solid #2C2C2C;
+    //border-bottom: 1px solid #2C2C2C;
   }
 
   &__image-container {
