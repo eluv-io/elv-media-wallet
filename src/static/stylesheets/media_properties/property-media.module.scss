@@ -309,10 +309,10 @@
     position: relative;
 
     &:not(&--fullscreen) {
-      max-height: calc(var(--property-full-content-height) - 104px);
+      max-height: calc(var(--property-full-content-height) - 120px);
 
       * {
-        max-height: calc(var(--property-full-content-height) - 104px);
+        max-height: calc(var(--property-full-content-height) - 120px);
       }
     }
   }
@@ -771,7 +771,7 @@
   @include page-fade-in;
 
   background: var(--property-background-secondary);
-  min-height: 100px;
+  min-height: 120px;
   padding: 10px 20px 20px;
   position: relative;
 

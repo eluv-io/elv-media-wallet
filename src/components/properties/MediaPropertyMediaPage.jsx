@@ -742,7 +742,7 @@ const MediaPropertyMediaPage = observer(() => {
     mediaPropertyStore.MediaPropertyMediaItem({
       ...match.params,
       mediaItemSlugOrId: mediaStore.displayedContent[0].mediaItemId || mediaStore.displayedContent[0].id
-    });
+    }) || primaryMediaItem;
 
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
