@@ -9,9 +9,9 @@
   height: 100%;
   max-height: calc(var(--property-full-content-height));
   min-height: calc(var(--property-full-content-height));
-  min-width: 400px;
+  min-width: 420px;
   position: relative;
-  width: 400px;
+  width: 420px;
   z-index: 100;
 
   &--with-multiview {
@@ -451,7 +451,7 @@
     margin-right: 10px;
     overflow: hidden;
     position: relative;
-    width: 120px;
+    width: 140px;
 
     &--square {
       aspect-ratio: 1;
@@ -477,9 +477,9 @@
   }
 
   .live-badge {
-    left: 5px;
+    bottom: 5px;
     position: absolute;
-    top: 5px;
+    right: 5px;
   }
 
   &__text {

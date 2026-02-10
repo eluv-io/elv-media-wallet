@@ -61,7 +61,7 @@ const Item = observer(({
       setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
     } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
       setDisplayedContent([displayedContent[0], contentItem]);
-    } else {
+    } else if(displayedContent.length < streamLimit) {
       setDisplayedContent([...displayedContent, contentItem]);
     }
   };
@@ -105,6 +105,10 @@ const Item = observer(({
               className={S("item__image")}
               src={imageUrl}
             />
+            {
+              !scheduleInfo?.currentlyLive ? null :
+                <div className={S("live-badge")}>Live</div>
+            }
           </Linkish>
       }
       <Linkish

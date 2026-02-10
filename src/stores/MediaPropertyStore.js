@@ -128,8 +128,8 @@ class MediaPropertyStore {
                     ...(item.mediaItem || item)
                   },
                   scheduleInfo: MediaItemScheduleInfo(mediaItem),
-                  additionalViews,
-                  additionalViewLabel
+                  additional_views: additionalViews,
+                  additional_views_label: additionalViewLabel
                 };
               });
 
