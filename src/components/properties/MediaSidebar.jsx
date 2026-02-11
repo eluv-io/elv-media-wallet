@@ -508,7 +508,7 @@ window.formatTime = FormatTime;
 
 let filterTimeout;
 export const MediaTagSidebar = observer(({mediaItem}) => {
-  const [tab, setTab] = useState("PLAY-BY-PLAY");
+  const [tab, setTab] = useState("CHAPTERS");
   const [containerRef, setContainerRef] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
   const [filterInput, setFilterInput] = useState("");
@@ -523,7 +523,13 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
 
   useEffect(() => {
     // Tags should already be loaded so this should be instant
-    mediaStore.LoadMediaTags({versionHash});
+    mediaStore.LoadMediaTags({versionHash})
+      .then(() =>
+        setTab(
+          mediaStore.mediaTags?.hasChapters ? "CHAPTERS" :
+            mediaStore.mediaTags?.hasTranscription ? "TRANSCRIPT" :
+              "PLAY-BY-PLAY"
+        ));
   }, []);
 
   useEffect(() => {
@@ -589,6 +595,8 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
       case "PLAY-BY-PLAY":
         tabTags = mediaStore.mediaTags.playByPlayTags || [];
         break;
+      case "CHAPTERS":
+        tabTags = mediaStore.mediaTags.chapterTags || [];
     }
 
     setActiveTags(

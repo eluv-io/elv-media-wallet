@@ -90,6 +90,8 @@ class MediaStore {
       key: "MediaTags",
       id: objectId,
       Load: async () => {
+        this.mediaTags = {};
+
         const {tracks} = await this.QueryAIAPI({
           objectId,
           path: UrlJoin("/tagstore", objectId, "tracks"),
@@ -178,6 +180,31 @@ class MediaStore {
             })) || [];
         }
 
+        let chapterTags = [];
+        if(tracks.find(track => track.name === "chapter")) {
+          chapterTags = (await this.QueryAIAPI({
+            objectId,
+            path: offering || compositionKey ?
+              UrlJoin("/tagstore", objectId, "compositions", "tags") :
+              UrlJoin("/tagstore", objectId, "tags"),
+            queryParams: {
+              channel_key: compositionKey,
+              offering_key: offering,
+              limit: 1000000,
+              track: "chapter",
+              clip_start: clipStart,
+              clip_end: clipEnd
+            },
+            format: "JSON"
+          })).tags
+            ?.sort((a, b) => a.start_time < b.start_time ? -1 : 1)
+            ?.map(tag => ({
+              ...tag,
+              start_time: tag.start_time / 1000,
+              end_time: tag.end_time / 1000
+            })) || [];
+        }
+
         let tracksMap = {};
         tracks.forEach(track =>
           tracksMap[track.name] = track
@@ -187,10 +214,11 @@ class MediaStore {
           hasTags: transcriptionTags.length > 0 || transcriptionTags.length > 0,
           hasTranscription: transcriptionTags.length > 0,
           hasPlayByPlay: playByPlayTags.length > 0,
-          hasChapters: false,
+          hasChapters: chapterTags.length > 0,
           tracks: tracksMap,
           transcriptionTags,
-          playByPlayTags
+          playByPlayTags,
+          chapterTags
         };
       }
     });

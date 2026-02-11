@@ -584,6 +584,9 @@ const OryLogin = observer(({
             const email = flow.ui.nodes.find(node => node.attributes.name === "identifier")?.attributes.value;
             message.text = LocalizeString(rootStore.l10n.login.ory.messages.third_party_conflict, {email});
             break;
+          case 1010003:
+            // Weird 'please confirm this action by verifying that it is you' message
+            return;
         }
 
         return message;
