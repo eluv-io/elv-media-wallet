@@ -515,6 +515,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   const [filter, setFilter] = useState("");
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const versionHash = LinkTargetHash(mediaItem.media_link);
   const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
@@ -528,6 +529,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   useEffect(() => {
     setFilterInput("");
     setFilter("");
+    setScrolled(false);
   }, [tab]);
 
   useEffect(() => {
@@ -564,8 +566,9 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
       containerRef.scrollTo({
         top: tagElement.offsetTop - 180,
         left: 0,
-        behavior: "smooth"
+        behavior: scrolled ? "smooth" : "instant"
       });
+      setScrolled(true);
     }
   }, [currentTime, activeTags.length]);
 
