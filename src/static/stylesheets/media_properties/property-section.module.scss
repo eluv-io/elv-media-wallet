@@ -198,6 +198,7 @@
     font-size: 14px;
     margin: 10px 0 20px;
     padding: 0;
+    width: 100%;
 
     @media screen and (width <= 800px) {
       font-size: 12px;
@@ -220,6 +221,10 @@
 
     margin-top: 20px;
     width: 100%;
+
+    &--empty {
+      height: 280px;
+    }
 
     &--grid {
       display: grid;

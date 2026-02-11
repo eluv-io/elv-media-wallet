@@ -1021,15 +1021,19 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
               className={S("section__page-filter")}
             />
         }
-        <ContentComponent
-          navContext={sectionId}
-          section={section}
-          sectionContent={
-            displayLimit ?
-              sectionContent.slice(0, displayLimit) :
-              sectionContent
-          }
-        />
+        {
+          sectionContent.length === 0 ?
+            <div className={S("section__content--empty")} /> :
+            <ContentComponent
+              navContext={sectionId}
+              section={section}
+              sectionContent={
+                displayLimit ?
+                  sectionContent.slice(0, displayLimit) :
+                  sectionContent
+              }
+            />
+        }
         {
           !section.display.show_app_links ? null :
             <AppLinks />

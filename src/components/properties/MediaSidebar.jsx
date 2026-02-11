@@ -206,6 +206,16 @@ const MediaSidebar = observer(({
         <button title="Hide Sidbar" onClick={() => mediaStore.SetShowSidebar(false)} className={S("hide-button")}>
           <ImageIcon icon={HideIcon}/>
         </button>
+        {
+          rootStore.pageWidth <= 850 || !contentRef || !document.fullscreenEnabled || mediaStore.displayedContent.length <= 1 ? null :
+            <button
+              onClick={() => contentRef.requestFullscreen()}
+              title="View Content in Full Screen"
+              className={S("fullscreen-button")}
+            >
+              <ImageIcon icon={FullscreenIcon}/>
+            </button>
+        }
       </div>
       <div className={S("header", "header--sidebar")}>
         {
@@ -241,18 +251,6 @@ const MediaSidebar = observer(({
                   </button>
                 )
               }
-            </div>
-        }
-        {
-          rootStore.pageWidth <= 850 || !contentRef || !document.fullscreenEnabled || mediaStore.displayedContent.length <= 1 ? null :
-            <div className={S("content__actions")}>
-              <button
-                onClick={() => contentRef.requestFullscreen()}
-                title="View Content in Full Screen"
-                className={S("content__fullscreen-button")}
-              >
-                <ImageIcon icon={FullscreenIcon}/>
-              </button>
             </div>
         }
       </div>
@@ -564,7 +562,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
       tagElement.getBoundingClientRect().bottom - containerRef.getBoundingClientRect().bottom > 0
     ) {
       containerRef.scrollTo({
-        top: tagElement.offsetTop - 200,
+        top: tagElement.offsetTop - 180,
         left: 0,
         behavior: "smooth"
       });
@@ -657,7 +655,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
         className={S("tags")}
         ref={setContainerRef}
         style={{
-          overflowY: playing ? "hidden" : "auto"
+          overflowY: playing && !filter ? "hidden" : "auto"
         }}
       >
         {

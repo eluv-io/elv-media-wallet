@@ -626,37 +626,41 @@ const DownloadButton = observer(({mediaItem, title}) => {
       </Menu.Target>
       <Menu.Dropdown>
         {
-          mediaItem.media_link_info.representations.map((rep, index) =>
-            <Menu.Item
-              key={`rep-${rep.string}`}
-              onClick={async () => {
-                setLoading(true);
-                try {
-                  await mediaPropertyStore.StartDownloadJob({
-                    mediaItem,
-                    filename: `${title}${index > 0 ? ` (${rep.resolution})` : ""}`,
-                    representation: rep.key,
-                    SetStatus: setStatus
-                  });
-                } catch(error) {
-                  setStatus(undefined);
-                  rootStore.Log(error, true);
-                } finally {
-                  setLoading(false);
-                }
+          [...(mediaItem.media_link_info.representations || [])]
+            .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1)
+            // If multiple reps of the same resolution, hide all but highest bitrate
+            .filter((item, i, a) => a.findIndex(other => other.resolution === item.resolution) === i)
+            .map(rep =>
+              <Menu.Item
+                key={`rep-${rep.string}`}
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await mediaPropertyStore.StartDownloadJob({
+                      mediaItem,
+                      filename: `${title} (${rep.resolution})`,
+                      representation: rep.key,
+                      SetStatus: setStatus
+                    });
+                  } catch(error) {
+                    setStatus(undefined);
+                    rootStore.Log(error, true);
+                  } finally {
+                    setLoading(false);
+                  }
 
-                setShowMenu(false);
-              }}
-             rightSection={
-               <ImageIcon
-                 icon={DownloadIcon}
-                 style={{height: 22, width: 22, marginLeft: 10}}
-               />
-             }
-            >
-              { rep.resolution }
-            </Menu.Item>
-          )
+                  setShowMenu(false);
+                }}
+               rightSection={
+                 <ImageIcon
+                   icon={DownloadIcon}
+                   style={{height: 22, width: 22, marginLeft: 10}}
+                 />
+               }
+              >
+                { rep.resolution }
+              </Menu.Item>
+            )
         }
       </Menu.Dropdown>
     </Menu>
