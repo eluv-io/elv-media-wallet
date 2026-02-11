@@ -1770,6 +1770,7 @@ class MediaPropertyStore {
         };
 
         Object.keys(media).forEach(mediaId => {
+          media[mediaId].media_catalog_id = mediaCatalogId;
           media[mediaId].authorized = IsAuthorized(media[mediaId]);
           media[mediaId].canPurchaseAccess = CanPurchaseAccess(media[mediaId]);
 
