@@ -287,11 +287,11 @@ const MediaSidebar = observer(({
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
                       primaryMediaId={mediaItem.id}
-                      noActions={!item.authorized || !item.scheduleInfo.currentlyLive}
+                      noActions={!item.authorized || !item.scheduleInfo?.isMultiviewable}
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo.currentlyLive ? null :
+                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo.isMultiviewable ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
@@ -333,7 +333,7 @@ export const MultiviewSelectionModal = observer(({
   let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
     tab.groups.find(group =>
       group.content.find(item =>
-        item.scheduleInfo.currentlyLive
+        item.scheduleInfo.isMultiviewable
       )
     )
   );
@@ -404,7 +404,7 @@ export const MultiviewSelectionModal = observer(({
       <div className={S("multiview-selection-modal__items")}>
         {
           tab?.groups.map(group =>
-            !group.content.find(item => item.authorized && item.scheduleInfo.currentlyLive) ? null :
+            !group.content.find(item => item.authorized && item.scheduleInfo.isMultiviewable) ? null :
               <div key={`group-${group.id}`} className={S("content__section")}>
                 {
                   !group.title ? null :
@@ -413,7 +413,7 @@ export const MultiviewSelectionModal = observer(({
                     </div>
                 }
                 {group.content
-                  .filter(item => item.authorized)
+                  .filter(item => item.authorized && item.scheduleInfo?.isMultiviewable)
                   .map((item, index) => {
                     let {imageUrl} = MediaItemImageUrl({
                       mediaItem: item.mediaItem,
@@ -438,7 +438,7 @@ export const MultiviewSelectionModal = observer(({
                           setDisplayedContent={setSelectedContent}
                         />
                         {
-                          (item?.additional_views || [])?.length === 0 || item.mediaItem.id !== mediaItem.id || !item.scheduleInfo.currentlyLive ? null :
+                          (item?.additional_views || [])?.length === 0 ? null :
                             <div className={S("content__views-container")}>
                               {
                                 (item.additional_views || []).map((view, index) =>

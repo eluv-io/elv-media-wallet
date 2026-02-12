@@ -60,6 +60,13 @@ const MediaVideo = observer(({
   });
   const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
+  const multiviewing =
+    // Multiview
+    (mediaStore.displayedContent.length > 1 && mediaStore.multiviewMode === "multiview") ||
+    // Pip
+    (mediaStore.displayedContent.length === 2 && hideControls);
+
+
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     // Upcoming - countdown
 
@@ -79,7 +86,16 @@ const MediaVideo = observer(({
     }) || backgroundImage;
 
     return (
-      <div className={S("media__error", "media__error--countdown")} {...containerProps}>
+      <div
+        {...containerProps}
+        onClick={onClick}
+        className={
+          [
+            S("media__error", "media__error--countdown", multiviewing ? "media__error--multiview" : ""),
+            className
+          ].join(" ")
+        }
+      >
         <LoaderImage
           src={backgroundImage || imageUrl}
           alt={mediaItem?.thumbnail_alt_text || mediaItem.title}
@@ -122,7 +138,7 @@ const MediaVideo = observer(({
 
   if(error) {
     return (
-      <div onClick={onClick} className={[S("media__error"), className].join(" ")} {...containerProps}>
+      <div onClick={onClick} className={[S("media__error", renderSmall ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
         <img src={imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />

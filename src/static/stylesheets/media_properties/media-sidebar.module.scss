@@ -16,6 +16,7 @@
 
   &--with-multiview {
     .header {
+      padding-bottom: 50px;
       padding-right: 90px;
     }
   }
@@ -473,10 +474,6 @@
   &--hover {
     background-color: var(--property-background-tertiary);
     transition: background-color 0.25s ease;
-  }
-
-  &:last-child {
-    //border-bottom: 1px solid #2C2C2C;
   }
 
   &__image-container {

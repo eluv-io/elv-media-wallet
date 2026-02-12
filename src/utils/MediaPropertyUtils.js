@@ -412,7 +412,8 @@ export const MediaItemScheduleInfo = mediaItem => {
 
   if(!isLiveVideoType) {
     return {
-      isLiveContent: false
+      isLiveContent: false,
+      isMultiviewable: true
     };
   }
 
@@ -433,6 +434,7 @@ export const MediaItemScheduleInfo = mediaItem => {
       endTime,
       isLiveContent: true,
       currentlyLive: started && !ended,
+      isMultiviewable: !ended,
       started,
       ended,
       displayStartDate,

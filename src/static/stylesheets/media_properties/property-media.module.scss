@@ -154,7 +154,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    height: calc(var(--property-full-content-height) - 120px);
+    height: 100%;
     justify-content: center;
     position: relative;
     width: 100%;
@@ -218,6 +218,7 @@
   &__error-title {
     font-size: 1.5em;
     font-weight: 700;
+    padding-inline: 10px;
     position: relative;
   }
 
@@ -238,14 +239,76 @@
     width: 150px;
   }
 
-  @media screen and (width <= 800px) {
-    min-height: unset;
+  &__error--multiview {
+    gap: 10px;
+    min-width: 0;
+    padding-inline: 10px;
 
+    * {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .media {
+      &__error-title {
+        font-size: 14px;
+        text-align: center;
+      }
+
+      &__error--countdown {
+        gap: 10px;
+      }
+
+      &__error-content-icons {
+        margin: 0;
+      }
+
+      &__error-content-icon {
+        height: 50px;
+        min-width: 50px;
+        width: 50px;
+      }
+
+      &__error-headers {
+        flex-direction: column;
+        font-size: 10px;
+        gap: 10px;
+        min-width: 250px;
+        padding: 10px 20px;
+      }
+
+      &__countdown {
+        font-size: 14px;
+        text-align: center;
+      }
+    }
+
+    @media screen and (width <= 800px) {
+      .media__error-content-icons {
+        display: none;
+      }
+
+      .media__error-header {
+        font-size: 10px;
+      }
+
+      .media__countdown,
+      .media__error-title {
+        font-size: 12px;
+      }
+    }
+  }
+
+  @media screen and (width < 800px) {
     &__error {
-      padding-inline: 20px;
+      gap: 10px;
+      padding-inline: 10px;
     }
 
     &__error-title {
+      font-size: 14px;
       text-align: center;
     }
 
@@ -254,25 +317,25 @@
     }
 
     &__error-content-icons {
-      margin: 10px 0;
+      margin: 0;
     }
 
     &__error-content-icon {
-      height: 120px;
-      min-width: 120px;
-      width: 120px;
+      height: 50px;
+      min-width: 50px;
+      width: 50px;
     }
 
     &__error-headers {
       flex-direction: column;
-      font-size: 0.9em;
+      font-size: 10px;
       gap: 10px;
       min-width: 250px;
-      padding: 20px;
+      padding: 10px 20px;
     }
 
     &__countdown {
-      font-size: 1.2em;
+      font-size: 14px;
       text-align: center;
     }
   }
@@ -286,8 +349,6 @@
 
 .media-with-sidebar {
   display: grid;
-
-  //gap: 10px;
   grid-template-columns: 1fr auto;
   height: max-content;
   max-width: 100%;
@@ -487,7 +548,8 @@
 
     &--1,
     &--2 {
-      .media {
+      & > div,
+      .media > div > div {
         max-height: calc(var(--property-full-content-height));
       }
     }
@@ -496,7 +558,8 @@
     &--4,
     &--5,
     &--6 {
-      .media {
+      & > div,
+      .media > div > div {
         max-height: calc(var(--property-full-content-height) / 2);
       }
     }
@@ -507,7 +570,8 @@
     &--10,
     &--11,
     &--12 {
-      .media {
+      & > div,
+      .media > div > div {
         max-height: calc(var(--property-full-content-height) / 3);
       }
     }
@@ -516,14 +580,11 @@
     &--14,
     &--15,
     &--16 {
-      .media {
+      & > div,
+      .media > div > div {
         max-height: calc(var(--property-full-content-height) / 4);
       }
     }
-  }
-
-  .media__error {
-    max-height: calc(var(--property-full-content-height) - 10px)!important;
   }
 
   &__video {
@@ -557,13 +618,18 @@
     }
 
     &.media__error {
+      aspect-ratio: 16/9;
       font-size: 12px;
-      height: 200px;
+      height: max-content;
+      min-height: 150px;
       padding: 0;
-      z-index: 0;
 
-      .media__error-icon {
-        height: 35px;
+      .media__error-content-icons {
+        display: none;
+      }
+
+      .media__error-header {
+        font-size: 12px;
       }
     }
 
@@ -599,7 +665,8 @@
       max-height: calc(var(--property-full-content-height) - 10px);
       min-height: unset;
 
-      * {
+      & > div,
+      .media > div > div {
         max-height: calc(var(--property-full-content-height) - 10px);
       }
     }
@@ -614,7 +681,8 @@
         display: flex;
         flex-direction: column;
 
-        .media {
+        & > div,
+        .media > div > div {
           max-height: calc(var(--property-full-content-height) / 2);
         }
       }
@@ -623,7 +691,8 @@
         display: flex;
         flex-direction: column;
 
-        .media {
+        & > div,
+        .media > div > div {
           height: calc(var(--property-full-content-height) / 3);
           max-height: calc(var(--property-full-content-height) / 3);
         }
@@ -633,7 +702,8 @@
         display: flex;
         flex-direction: column;
 
-        .media {
+        & > div,
+        .media > div > div {
           height: calc(var(--property-full-content-height) / 4);
           max-height: calc(var(--property-full-content-height) / 4);
         }
@@ -643,21 +713,24 @@
       &--6,
       &--7,
       &--8 {
-        .media {
+        & > div,
+        .media > div > div {
           max-width: 50vw;
         }
       }
 
       &--5,
       &--6 {
-        .media {
+        & > div,
+        .media > div > div {
           max-height: calc(var(--property-full-content-height) / 3);
         }
       }
 
       &--7,
       &--8 {
-        .media {
+        & > div,
+        .media > div > div {
           max-height: calc(var(--property-full-content-height) / 4);
         }
       }
@@ -703,7 +776,8 @@
       &:not(&--fullscreen) {
         max-height: calc(var(--property-full-content-height));
 
-        * {
+        & > div,
+        .media > div > div {
           max-height: calc(var(--property-full-content-height));
         }
       }
@@ -712,23 +786,17 @@
     &__media-grid {
       height: max-content;
       min-height: unset;
-
-      &--2 {
-        .media {
-          max-height: var(--property-full-content-height);
-          width: 50vw;
-        }
-      }
-
+      
       &--3,
       &--4,
       &--5,
       &--6 {
-        & > * {
+        & > div {
           height: calc(var(--property-full-content-height) / 2);
         }
 
-        * {
+        & > div,
+        .media > div > div {
           max-height: calc(var(--property-full-content-height) / 2);
         }
       }
