@@ -732,6 +732,10 @@ const MediaCard = observer(({
         price = `${minPrice} - ${maxPrice}`;
       }
     }
+  } else if(!rootStore.loggedIn) {
+    // Disabled but not logged in - prompt login
+    disabled = false;
+    onClick = () => rootStore.ShowLogin();
   }
 
   let args = {
