@@ -735,7 +735,9 @@ const MediaCard = observer(({
   } else if(!rootStore.loggedIn) {
     // Disabled but not logged in - prompt login
     disabled = false;
-    onClick = () => rootStore.ShowLogin();
+    const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
+    linkPath = linkInfo?.linkPath;
+    onClick = () => rootStore.ShowLogin({backPath: window.location.pathname});
   }
 
   let args = {

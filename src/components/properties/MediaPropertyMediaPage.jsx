@@ -38,6 +38,7 @@ const MediaVideo = observer(({
   hideControls,
   allowCasting=true,
   mute,
+  saveSettings,
   noReactiveMute,
   capLevelToPlayerSize,
   onClick,
@@ -155,6 +156,14 @@ const MediaVideo = observer(({
     playoutParameters.clipEnd = display.clip_end_time;
   }
 
+  if(saveSettings) {
+    try {
+      const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
+
+      mute = mute || savedSettings.muted;
+    } catch(error) { /* empty */ }
+  }
+
   return (
     <Video
       key={loadKey}
@@ -187,7 +196,15 @@ const MediaVideo = observer(({
           width: mediaPropertyStore.rootStore.fullscreenImageWidth
         })
       }
-      settingsUpdateCallback={settingsUpdateCallback}
+      settingsUpdateCallback={player => settingsUpdateCallback?.(player)}
+      readyCallback={
+        !saveSettings ? undefined :
+          player => {
+            player.controls.RegisterVideoEventListener("volumechange", () =>
+              localStorage.setItem("video-settings", JSON.stringify({muted: player.controls.IsMuted()}))
+            );
+          }
+      }
       onClose={onClose}
       errorCallback={async error => {
         const shouldReload = await mediaPropertyStore.MediaPropertyShouldReload(match.params);
@@ -225,6 +242,7 @@ const PIPContent = observer(({mediaInfo}) => {
   const primaryVideo = (
     <MediaVideo
       key={`media-${mediaStore.displayedContent[0].id}`}
+      saveSettings={!secondaryMedia}
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
@@ -684,7 +702,7 @@ const Media = observer(({
         />
       );
     } else {
-      return <MediaVideo mediaItem={mediaItem} display={display}/>;
+      return <MediaVideo saveSettings mediaItem={mediaItem} display={display}/>;
     }
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;

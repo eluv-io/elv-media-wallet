@@ -239,7 +239,7 @@ const MediaSidebar = observer(({
       </div>
       <div className={S("tabs-container")}>
         {
-          mediaStore.sidebarContent.tabs.length <= 1 ? null :
+          (mediaStore.sidebarContent.tabs || []).length <= 1 ? null :
             <div className={S("tabs")}>
               {
                 mediaStore.sidebarContent.tabs.map((tab, index) =>
@@ -324,7 +324,7 @@ export const MultiviewSelectionModal = observer(({
   mediaItem,
   streamLimit
 }) => {
-  let tabs = mediaStore.sidebarContent.tabs.filter(tab =>
+  let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
     tab.groups.find(group =>
       group.content.find(item =>
         item.scheduleInfo.currentlyLive
