@@ -774,6 +774,11 @@ const MediaPropertyMediaPage = observer(() => {
         versionHash: mediaHash,
         compositionKey
       })
+        .then(() => {
+          if(mediaStore.mediaTags?.hasTags) {
+            mediaStore.SetShowTagSidebar(true);
+          }
+        })
         .catch(error => rootStore.Log(error, true));
     } else if(mediaStore.availablePlayers[mediaId]) {
       // TODO: Record offering ID so we don't have to look it up
@@ -785,6 +790,11 @@ const MediaPropertyMediaPage = observer(() => {
             clipStart: mediaItem.media_link_info?.clip_start_time,
             clipEnd: mediaItem.media_link_info?.clip_end_time
           })
+            .then(() => {
+              if(mediaStore.mediaTags?.hasTags) {
+                mediaStore.SetShowTagSidebar(true);
+              }
+            })
             .catch(error => rootStore.Log(error, true))
         );
     }

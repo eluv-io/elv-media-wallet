@@ -236,6 +236,7 @@
 .tag {
   border-bottom: 1px solid var(--property-border-color);
   display: flex;
+  gap: 15px;
   padding: 15px;
   text-align: left;
   transition: background-color 0.25s ease;
@@ -245,12 +246,45 @@
     background-color: var(--property-background-tertiary);
   }
 
+  &--thumbnail {
+    .tag__text {
+      flex-direction: column-reverse;
+      gap: 5px;
+      justify-content: flex-end;
+    }
+
+    .tag__time {
+      color: var(--property-text-faded);
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .tag__content {
+      color: var(--property-text-primary);
+    }
+  }
+
   * {
     color: var(--property-text-secondary);
   }
 
+  &__text {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+  }
+
+  &__thumbnail {
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    min-width: 100px;
+    outline: 0;
+    width: 100px;
+  }
+
   &__time {
-    width: 80px;
+    width: 65px;
   }
 
   &__content {

@@ -202,6 +202,11 @@ class MediaStore {
               ...tag,
               start_time: tag.start_time / 1000,
               end_time: tag.end_time / 1000
+            }))
+            ?.map((chapter, index, chapters) => ({
+              ...chapter,
+              // Ensure chapter tags are contiguous
+              end_time: (chapters[index + 1] || {}).start_time || chapter.end_time
             })) || [];
         }
 

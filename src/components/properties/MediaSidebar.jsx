@@ -20,6 +20,7 @@ import EyeIcon from "Assets/icons/eye.svg";
 import XIcon from "Assets/icons/x";
 import AIDescriptionIcon from "Assets/icons/ai-description";
 import SearchIcon from "Assets/icons/search";
+import {useIsVisible} from "Components/common/Hooks";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -506,12 +507,95 @@ export const FormatTime = time => {
 
 window.formatTime = FormatTime;
 
+const Tag = observer(({objectId, tag, showThumbnails, videoDimensions, active}) => {
+  const [ref, setRef] = useState(undefined);
+  const visible = useIsVisible(ref);
+  const player = mediaStore.availablePlayers[objectId] && mediaStore.players[objectId];
+
+  return (
+    <button
+      ref={setRef}
+      key={tag.id}
+      id={`video-tag-${tag.id}`}
+      onClick={() => player?.controls.Seek({time: tag.start_time})}
+      className={
+        S(
+          "tag",
+          active ? "tag--active" : "",
+          showThumbnails ? "tag--thumbnail" : ""
+        )
+      }
+    >
+      {
+        !showThumbnails ? null :
+          !visible ?
+            <div
+              key={`img-${tag.id}`}
+              style={{
+                aspectRatio: `${videoDimensions.width}/${videoDimensions.height}`
+              }}
+              className={S("tag__thumbnail")}
+            /> :
+            <img
+              key={`img-${tag.id}`}
+              style={{
+                aspectRatio: `${videoDimensions.width}/${videoDimensions.height}`
+              }}
+              src={player.controls.GetThumbnailImage(tag.start_time)} alt={tag.tag}
+              className={S("tag__thumbnail")}
+            />
+      }
+      <div className={S("tag__text")}>
+        <div className={S("tag__time")}>
+          {
+            showThumbnails ?
+              `${ FormatTime(tag.start_time) } - ${ FormatTime(tag.end_time) } (${FormatTime(tag.end_time - tag.start_time)})` :
+              FormatTime(tag.start_time)
+          }
+        </div>
+        <div className={S("tag__content")}>
+          {tag.tag}
+        </div>
+      </div>
+    </button>
+  );
+});
+
 let filterTimeout;
+const FilterInput = observer(({filter, setFilter, placeholder}) => {
+  const [filterInput, setFilterInput] = useState(filter);
+
+  useEffect(() => {
+    clearTimeout(filterTimeout);
+
+    filterTimeout = setTimeout(() => setFilter(filterInput), 500);
+  }, [filterInput]);
+
+  useEffect(() => {
+    setFilterInput(filterInput);
+  }, [filter]);
+
+  return (
+    <TextInput
+      value={filterInput}
+      onChange={event => setFilterInput(event.target.value)}
+      placeholder={placeholder}
+      leftSectionWidth={50}
+      leftSection={
+        <ImageIcon icon={SearchIcon} className={S("search__icon")}/>
+      }
+      classNames={{
+        root: S("search"),
+        input: [S("search__input"), "_title"].join(" ")
+      }}
+    />
+  );
+});
+
 export const MediaTagSidebar = observer(({mediaItem}) => {
   const [tab, setTab] = useState("CHAPTERS");
   const [containerRef, setContainerRef] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
-  const [filterInput, setFilterInput] = useState("");
   const [filter, setFilter] = useState("");
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -526,14 +610,12 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
     mediaStore.LoadMediaTags({versionHash})
       .then(() =>
         setTab(
-          mediaStore.mediaTags?.hasChapters ? "CHAPTERS" :
             mediaStore.mediaTags?.hasTranscription ? "TRANSCRIPT" :
-              "PLAY-BY-PLAY"
+              mediaStore.mediaTags?.hasPlayByPlay ? "PLAY-BY-PLAY" : "CHAPTERS"
         ));
   }, []);
 
   useEffect(() => {
-    setFilterInput("");
     setFilter("");
     setScrolled(false);
   }, [tab]);
@@ -579,12 +661,6 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   }, [currentTime, activeTags.length]);
 
   useEffect(() => {
-    clearTimeout(filterTimeout);
-
-    filterTimeout = setTimeout(() => setFilter(filterInput), 500);
-  }, [filterInput]);
-
-  useEffect(() => {
     if(!mediaStore.mediaTags.hasTags) { return; }
 
     let tabTags = [];
@@ -614,11 +690,14 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   }
 
   const tabs = [
-    mediaStore.mediaTags.hasChapters ? "CHAPTERS" : "",
+    mediaStore.mediaTags.hasTranscription ? "TRANSCRIPT" : "",
     mediaStore.mediaTags.hasPlayByPlay ? "PLAY-BY-PLAY" : "",
-    mediaStore.mediaTags.hasTranscription ? "TRANSCRIPT" : ""
+    mediaStore.mediaTags.hasChapters ? "CHAPTERS" : ""
   ]
     .filter(tab => tab);
+
+  const showThumbnails = tab === "CHAPTERS" && player?.controls?.ThumbnailsAvailable();
+  const videoDimensions = player?.controls.GetVideoDimensions();
 
   return (
     <div className={S("sidebar", "sidebar--tags")}>
@@ -647,22 +726,14 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
         </div>
       </div>
       <div className={S("search-container")}>
-        <TextInput
-          value={filterInput}
-          onChange={event => setFilterInput(event.target.value)}
+        <FilterInput
           placeholder={`SEARCH ${tab}`}
-          leftSectionWidth={50}
-          leftSection={
-            <ImageIcon icon={SearchIcon} className={S("search__icon")}/>
-          }
-          classNames={{
-            root: S("search"),
-            input: [S("search__input"), "_title"].join(" ")
-          }}
+          filter={filter}
+          setFilter={setFilter}
         />
       </div>
       <div
-        key={`tags-${tab}-${filter}`}
+        key={`tags-${tab}`}
         className={S("tags")}
         ref={setContainerRef}
         style={{
@@ -671,24 +742,14 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
       >
         {
           activeTags.map(tag =>
-            <button
+            <Tag
               key={tag.id}
-              id={`video-tag-${tag.id}`}
-              onClick={() => player?.controls.Seek({time: tag.start_time})}
-              className={
-                S(
-                  "tag",
-                  currentTime >= tag.start_time && currentTime <= tag.end_time ? "tag--active" : ""
-                )
-              }
-            >
-              <div className={S("tag__time")}>
-                { FormatTime(tag.start_time) }
-              </div>
-              <div className={S("tag__content")}>
-                { tag.tag }
-              </div>
-            </button>
+              objectId={objectId}
+              tag={tag}
+              active={currentTime >= tag.start_time && currentTime <= tag.end_time ? "tag--active" : ""}
+              videoDimensions={videoDimensions}
+              showThumbnails={showThumbnails}
+            />
           )
         }
       </div>

@@ -100,6 +100,7 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
+          loadChapters: EluvioPlayerParameters.loadChapters.ON,
           startProgress,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
