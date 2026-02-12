@@ -242,7 +242,7 @@ const PIPContent = observer(({mediaInfo}) => {
   const primaryVideo = (
     <MediaVideo
       key={`media-${mediaStore.displayedContent[0].id}`}
-      saveSettings={!secondaryMedia}
+      saveSettings
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
@@ -365,6 +365,7 @@ const MediaVideoWithSidebar = observer(({
                 key={`media-${item.id}`}
                 capLevelToPlayerSize
                 mute={index > 0}
+                saveSettings={index === 0}
                 noReactiveMute
                 mediaItem={item.mediaItem}
                 display={item.display || display}
@@ -793,28 +794,24 @@ const MediaPropertyMediaPage = observer(() => {
         compositionKey
       })
         .then(() => {
-          if(mediaStore.mediaTags?.hasTags) {
+          if(mediaStore.displayedContent.length === 1 && mediaStore.mediaTags?.hasTags) {
             mediaStore.SetShowTagSidebar(true);
           }
         })
         .catch(error => rootStore.Log(error, true));
     } else if(mediaStore.availablePlayers[mediaId]) {
-      // TODO: Record offering ID so we don't have to look it up
-      mediaStore.players[mediaId].__PlayoutOptions()
-        .then(options =>
-          mediaStore.LoadMediaTags({
-            versionHash: mediaHash,
-            offering: options.offering || "default",
-            clipStart: mediaItem.media_link_info?.clip_start_time,
-            clipEnd: mediaItem.media_link_info?.clip_end_time
+        mediaStore.LoadMediaTags({
+          versionHash: mediaHash,
+          offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
+          clipStart: mediaItem.media_link_info?.clip_start_time,
+          clipEnd: mediaItem.media_link_info?.clip_end_time
+        })
+          .then(() => {
+            if(mediaStore.displayedContent.length === 1 && mediaStore.mediaTags?.hasTags) {
+              mediaStore.SetShowTagSidebar(true);
+            }
           })
-            .then(() => {
-              if(mediaStore.mediaTags?.hasTags) {
-                mediaStore.SetShowTagSidebar(true);
-              }
-            })
-            .catch(error => rootStore.Log(error, true))
-        );
+          .catch(error => rootStore.Log(error, true));
     }
   }, [mediaHash, mediaStore.availablePlayers[mediaId]]);
 

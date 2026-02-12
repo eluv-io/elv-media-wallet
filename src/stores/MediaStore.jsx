@@ -8,7 +8,7 @@ class MediaStore {
 
   multiviewMode = "pip";
   showSidebar = true;
-  showTagSidebar = false;
+  selectedShowTagSidebar = false;
   showMultiviewSelectionModal = false;
 
   // Dont want to observe entire player
@@ -21,6 +21,10 @@ class MediaStore {
 
   get walletClient() {
     return this.rootStore.walletClient;
+  }
+
+  get showTagSidebar() {
+    return this.selectedShowTagSidebar && this.mediaTags?.hasTags;
   }
 
   constructor(rootStore) {
@@ -41,7 +45,7 @@ class MediaStore {
     this.mediaTags = {};
 
     this.showSidebar = true;
-    this.showTagSidebar = false;
+    this.selectedShowTagSidebar = false;
     this.showMultiviewSelectionModal = false;
   }
 
@@ -62,7 +66,7 @@ class MediaStore {
   }
 
   SetShowTagSidebar(show) {
-    this.showTagSidebar = show;
+    this.selectedShowTagSidebar = show;
   }
 
   SetShowMultiviewSelectionModal(show) {

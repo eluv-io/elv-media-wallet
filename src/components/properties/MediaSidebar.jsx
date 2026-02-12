@@ -128,10 +128,15 @@ const Item = observer(({
             </div>
         }
         {
-          !scheduleInfo?.isLiveContent ? null :
+          !scheduleInfo?.isLiveContent || contentItem.type !== "media-item" ? null :
             <div className={S("item__date")}>
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
+        }
+        {
+          // TODO: Decide if we want a live badge here
+          true || imageUrl || !scheduleInfo?.currentlyLive ? null :
+            <div className={S("live-badge")}>Live</div>
         }
       </Linkish>
       {
@@ -294,6 +299,7 @@ const MediaSidebar = observer(({
                                 imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                 title={view.label}
                                 key={`item-${item.id}-${index}`}
+                                scheduleInfo={item.scheduleInfo}
                                 contentItem={{
                                   ...view,
                                   type: "additional-view",
@@ -450,6 +456,7 @@ export const MultiviewSelectionModal = observer(({
                                       label: `${item.display.title} - ${view.label}`
                                     }}
                                     primaryMediaId={mediaItem.id}
+                                    scheduleInfo={item.scheduleInfo}
                                     multiviewMode="multiview"
                                     streamLimit={streamLimit}
                                     displayedContent={selectedContent}
