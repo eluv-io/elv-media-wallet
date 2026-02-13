@@ -331,9 +331,9 @@ export const MultiviewSelectionModal = observer(({
   streamLimit
 }) => {
   let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
-    tab.groups.find(group =>
-      group.content.find(item =>
-        item.scheduleInfo.isMultiviewable
+    tab.groups?.find(group =>
+      group.content?.find(item =>
+        item?.scheduleInfo?.isMultiviewable
       )
     )
   );

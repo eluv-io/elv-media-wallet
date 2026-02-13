@@ -26,6 +26,7 @@ const Video = forwardRef(function VideoComponent({
   hideControls,
   showTitle,
   mute,
+  saveSettings=false,
   noReactiveMute=false,
   autoAspectRatio=true,
   mediaPropertySlugOrId,
@@ -40,8 +41,16 @@ const Video = forwardRef(function VideoComponent({
   const [videoDimensions, setVideoDimensions] = useState(undefined);
   const [player, setPlayer] = useState(undefined);
   const [reloadKey, setReloadKey] = useState(0);
+  const [settingsUpdateKey, setSettingsUpdateKey] = useState(0);
+
   const targetRef = useRef();
   const contentId = contentHash && mediaPropertyStore.client.utils.DecodeVersionHash(contentHash).objectId;
+
+  useEffect(() => {
+    if(!saveSettings || !player) { return; }
+
+    localStorage.setItem("video-settings", JSON.stringify({muted: player.controls.IsMuted()}));
+  }, [saveSettings, settingsUpdateKey, !!player]);
 
   useEffect(() => {
     if(link) {
@@ -69,6 +78,14 @@ const Video = forwardRef(function VideoComponent({
 
     if(startProgress > 0.95) {
       startProgress = 0;
+    }
+
+    if(!player && saveSettings) {
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
+
+        mute = mute || savedSettings.muted;
+      } catch(error) { /* empty */ }
     }
 
     InitializeEluvioPlayer(
@@ -136,6 +153,8 @@ const Video = forwardRef(function VideoComponent({
       if(callback) {
         callback(player);
       }
+
+      player.controls.RegisterVideoEventListener("volumechange", () => setSettingsUpdateKey(Math.random()));
     });
   }, [targetRef, contentId]);
 

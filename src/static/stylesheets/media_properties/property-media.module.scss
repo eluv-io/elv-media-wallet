@@ -160,6 +160,11 @@
     width: 100%;
     z-index: 1;
 
+    &--full {
+      aspect-ratio: 16/9;
+      max-height: calc(var(--property-full-content-height));
+    }
+
     &--countdown {
       gap: 30px;
     }
@@ -279,6 +284,14 @@
     }
 
     .media {
+      &__error-icon {
+        height: 30px;
+      }
+
+      &__error-message {
+        font-size: 14px!important;
+      }
+
       &__error-title {
         font-size: 14px;
         text-align: center;

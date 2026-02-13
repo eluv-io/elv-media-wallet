@@ -145,9 +145,9 @@ const MediaVideo = observer(({
 
   if(error) {
     return (
-      <div onClick={onClick} className={[S("media__error", renderSmall ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
+      <div onClick={onClick} className={[S("media__error", multiviewing ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
-        <img src={imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
+        <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         <div className={S("media__error-message")}>
           {
@@ -179,14 +179,6 @@ const MediaVideo = observer(({
     playoutParameters.clipEnd = display.clip_end_time;
   }
 
-  if(saveSettings) {
-    try {
-      const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
-
-      mute = mute || savedSettings.muted;
-    } catch(error) { /* empty */ }
-  }
-
   return (
     <Video
       key={loadKey}
@@ -197,6 +189,7 @@ const MediaVideo = observer(({
       showTitle={showTitle}
       hideControls={hideControls || mediaItem.player_controls}
       mute={mute || mediaItem.player_muted}
+      saveSettings={saveSettings}
       noReactiveMute={noReactiveMute}
       mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
       mediaItemId={mediaItem.id}
@@ -220,14 +213,6 @@ const MediaVideo = observer(({
         })
       }
       settingsUpdateCallback={player => settingsUpdateCallback?.(player)}
-      readyCallback={
-        !saveSettings ? undefined :
-          player => {
-            player.controls.RegisterVideoEventListener("volumechange", () =>
-              localStorage.setItem("video-settings", JSON.stringify({muted: player.controls.IsMuted()}))
-            );
-          }
-      }
       onClose={onClose}
       errorCallback={async error => {
         const shouldReload = await mediaPropertyStore.MediaPropertyShouldReload(match.params);
@@ -859,7 +844,7 @@ const MediaPropertyMediaPage = observer(() => {
     const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullscreenImageWidth});
     content = (
       <div className={S("media-page")}>
-        <div className={S("media__error")}>
+        <div className={S("media__error", "media__error--full")}>
           <img src={imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem?.title} className={S("media__error-image")} />
           <div className={S("media__error-cover")} />
           {
