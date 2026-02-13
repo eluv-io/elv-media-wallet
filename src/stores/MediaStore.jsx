@@ -6,7 +6,7 @@ class MediaStore {
   sidebarContent = {};
   mediaTags = {};
 
-  multiviewMode = "pip";
+  multiviewMode = "multiview";
   showSidebar = true;
   selectedShowTagSidebar = false;
   showMultiviewSelectionModal = false;
