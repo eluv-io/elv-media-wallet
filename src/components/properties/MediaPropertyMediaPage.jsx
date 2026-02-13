@@ -25,6 +25,7 @@ import MediaErrorIcon from "Assets/icons/media-error-icon";
 import MultiviewIcon from "Assets/icons/media/multiview";
 import DownloadIcon from "Assets/icons/download.svg";
 import AIDescriptionIcon from "Assets/icons/ai-description.svg";
+import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -132,6 +133,12 @@ const MediaVideo = observer(({
           OnEnded={() => setScheduleInfo(MediaItemScheduleInfo(mediaItem))}
           className={S("media__countdown")}
         />
+        {
+          !onClose ? null :
+            <button onClick={() => onClose()} className={S("media__error-close")}>
+              <ImageIcon icon={XIcon} />
+            </button>
+        }
       </div>
     );
   }
