@@ -524,7 +524,10 @@ const Tag = observer(({objectId, tag, showThumbnails, videoDimensions, active}) 
       ref={setRef}
       key={tag.id}
       id={`video-tag-${tag.id}`}
-      onClick={() => player?.controls.Seek({time: tag.start_time})}
+      onClick={() => {
+        player?.controls.Seek({time: tag.start_time});
+        player?.controls.Play();
+      }}
       className={
         S(
           "tag",
