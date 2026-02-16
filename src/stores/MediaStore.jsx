@@ -92,7 +92,8 @@ class MediaStore {
 
     this.mediaTags = yield this.LoadResource({
       key: "MediaTags",
-      id: objectId,
+      id: `${objectId}-${compositionKey}-${offering}-${clipStart}-${clipEnd}`,
+      ttl: 30,
       Load: async () => {
         this.mediaTags = {};
 
