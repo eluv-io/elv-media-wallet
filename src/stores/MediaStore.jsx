@@ -90,13 +90,17 @@ class MediaStore {
       objectId = this.client.utils.DecodeVersionHash(versionHash).objectId;
     }
 
+    const key = `${objectId}-${compositionKey}-${offering}-${clipStart}-${clipEnd}`;
+
+    if(this.mediaTags?.key !== key) {
+      this.mediaTags = {};
+    }
+
     this.mediaTags = yield this.LoadResource({
       key: "MediaTags",
-      id: `${objectId}-${compositionKey}-${offering}-${clipStart}-${clipEnd}`,
-      ttl: 30,
+      ttl: 60,
+      id: key,
       Load: async () => {
-        this.mediaTags = {};
-
         const {tracks} = await this.QueryAIAPI({
           objectId,
           path: UrlJoin("/tagstore", objectId, "tracks"),
@@ -221,6 +225,7 @@ class MediaStore {
         );
 
         return {
+          key,
           hasTags: transcriptionTags.length > 0 || transcriptionTags.length > 0,
           hasTranscription: transcriptionTags.length > 0,
           hasPlayByPlay: playByPlayTags.length > 0,

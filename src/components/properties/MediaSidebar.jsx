@@ -600,7 +600,10 @@ const FilterInput = observer(({filter, setFilter, placeholder}) => {
 });
 
 export const MediaTagSidebar = observer(({mediaItem}) => {
-  const [tab, setTab] = useState("CHAPTERS");
+  const [tab, setTab] = useState(
+    mediaStore.mediaTags?.hasTranscription ? "TRANSCRIPT" :
+      mediaStore.mediaTags?.hasPlayByPlay ? "PLAY-BY-PLAY" : "CHAPTERS"
+  );
   const [containerRef, setContainerRef] = useState(undefined);
   const [activeTags, setActiveTags] = useState([]);
   const [filter, setFilter] = useState("");
@@ -611,16 +614,6 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   const versionHash = LinkTargetHash(mediaItem.media_link);
   const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
   const player = mediaStore.availablePlayers[objectId] && mediaStore.players[objectId];
-
-  useEffect(() => {
-    // Tags should already be loaded so this should be instant
-    mediaStore.LoadMediaTags({versionHash})
-      .then(() =>
-        setTab(
-            mediaStore.mediaTags?.hasTranscription ? "TRANSCRIPT" :
-              mediaStore.mediaTags?.hasPlayByPlay ? "PLAY-BY-PLAY" : "CHAPTERS"
-        ));
-  }, []);
 
   useEffect(() => {
     setFilter("");
@@ -688,7 +681,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
           tag.tag.toLowerCase().includes(filter.toLowerCase())
         )
     );
-  }, [tab, filter, !!mediaStore.mediaTags.hasTags]);
+  }, [tab, filter, !!mediaStore.mediaTags.hasTags, mediaStore.mediaTags?.key]);
 
   if(!mediaStore.mediaTags.hasTags) {
     return (
