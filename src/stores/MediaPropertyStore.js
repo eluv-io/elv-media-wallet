@@ -1093,7 +1093,7 @@ class MediaPropertyStore {
 
     return {
       authorized,
-      purchasable: !!purchasable,
+      purchasable: !!purchasable && !!purchaseAuthorized,
       behavior,
       // Hide by default, or if behavior is hide, or if no purchasable permissions are available
       hide,
