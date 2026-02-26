@@ -24,6 +24,7 @@ import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaProperty
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
+import {LoginGate} from "Components/common/LoginGate";
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
 export const PageContainer = ({children, className, ...props}) => {
@@ -871,17 +872,21 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
   if(!permissions.authorized && permissions.purchaseGate) {
     if(permissions.purchasable && purchasePageSettings?.enabled) {
       return (
-        <MediaPropertyPurchaseGatePage
-          permissions={permissions}
-          settings={purchasePageSettings}
-        />
+        <LoginGate backPath={backPath}>
+          <MediaPropertyPurchaseGatePage
+            permissions={permissions}
+            settings={purchasePageSettings}
+          />
+        </LoginGate>
       );
     } else if(!permissions.purchasable && noPurchaseAvailablePageSettings?.enabled) {
       return (
-        <MediaPropertyPurchaseGatePage
-          permissions={permissions}
-          settings={noPurchaseAvailablePageSettings}
-        />
+        <LoginGate backPath={backPath}>
+          <MediaPropertyPurchaseGatePage
+            permissions={permissions}
+            settings={noPurchaseAvailablePageSettings}
+          />
+        </LoginGate>
       );
     } else {
       return <PageContainer/>;
