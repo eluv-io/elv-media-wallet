@@ -2,7 +2,12 @@ import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.mod
 
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
-import {MediaItemImageUrl, MediaItemScheduleInfo, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
+import {
+  MediaItemImageUrl,
+  MediaItemScheduleInfo,
+  MediaPropertyBasePath,
+  MediaPropertyLink
+} from "../../utils/MediaPropertyUtils";
 import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import {Button, LoaderImage, Modal} from "Components/properties/Common";
@@ -10,6 +15,8 @@ import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
 import {TextInput} from "@mantine/core";
+import {useIsVisible} from "Components/common/Hooks";
+import UrlJoin from "url-join";
 
 import HideIcon from "Assets/icons/right-arrow";
 import ShowIcon from "Assets/icons/left-arrow";
@@ -20,7 +27,6 @@ import EyeIcon from "Assets/icons/eye.svg";
 import XIcon from "Assets/icons/x";
 import AIDescriptionIcon from "Assets/icons/ai-description";
 import SearchIcon from "Assets/icons/search";
-import {useIsVisible} from "Components/common/Hooks";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
@@ -160,6 +166,77 @@ const Item = observer(({
   );
 });
 
+export const Banners = observer(() => {
+  const match = useRouteMatch();
+  const mediaProperty = mediaPropertyStore.MediaProperty({...match.params});
+
+  if(!mediaProperty) { return null; }
+
+  const config = mediaProperty.metadata.sidebar_config || {};
+
+  const banners = (config.banners || [])
+    .filter(banner =>
+      banner.image &&
+      (banner.link_type !== "media" || banner.media_id) &&
+      (banner.page !== "page" || banner.page)
+    );
+
+  if(banners.length === 0){
+    return null;
+  }
+
+  return (
+    <div className={S("banners")}>
+      {
+        banners.map((banner, index) => {
+          const imageKey = rootStore.pageWidth < 850 && banner.image_mobile?.url ?
+            "image_mobile" :
+            "image";
+
+          return (
+            <Linkish
+              key={index}
+              href={banner.link_type === "external" && banner.url}
+              to={
+                banner.link_type === "media" ?
+                  UrlJoin(
+                    MediaPropertyBasePath(match.params),
+                    "m",
+                    banner.media_id,
+                  )  :
+                  banner.link_type === "page" ?
+                    UrlJoin(
+                      MediaPropertyBasePath(match.params, {includePage: false}),
+                      banner.page === "main" ? "/" :
+                        mediaPropertyStore.MediaPropertyPage({
+                          mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+                          pageSlugOrId: banner.page
+                        })?.slug || banner.page
+                    ) :
+                    undefined
+              }
+              onClick={
+                banner.link_type !== "reset" ? undefined :
+                  () => confirm("Are you sure you want to reset your account?") ?
+                    rootStore.ResetAccount() : undefined
+              }
+              className={S("banner")}
+            >
+              <LoaderImage
+                loaderAspectRatio={3}
+                src={banner[imageKey]?.url}
+                width={1000}
+                alt={banner.image_alt}
+                className={S("banner__image")}
+              />
+            </Linkish>
+          );
+        })
+      }
+    </div>
+  );
+});
+
 const MediaSidebar = observer(({
   mediaItem,
   display,
@@ -242,6 +319,7 @@ const MediaSidebar = observer(({
           {display.subtitle}
         </div>
       </div>
+      <Banners />
       <div className={S("tabs-container")}>
         {
           (mediaStore.sidebarContent.tabs || []).length <= 1 ? null :
