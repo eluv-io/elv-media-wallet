@@ -57,6 +57,8 @@ const Video = forwardRef(function VideoComponent({
       versionHash = LinkTargetHash(link);
     }
 
+    if(!versionHash) { return; }
+
     mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
       .then(setContentHash);
   }, [objectId, versionHash, link, reloadKey]);

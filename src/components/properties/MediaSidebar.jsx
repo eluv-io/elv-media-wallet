@@ -340,7 +340,7 @@ const MediaSidebar = observer(({
       </div>
       <div className={S("content")}>
         {
-          tab.groups.map(group =>
+          tab?.groups?.map(group =>
             <div key={`group-${group.id}`} className={S("content__section")}>
               {
                 !group.title ? null :
@@ -693,7 +693,7 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
   const [scrolled, setScrolled] = useState(false);
 
   const versionHash = LinkTargetHash(mediaItem.media_link);
-  const objectId = mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
+  const objectId = versionHash && mediaPropertyStore.client.utils.DecodeVersionHash(versionHash)?.objectId;
   const player = mediaStore.availablePlayers[objectId] && mediaStore.players[objectId];
 
   useEffect(() => {

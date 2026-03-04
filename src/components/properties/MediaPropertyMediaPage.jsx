@@ -702,17 +702,13 @@ const Media = observer(({
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(mediaStore.sidebarContent?.tabs?.length > 0 || mediaStore.showTagSidebar) {
-      return (
-        <MediaVideoWithSidebar
-          mediaItem={mediaItem}
-          display={display}
-          textContent={textContent}
-        />
-      );
-    } else {
-      return <MediaVideo saveSettings mediaItem={mediaItem} display={display}/>;
-    }
+    return (
+      <MediaVideoWithSidebar
+        mediaItem={mediaItem}
+        display={display}
+        textContent={textContent}
+      />
+    );
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
@@ -830,7 +826,7 @@ const MediaPropertyMediaPage = observer(() => {
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-  const sidebarAvailable = mediaStore.sidebarContent?.tabs?.length > 0 || mediaStore.showTagSidebar;
+  const sidebarAvailable = mediaStore.sidebarContent?.tabs?.length > 0 || mediaStore.mediaTags?.hasTags;
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 

@@ -149,7 +149,7 @@ class MediaStore {
           playByPlayTags = playByPlayTags
             .map(tag => {
               try {
-                const [action1, action2, player, team] = tag?.tag?.split(",").map(token => token.trim());
+                const [action1, action2, player, team] = tag?.tag?.split(",").map(token => token.trim()) || [];
 
                 return {
                   ...tag,
