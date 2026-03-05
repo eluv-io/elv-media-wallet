@@ -79,7 +79,7 @@ class MediaPropertyStore {
 
     if(!mediaProperty) { return []; }
 
-    let tabConfig = [...(mediaProperty?.metadata?.sidebar_config?.tabs2 || [])];
+    let tabConfig = [...(mediaProperty?.metadata?.sidebar_config?.tabs || [])];
 
     if(tabConfig.length === 0) {
       // No sidebar configured, but media item has additional views
