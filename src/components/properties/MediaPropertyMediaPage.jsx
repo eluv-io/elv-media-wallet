@@ -796,26 +796,14 @@ const MediaPropertyMediaPage = observer(() => {
       mediaStore.LoadMediaTags({
         versionHash: mediaHash,
         compositionKey
-      })
-        .then(() => {
-          if(mediaStore.displayedContent.length === 1 && mediaStore.mediaTags?.hasTags) {
-            mediaStore.SetShowTagSidebar(true);
-          }
-        })
-        .catch(error => rootStore.Log(error, true));
+      });
     } else if(mediaStore.availablePlayers[mediaId]) {
-        mediaStore.LoadMediaTags({
-          versionHash: mediaHash,
-          offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
-          clipStart: mediaItem.media_link_info?.clip_start_time,
-          clipEnd: mediaItem.media_link_info?.clip_end_time
-        })
-          .then(() => {
-            if(mediaStore.displayedContent.length === 1 && mediaStore.mediaTags?.hasTags) {
-              mediaStore.SetShowTagSidebar(true);
-            }
-          })
-          .catch(error => rootStore.Log(error, true));
+      mediaStore.LoadMediaTags({
+        versionHash: mediaHash,
+        offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
+        clipStart: mediaItem.media_link_info?.clip_start_time,
+        clipEnd: mediaItem.media_link_info?.clip_end_time
+      });
     }
   }, [mediaHash, mediaStore.availablePlayers[mediaId]]);
 

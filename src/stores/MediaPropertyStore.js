@@ -74,13 +74,34 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
-  SidebarContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
+  SidebarContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId, mediaItemSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
     if(!mediaProperty) { return []; }
 
+    let tabConfig = [...(mediaProperty?.metadata?.sidebar_config?.tabs2 || [])];
+
+    if(tabConfig.length === 0) {
+      // No sidebar configured, but media item has additional views
+      // Use default config to show item + views
+      const mediaItem = this.MediaPropertyMediaItem({
+        mediaPropertySlugOrId: mediaPropertySlugOrId,
+        sectionSlugOrId: sectionSlugOrId,
+        mediaItemSlugOrId
+      });
+
+      if(mediaItem?.additional_views) {
+        tabConfig = [{
+          groups: [{
+            type: "manual",
+            content: [mediaItem.id]
+          }]
+        }];
+      }
+    }
+
     const tabs = (yield Promise.all(
-      (mediaProperty?.metadata?.sidebar_config?.tabs || []).map(async tab => ({
+      tabConfig.map(async tab => ({
           ...tab,
           groups: (await Promise.all(
             tab.groups.map(async group => {
