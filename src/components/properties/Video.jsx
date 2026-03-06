@@ -14,6 +14,7 @@ const Video = forwardRef(function VideoComponent({
   objectId,
   versionHash,
   link,
+  linkInfo,
   contentInfo={},
   playerOptions={},
   playoutParameters={},
@@ -76,6 +77,15 @@ const Video = forwardRef(function VideoComponent({
       }
     }
 
+    if(linkInfo) {
+      if(linkInfo.type === "composition") {
+        playoutParameters.channel = linkInfo.composition_key;
+      } else if(!isLive){
+        playoutParameters.clipStart = linkInfo.clip_start_time;
+        playoutParameters.clipEnd = linkInfo.clip_end_time;
+      }
+    }
+
     let startProgress = saveProgress && mediaPropertyStore.GetMediaProgress({mediaPropertySlugOrId, mediaItemId});
 
     if(startProgress > 0.95) {
@@ -119,7 +129,6 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
-          loadChapters: EluvioPlayerParameters.loadChapters.ON,
           startProgress,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload

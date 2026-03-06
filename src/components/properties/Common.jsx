@@ -45,14 +45,14 @@ export const PageBackground = observer(({
 }) => {
   const pageWidth = mediaPropertyStore.rootStore.pageWidth;
   const backgroundImage = pageWidth <= 800 ?
-    display.background_image_mobile?.url :
-    display.background_image?.url;
+    display?.background_image_mobile?.url :
+    display?.background_image?.url;
 
-  const backgroundVideo = pageWidth <= 800 ?
-    display.background_video_mobile :
-    display.background_video;
+  const backgroundVideoKey = pageWidth <= 800 ?
+    "background_video_mobile" :
+    "background_video";
 
-  if(!backgroundImage && !backgroundVideo) {
+  if(!backgroundImage && !display?.[backgroundVideoKey]) {
     return null;
   }
 
@@ -74,9 +74,10 @@ export const PageBackground = observer(({
           />
       }
       {
-        !backgroundVideo ? null :
+        !display[backgroundVideoKey] ? null :
           <Video
-            link={backgroundVideo}
+            link={display[backgroundVideoKey]}
+            linkInfo={display[`${backgroundVideoKey}_info`]}
             mute
             hideControls
             playerOptions={{
