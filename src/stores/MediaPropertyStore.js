@@ -1922,10 +1922,12 @@ class MediaPropertyStore {
       key: "Analytics",
       id: mediaProperty.mediaPropertyId,
       Load: async () => {
-        const analyticsIds = [
-          {type: "google_analytics_id", id: "G-JV6YRZHYG5"},
-          ...(mediaProperty.metadata.analytics_ids || [])
-        ];
+        let analyticsIds = (mediaProperty.metadata.analytics_ids || []);
+        if(analyticsIds.length === 0) {
+          analyticsIds = [
+            {type: "google_analytics_id", id: "G-JV6YRZHYG5"}
+          ];
+        }
 
         for(const entry of analyticsIds) {
           try {
@@ -2060,10 +2062,12 @@ class MediaPropertyStore {
       // Ensure only one event fires per transactionID + type combo
       id: `${mediaPropertySlugOrId}-${eventType}-${params?.transaction_id || Math.random()}`,
       Load: async () => {
-        const analyticsIds = [
-          {type: "google_analytics_id", id: "G-JV6YRZHYG5"},
-          ...(mediaProperty.metadata.analytics_ids || [])
-        ];
+        let analyticsIds = (mediaProperty.metadata.analytics_ids || []);
+        if(analyticsIds.length === 0) {
+          analyticsIds = [
+            {type: "google_analytics_id", id: "G-JV6YRZHYG5"}
+          ];
+        }
 
         for(const entry of analyticsIds) {
           try {
