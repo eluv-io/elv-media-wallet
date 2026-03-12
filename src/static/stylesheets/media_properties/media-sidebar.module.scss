@@ -584,11 +584,10 @@
     font-size: 12px;
   }
 
-  &__title,
-  &__subtitle {
+  .ellipsis {
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   &__date {

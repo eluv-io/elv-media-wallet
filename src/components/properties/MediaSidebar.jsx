@@ -45,7 +45,8 @@ const Item = observer(({
   streamLimit,
   multiviewMode,
   displayedContent,
-  setDisplayedContent
+  setDisplayedContent,
+  wrapTitle=false
 }) => {
   multiviewMode = multiviewMode || mediaStore.multiviewMode;
   displayedContent = displayedContent || mediaStore.displayedContent;
@@ -124,12 +125,12 @@ const Item = observer(({
         disabled={disabled}
         className={S("item__text")}
       >
-        <div title={title} className={S("item__title")}>
+        <div title={title} className={S("item__title", !wrapTitle ? "ellipsis" : "")}>
           {title}
         </div>
         {
           !subtitle ? null :
-            <div title={subtitle} className={S("item__subtitle")}>
+            <div title={subtitle} className={S("item__subtitle", "ellipsis")}>
               {subtitle}
             </div>
         }
@@ -359,7 +360,7 @@ const MediaSidebar = observer(({
                     <Item
                       noBorder={index === 0}
                       imageUrl={imageUrl}
-                      title={item.display.title}
+                      title={item.display.sidebar_title || item.display.title}
                       subtitle={item.display.subtitle}
                       scheduleInfo={item.scheduleInfo}
                       key={`item-${item.id}`}
@@ -386,6 +387,7 @@ const MediaSidebar = observer(({
                                   index,
                                   label: `${item.display.title} - ${view.label}`
                                 }}
+                                wrapTitle
                                 primaryMediaId={mediaItem.id}
                                 streamLimit={streamLimit}
                               />
@@ -504,7 +506,7 @@ export const MultiviewSelectionModal = observer(({
                           noBorder={index === 0}
                           imageUrl={imageUrl}
                           toggleOnClick
-                          title={item.display.title}
+                          title={item.display.sidebar_title || item.display.title}
                           subtitle={item.display.subtitle}
                           scheduleInfo={item.scheduleInfo}
                           key={`item-${item.id}`}
@@ -533,6 +535,7 @@ export const MultiviewSelectionModal = observer(({
                                       index,
                                       label: `${item.display.title} - ${view.label}`
                                     }}
+                                    wrapTitle
                                     primaryMediaId={mediaItem.id}
                                     scheduleInfo={item.scheduleInfo}
                                     multiviewMode="multiview"
