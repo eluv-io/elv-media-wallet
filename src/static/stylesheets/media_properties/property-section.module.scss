@@ -262,7 +262,7 @@
       display: flex;
       flex-wrap: wrap;
 
-      --max-card-width: 350px;
+      --max-card-width: 330px;
     }
 
     &--banner {
@@ -295,7 +295,7 @@
   }
 
   @media screen and (width <= 800px) {
-    --max-card-width: 350px;
+    --max-card-width: 330px;
 
     width: 100%;
 
