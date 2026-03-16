@@ -627,6 +627,7 @@ const MediaCard = observer(({
   wrapTitle=false,
   onClick,
   className="",
+  centered,
   ...props
 }) => {
   const match = useRouteMatch();
@@ -767,8 +768,11 @@ const MediaCard = observer(({
         S("media-card--disabled") :
         !authorized ?
           S("media-card--unauthorized") : "",
+      centered ? S("media-card--centered") : "",
       className
-    ].join(" ")
+    ]
+      .filter(c => c)
+      .join(" ")
   };
 
   switch(format) {

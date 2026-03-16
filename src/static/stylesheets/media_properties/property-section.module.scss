@@ -63,8 +63,7 @@
   }
 
   &--full-bleed {
-    padding-inline: 0;
-    padding-right: 0!important;
+    padding-inline: 0!important;
   }
 
   &__separator {
@@ -259,10 +258,10 @@
 
     /* Mixed aspect ratio grid */
     &--flex {
-      display: flex;
-      flex-wrap: wrap;
+      place-items: center center;
+      gap: 25px 25px;
 
-      --max-card-width: 330px;
+      --max-card-width: 450px;
     }
 
     &--banner {
@@ -295,7 +294,7 @@
   }
 
   @media screen and (width <= 800px) {
-    --max-card-width: 330px;
+    --max-card-width: 320px;
 
     width: 100%;
 
@@ -352,8 +351,13 @@
       width: max-content;
     }
 
+    &__content--flex,
     &__content--carousel {
-      --max-card-width: 275px;
+      --max-card-width: 320px;
+    }
+
+    &__content--flex {
+      justify-items: start;
     }
   }
 

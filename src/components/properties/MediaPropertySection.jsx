@@ -46,7 +46,7 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
     return Math.round(pageWidth / 375);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
-  } if(aspectRatio?.toLowerCase() === "landscape") {
+  } if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
     return Math.round(pageWidth / 400);
   } else {
     return Math.round(pageWidth / 300);
@@ -568,6 +568,13 @@ export const MediaGrid = observer(({
               wrapTitle={wrapTitles}
               buttonText={item?.card_button_text || defaultButtonText}
               navContext={navContext}
+              centered={
+                (MediaItemImageUrl({
+                  mediaItem: item,
+                  display: item,
+                  aspectRatio
+                }))?.imageAspectRatio !== "landscape"
+              }
             />
           )
       }

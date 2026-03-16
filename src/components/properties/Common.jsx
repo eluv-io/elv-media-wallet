@@ -734,6 +734,7 @@ export const AttributeFilter = observer(({
                     src={image?.url}
                     loaderHeight={100}
                     alt={value || "All"}
+                    title={value || "All"}
                     lazy={false}
                     width={300}
                     loaderAspectRatio={1}

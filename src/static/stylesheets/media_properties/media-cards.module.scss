@@ -24,6 +24,14 @@ a {
     }
   }
 
+  &--centered {
+    text-align: center;
+
+    * {
+      text-align: center;
+    }
+  }
+
   &__unauthorized-indicator {
     align-items: center;
     background: rgb(0 0 0 / 60%);
@@ -143,6 +151,7 @@ a {
   flex-direction: column;
   height: 100%;
   max-width: min(calc(100vw - 50px), var(--max-card-width));
+  width: 100%;
   word-break: break-word;
 
   &__image-container {
@@ -310,17 +319,29 @@ a {
   &--size-mixed {
     &.media-card-vertical--landscape {
       max-width: var(--max-card-width);
-      width: var(--max-card-width);
+
     }
 
     &.media-card-vertical--square {
-      max-width: calc(var(--max-card-width) * 9 / 16);
-      width: calc(var(--max-card-width) * 9 / 16);
+      aspect-ratio: 16/9;
+      max-width: var(--max-card-width);
+
+      // TODO Figure out
+      .media-card-vertical__image-container {
+        height: 100%;
+        margin-inline: auto;
+      }
     }
 
+
     &.media-card-vertical--portrait {
-      max-width: calc(var(--max-card-width) * (9 / 16) * (2 / 3));
-      width: calc(var(--max-card-width) * (9 / 16) * (2 / 3));
+      aspect-ratio: 16/9;
+      max-width: var(--max-card-width);
+
+      .media-card-vertical__image-container {
+        height: calc(100%);
+        margin-inline: auto;
+      }
     }
   }
 
