@@ -456,16 +456,19 @@ export const MediaItemScheduleInfo = mediaItem => {
 };
 
 // Sets all video media to live
+const _start = Date.now();
+const _startAfter = 20;
 export const TestMediaItemScheduleInfo = mediaItem => {
   if(!mediaItem) {
     return { isLiveContent: false };
   }
 
-  const startTime = new Date(Date.now() + 60 * 60 * 1000);
-  const streamStartTime = new Date(Date.now() + 50 * 60 * 1000);
-  const endTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
-  const started = true;
-  const ended = false;
+  const now = new Date();
+  const startTime = new Date(_start + _startAfter * 1000);
+  const streamStartTime = new Date(_start + Math.max(5, _startAfter - 10) * 1000);
+  const endTime = new Date(_start + 2 * 60 * 60 * 1000);
+  const started = !streamStartTime || now > streamStartTime;
+  const ended = !!endTime && now > endTime;
   const displayStartDate = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
   const displayStartDateLong = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "short"}).replace(/0(\d)/g, "$1");
   const displayStartTime = startTime?.toLocaleTimeString?.(rootStore.preferredLocale, {hour: "numeric", minute: "numeric"}).replace(/^0(\d)/, "$1");
