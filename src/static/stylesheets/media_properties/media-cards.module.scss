@@ -6,10 +6,25 @@ a {
     opacity: 1;
     transition: opacity 0.15s ease, background 0.15s ease;
 
+    .media-card-vertical__image-container,
+    .media-card-horizontal__image-container,
+    .media-card-button-vertical__image-container,
+    .media-card-button-horizontal__image-container {
+      transition: box-shadow 0.25s ease;
+    }
+
     &:focus-visible,
     &:hover {
-      opacity: 0.85;
+      opacity: 0.9;
       transition: opacity 0.5s ease, background 0.5s ease;
+
+      .media-card-vertical__image-container,
+      .media-card-horizontal__image-container,
+      .media-card-button-vertical__image-container,
+      .media-card-button-horizontal__image-container {
+        box-shadow: 0 0 19px 0 rgb(0 0 0 / 50%);
+        transition: box-shadow 0.5s ease;
+      }
     }
   }
 }
@@ -153,6 +168,10 @@ a {
   max-width: min(calc(100vw - 50px), var(--max-card-width));
   width: 100%;
   word-break: break-word;
+
+  &--text-none {
+    padding-bottom: 20px;
+  }
 
   &__image-container {
     border-radius: 14px;

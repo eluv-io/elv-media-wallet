@@ -258,8 +258,8 @@
 
     /* Mixed aspect ratio grid */
     &--flex {
-      place-items: center center;
       gap: 25px 25px;
+      place-items: center center;
 
       --max-card-width: 450px;
     }

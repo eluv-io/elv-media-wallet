@@ -445,6 +445,7 @@ const MediaCardVertical = observer(({
           "media-card-vertical",
           `media-card-vertical--${aspectRatio}`,
           `media-card-vertical--${textJustification || "left"}`,
+          `media-card-vertical--text-${textDisplay || "left"}`,
           size === "fixed" ? "media-card-vertical--size-fixed" : "",
           size === "mixed" ? "media-card-vertical--size-mixed" : "",
         ),
