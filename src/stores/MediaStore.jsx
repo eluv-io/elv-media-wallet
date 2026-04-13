@@ -107,6 +107,12 @@ class MediaStore {
           format: "JSON"
         });
 
+        const clippingParams = !clipStart && !clipEnd ? {} :
+          {
+            end_time_gte: Math.floor((clipStart || 0) * 1000),
+            start_time_lte: Math.ceil(clipEnd * 1000)
+          };
+
         const formattedTrack = tracks.find(track => track.name === "game_events_all_events_beautified") ;
         const singleTrack = tracks.find(track => track.name.startsWith("game_events_all") && track.name.includes("single_track"));
         const playByPlayTracks =
@@ -128,8 +134,7 @@ class MediaStore {
                 offering_key: offering,
                 limit: 1000000,
                 track: name,
-                clip_start: clipStart,
-                clip_end: clipEnd
+                ...clippingParams
               },
               format: "JSON"
             })
@@ -139,8 +144,8 @@ class MediaStore {
           .flat()
           .map(tag => ({
             ...tag,
-            start_time: tag.start_time / 1000,
-            end_time: tag.end_time / 1000
+            start_time: Math.max(0, (tag.start_time / 1000) - (clipStart || 0)),
+            end_time: (tag.end_time / 1000) - (clipStart || 0)
           }))
           .sort((a, b) => a.start_time < b.start_time ? -1 : 1);
 
@@ -176,16 +181,15 @@ class MediaStore {
               offering_key: offering,
               limit: 1000000,
               track: "auto_captions",
-              clip_start: clipStart,
-              clip_end: clipEnd
+              ...clippingParams
             },
             format: "JSON"
           })).tags
             ?.sort((a, b) => a.start_time < b.start_time ? -1 : 1)
             ?.map(tag => ({
               ...tag,
-              start_time: tag.start_time / 1000,
-              end_time: tag.end_time / 1000
+              start_time: Math.max(0, (tag.start_time / 1000) - (clipStart || 0)),
+              end_time: (tag.end_time / 1000) - (clipStart || 0)
             })) || [];
         }
 
@@ -201,16 +205,15 @@ class MediaStore {
               offering_key: offering,
               limit: 1000000,
               track: "chapter",
-              clip_start: clipStart,
-              clip_end: clipEnd
+              ...clippingParams
             },
             format: "JSON"
           })).tags
             ?.sort((a, b) => a.start_time < b.start_time ? -1 : 1)
             ?.map(tag => ({
               ...tag,
-              start_time: tag.start_time / 1000,
-              end_time: tag.end_time / 1000
+              start_time: Math.max(0, (tag.start_time / 1000) - (clipStart || 0)),
+              end_time: (tag.end_time / 1000) - (clipStart || 0)
             }))
             ?.map((chapter, index, chapters) => ({
               ...chapter,

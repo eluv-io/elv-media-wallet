@@ -158,7 +158,7 @@ a {
 
 .media-card-vertical {
   --max-card-width-landscape: var(--max-card-width);
-  --max-card-width-square: calc(var(--max-card-width) - 50px);
+  --max-card-width-square: calc(var(--max-card-width) - 100px);
   --max-card-width-portrait: calc(var(--max-card-width) - 100px);
 
   display: flex;
