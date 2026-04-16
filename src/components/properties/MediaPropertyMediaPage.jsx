@@ -205,7 +205,8 @@ const MediaVideo = observer(({
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"],
-        loadChapters: EluvioPlayerParameters.loadChapters.ON
+        loadChapters: EluvioPlayerParameters.loadChapters.ON,
+        loadPoseOverlay: EluvioPlayerParameters.loadPoseOverlay.ON
       }}
       posterImage={
         SetImageUrlDimensions({

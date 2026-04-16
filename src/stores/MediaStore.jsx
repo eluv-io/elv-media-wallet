@@ -229,7 +229,7 @@ class MediaStore {
 
         return {
           key,
-          hasTags: transcriptionTags.length > 0 || transcriptionTags.length > 0,
+          hasTags: transcriptionTags.length > 0 || chapterTags.length > 0 || playByPlayTags.length > 0,
           hasTranscription: transcriptionTags.length > 0,
           hasPlayByPlay: playByPlayTags.length > 0,
           hasChapters: chapterTags.length > 0,
