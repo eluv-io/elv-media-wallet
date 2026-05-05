@@ -28,6 +28,8 @@ const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" 
 
 
 const DiscountedPrice = ({item, discountCode={}}) => {
+  if(!item.marketplaceItem) { return {}; }
+
   const { currency } = PriceCurrency(item.marketplaceItem.price);
 
   if(!currency) {
@@ -69,7 +71,7 @@ const DiscountInput = observer(({item, Update}) => {
     Update({...selectedCode, codeText: codeInput});
   }, [selectedCode]);
 
-  if((item.marketplaceItem.discount_codes || []).length === 0) {
+  if(!item.marketplaceItem || (item.marketplaceItem.discount_codes || []).length === 0) {
     return null;
   }
 
