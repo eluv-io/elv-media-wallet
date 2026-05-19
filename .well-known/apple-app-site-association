@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["2KH8KC3MMX.com.eluvio.wallet"],
+        "components": [
+          {
+            "/": "/iq__*",
+            "comment": "Open property pages in the Eluvio Media Wallet iOS app"
+          }
+        ]
+      }
+    ]
+  }
+}

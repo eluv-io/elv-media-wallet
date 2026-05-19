@@ -30,7 +30,8 @@ module.exports = (env) => {
   plugins.push(
     new CopyPlugin({
       patterns: [
-        { from: "src/static/icons/favicon.png", to: "favicon.png" }
+        { from: "src/static/icons/favicon.png", to: "favicon.png" },
+        { from: ".well-known", to: ".well-known" },
       ]
     })
   );
