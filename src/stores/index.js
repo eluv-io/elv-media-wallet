@@ -433,14 +433,14 @@ class RootStore {
         this.oryClient = new FrontendApi(
           new Configuration({
             features: {
-              //kratos_feature_flags_use_continue_with_transitions: true,
-              //use_continue_with_transitions: true
+              kratos_feature_flags_use_continue_with_transitions: true,
+              use_continue_with_transitions: true
             },
             basePath: oryUrl,
             // we always want to include the cookies in each request
             // cookies are used for sessions and CSRF protection
             baseOptions: {
-              withCredentials: true
+              //withCredentials: true
             }
           })
         );
