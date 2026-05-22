@@ -445,8 +445,16 @@ const OryLogin = observer(({
             // Save user data in session storage
             rootStore.SetSessionStorage("user-data", JSON.stringify(userData || {}));
 
+            let redirectUrl = new URL(error.response.data.redirect_browser_to);
+            let oryRedirectURl = new URL(redirectUrl.searchParams.get("redirect_uri"));
+            const newOryRedirectUrl = new URL(rootStore.oryClient.basePath);
+            newOryRedirectUrl.pathname = oryRedirectURl.pathname;
+            redirectUrl.searchParams.set("redirect_uri", newOryRedirectUrl.toString());
+
+            console.log(redirectUrl.toString(), newOryRedirectUrl.toString());
+
             // Redirect
-            window.location.href = error.response.data.redirect_browser_to;
+            window.location.href = newOryRedirectUrl.toString();
           } else {
             throw error;
           }
