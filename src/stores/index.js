@@ -440,7 +440,7 @@ class RootStore {
             // we always want to include the cookies in each request
             // cookies are used for sessions and CSRF protection
             baseOptions: {
-              //withCredentials: true
+              withCredentials: true
             }
           })
         );
