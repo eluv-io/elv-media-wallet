@@ -454,7 +454,7 @@ const OryLogin = observer(({
             console.log(redirectUrl.toString(), newOryRedirectUrl.toString());
 
             // Redirect
-            window.location.href = newOryRedirectUrl.toString();
+            window.location.href = redirectUrl.toString();
           } else {
             throw error;
           }
