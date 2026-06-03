@@ -38,6 +38,9 @@ module.exports = (env) => {
   return {
     entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/index.js"),
     target: "web",
+    cache: {
+      type: "filesystem",
+    },
     output: {
       path: Path.resolve(__dirname, "dist"),
       publicPath: "/",
@@ -57,11 +60,14 @@ module.exports = (env) => {
         //webSocketURL: "auto://elv-test.io/ws",
         overlay: false
       },
-      https: {
-        key: fs.readFileSync("./https/private.key"),
-        cert: fs.readFileSync("./https/dev.local.crt"),
-        ca: fs.readFileSync("./https/private.pem")
-      },
+      // server: {
+      //   type: "https",
+      //   options: {
+      //     key: fs.readFileSync("./https/private.key"),
+      //     cert: fs.readFileSync("./https/dev.local.crt"),
+      //     ca: fs.readFileSync("./https/private.pem")
+      //   }
+      // },
       historyApiFallback: true,
       allowedHosts: "all",
       port: 8090,
@@ -138,7 +144,14 @@ module.exports = (env) => {
                 }
               }
             },
-            "sass-loader"
+            {
+              loader: "sass-loader",
+              options: {
+                sassOptions: {
+                  silenceDeprecations: ["legacy-js-api", "import"]
+                }
+              }
+            }
           ]
         },
         {
