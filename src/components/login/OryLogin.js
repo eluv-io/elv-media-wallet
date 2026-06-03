@@ -192,6 +192,7 @@ const OryLogin = observer(({
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [redirect, setRedirect] = useState(undefined);
+  const [sessionEmail, setSessionEmail] = useState(undefined);
   const formRef = useRef();
 
   useEffect(() => {
@@ -276,6 +277,27 @@ const OryLogin = observer(({
     }
   }, [rootStore.oryClient, flowType]);
 
+  // When refreshing an existing session, resolve the current identity's email so
+  // we can offer a "Continue as <email>" button instead of forcing re-authentication.
+  useEffect(() => {
+    const loginFlow = flows.login;
+    if(flowType !== "login" || !loginFlow?.refresh || sessionEmail) { return; }
+
+    const nodeEmail = loginFlow.ui?.nodes
+      ?.find(node => node.attributes?.name === "identifier")?.attributes?.value;
+
+    if(nodeEmail) {
+      setSessionEmail(nodeEmail);
+      return;
+    }
+
+    if(!rootStore.oryClient) { return; }
+
+    rootStore.oryClient.toSession()
+      .then(({data}) => setSessionEmail(data?.identity?.traits?.email))
+      .catch(() => {});
+  }, [flows.login, flowType]);
+
   if(
     !codeAuth &&
     (rootStore.loggedIn && ["/login"].includes(location.pathname))
@@ -299,6 +321,42 @@ const OryLogin = observer(({
       rootStore.Log(error);
     } finally {
       setLoggingOut(false);
+    }
+  };
+
+  // Continue with the existing Ory session without re-entering credentials.
+  // AuthenticateOry tokenizes the current session into a wallet JWT via toSession(),
+  // so no password / flow submission is required.
+  const ContinueAsSession = async () => {
+    setErrorMessage(undefined);
+    setStatusMessage(undefined);
+
+    if(requiredOptionsMissing) {
+      setErrorMessage(rootStore.l10n.login.errors.missing_required_options);
+      return;
+    }
+
+    try {
+      const authenticated = await rootStore.AuthenticateOry({userData, nonce, installId, origin});
+
+      if(!authenticated) {
+        setErrorMessage(rootStore.l10n.login.ory.errors.invalid_credentials);
+        return;
+      }
+
+      const nextPath = searchParams.get("next") || (isThirdPartyConflict && rootStore.GetSessionStorage("return_to"));
+      if(nextPath) {
+        setRedirect(nextPath);
+      }
+    } catch(error) {
+      if(error.login_limited) {
+        setFlows({...flows, login_limited: {}});
+        setFlowType("login_limited");
+        return;
+      }
+
+      rootStore.Log(error, true);
+      setErrorMessage(rootStore.l10n.login.ory.errors.invalid_credentials);
     }
   };
 
@@ -611,6 +669,16 @@ const OryLogin = observer(({
         ref={formRef}
         className="ory-login__form"
       >
+        {
+          flowType !== "login" || !flow.refresh || !sessionEmail ? null :
+            <ButtonWithLoader
+              onClick={ContinueAsSession}
+              action={false}
+              className="login-page__button login-page__button--primary ory-login__continue-as"
+            >
+              { LocalizeString(rootStore.l10n.login.ory.actions.continue_as, {email: sessionEmail}) }
+            </ButtonWithLoader>
+        }
         {
           flowType === "login_limited" ?
             <LoginLimitedForm Submit={OrySubmit} Cancel={LogOut} /> :

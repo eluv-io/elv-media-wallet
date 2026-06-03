@@ -52,6 +52,7 @@ login:
       update_password: Update Password
       proceed: Proceed
       sign_out: Sign Out
+      continue_as: Continue as {email}
     refresh: Confirm Your Identify
     aal2: Two-Factor Authentication
     registration: Register Your Account
