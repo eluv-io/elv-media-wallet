@@ -60,11 +60,13 @@ module.exports = (env) => {
         //webSocketURL: "auto://elv-test.io/ws",
         overlay: false
       },
-      https: {
-        key: fs.readFileSync("./https/private.key"),
-        cert: fs.readFileSync("./https/dev.local.crt"),
-        ca: fs.readFileSync("./https/private.pem")
-      },
+      ...(!env.USE_HTTP && {
+        https: {
+          key: fs.readFileSync("./https/private.key"),
+          cert: fs.readFileSync("./https/dev.local.crt"),
+          ca: fs.readFileSync("./https/private.pem")
+        }
+      }),
       historyApiFallback: true,
       allowedHosts: "all",
       port: 8090,
