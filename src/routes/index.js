@@ -478,6 +478,8 @@ const PropertyRouteWrapper = observer(({children}) => {
 
   return (
     <PurchaseGate
+      key={`purchase-gate-${rootStore.backPath}`}
+      backPath={rootStore.backPath}
       routeParams={match.params}
       purchasePageSettings={mediaProperty.metadata.purchase_page || {}}
       noPurchaseAvailablePageSettings={mediaProperty.metadata.no_purchase_available_page || {}}

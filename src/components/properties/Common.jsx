@@ -854,6 +854,7 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
 
     if(showModal && !permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
+      url.searchParams.delete("p");
       url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
         id,
         gate: true,
