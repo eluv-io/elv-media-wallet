@@ -10,13 +10,7 @@
 
 .section-page {
   &.page {
-    padding-inline: 75px;
-  }
-
-  @media screen and (width <= 800px) {
-    &.page {
-      padding-inline: 25px;
-    }
+    padding-inline: var(--property-page-padding);
   }
 }
 
@@ -84,7 +78,7 @@
   position: relative;
   width: 100%;
 
-  --max-card-width: 450px;
+  --max-card-width: 400px;
 
   &--page {
     .section__content--grid {
@@ -114,6 +108,19 @@
     .section__subtitle {
       text-align: right;
     }
+  }
+
+  // Card Sizes
+  &--small {
+    --max-card-width: min(var(--property-section-card-width-small), 75vw);
+  }
+
+  &--medium {
+    --max-card-width: min(var(--property-section-card-width-medium), 75vw);
+  }
+
+  &--large {
+    --max-card-width: min(var(--property-section-card-width-large), 75vw);
   }
 
   &__page-header {
@@ -148,6 +155,7 @@
     align-items: center;
     display: flex;
     gap: 30px;
+    width: 100%;
   }
 
   &__title {
@@ -246,8 +254,6 @@
     }
 
     &--carousel {
-      --max-card-width: 400px;
-
       height: 100%;
 
       &.section__content--center,
@@ -260,8 +266,6 @@
     &--flex {
       gap: 25px 25px;
       place-items: center center;
-
-      --max-card-width: 450px;
     }
 
     &--banner {
@@ -294,8 +298,6 @@
   }
 
   @media screen and (width <= 800px) {
-    --max-card-width: 320px;
-
     width: 100%;
 
     &--page {
@@ -351,11 +353,6 @@
       width: max-content;
     }
 
-    &__content--flex,
-    &__content--carousel {
-      --max-card-width: 320px;
-    }
-
     &__content--flex {
       justify-items: start;
     }
@@ -368,7 +365,6 @@
 
     &__title-container {
       margin-bottom: 5px;
-      max-width: var(--max-card-width);
     }
 
     &__page-filter {

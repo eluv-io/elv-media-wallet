@@ -41,15 +41,25 @@ import AppleImage from "Assets/images/apps/apple";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
+const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
   if(cardFormat === "button_vertical") {
     return Math.round(pageWidth / 375);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
-  } if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
-    return Math.round(pageWidth / 400);
+  }
+
+  const cardWidth = Math.min(
+    0.75 * pageWidth,
+    parseInt(
+      window.getComputedStyle(document.body)
+        .getPropertyValue(`--property-section-card-width-${cardSize || "medium"}`)
+    )
+  );
+
+  if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
+    return Math.round(pageWidth / cardWidth);
   } else {
-    return Math.round(pageWidth / 300);
+    return Math.round(pageWidth / (cardWidth - 75));
   }
 };
 
@@ -523,6 +533,7 @@ export const MediaGrid = observer(({
   justification="left",
   textJustification="left",
   cardFormat="vertical",
+  cardSize="medium",
   defaultButtonText,
   wrapTitles=false,
   className="",
@@ -533,7 +544,8 @@ export const MediaGrid = observer(({
   const columns = GridContentColumns({
     aspectRatio,
     pageWidth: rootStore.pageWidth,
-    cardFormat
+    cardFormat,
+    cardSize
   });
 
   return (
@@ -668,6 +680,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       cardStyle={section.display.card_style}
       navContext={navContext}
       cardFormat={section.display.card_style}
+      cardSize={section.display.card_size}
     />
   );
 });
@@ -926,7 +939,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     const columns = GridContentColumns({
       aspectRatio: section.display.aspect_ratio,
       pageWidth: rootStore.pageWidth,
-      cardFormat: section.display.card_style
+      cardFormat: section.display.card_style,
+      cardSize: section.display.card_size
     });
 
     displayLimit = columns * displayLimit;
@@ -982,7 +996,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
         className={S(
           "section",
           `section--${section.display?.display_format || "grid"}`,
-          `section--${section.display.justification || "left"}`
+          `section--${section.display.justification || "left"}`,
+          `section--${section.display.card_size || "medium"}`
         )}
       >
         {
