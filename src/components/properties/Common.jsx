@@ -838,7 +838,7 @@ export const Button = ({variant="primary", active, loading, icon, rightIcon, sty
   );
 };
 
-export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSettings, id, permissions, backPath, children}) => {
+export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailablePageSettings, id, permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
@@ -854,14 +854,20 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
 
     if(showModal && !permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
-      url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
-        id,
-        gate: true,
-        permissionItemIds: permissions.permissionItemIds,
-        secondaryPurchaseOption: permissions.secondaryPurchaseOption,
-        successPath: location.pathname,
-        cancelPath: backPath || rootStore.backPath
-      }));
+      url.searchParams.delete("p");
+
+      // Delay the params update to ensure rootStore.backPath has been updated
+      setTimeout(() => {
+        url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
+          id,
+          gate: true,
+          permissionItemIds: permissions.permissionItemIds,
+          secondaryPurchaseOption: permissions.secondaryPurchaseOption,
+          successPath: location.pathname,
+          cancelPath: backPath || rootStore.backPath
+        }));
+        history.replace(url.pathname + url.search);
+      }, 250);
       history.replace(url.pathname + url.search);
     } else if(params && params.gate && params.id === id && !params.confirmationId && permissions.authorized) {
       // Authorized and not on a purchase confirmation page, make sure purchase modal is hidden
@@ -896,4 +902,4 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
   }
 
   return children;
-};
+});

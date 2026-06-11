@@ -1003,7 +1003,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   );
 });
 
-const MediaPropertyPurchaseModal = () => {
+const MediaPropertyPurchaseModal = observer(() => {
   const history = useHistory();
   const match = useRouteMatch();
   const [purchaseItems, setPurchaseItems] = useState([]);
@@ -1125,6 +1125,6 @@ const MediaPropertyPurchaseModal = () => {
       </Modal>
     </LoginGate>
   );
-};
+});
 
 export default MediaPropertyPurchaseModal;
