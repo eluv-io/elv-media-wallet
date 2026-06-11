@@ -838,7 +838,7 @@ export const Button = ({variant="primary", active, loading, icon, rightIcon, sty
   );
 };
 
-export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSettings, id, permissions, backPath, children}) => {
+export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailablePageSettings, id, permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
@@ -896,4 +896,4 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
   }
 
   return children;
-};
+});
