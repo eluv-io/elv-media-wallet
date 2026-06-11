@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.eluvio.wallet.mobile",
+      "sha256_cert_fingerprints": [
+        "6E:50:0A:33:C7:09:D0:B1:5B:A1:68:F3:08:29:99:92:01:63:F8:11:17:E2:3E:0B:30:57:3A:F7:7D:AD:6D:AF",
+        "40:F4:9D:A7:58:35:D4:A4:09:4B:24:A1:FB:1C:6E:96:AE:60:E7:E6:26:8C:15:51:04:87:A5:48:53:DA:A7:4B"
+      ]
+    }
+  }
+]
