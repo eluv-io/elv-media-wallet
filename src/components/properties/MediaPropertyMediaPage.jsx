@@ -952,7 +952,7 @@ const MediaPropertyMediaPage = observer(() => {
             textContent={textContent}
           />
           {
-            sidebarAvailable ? null :
+            mediaItem.media_type === "Video" ? null :
               textContent
           }
         </div>
