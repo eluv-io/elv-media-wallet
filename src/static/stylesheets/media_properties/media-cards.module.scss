@@ -338,7 +338,6 @@ a {
   &--size-mixed {
     &.media-card-vertical--landscape {
       max-width: var(--max-card-width);
-
     }
 
     &.media-card-vertical--square {
@@ -352,13 +351,36 @@ a {
       }
     }
 
-
     &.media-card-vertical--portrait {
       aspect-ratio: 16/9;
       max-width: var(--max-card-width);
 
       .media-card-vertical__image-container {
         height: calc(100%);
+        margin-inline: auto;
+      }
+    }
+  }
+
+  /* Fixed size, potentially mixed with other aspect ratios - scale with based on aspect ratio to match height */
+  &--size-carousel-mixed {
+    &.media-card-vertical--square {
+      max-width: calc((var(--max-card-width)) / 16 * 9);
+
+      .media-card-vertical__image-container {
+        aspect-ratio: 1;
+        height: 100%;
+        margin-inline: auto;
+      }
+    }
+
+    &.media-card-vertical--portrait {
+      // 3/2 * 16/9
+      max-width: calc((var(--max-card-width)) / 48 * 18);
+
+      .media-card-vertical__image-container {
+        aspect-ratio: 2/3;
+        height: 100%;
         margin-inline: auto;
       }
     }

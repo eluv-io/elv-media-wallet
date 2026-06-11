@@ -44,7 +44,7 @@ export const MediaCardWithButtonVertical = observer(({
           `media-card-button-vertical--${textJustification || "left"}`,
           isModal ? "media-card-button-vertical--modal" : "",
           size === "fixed" ? "media-card-button-vertical--size-fixed" : "",
-          size === "mixed" ? "media-card-button-vertical--size-mixed" : "",
+          size === "mixed" ? "media-card-button-vertical--size-mixed" : ""
         ),
         className
       ].join(" ")}
@@ -448,6 +448,7 @@ const MediaCardVertical = observer(({
           `media-card-vertical--text-${textDisplay || "left"}`,
           size === "fixed" ? "media-card-vertical--size-fixed" : "",
           size === "mixed" ? "media-card-vertical--size-mixed" : "",
+          size === "carousel-mixed" ? "media-card-vertical--size-carousel-mixed" : "",
         ),
         className
       ].join(" ")}
@@ -635,6 +636,10 @@ const MediaCard = observer(({
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
   const [livePreviewUrl, setLivePreviewUrl] = useState(undefined);
+
+  if(size === "carousel-mixed" && format !== "vertical") {
+    size = "mixed";
+  }
 
   useEffect(() => {
     if(!setImageDimensions || !imageContainerRef?.current) { return; }

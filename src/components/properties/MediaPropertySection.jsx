@@ -647,7 +647,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
       content={sectionContent}
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
-          size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "mixed" : "fixed"}
+          size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
           key={`media-card-${item.id}`}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
@@ -1011,7 +1011,10 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
                         !section.display.title_icon ? null :
                           <img src={section.display.title_icon.url} alt="Icon" className={S("section__title-icon")}/>
                       }
-                      {section.display.title}
+                      {
+                        section.display.hide_title && rootStore.pageWidth > 600 ? null :
+                          section.display.title
+                      }
                     </h2>
                 }
                 {
