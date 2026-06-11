@@ -869,7 +869,7 @@ export const PurchaseGate = ({purchasePageSettings, noPurchaseAvailablePageSetti
       url.searchParams.delete("confirmationId");
       history.replace(url.pathname + url.search);
     }
-  }, [permissions]);
+  }, [permissions, rootStore.backPath]);
 
   if(!permissions.authorized && permissions.purchaseGate) {
     if(permissions.purchasable && purchasePageSettings?.enabled) {
