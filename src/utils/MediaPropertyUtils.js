@@ -47,6 +47,7 @@ export const CreateMediaPropertyPurchaseParams = ({
   cancelPath,
   encode=true,
 }) => {
+  console.log(new Error("CMPPP " + cancelPath));
   const params = {
     id,
     gate: !!gate,

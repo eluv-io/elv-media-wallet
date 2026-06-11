@@ -1010,6 +1010,8 @@ const MediaPropertyPurchaseModal = () => {
   const params = MediaPropertyPurchaseParams() || {};
   const [header, setHeader] = useState("");
 
+  console.log("MODAL", params);
+
   const urlParams = new URLSearchParams(location.search);
 
   const redirectPage = urlParams.get("page");

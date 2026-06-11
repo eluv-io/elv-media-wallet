@@ -476,6 +476,7 @@ const PropertyRouteWrapper = observer(({children}) => {
     return children;
   }
 
+  console.log("Property Route Wrapper", rootStore.backPath)
   return (
     <PurchaseGate
       key={`purchase-gate-${rootStore.backPath}`}

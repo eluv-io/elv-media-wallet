@@ -852,6 +852,7 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
   useEffect(() => {
     if(!permissions) { return; }
 
+    console.log("Purchase Gate Effect", backPath, rootStore.backPath)
     if(showModal && !permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
       url.searchParams.delete("p");
