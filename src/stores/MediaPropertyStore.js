@@ -21,6 +21,7 @@ class MediaPropertyStore {
   previewPropertyId;
   previewAll = false;
   aiSearchResultMediaIds = [];
+  previousSearchQueries = {};
   searchIndexes = {};
   searchMode = new URLSearchParams(location.search).get("m") || "default";
   searchOptions = {
@@ -1764,6 +1765,7 @@ class MediaPropertyStore {
 
         this.LoadMediaProgress({mediaPropertySlugOrId: mediaPropertyId});
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
+        this.LoadSearchQueries({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
 
@@ -2428,7 +2430,60 @@ class MediaPropertyStore {
       ...media
     };
 
+    this.SaveSearchQuery({mode: "clip", query});
+
     this.aiSearchResultMediaIds = mediaIds;
+  });
+
+  LoadSearchQueries = flow(function * ({mediaPropertySlugOrId}) {
+    try {
+      const queries = yield this.rootStore.walletClient.ProfileMetadata({
+        type: "app",
+        appId: this.rootStore.appId,
+        mode: "private",
+        key: `search-queries-${mediaPropertySlugOrId}`
+      });
+
+      if(queries) {
+        this.previousSearchQueries = JSON.parse(this.client.utils.FromB64(queries));
+      }
+    } catch(error) {
+      console.error("Failed loading previous search queries");
+      console.error(error);
+    }
+  });
+
+  SaveSearchQuery = flow(function * ({mode, query}) {
+    if(!mode || !query) { return; }
+
+    const initialQueries = JSON.stringify(this.previousSearchQueries);
+
+    if(!this.previousSearchQueries) {
+      this.previousSearchQueries = {};
+    }
+
+    this.previousSearchQueries[mode] = [
+      query,
+      ...(this.previousSearchQueries[mode] || [])
+    ]
+      .filter(q => q)
+      .filter((x, i, a) => a.findIndex(q => q === x) === i)
+      .slice(0, 10);
+
+    if(JSON.stringify(this.previousSearchQueries) === initialQueries) {
+      // No change
+      return;
+    }
+
+    yield this.rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      appId: this.rootStore.appId,
+      mode: "private",
+      key: `search-queries-${this.rootStore.currentPropertyId}`,
+      value: this.rootStore.client.utils.B64(
+        JSON.stringify(this.previousSearchQueries || {})
+      )
+    });
   });
 }
 

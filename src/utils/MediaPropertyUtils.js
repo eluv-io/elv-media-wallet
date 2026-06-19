@@ -441,11 +441,11 @@ export const MediaItemScheduleInfo = mediaItem => {
       displayStartTime
     };
   } catch(error) {
-    // eslint-disable-next-line no-console
+     
     console.error(`Error parsing start/end time in media item ${mediaItem.name}`);
-    // eslint-disable-next-line no-console
+     
     console.error(error);
-    // eslint-disable-next-line no-console
+     
     console.error(mediaItem);
 
     return {

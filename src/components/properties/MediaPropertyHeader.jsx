@@ -310,7 +310,10 @@ const SearchBar = observer(({autoFocus}) => {
 
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
   const Select = (selectedTitle) => {
-    mediaPropertyStore.ClearSearchOptions();
+    if(mediaPropertyStore.searchOptions.query !== query) {
+      mediaPropertyStore.ClearSearchOptions();
+    }
+
     const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
 
     if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1) {
@@ -333,6 +336,17 @@ const SearchBar = observer(({autoFocus}) => {
 
     searchRef?.current.blur();
   };
+
+
+  let autocompleteOptions = queryOptions;
+  if(mediaPropertyStore.searchMode === "clip") {
+    autocompleteOptions = (mediaPropertyStore.previousSearchQueries?.clip || [])
+      .filter(option => option.toLowerCase().includes(query?.toLowerCase()));
+
+    if(autocompleteOptions.length === 1 && autocompleteOptions[0]?.toLowerCase() === query?.toLowerCase()) {
+      autocompleteOptions = [];
+    }
+  }
 
   return (
     <div className={S("search-container")}>
@@ -358,11 +372,12 @@ const SearchBar = observer(({autoFocus}) => {
             }
           }, 250);
         }}
-        placeholder={queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search}
-        data={
-          mediaPropertyStore.searchMode !== "default" ? [] :
-            queryOptions
+        placeholder={
+        mediaPropertyStore.searchMode === "clip" ?
+          mediaPropertyStore.rootStore.l10n.media_properties.header.ai_search :
+          queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search
         }
+        data={autocompleteOptions}
         limit={50}
         onOptionSubmit={Select}
         role="search"

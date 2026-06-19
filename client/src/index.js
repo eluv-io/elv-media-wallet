@@ -116,7 +116,7 @@ class ElvWalletFrameClient {
         console.warn(message);
         return;
       case this.LOG_LEVELS.ERROR:
-        // eslint-disable-next-line no-console
+         
         console.error(message);
         return;
     }

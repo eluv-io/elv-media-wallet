@@ -26,9 +26,7 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    "no-console": [
-      "error"
-    ],
+    "no-console": ["error", { "allow": ["error", "info", "time", "timeEnd"] }],
     "quotes": [
       "error",
       "double"

@@ -116,8 +116,8 @@ const MediaPropertyAISearchPage = observer(() => {
   }
 
   const searchResults = mediaPropertyStore.aiSearchResultMediaIds
-    .map(id => ({mediaItem: mediaPropertyStore.media[id]}))
-    .filter(({mediaItem}) => mediaItem.authorized);
+    .map(id => ({mediaItem: mediaPropertyStore.media[id]}));
+    //.filter(({mediaItem}) => mediaItem.authorized);
 
   return (
     <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>

@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-console
+ 
 console.time("Initial Load");
 
 import {SearchParams} from "../utils/Utils";
@@ -592,7 +592,7 @@ class RootStore {
     } finally {
       if(this.walletClient) {
         this.loaded = true;
-        // eslint-disable-next-line no-console
+         
         console.timeEnd("Initial Load");
       } else {
         // Retry
@@ -723,7 +723,7 @@ class RootStore {
 
   AuthenticateAuth0 = flow(function * ({nonce, installId, origin, userData}={}) {
     try {
-      // eslint-disable-next-line no-console
+       
       console.time("Auth0 Authentication");
 
       // Check for existing Auth0 authentication status
@@ -774,7 +774,7 @@ class RootStore {
 
       this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
-      // eslint-disable-next-line no-console
+       
       console.timeEnd("Auth0 Authentication");
     }
   });

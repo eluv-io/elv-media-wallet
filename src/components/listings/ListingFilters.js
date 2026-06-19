@@ -623,7 +623,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters={}, men
         tokenIdRange: savedOptions.tokenIdRange
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
+       
       console.error("Error loading saved sort options", error);
     } finally {
       setSavedOptionsLoaded(true);

@@ -846,6 +846,10 @@ const MediaPropertyMediaPage = observer(() => {
                 {rootStore.l10n.media_properties.media.errors.unauthorized}
               </div>
           }
+          {
+            // TODO: REMOVE
+            mediaItem?.objectId
+          }
         </div>
       </div>
     );

@@ -705,6 +705,7 @@ media_properties:
   media_property: Media Property
   header:
     search: Search
+    ai_search: Search within content by phrase or keyword
     filter: Filter
   footer:
     social_links:

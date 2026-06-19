@@ -38,7 +38,7 @@ const CodeRedemption = observer(() => {
       rootStore.SetLocalStorage(`${match.params.offerId}-code`, code);
       setRedeemed(true);
     } catch(error) {
-      // eslint-disable-next-line no-console
+       
       console.error(error);
 
       try {
