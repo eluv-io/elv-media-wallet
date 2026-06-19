@@ -330,10 +330,6 @@ const SearchBar = observer(({autoFocus}) => {
 
   return (
     <div className={S("search-container")}>
-      {
-        rootStore.pageWidth > 800 ? null :
-          <ImageIcon icon={SearchIcon} className={S("search-container__icon")} />
-      }
       <Autocomplete
         onClick={() => {
           if(mediaPropertyStore.searchMode === "default" && !location.pathname.includes("/search")) {
@@ -364,7 +360,7 @@ const SearchBar = observer(({autoFocus}) => {
         limit={50}
         onOptionSubmit={Select}
         role="search"
-        leftSectionWidth={120}
+        leftSectionWidth={rootStore.pageWidth > 800 ? 120 : 30}
         leftSection={
           <button
             onClick={event => {
@@ -381,10 +377,9 @@ const SearchBar = observer(({autoFocus}) => {
           </button>
         }
         rightSection={
-          rootStore.pageWidth < 800 ? null :
-            <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
-              <ImageIcon alt="search" icon={SearchIcon} />
-            </button>
+          <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
+            <ImageIcon alt="search" icon={SearchIcon} />
+          </button>
         }
         rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
         classNames={{

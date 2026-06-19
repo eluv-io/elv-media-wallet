@@ -713,6 +713,8 @@
   }
 
   @media screen and (width <= 1000px) and (orientation: portrait) {
+    min-height: unset;
+
     &__media-grid {
       height: max-content;
       min-height: unset;

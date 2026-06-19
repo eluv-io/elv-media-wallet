@@ -927,9 +927,9 @@
   width: 100%;
 
   & > div {
-    width: max-content;
-    margin: 0 auto;
     justify-content: center;
+    margin: 0 auto;
+    width: max-content;
   }
 
   &__attribute--box {
@@ -1002,6 +1002,8 @@
   }
 
   @media screen and (width <= 800px) {
+    padding: 10px;
+
     &__attribute--box {
       font-size: 14px;
       min-width: 100px;
@@ -1012,7 +1014,15 @@
     }
 
     &__attribute--image {
-      max-height: 75px;
+      max-height: 85px;
+      max-width: 85px;
+    }
+
+    &--secondary {
+      .attribute-filter__attribute--image {
+        max-height: 50px;
+        max-width: 50px;
+      }
     }
   }
 }

@@ -18,24 +18,15 @@ const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || S
 
 const MediaPropertyDefaultSearchPage = observer(() => {
   const [searchResults, setSearchResults] = useState(undefined);
-  const history = useHistory();
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
-  const query = mediaPropertyStore.searchOptions.query;
+  const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
   const groupBy = mediaProperty?.metadata?.search?.group_by;
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.query);
-    params.set("q", mediaPropertyStore.searchOptions.query);
-    params.delete("m");
-    history.replace(location.pathname + "?" + params.toString());
-  }, [mediaPropertyStore.searchOptions.query]);
 
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
       .then(results => setSearchResults(mediaPropertyStore.GroupContent({content: results, groupBy})));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
-
 
   if(!searchResults) {
     return <PageLoader className={S("search__loader")} />;
@@ -104,17 +95,9 @@ const MediaPropertyDefaultSearchPage = observer(() => {
 });
 
 const MediaPropertyAISearchPage = observer(() => {
-  const history = useHistory();
   const match = useRouteMatch();
-  const query = mediaPropertyStore.searchOptions.query;
+  const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.query);
-    params.set("q", mediaPropertyStore.searchOptions.query);
-    params.set("m", "clip");
-    history.replace(location.pathname + "?" + params.toString());
-  }, [mediaPropertyStore.searchOptions.query]);
 
   useEffect(() => {
     if(!query) { return; }
@@ -148,12 +131,39 @@ const MediaPropertyAISearchPage = observer(() => {
 });
 
 const MediaPropertySearchPage = observer(() => {
+  let [loaded, setLoaded] = useState(false);
+  const history = useHistory();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if(!loaded) {
+      if(params.get("m")) {
+        mediaPropertyStore.ToggleAISearchMode(params.get("m"));
+      }
+
+      setLoaded(true);
+      return;
+    }
+
+    params.set("q", mediaPropertyStore.searchOptions.query);
+
+    if(mediaPropertyStore.searchMode === "clip") {
+      params.set("m", "clip");
+    } else {
+      params.delete("m");
+    }
+
+    history.replace(location.pathname + "?" + params.toString());
+  }, [mediaPropertyStore.searchOptions.query]);
+
   return (
     <PageContainer className={S("search")}>
       {
-        mediaPropertyStore.searchMode === "default" ?
-          <MediaPropertyDefaultSearchPage /> :
-          <MediaPropertyAISearchPage />
+        new URLSearchParams(window.location.search).get("m") === "clip" ||
+        mediaPropertyStore.searchMode === "clip" ?
+          <MediaPropertyAISearchPage /> :
+          <MediaPropertyDefaultSearchPage />
       }
     </PageContainer>
   );

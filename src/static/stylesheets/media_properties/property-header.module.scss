@@ -207,23 +207,25 @@
   }
 
   &__ai-toggle {
-    display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 10px 5px 5px;
-    justify-content: center;
-    font-size: 14px;
     background-color: var(--property-background-tertiary);
-    height: 70%;
-    width: 80%;
     border-radius: 20px;
+    display: flex;
+    font-size: 14px;
+    gap: 5px;
+    height: 70%;
+    justify-content: center;
+    padding: 5px 10px 5px 5px;
     transition: background-color 0.25s ease, color 0.25s ease;
+    width: 87%;
 
-    &--active {
-      background-color: var(--property-text-faded);
+     &--active {
+      background-color: #9a58d0;
 
-      * {
-        color: black;
+      svg {
+        * {
+          stroke: white;
+        }
       }
     }
 
@@ -270,25 +272,26 @@
     background-color: var(--property-search-background);
   }
 
-  &__submit {
-    align-items: center;
-    background-color: var(--property-search-button-background);
-    border-left: 1px solid #67676a;
-    border-radius: 0 33px 33px 0;
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    padding: 13px;
-    position: absolute;
-    right: 0;
-    width: 100%;
-
-    svg {
+  @media screen and (width >= 800px) {
+    &__submit {
+      align-items: center;
+      background-color: var(--property-search-button-background);
+      border-left: 1px solid #67676a;
+      border-radius: 0 33px 33px 0;
+      display: flex;
       height: 100%;
+      justify-content: center;
+      padding: 13px;
+      position: absolute;
+      right: 0;
       width: 100%;
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
-
 
   @media screen and (width <= 800px) {
     &__input,
@@ -300,7 +303,22 @@
     &__input {
       border: 0;
       height: 30px;
-      padding-left: 35px;
+      padding-left: 40px;
+    }
+
+    &__submit {
+      height: 100%;
+      padding: 7px;
+      width: 100%;
+
+      svg {
+        height: 100%;
+        width: 100%;
+
+        * {
+          color: var(--property-text-faded);
+        }
+      }
     }
 
     &__filter {
@@ -311,6 +329,22 @@
       font-size: 0.9em;
       height: 36px;
       justify-content: center;
+    }
+
+    &__ai-toggle {
+      height: 25px;
+      margin-left: 5px;
+      padding: 4px;
+      width: 25px;
+
+      span {
+        display: none;
+      }
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 }

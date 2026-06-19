@@ -2769,6 +2769,7 @@ class RootStore {
 
     if(!path && !query) { return; }
 
+    const params = new URLSearchParams(query);
     if(context === "s") {
       if(!path.includes("/s/:sectionSlugOrId") && location.pathname.includes("/s/:sectionSlugOrId/")) {
         path = UrlJoin(path, "/s/:sectionSlugOrId");
@@ -2778,6 +2779,15 @@ class RootStore {
     } else if(context === "search") {
       if(!location.pathname.endsWith("/search")) {
         path = UrlJoin(path, "/search");
+        context = "";
+
+        const mediaId = location.pathname.split("/").slice(-1)[0];
+        if(mediaId?.startsWith("msch")) {
+          // Search result, parse
+          const query = this.client.utils.FromB58ToStr(mediaId.replace("msch", "")).split("::")[0];
+          params.set("q", query);
+          params.set("m", "clip");
+        }
       } else {
         context = undefined;
       }
@@ -2791,12 +2801,10 @@ class RootStore {
       )
       .join("/");
 
-    const params = new URLSearchParams(query);
     for(const [key, value] of params.entries()) {
       params.set(
         key,
-        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) ||
-        value
+        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) || value
       );
     }
 

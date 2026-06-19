@@ -1013,7 +1013,7 @@ class MediaPropertyStore {
     if(authorized && mediaCollectionSlugOrId) {
       const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
 
-      if(!mediaCollection.authorized) {
+      if(mediaCollection && !mediaCollection.authorized) {
         isTestContent = mediaCollection.test_content;
         authorized = false;
         permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
@@ -1025,7 +1025,7 @@ class MediaPropertyStore {
     if(authorized && mediaListSlugOrId) {
       const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
 
-      if(!mediaList.authorized) {
+      if(mediaList && !mediaList.authorized) {
         isTestContent = mediaList.test_content;
         authorized = false;
         permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
@@ -1037,7 +1037,7 @@ class MediaPropertyStore {
     if(authorized && mediaItemSlugOrId) {
       const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
 
-      if(!mediaItem.authorized) {
+      if(mediaItem && !mediaItem?.authorized) {
         isTestContent = mediaItem.test_content;
         authorized = false;
         permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
@@ -2373,7 +2373,7 @@ class MediaPropertyStore {
         const params = new URLSearchParams(result.image_url.split("?")[1]);
         params.keys().forEach(key => imageUrl.searchParams.set(key, params.get(key)));
 
-        const id = `msch${this.client.utils.B58(`${query}-${index}`)}`;
+        const id = `msch${this.client.utils.B58(`${query}::${index}`)}`;
         let authorized = true;
         let versionHash = "";
         try {

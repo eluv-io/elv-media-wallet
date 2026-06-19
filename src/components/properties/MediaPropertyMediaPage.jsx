@@ -775,10 +775,12 @@ const MediaPropertyMediaPage = observer(() => {
 
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-  const mediaHash = LinkTargetHash(mediaItem.media_link);
+  const mediaHash = LinkTargetHash(mediaItem?.media_link);
   const mediaId = mediaHash && rootStore.client.utils.DecodeVersionHash(mediaHash)?.objectId;
 
   useEffect(() => {
+    if(!mediaItem) { return; }
+
     mediaStore.Reset();
     mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
     mediaPropertyStore.SidebarContent({
