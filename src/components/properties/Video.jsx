@@ -18,6 +18,7 @@ const Video = forwardRef(function VideoComponent({
   contentInfo={},
   playerOptions={},
   playoutParameters={},
+  ignoreClipping=false,
   posterImage,
   isLive,
   callback,
@@ -87,6 +88,13 @@ const Video = forwardRef(function VideoComponent({
       }
     }
 
+    let startTime;
+    if(ignoreClipping) {
+      startTime = playoutParameters.clipStart;
+      delete playoutParameters.clipStart;
+      delete playoutParameters.clipEnd;
+    }
+
     let startProgress = saveProgress && mediaPropertyStore.GetMediaProgress({mediaPropertySlugOrId, mediaItemId});
 
     if(startProgress > 0.95) {
@@ -130,6 +138,7 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
+          startTime,
           startProgress,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
@@ -168,7 +177,7 @@ const Video = forwardRef(function VideoComponent({
 
       player.controls.RegisterVideoEventListener("volumechange", () => setSettingsUpdateKey(Math.random()));
     });
-  }, [targetRef, contentId]);
+  }, [targetRef, contentId, ignoreClipping]);
 
   useEffect(() => {
     if(!player) { return; }

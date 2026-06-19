@@ -6,6 +6,7 @@ class MediaStore {
   sidebarContent = {};
   mediaTags = {};
 
+  playFullVideo = false;
   multiviewMode = "multiview";
   showSidebar = true;
   selectedShowTagSidebar = false;
@@ -44,6 +45,7 @@ class MediaStore {
     this.sidebarContent = {};
     this.mediaTags = {};
 
+    this.playFullVideo = false;
     this.showSidebar = true;
     this.selectedShowTagSidebar = false;
     this.showMultiviewSelectionModal = false;
@@ -71,6 +73,10 @@ class MediaStore {
 
   SetShowMultiviewSelectionModal(show) {
     this.showMultiviewSelectionModal = show;
+  }
+
+  SetPlayFullVideo(playFullVideo) {
+    this.playFullVideo = playFullVideo;
   }
 
   SetPlayer({objectId, player}) {
@@ -126,7 +132,7 @@ class MediaStore {
           async ({name}) => (
             await this.QueryAIAPI({
               objectId,
-              path: offering || compositionKey ?
+              path: compositionKey ?
                 UrlJoin("/tagstore", objectId, "compositions", "tags") :
                 UrlJoin("/tagstore", objectId, "tags"),
               queryParams: {
@@ -177,7 +183,7 @@ class MediaStore {
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
             objectId,
-            path: offering || compositionKey ?
+            path: compositionKey ?
               UrlJoin("/tagstore", objectId, "compositions", "tags") :
               UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {
@@ -201,7 +207,7 @@ class MediaStore {
         if(tracks.find(track => track.name === "chapter")) {
           chapterTags = (await this.QueryAIAPI({
             objectId,
-            path: offering || compositionKey ?
+            path: compositionKey ?
               UrlJoin("/tagstore", objectId, "compositions", "tags") :
               UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {

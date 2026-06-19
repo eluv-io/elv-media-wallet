@@ -2385,6 +2385,7 @@ class MediaPropertyStore {
         authorized = authorized && mediaIds.find(mediaId => this.media[mediaId]?.authorized);
 
         media[id] = {
+          isSearchResult: true,
           id,
           mediaIds,
           objectId: result.id,

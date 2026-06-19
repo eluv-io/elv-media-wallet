@@ -24,6 +24,7 @@ import {ActionIcon, Menu} from "@mantine/core";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import MultiviewIcon from "Assets/icons/media/multiview";
 import DownloadIcon from "Assets/icons/download.svg";
+import PlayIcon from "Assets/icons/media/play";
 import AIDescriptionIcon from "Assets/icons/ai-description.svg";
 import XIcon from "Assets/icons/x";
 
@@ -33,6 +34,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 const MediaVideo = observer(({
   mediaItem,
+  playFullVideo,
   display,
   videoRef,
   showTitle,
@@ -182,6 +184,7 @@ const MediaVideo = observer(({
   return (
     <Video
       key={loadKey}
+      ignoreClipping={playFullVideo}
       ref={videoRef}
       link={mediaItem.media_link}
       isLive={display.live_video}
@@ -193,7 +196,7 @@ const MediaVideo = observer(({
       noReactiveMute={noReactiveMute}
       mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
       mediaItemId={mediaItem.id}
-      saveProgress
+      saveProgress={!mediaItem.isSearchResult}
       playoutParameters={playoutParameters}
       contentInfo={{
         title: display.title,
@@ -252,6 +255,7 @@ const PIPContent = observer(({mediaInfo}) => {
   const primaryVideo = (
     <MediaVideo
       key={`media-${mediaStore.displayedContent[0].id}`}
+      playFullVideo={mediaStore.playFullVideo}
       saveSettings
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
@@ -375,6 +379,7 @@ const MediaVideoWithSidebar = observer(({
                 key={`media-${item.id}`}
                 capLevelToPlayerSize
                 mute={index > 0}
+                playFullVideo={mediaStore.playFullVideo && index === 0}
                 saveSettings={index === 0}
                 noReactiveMute
                 mediaItem={item.mediaItem}
@@ -805,11 +810,11 @@ const MediaPropertyMediaPage = observer(() => {
       mediaStore.LoadMediaTags({
         versionHash: mediaHash,
         offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
-        clipStart: mediaItem.media_link_info?.clip_start_time,
-        clipEnd: mediaItem.media_link_info?.clip_end_time
+        clipStart: mediaStore.playFullVideo ? undefined : mediaItem.media_link_info?.clip_start_time,
+        clipEnd: mediaStore.playFullVideo ? undefined : mediaItem.media_link_info?.clip_end_time
       });
     }
-  }, [mediaHash, mediaStore.availablePlayers[mediaId]]);
+  }, [mediaHash, mediaStore.availablePlayers[mediaId], mediaStore.playFullVideo]);
 
   if(!mediaItem) {
     return <Redirect to={rootStore.backPath} />;
@@ -870,6 +875,34 @@ const MediaPropertyMediaPage = observer(() => {
                   </div>
 
                   <div className={S("media-text__title--right")}>
+                    {
+                      !mediaItem.isSearchResult ? null :
+                        rootStore.pageWidth < 850 ?
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => mediaStore.SetPlayFullVideo(!mediaStore.playFullVideo)}
+                            title={mediaStore.playFullVideo ? "Play Clip" : "Play Full Length"}
+                            p={5}
+                            color={
+                              mediaStore.playFullVideo ?
+                                "var(--property-border-color-secondary)" :
+                                "var(--property-border-color)"
+                            }
+                            size={30}
+                            className={S("icon-button", "icon-button--dark")}
+                          >
+                            <ImageIcon icon={PlayIcon} />
+                          </ActionIcon> :
+                          <Button
+                            title={mediaStore.playFullVideo ? "Play Clip" : "Play Full Length"}
+                            onClick={() => mediaStore.SetPlayFullVideo(!mediaStore.playFullVideo)}
+                            rightIcon={PlayIcon}
+                            variant="outline"
+                            className={S("download-menu__button", mediaStore.playFullVideo ? "download-menu__button--active" : "")}
+                          >
+                            { mediaStore.playFullVideo ? "PLAY CLIP" : "PLAY FULL LENGTH"}
+                          </Button>
+                    }
                     {
                       !mediaStore.mediaTags?.hasTags ? null :
                         rootStore.pageWidth < 850 ?

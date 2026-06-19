@@ -705,6 +705,7 @@ const MediaCard = observer(({
   const cardMediaItem = mediaItem || sectionItem?.mediaItem;
   const progress =
     cardMediaItem &&
+    !cardMediaItem.isSearchResult &&
     !scheduleInfo.isLiveContent &&
     mediaPropertyStore.GetMediaProgress({mediaItemId: cardMediaItem.id});
 

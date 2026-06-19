@@ -819,12 +819,16 @@ export const Button = ({variant="primary", active, loading, icon, rightIcon, sty
           <>
             {
               !icon ? null:
-                <ImageIcon icon={icon} className={S("button__icon")} />
+                <div className={S("button__icon-container")}>
+                  <ImageIcon icon={icon} className={S("button__icon")} />
+                </div>
             }
             { props.children }
             {
               !rightIcon ? null :
-                <ImageIcon icon={rightIcon} className={S("button__icon")} />
+                <div className={S("button__icon-container")}>
+                  <ImageIcon icon={rightIcon} className={S("button__icon")} />
+                </div>
             }
           </> :
           <>

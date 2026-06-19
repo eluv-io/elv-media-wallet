@@ -922,8 +922,8 @@
     background: var(--property-search-background);
     border-radius: 8px;
     font-weight: 800;
-    height: 50px;
-    min-width: 185px;
+    height: 40px;
+    white-space: nowrap;
 
     &--active {
       background-color: var(--property-search-button-background);
@@ -1006,6 +1006,10 @@
     display: flex;
     gap: 10px;
     position: relative;
+  }
+
+  &__title--right {
+    padding-left: 10px;
   }
 
   &__icons {
