@@ -689,6 +689,7 @@ export const SectionResultsGroup = observer(({
   groupBy,
   label,
   results,
+  sort=true,
   isSectionContent=false,
   wrapTitles=false,
   navContext
@@ -718,26 +719,28 @@ export const SectionResultsGroup = observer(({
     }
   });
 
-  // Sort results by start time
-  results = results.sort((a, b) => {
-    if(a?.mediaItem?.start_time) {
-      if(b?.mediaItem?.start_time) {
-        if(a.mediaItem.start_time !== b.mediaItem.start_time) {
-          return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
+  if(sort) {
+    // Sort results by start time
+    results = results.sort((a, b) => {
+      if(a?.mediaItem?.start_time) {
+        if(b?.mediaItem?.start_time) {
+          if(a.mediaItem.start_time !== b.mediaItem.start_time) {
+            return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
+          } else {
+            // Equal start times - sort by catalog title
+            return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
+          }
         } else {
-          // Equal start times - sort by catalog title
-          return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
+          return -1;
         }
+      } else if(b?.mediaItem?.start_time) {
+        return 1;
       } else {
-        return -1;
+        // No start times - sort by catalog title
+        return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
       }
-    } else if(b?.mediaItem?.start_time) {
-      return 1;
-    } else {
-      // No start times - sort by catalog title
-      return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
-    }
-  });
+    });
+  }
 
   return (
     <div className={S("section", "section--page", "section__group")}>

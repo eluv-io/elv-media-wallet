@@ -123,6 +123,7 @@ const MediaPropertyAISearchPage = observer(() => {
     <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
       <SectionResultsGroup
         label={`Search results for ${query}`}
+        sort={false}
         results={searchResults}
         navContext="search"
       />
