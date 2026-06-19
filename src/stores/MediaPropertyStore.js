@@ -2365,65 +2365,71 @@ class MediaPropertyStore {
       }
     });
 
-    let media = {};
-    const mediaIds = yield Promise.all(
-      contents.map(async (result, index) => {
-        let imageUrl = new URL(baseUrl);
-        imageUrl.pathname = result.image_url.split("?")[0];
+    const objectIds = contents
+      .map(result => result.id)
+      .filter((x, i, a) => a.findIndex(q => q === x) === i);
 
-        const params = new URLSearchParams(result.image_url.split("?")[1]);
-        params.keys().forEach(key => imageUrl.searchParams.set(key, params.get(key)));
-
-        const id = `msch${this.client.utils.B58(`${query}::${index}`)}`;
-        let authorized = true;
-        let versionHash = "";
+    let versionHashes = {};
+    yield Promise.all(
+      objectIds.map(async objectId => {
         try {
-          versionHash = await this.client.LatestVersionHash({objectId: result.id});
-        } catch(error) {
-          authorized = false;
-        }
-
-        const mediaIds = this.objectIdToMediaIdsMap[result.id] || [];
-        authorized = authorized && mediaIds.find(mediaId => this.media[mediaId]?.authorized);
-
-        media[id] = {
-          isSearchResult: true,
-          id,
-          mediaIds,
-          objectId: result.id,
-          public: authorized,
-          authorized,
-          catalog_title: result.name,
-          title: result.name,
-          subtitle: "",
-          description: "",
-          description_rich_text: "",
-          headers: [],
-          tags: [],
-          type: "media",
-          media_type: "Video",
-          resolvedPermissions: {
-            authorized,
-            purchasable: false
-          },
-          media_link: {
-            objectId: result.id,
-            "/": `/qfab/${versionHash}/meta/public/asset_metadata`
-          },
-          media_link_info: {
-            name: result.name,
-            type: "clip",
-            clip_start_time: result.start_time / 1000,
-            clip_end_time: result.end_time / 1000
-          },
-          thumbnail_image_landscape: {
-            url: imageUrl
-          }
-        };
-
-        return id;
+          versionHashes[objectId] = await this.client.LatestVersionHash({objectId});
+        } catch(error) {}
       })
     );
+
+    let media = {};
+    const mediaIds = contents.map((result, index) => {
+      let imageUrl = new URL(baseUrl);
+      imageUrl.pathname = result.image_url.split("?")[0];
+
+      const params = new URLSearchParams(result.image_url.split("?")[1]);
+      params.keys().forEach(key => imageUrl.searchParams.set(key, params.get(key)));
+
+      const mediaId = `msch${this.client.utils.B58(`${query}::${index}`)}`;
+      let versionHash = versionHashes[result.id];
+
+      const mediaItemIds = this.objectIdToMediaIdsMap[result.id] || [];
+      const authorized = !!versionHash && mediaItemIds.find(mediaId => this.media[mediaId]?.authorized);
+
+      media[mediaId] = {
+        isSearchResult: true,
+        searchResultScore: result.score,
+        id: mediaId,
+        mediaItemIds,
+        objectId: result.id,
+        public: authorized,
+        authorized,
+        catalog_title: result.name,
+        title: result.name,
+        subtitle: "",
+        description: "",
+        description_rich_text: "",
+        headers: [],
+        tags: [],
+        type: "media",
+        media_type: "Video",
+        resolvedPermissions: {
+          authorized,
+          purchasable: false
+        },
+        media_link: {
+          objectId: result.id,
+          "/": `/qfab/${versionHash}/meta/public/asset_metadata`
+        },
+        media_link_info: {
+          name: result.name,
+          type: "clip",
+          clip_start_time: result.start_time / 1000,
+          clip_end_time: result.end_time / 1000
+        },
+        thumbnail_image_landscape: {
+          url: imageUrl
+        }
+      };
+
+      return mediaId;
+    });
 
     this.media = {
       ...this.media,
