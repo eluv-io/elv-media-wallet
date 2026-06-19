@@ -924,7 +924,13 @@
   min-height: max-content;
   padding: 20px;
   user-select: none;
-  width: max-content;
+  width: 100%;
+
+  & > div {
+    width: max-content;
+    margin: 0 auto;
+    justify-content: center;
+  }
 
   &__attribute--box {
     border: 1px solid var(--property-text-secondary);

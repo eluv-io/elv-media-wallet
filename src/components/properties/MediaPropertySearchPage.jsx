@@ -16,7 +16,7 @@ import {PageLoader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
-const MediaPropertySearchPage = observer(() => {
+const MediaPropertyDefaultSearchPage = observer(() => {
   const [searchResults, setSearchResults] = useState(undefined);
   const history = useHistory();
   const match = useRouteMatch();
@@ -27,6 +27,7 @@ const MediaPropertySearchPage = observer(() => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.query);
     params.set("q", mediaPropertyStore.searchOptions.query);
+    params.delete("m");
     history.replace(location.pathname + "?" + params.toString());
   }, [mediaPropertyStore.searchOptions.query]);
 
@@ -65,7 +66,7 @@ const MediaPropertySearchPage = observer(() => {
   }
 
   return (
-    <PageContainer className={S("search")}>
+    <>
       <div className={S("search__filters")}>
         <Filters
           filterSettings={mediaProperty.metadata.search}
@@ -98,6 +99,62 @@ const MediaPropertySearchPage = observer(() => {
             />
         }
       </div>
+    </>
+  );
+});
+
+const MediaPropertyAISearchPage = observer(() => {
+  const history = useHistory();
+  const match = useRouteMatch();
+  const query = mediaPropertyStore.searchOptions.query;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.query);
+    params.set("q", mediaPropertyStore.searchOptions.query);
+    params.set("m", "clip");
+    history.replace(location.pathname + "?" + params.toString());
+  }, [mediaPropertyStore.searchOptions.query]);
+
+  useEffect(() => {
+    if(!query) { return; }
+
+    setLoading(true);
+    mediaPropertyStore.ClipSearch({...match.params, query})
+      .finally(() => setLoading(false));
+  }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
+
+  if(!query) {
+    return null;
+  }
+
+  if(loading) {
+    return <PageLoader className={S("search__loader")} />;
+  }
+
+  const searchResults = mediaPropertyStore.aiSearchResultMediaIds
+    .map(id => ({mediaItem: mediaPropertyStore.media[id]}))
+    .filter(({mediaItem}) => mediaItem.authorized);
+
+  return (
+    <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
+      <SectionResultsGroup
+        label={`Search results for ${query}`}
+        results={searchResults}
+        navContext="search"
+      />
+    </div>
+  );
+});
+
+const MediaPropertySearchPage = observer(() => {
+  return (
+    <PageContainer className={S("search")}>
+      {
+        mediaPropertyStore.searchMode === "default" ?
+          <MediaPropertyDefaultSearchPage /> :
+          <MediaPropertyAISearchPage />
+      }
     </PageContainer>
   );
 });

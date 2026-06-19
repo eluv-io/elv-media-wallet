@@ -16,10 +16,14 @@ class MediaPropertyStore {
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
+  objectIdToMediaIdsMap = {};
   permissionItems = {};
   previewPropertyId;
   previewAll = false;
+  aiSearchQuery = "";
+  aiSearchResultMediaIds = [];
   searchIndexes = {};
+  searchMode = new URLSearchParams(location.search).get("m") || "default";
   searchOptions = {
     query: new URLSearchParams(location.search).get("q") || "",
     attributes: {},
@@ -257,6 +261,8 @@ class MediaPropertyStore {
   }
 
   ClearSearchOptions() {
+    this.ClearAISearchResults();
+
     this.searchOptions = {
       query: "",
       attributes: {},
@@ -266,6 +272,20 @@ class MediaPropertyStore {
       startTime: null,
       endTime: null
     };
+  }
+
+  ClearAISearchResults() {
+    for(const mediaId of this.aiSearchResultMediaIds) {
+      delete this.media[mediaId];
+    }
+
+    this.aiSearchQuery = "";
+    this.aiSearchResultMediaIds = [];
+  }
+
+  ToggleAISearchMode(mode) {
+    this.ClearSearchOptions();
+    this.searchMode = mode;
   }
 
   async SearchMedia({mediaPropertySlugOrId, query, searchOptions}) {
@@ -1640,6 +1660,26 @@ class MediaPropertyStore {
           ...allMedia
         };
 
+        // Create a mapping from object ID -> media items
+        let objectIdToMediaIdsMap = {};
+        Object.values(this.media).forEach(media => {
+          if(media.media_type !== "Video" || !media.media_link?.["/"]) {
+            return;
+          }
+
+          const versionHash = LinkTargetHash(media.media_link);
+
+          if(!versionHash) { return; }
+
+          const objectId = this.client.utils.DecodeVersionHash(versionHash).objectId;
+
+          if(!objectId) { return; }
+
+          objectIdToMediaIdsMap[objectId] = [ ...(objectIdToMediaIdsMap[objectId] || []), media.id];
+        });
+
+        this.objectIdToMediaIdsMap = objectIdToMediaIdsMap;
+
         const indexableMedia = Object.values(this.media)
           .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
           .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
@@ -2285,6 +2325,107 @@ class MediaPropertyStore {
     document.body.appendChild(a);
     a.click();
     a.remove();
+  });
+
+  // Search
+  ClipSearch = flow(function * ({mediaPropertySlugOrId, query, start=0, limit=50}) {
+    if(this.aiSearchQuery === query && this.aiSearchResultMediaIds.length > 0) {
+      return;
+    }
+
+    this.ClearAISearchResults();
+
+    // TODO: This shouldn't be hard-coded
+    const indexId = "iq__3cfW3PD7CWJYofymtECo5V8h6xBR";
+
+    let {contents} = (yield this.rootStore.mediaStore.QueryAIAPI({
+      server: "ai-04",
+      objectId: indexId,
+      path: UrlJoin("vector_search", indexId, "clip_search"),
+      queryParams: {
+        terms: query,
+        start,
+        limit,
+        clips: true,
+        clip_include_source_tags: true,
+        get_chunks: true,
+        max_total: 100,
+        debug: true
+      }
+    })) || {};
+
+    const versionHash = yield this.client.LatestVersionHash({objectId: indexId});
+    const baseUrl = yield this.client.Rep({
+      versionHash,
+      rep: "frame",
+      channelAuth: true,
+      queryParams: {
+        ignore_trimming: true
+      }
+    });
+
+    let media = {};
+    const mediaIds = yield Promise.all(
+      contents.map(async (result, index) => {
+        let imageUrl = new URL(baseUrl);
+        imageUrl.pathname = result.image_url.split("?")[0];
+
+        const params = new URLSearchParams(result.image_url.split("?")[1]);
+        params.keys().forEach(key => imageUrl.searchParams.set(key, params.get(key)));
+
+        const id = `msch${this.client.utils.B58(`${query}-${index}`)}`;
+        let authorized = true;
+        let versionHash = "";
+        try {
+          versionHash = await this.client.LatestVersionHash({objectId: result.id});
+        } catch(error) {
+          authorized = false;
+        }
+
+        const mediaIds = this.objectIdToMediaIdsMap[result.id] || [];
+        authorized = authorized && mediaIds.find(mediaId => this.media[mediaId]?.authorized);
+
+        media[id] = {
+          id,
+          mediaIds,
+          objectId: result.id,
+          public: authorized,
+          authorized,
+          catalog_title: result.name,
+          title: result.name,
+          subtitle: "",
+          description: "",
+          description_rich_text: "",
+          headers: [],
+          tags: [],
+          type: "media",
+          media_type: "Video",
+          media_link: {
+            objectId: result.id,
+            "/": `/qfab/${versionHash}/meta/public/asset_metadata`
+          },
+          media_link_info: {
+            name: result.name,
+            type: "clip",
+            clip_start_time: result.start_time / 1000,
+            clip_end_time: result.end_time / 1000
+          },
+          thumbnail_image_landscape: {
+            url: imageUrl
+          }
+        };
+
+        return id;
+      })
+    );
+
+    this.media = {
+      ...this.media,
+      ...media
+    };
+
+    this.aiSearchQuery = query;
+    this.aiSearchResultMediaIds = mediaIds;
   });
 }
 

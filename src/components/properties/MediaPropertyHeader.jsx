@@ -25,6 +25,7 @@ import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import SelectIcon from "Assets/icons/select";
 import LanguageIcon from "Assets/icons/header/language";
+import AISparkleIcon from "Assets/icons/ai-sparkle1";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -47,6 +48,7 @@ const AdvancedSearchField = observer(({
     case "attribute":
       return (
         <Select
+          searchable
           key={`advanced-option-${index}`}
           label={title}
           value={mediaPropertyStore.searchOptions.attributes[attribute] || ""}
@@ -334,7 +336,7 @@ const SearchBar = observer(({autoFocus}) => {
       }
       <Autocomplete
         onClick={() => {
-          if(!location.pathname.includes("/search")) {
+          if(mediaPropertyStore.searchMode === "default" && !location.pathname.includes("/search")) {
             mediaPropertyStore.ClearSearchOptions();
             history.push(UrlJoin(basePath, "search"));
           }
@@ -355,10 +357,29 @@ const SearchBar = observer(({autoFocus}) => {
           }, 250);
         }}
         placeholder={queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search}
-        data={queryOptions}
+        data={
+          mediaPropertyStore.searchMode !== "default" ? [] :
+            queryOptions
+        }
         limit={50}
         onOptionSubmit={Select}
         role="search"
+        leftSectionWidth={120}
+        leftSection={
+          <button
+            onClick={event => {
+              event.preventDefault();
+              event.stopPropagation();
+              mediaPropertyStore.ToggleAISearchMode(
+                mediaPropertyStore.searchMode === "default" ? "clip" : "default"
+              );
+            }}
+            className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
+          >
+            <ImageIcon icon={AISparkleIcon} />
+            <span>AI Mode</span>
+          </button>
+        }
         rightSection={
           rootStore.pageWidth < 800 ? null :
             <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">

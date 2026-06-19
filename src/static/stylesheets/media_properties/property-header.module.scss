@@ -199,11 +199,42 @@
     color: var(--property-text-primary);
     font-size: 1.15em;
     height: 45px;
-    padding: 0 30px;
 
     &::placeholder {
       color: var(--property-text-secondary);
       font-size: 1.15em;
+    }
+  }
+
+  &__ai-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px 5px 5px;
+    justify-content: center;
+    font-size: 14px;
+    background-color: var(--property-background-tertiary);
+    height: 70%;
+    width: 80%;
+    border-radius: 20px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+
+    &--active {
+      background-color: var(--property-text-faded);
+
+      * {
+        color: black;
+      }
+    }
+
+    * {
+      font-family: var(--font-family-primary);
+      font-weight: 700;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    svg {
+      height: 20px;
     }
   }
 

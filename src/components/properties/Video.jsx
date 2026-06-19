@@ -54,11 +54,12 @@ const Video = forwardRef(function VideoComponent({
   }, [saveSettings, settingsUpdateKey, !!player]);
 
   useEffect(() => {
+    objectId = objectId || link?.objectId;
     if(link) {
       versionHash = LinkTargetHash(link);
     }
 
-    if(!versionHash) { return; }
+    if(!versionHash && !objectId) { return; }
 
     mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
       .then(setContentHash);

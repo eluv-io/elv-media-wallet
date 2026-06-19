@@ -500,7 +500,7 @@ class RootStore {
       this.client = this.walletClient.client;
 
       this.staticToken = this.client.staticToken;
-      this.authToken = undefined;
+      this.authToken = this.walletClient.AuthToken();
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {

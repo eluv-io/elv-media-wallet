@@ -110,7 +110,7 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
         primaryOnly ? null :
           <AttributeFilter
             {...secondaryFilterOptions}
-            key={`secondary-filter-${primaryFilterOptions.value}`}
+            key={`secondary-filter-${secondaryFilterOptions?.attributeKey}`}
             level="secondary"
             activeFilters={activeFilters}
             SetActiveFilters={SetActiveFilters}
