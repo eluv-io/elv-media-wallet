@@ -293,7 +293,6 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
 
   if(!permissions.authorized && permissions.showAlternatePage) {
-
     linkPath = MediaPropertyBasePath({
       ...match.params,
       pageSlugOrId: permissions.alternatePageId

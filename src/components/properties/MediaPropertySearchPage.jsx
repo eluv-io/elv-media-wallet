@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
-import {useHistory, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
@@ -132,35 +132,26 @@ const MediaPropertyAISearchPage = observer(() => {
 
 const MediaPropertySearchPage = observer(() => {
   let [loaded, setLoaded] = useState(false);
-  const history = useHistory();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    if(!loaded) {
-      if(params.get("m")) {
-        mediaPropertyStore.ToggleAISearchMode(params.get("m"));
-      }
-
-      setLoaded(true);
-      return;
+    if(params.get("m") && params.get("m") !== mediaPropertyStore.searchMode) {
+      mediaPropertyStore.ToggleAISearchMode(params.get("m"));
     }
 
-    params.set("q", mediaPropertyStore.searchOptions.query);
-
-    if(mediaPropertyStore.searchMode === "clip") {
-      params.set("m", "clip");
-    } else {
-      params.delete("m");
+    if(params.get("q")) {
+      mediaPropertyStore.SetSearchOption({field: "query", value: params.get("q")});
     }
 
-    history.replace(location.pathname + "?" + params.toString());
-  }, [mediaPropertyStore.searchOptions.query]);
+    setLoaded(true);
+  }, []);
+
+  if(!loaded) { return; }
 
   return (
     <PageContainer className={S("search")}>
       {
-        new URLSearchParams(window.location.search).get("m") === "clip" ||
         mediaPropertyStore.searchMode === "clip" ?
           <MediaPropertyAISearchPage /> :
           <MediaPropertyDefaultSearchPage />

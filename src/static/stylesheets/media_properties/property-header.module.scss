@@ -219,8 +219,13 @@
     transition: background-color 0.25s ease, color 0.25s ease;
     width: 87%;
 
+    input {
+      min-height: 0!important;
+      min-width: 0!important;
+    }
+
      &--active {
-      background-color: #9a58d0;
+      background-color: var(--property-color-ai-highlight);
 
       svg {
         * {
@@ -238,6 +243,11 @@
     svg {
       height: 20px;
     }
+  }
+
+  &__ai-switch-track {
+    background-color: var(--property-background-tertiary);
+    border: 1px solid var(--property-text-extra-faded);
   }
 
   &__options {
@@ -329,6 +339,10 @@
       font-size: 0.9em;
       height: 36px;
       justify-content: center;
+    }
+
+    &__ai-switch {
+      display: none;
     }
 
     &__ai-toggle {

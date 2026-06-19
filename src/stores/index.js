@@ -2787,6 +2787,8 @@ class RootStore {
           const query = this.client.utils.FromB58ToStr(mediaId.replace("msch", "")).split("::")[0];
           params.set("q", query);
           params.set("m", "clip");
+        } else if(this.mediaPropertyStore.searchOptions.query) {
+          params.set("q", this.mediaPropertyStore.searchOptions.query);
         }
       } else {
         context = undefined;

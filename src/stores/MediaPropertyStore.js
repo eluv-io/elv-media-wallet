@@ -20,7 +20,6 @@ class MediaPropertyStore {
   permissionItems = {};
   previewPropertyId;
   previewAll = false;
-  aiSearchQuery = "";
   aiSearchResultMediaIds = [];
   searchIndexes = {};
   searchMode = new URLSearchParams(location.search).get("m") || "default";
@@ -2329,7 +2328,7 @@ class MediaPropertyStore {
 
   // Search
   ClipSearch = flow(function * ({mediaPropertySlugOrId, query, start=0, limit=50}) {
-    if(this.aiSearchQuery === query && this.aiSearchResultMediaIds.length > 0) {
+    if(this.searchOptions.query === query && this.aiSearchResultMediaIds.length > 0) {
       return;
     }
 
@@ -2400,6 +2399,10 @@ class MediaPropertyStore {
           tags: [],
           type: "media",
           media_type: "Video",
+          resolvedPermissions: {
+            authorized,
+            purchasable: false
+          },
           media_link: {
             objectId: result.id,
             "/": `/qfab/${versionHash}/meta/public/asset_metadata`
@@ -2424,7 +2427,6 @@ class MediaPropertyStore {
       ...media
     };
 
-    this.aiSearchQuery = query;
     this.aiSearchResultMediaIds = mediaIds;
   });
 }

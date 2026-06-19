@@ -7,7 +7,7 @@ import {rootStore, mediaPropertyStore, notificationStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
-import {Autocomplete, Checkbox, Combobox, Drawer, Group, Select, TextInput, useCombobox} from "@mantine/core";
+import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch, Select, TextInput, useCombobox} from "@mantine/core";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 import {Linkish} from "Components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
@@ -273,10 +273,19 @@ const SearchBar = observer(({autoFocus}) => {
   const [queryOptions, setQueryOptions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
-  const [lastSelectedAt, setLastSelectedAt] = useState(undefined);
   const [debouncedQuery] = useDebouncedValue(query, 250);
   const searchRef = useRef();
   const history = useHistory();
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search).get("q");
+
+    if(query) {
+      setQuery(query);
+    } else {
+      setQuery("");
+    }
+  }, [rootStore.route]);
 
   useEffect(() => {
     setQuery(mediaPropertyStore.searchOptions.query);
@@ -299,20 +308,12 @@ const SearchBar = observer(({autoFocus}) => {
     }
   }, [debouncedQuery]);
 
-  useEffect(() => {
-    // Clear search on page change unless page change was result of search
-    if(Date.now() - lastSelectedAt > 1000) {
-      setQuery("");
-    }
-  }, [rootStore.routeParams]);
-
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
   const Select = (selectedTitle) => {
     mediaPropertyStore.ClearSearchOptions();
-    setLastSelectedAt(Date.now());
     const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
 
-    if(matchingResults.length === 1) {
+    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1) {
       const {id, category} = matchingResults[0];
       const type = category === "collection" ? "c" : category === "list" ? "l" : "m";
 
@@ -321,6 +322,11 @@ const SearchBar = observer(({autoFocus}) => {
       // No results or ambiguous match - Go to search page
       const params = new URLSearchParams();
       params.set("q", query);
+
+      if(mediaPropertyStore.searchMode === "clip") {
+        params.set("m", "clip");
+      }
+
       mediaPropertyStore.SetSearchOption({field: "query", value: query});
       history.push(UrlJoin(basePath, "search", "?" + params.toString()));
     }
@@ -360,7 +366,7 @@ const SearchBar = observer(({autoFocus}) => {
         limit={50}
         onOptionSubmit={Select}
         role="search"
-        leftSectionWidth={rootStore.pageWidth > 800 ? 120 : 30}
+        leftSectionWidth={rootStore.pageWidth > 800 ? 100 : 30}
         leftSection={
           <button
             onClick={event => {
@@ -369,11 +375,20 @@ const SearchBar = observer(({autoFocus}) => {
               mediaPropertyStore.ToggleAISearchMode(
                 mediaPropertyStore.searchMode === "default" ? "clip" : "default"
               );
+
+              Select();
             }}
             className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
           >
             <ImageIcon icon={AISparkleIcon} />
-            <span>AI Mode</span>
+            <MantineSwitch
+              size="xs"
+              checked={mediaPropertyStore.searchMode === "clip"}
+              classNames={{
+                root: S("search__ai-switch"),
+                track: S("search__ai-switch-track"),
+              }}
+            />
           </button>
         }
         rightSection={
