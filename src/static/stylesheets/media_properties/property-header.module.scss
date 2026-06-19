@@ -224,12 +224,14 @@
       min-width: 0!important;
     }
 
-     svg {
-        * {
-          fill: white;
-          stroke: white;
-        }
+    svg {
+      height: 20px;
+
+      * {
+        fill: white;
+        stroke: white;
       }
+    }
 
      &--active {
       background-color: var(--property-text-faded);
@@ -239,10 +241,6 @@
       font-family: var(--font-family-primary);
       font-weight: 700;
       transition: background-color 0.25s ease, color 0.25s ease;
-    }
-
-    svg {
-      height: 20px;
     }
   }
 
