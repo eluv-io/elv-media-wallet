@@ -49,6 +49,7 @@ const AdvancedSearchField = observer(({
       return (
         <Select
           searchable
+          clearable
           key={`advanced-option-${index}`}
           label={title}
           value={mediaPropertyStore.searchOptions.attributes[attribute] || ""}
@@ -179,7 +180,7 @@ const AdvancedSearchField = observer(({
 });
 
 const QueryInput = observer(() => {
-  const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
+  const [query, setQuery] = useState(new URLSearchParams(window.location.search).get("q") || "");
   const [debouncedQuery] = useDebouncedValue(query, 1000);
 
   useEffect(() => {
@@ -213,11 +214,17 @@ const AdvancedSearch = observer(() => {
 
   const searchPath = UrlJoin(basePath, "search");
 
+  const filtersActive = Object.keys(mediaPropertyStore.searchOptions.attributes).length > 0 ||
+    mediaPropertyStore.searchOptions.tags?.length > 0;
+
   return (
     <>
       <Linkish
-        to={UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")}
-        className={S("search__filter")}
+        to={
+          window.location.pathname.endsWith("/search") ? null :
+            UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")
+        }
+        className={S("search__filter", filtersActive ? "search__filter--active" : "")}
         onClick={() => setShow(true)}
       >
         Filter

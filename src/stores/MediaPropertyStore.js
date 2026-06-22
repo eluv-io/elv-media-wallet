@@ -2390,7 +2390,7 @@ class MediaPropertyStore {
       let versionHash = versionHashes[result.id];
 
       const mediaItemIds = this.objectIdToMediaIdsMap[result.id] || [];
-      const authorized = !!versionHash && mediaItemIds.find(mediaId => this.media[mediaId]?.authorized);
+      const authorized = !!versionHash;
 
       media[mediaId] = {
         isSearchResult: true,
@@ -2442,6 +2442,8 @@ class MediaPropertyStore {
   });
 
   LoadSearchQueries = flow(function * ({mediaPropertySlugOrId}) {
+    if(!this.rootStore.loggedIn) { return; }
+
     try {
       const queries = yield this.rootStore.walletClient.ProfileMetadata({
         type: "app",
@@ -2460,7 +2462,7 @@ class MediaPropertyStore {
   });
 
   SaveSearchQuery = flow(function * ({mode, query}) {
-    if(!mode || !query) { return; }
+    if(!this.rootStore.loggedIn || !mode || !query) { return; }
 
     const initialQueries = JSON.stringify(this.previousSearchQueries);
 

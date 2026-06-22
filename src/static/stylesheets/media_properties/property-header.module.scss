@@ -191,6 +191,10 @@
     font-weight: 500;
     height: 100%;
     padding: 10px 15px;
+
+    &--active {
+      border: 1px solid var(--property-text-highlight);
+    }
   }
 
   &__input {
@@ -233,7 +237,7 @@
       }
     }
 
-     &--active {
+    &--active {
       background-color: var(--property-text-faded);
     }
 
