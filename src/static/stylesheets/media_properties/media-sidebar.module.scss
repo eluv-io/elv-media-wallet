@@ -10,7 +10,6 @@
   max-height: calc(var(--property-full-content-height));
   min-height: calc(var(--property-full-content-height));
   min-width: 420px;
-  overflow-y: scroll;
   position: relative;
   scrollbar-gutter: stable;
   width: 420px;
@@ -344,6 +343,7 @@
   gap: 10px;
   height: 100%;
   max-height: 100%;
+  overflow-y: auto;
   scrollbar-color: #343434 #141414;
   scrollbar-width: thin;
 

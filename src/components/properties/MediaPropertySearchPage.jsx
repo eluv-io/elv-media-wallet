@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "Stores";
+import {mediaPropertyStore, mediaStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
@@ -17,43 +17,18 @@ import {PageLoader} from "Components/common/Loaders";
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
 const MediaPropertyDefaultSearchPage = observer(() => {
-  const [searchResults, setSearchResults] = useState(undefined);
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
-  const groupBy = mediaProperty?.metadata?.search?.group_by;
 
   useEffect(() => {
+    mediaStore.ClearSearchResults();
     mediaPropertyStore.SearchMedia({...match.params, query})
-      .then(results => setSearchResults(mediaPropertyStore.GroupContent({content: results, groupBy})));
+      .then(results => mediaStore.SetSearchResults({query, mode: "default", ...results}));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
-  if(!searchResults) {
+  if(!mediaStore.searchResults?.results) {
     return <PageLoader className={S("search__loader")} />;
-  }
-
-  let groups = Object.keys(searchResults || {}).filter(attr => attr !== "__other");
-  if(groupBy === "__date") {
-    groups = groups.sort();
-  } else if(groupBy !== "__media-type") {
-    const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
-
-    groups = groups.sort((a, b) => {
-      const indexA = tags.indexOf(a);
-      const indexB = tags.indexOf(b);
-
-      if(indexA >= 0) {
-        if(indexB >= 0) {
-          return indexA < indexB ? -1 : 1;
-        }
-
-        return -1;
-      } else if(indexB >= 0) {
-        return 1;
-      }
-
-      return a < b ? -1 : 1;
-    });
   }
 
   return (
@@ -71,21 +46,21 @@ const MediaPropertyDefaultSearchPage = observer(() => {
       </div>
       <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
-          groups.map(attribute =>
+          mediaStore.searchResults.groups.map(attribute =>
             <SectionResultsGroup
               key={`results-${attribute}`}
-              groupBy={groupBy}
-              label={Object.keys(searchResults).length > 1 ? attribute : ""}
-              results={searchResults[attribute]}
+              groupBy={mediaStore.searchResults.groupBy}
+              label={Object.keys(mediaStore.searchResults.groupedResults || {}).length > 1 ? attribute : ""}
+              results={mediaStore.searchResults.groupedResults[attribute]}
               navContext="search"
             />
           )
         }
         {
-          !searchResults.__other ? null :
+          !mediaStore.searchResults.groupedResults.__other ? null :
             <SectionResultsGroup
-              label={Object.keys(searchResults || {}).length > 1 ? "Other" : ""}
-              results={searchResults.__other}
+              label={Object.keys(mediaStore.searchResults.groupedResults || {}).length > 1 ? "Other" : ""}
+              results={mediaStore.searchResults.groupedResults.__other}
               navContext="search"
             />
         }
@@ -97,26 +72,27 @@ const MediaPropertyDefaultSearchPage = observer(() => {
 const MediaPropertyAISearchPage = observer(() => {
   const match = useRouteMatch();
   const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if(!query) { return; }
 
-    setLoading(true);
+    mediaStore.ClearSearchResults();
     mediaPropertyStore.ClipSearch({...match.params, query})
-      .finally(() => setLoading(false));
+      .then(ids => mediaStore.SetSearchResults({query, aiSearchResultMediaIds: ids}));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
   if(!query) {
     return null;
   }
 
-  if(loading) {
+  if(!mediaStore.searchResults?.aiSearchResultMediaIds) {
     return <PageLoader className={S("search__loader")} />;
   }
 
-  const searchResults = mediaPropertyStore.aiSearchResultMediaIds
-    .map(id => ({mediaItem: mediaPropertyStore.media[id]}))
+  const searchResults = mediaStore.searchResults.aiSearchResultMediaIds
+    .map(id => ({
+      mediaItem: mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: id})
+    }))
     .filter(({mediaItem}) => mediaItem.authorized);
 
   return (

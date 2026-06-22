@@ -7,6 +7,7 @@ import {
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
 import {LinkTargetHash, NFTInfo} from "../utils/Utils";
+import {mediaPropertyStore} from "./index";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -16,6 +17,7 @@ class MediaPropertyStore {
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
+  aiSearchMedia = {};
   objectIdToMediaIdsMap = {};
   permissionItems = {};
   previewPropertyId;
@@ -76,6 +78,57 @@ class MediaPropertyStore {
 
   get walletClient() {
     return this.rootStore.walletClient;
+  }
+
+  SearchSidebarContent() {
+    if(!this.rootStore.mediaStore.searchResults) {
+      return { tabs: [] };
+    }
+
+    const query = this.rootStore.mediaStore.searchResults.query;
+
+    if(this.rootStore.mediaStore.searchResults.aiSearchResultMediaIds) {
+      return {
+        showSingleTab: true,
+        tabs: [{
+          title: `Search Results: ${query}`,
+          groups: [{
+            content: this.rootStore.mediaStore.searchResults.aiSearchResultMediaIds.map(id => {
+              const mediaItem = this.MediaPropertyMediaItem({mediaItemSlugOrId: id});
+
+              return {
+                mediaItem,
+                display: {
+                  ...mediaItem
+                },
+                ...mediaItem,
+              };
+            })
+          }]
+        }]
+      };
+    }
+
+    const groups = this.rootStore.mediaStore.searchResults.groups || [];
+    return {
+      showSingleTab: !!query,
+      tabs: [{
+        title: `Search Results: ${query}`,
+        groups: groups.map(group => {
+          return {
+            title: groups.length > 0 ? group : "",
+            content: this.rootStore.mediaStore.searchResults.groupedResults[group]
+              .map(({mediaItem}) => ({
+                mediaItem,
+                display: {
+                  ...mediaItem
+                },
+                ...mediaItem,
+              }))
+          };
+        })
+      }]
+    };
   }
 
   SidebarContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId, mediaItemSlugOrId}) {
@@ -275,11 +328,6 @@ class MediaPropertyStore {
   }
 
   ClearAISearchResults() {
-    for(const mediaId of this.aiSearchResultMediaIds) {
-      delete this.media[mediaId];
-    }
-
-    this.aiSearchQuery = "";
     this.aiSearchResultMediaIds = [];
   }
 
@@ -401,7 +449,39 @@ class MediaPropertyStore {
       }
     });
 
-    return results;
+    const groupBy = mediaProperty.metadata?.search?.group_by;
+
+    const groupedResults = mediaPropertyStore.GroupContent({content: results, groupBy});
+    let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
+    if(groupBy === "__date") {
+      groups = groups.sort();
+    } else if(groupBy !== "__media-type") {
+      const tags = mediaPropertyStore.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
+
+      groups = groups.sort((a, b) => {
+        const indexA = tags.indexOf(a);
+        const indexB = tags.indexOf(b);
+
+        if(indexA >= 0) {
+          if(indexB >= 0) {
+            return indexA < indexB ? -1 : 1;
+          }
+
+          return -1;
+        } else if(indexB >= 0) {
+          return 1;
+        }
+
+      return a < b ? -1 : 1;
+      });
+    }
+
+    return {
+      results,
+      groupBy,
+      groupedResults,
+      groups
+    };
   }
 
   GroupContent({content, groupBy, excludePast=true}) {
@@ -572,7 +652,7 @@ class MediaPropertyStore {
 
   MediaPropertyMediaItem({mediaItemSlugOrId}) {
     // TODO: Media slugs
-    return this.media[mediaItemSlugOrId];
+    return this.media[mediaItemSlugOrId] || this.aiSearchMedia[mediaItemSlugOrId];
   }
 
   ResolveSectionItem({sectionId, sectionItem}) {
@@ -2329,31 +2409,52 @@ class MediaPropertyStore {
   });
 
   // Search
-  ClipSearch = flow(function * ({mediaPropertySlugOrId, query, start=0, limit=50}) {
-    if(this.searchOptions.query === query && this.aiSearchResultMediaIds.length > 0) {
-      return;
-    }
-
+  ClipSearch = flow(function * ({query, start=0, limit=50}) {
     this.ClearAISearchResults();
 
     // TODO: This shouldn't be hard-coded
     const indexId = "iq__3cfW3PD7CWJYofymtECo5V8h6xBR";
 
-    let {contents} = (yield this.rootStore.mediaStore.QueryAIAPI({
-      server: "ai-04",
-      objectId: indexId,
-      path: UrlJoin("vector_search", indexId, "clip_search"),
-      queryParams: {
-        terms: query,
-        start,
-        limit,
-        clips: true,
-        clip_include_source_tags: true,
-        get_chunks: true,
-        max_total: 100,
-        debug: true
+    let {contents, versionHashes} = yield this.LoadResource({
+      key: "ClipSearch",
+      id: `clip-search-${query}-${start}-${limit}`,
+      ttl: 30,
+      Load: async () => {
+        const {contents} = (await this.rootStore.mediaStore.QueryAIAPI({
+          server: "ai-04",
+          objectId: indexId,
+          path: UrlJoin("vector_search", indexId, "clip_search"),
+          queryParams: {
+            terms: query,
+            start,
+            limit,
+            clips: true,
+            clip_include_source_tags: true,
+            get_chunks: true,
+            max_total: 100,
+            debug: true
+          }
+        })) || {};
+
+        const objectIds = contents
+          .map(result => result.id)
+          .filter((x, i, a) => a.findIndex(q => q === x) === i);
+
+        let versionHashes = {};
+        await Promise.all(
+          objectIds.map(async objectId => {
+            try {
+              versionHashes[objectId] = await this.client.LatestVersionHash({objectId});
+            } catch(error) { /* empty */ }
+          })
+        );
+
+        return {
+          contents,
+          versionHashes
+        };
       }
-    })) || {};
+    });
 
     const versionHash = yield this.client.LatestVersionHash({objectId: indexId});
     const baseUrl = yield this.client.Rep({
@@ -2364,19 +2465,6 @@ class MediaPropertyStore {
         ignore_trimming: true
       }
     });
-
-    const objectIds = contents
-      .map(result => result.id)
-      .filter((x, i, a) => a.findIndex(q => q === x) === i);
-
-    let versionHashes = {};
-    yield Promise.all(
-      objectIds.map(async objectId => {
-        try {
-          versionHashes[objectId] = await this.client.LatestVersionHash({objectId});
-        } catch(error) {}
-      })
-    );
 
     let media = {};
     const mediaIds = contents.map((result, index) => {
@@ -2431,14 +2519,13 @@ class MediaPropertyStore {
       return mediaId;
     });
 
-    this.media = {
-      ...this.media,
-      ...media
-    };
+    this.aiSearchMedia = media;
 
     this.SaveSearchQuery({mode: "clip", query});
 
     this.aiSearchResultMediaIds = mediaIds;
+
+    return mediaIds;
   });
 
   LoadSearchQueries = flow(function * ({mediaPropertySlugOrId}) {

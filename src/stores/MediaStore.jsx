@@ -16,6 +16,8 @@ class MediaStore {
   players = {};
   availablePlayers = {};
 
+  searchResults;
+
   get client() {
     return this.rootStore.client;
   }
@@ -87,6 +89,14 @@ class MediaStore {
   ClearPlayer({objectId}) {
     delete this.players[objectId];
     delete this.availablePlayers[objectId];
+  }
+
+  SetSearchResults(searchResults) {
+    this.searchResults = searchResults;
+  }
+
+  ClearSearchResults() {
+    this.searchResults = undefined;
   }
 
   /* Tags */

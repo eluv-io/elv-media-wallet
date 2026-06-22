@@ -109,7 +109,6 @@ const Video = forwardRef(function VideoComponent({
       } catch(error) { /* empty */ }
     }
 
-    console.log("BR");
     InitializeEluvioPlayer(
       targetRef.current,
       {

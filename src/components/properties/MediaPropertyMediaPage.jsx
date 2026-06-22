@@ -348,7 +348,7 @@ const MediaVideoWithSidebar = observer(({
           }
         };
       } else {
-        const mediaItem = mediaPropertyStore.media[item.id];
+        const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: item.id});
 
         if(!mediaItem) {
           return;
@@ -788,11 +788,16 @@ const MediaPropertyMediaPage = observer(() => {
 
     mediaStore.Reset();
     mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
-    mediaPropertyStore.SidebarContent({
-      ...match.params,
-      sectionSlugOrId: match.params.sectionSlugOrId || context
-    })
-      .then(content => mediaStore.SetSidebarContent(content));
+
+    if(context === "search" || primaryMediaItem.isSearchResult) {
+      mediaStore.SetSidebarContent(mediaPropertyStore.SearchSidebarContent());
+    } else {
+      mediaPropertyStore.SidebarContent({
+        ...match.params,
+        sectionSlugOrId: match.params.sectionSlugOrId || context
+      })
+        .then(content => mediaStore.SetSidebarContent(content));
+    }
 
     return () => mediaStore.Reset();
   }, []);

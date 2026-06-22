@@ -54,6 +54,19 @@ const Item = observer(({
 
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
+  const [element, setElement] = useState(undefined);
+
+  useEffect(() => {
+    const container = element?.closest(`.${S("content")}`);
+
+    if(!container) { return; }
+
+    container.scrollTo({
+      top:
+        element.getBoundingClientRect().top -
+        container.getBoundingClientRect().top
+    });
+  }, [element]);
 
   const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
   const isPrimary = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id) === 0;
@@ -61,7 +74,11 @@ const Item = observer(({
   let linkPath;
   if(!toggleOnClick && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
     const navContext = new URLSearchParams(location.search).get("ctx");
-    linkPath = MediaPropertyLink({match, mediaItem: rootStore.mediaPropertyStore.media[contentItem.id], navContext})?.linkPath || "";
+    linkPath = MediaPropertyLink({
+      match,
+      mediaItem: mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: contentItem.id}),
+      navContext
+    })?.linkPath || "";
   }
 
   const ToggleMultiview = () => {
@@ -87,6 +104,10 @@ const Item = observer(({
     <Linkish
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
+      ref={
+        !isPrimary ? undefined :
+          setElement
+      }
       className={
         S(
           "item",
@@ -323,7 +344,7 @@ const MediaSidebar = observer(({
       <Banners />
       <div className={S("tabs-container")}>
         {
-          (mediaStore.sidebarContent.tabs || []).length <= 1 ? null :
+          (mediaStore.sidebarContent.tabs || []).length <= 1 && !mediaStore.sidebarContent.showSingleTab ? null :
             <div className={S("tabs")}>
               {
                 mediaStore.sidebarContent.tabs.map((tab, index) =>

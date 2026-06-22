@@ -170,7 +170,7 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
       break;
 
     case "media_link":
-      const mediaItem = mediaPropertyStore.media[action.media_id];
+      const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: action.media_id});
       if(mediaItem) {
         buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
       }
@@ -721,7 +721,7 @@ export const SectionResultsGroup = observer(({
 
   if(sort) {
     // Sort results by start time
-    results = results.sort((a, b) => {
+    results = [...results].sort((a, b) => {
       if(a?.mediaItem?.start_time) {
         if(b?.mediaItem?.start_time) {
           if(a.mediaItem.start_time !== b.mediaItem.start_time) {
@@ -1141,11 +1141,11 @@ const MediaPropertySectionPage = observer(() => {
   if(groupBy) {
     let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
     if(groupBy === "__date") {
-      groups = groups.sort();
+      groups = [...groups].sort();
     } else if(groupBy !== "__media-type") {
       const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
 
-      groups = groups.sort((a, b) => {
+      groups = [...groups].sort((a, b) => {
         const indexA = tags.indexOf(a);
         const indexB = tags.indexOf(b);
 

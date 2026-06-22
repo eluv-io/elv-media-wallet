@@ -285,12 +285,10 @@ const SearchBar = observer(({autoFocus}) => {
   const history = useHistory();
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search).get("q");
+    const text = new URLSearchParams(window.location.search).get("q");
 
-    if(query) {
-      setQuery(query);
-    } else {
-      setQuery("");
+    if(text) {
+      setQuery(text);
     }
   }, [rootStore.route]);
 
@@ -304,7 +302,7 @@ const SearchBar = observer(({autoFocus}) => {
       setQueryOptions([]);
     } else {
       mediaPropertyStore.SearchMedia({...rootStore.routeParams, query: debouncedQuery})
-        .then(results => {
+        .then(({results}) => {
           setSearchResults(results);
           setQueryOptions(
             results
@@ -316,12 +314,12 @@ const SearchBar = observer(({autoFocus}) => {
   }, [debouncedQuery]);
 
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
-  const Select = (selectedTitle) => {
+  const Select = (text) => {
     if(mediaPropertyStore.searchOptions.query !== query) {
       mediaPropertyStore.ClearSearchOptions();
     }
 
-    const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
+    const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === text?.toLowerCase());
 
     if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1) {
       const {id, category} = matchingResults[0];
@@ -331,7 +329,7 @@ const SearchBar = observer(({autoFocus}) => {
     } else {
       // No results or ambiguous match - Go to search page
       const params = new URLSearchParams();
-      params.set("q", query);
+      params.set("q", text);
 
       if(mediaPropertyStore.searchMode === "clip") {
         params.set("m", "clip");
@@ -361,7 +359,7 @@ const SearchBar = observer(({autoFocus}) => {
         onClick={() => {
           if(mediaPropertyStore.searchMode === "default" && !location.pathname.includes("/search")) {
             mediaPropertyStore.ClearSearchOptions();
-            history.push(UrlJoin(basePath, "search"));
+            history.push(UrlJoin(basePath, "search", query ? `?q=${query}` : ""));
           }
         }}
         ref={searchRef}
@@ -380,9 +378,9 @@ const SearchBar = observer(({autoFocus}) => {
           }, 250);
         }}
         placeholder={
-        mediaPropertyStore.searchMode === "clip" ?
-          mediaPropertyStore.rootStore.l10n.media_properties.header.ai_search :
-          queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search
+          mediaPropertyStore.searchMode === "clip" ?
+            mediaPropertyStore.rootStore.l10n.media_properties.header.ai_search :
+            queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search
         }
         data={autocompleteOptions}
         limit={50}
@@ -398,7 +396,7 @@ const SearchBar = observer(({autoFocus}) => {
                 mediaPropertyStore.searchMode === "default" ? "clip" : "default"
               );
 
-              Select();
+              Select(query);
             }}
             className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
           >
