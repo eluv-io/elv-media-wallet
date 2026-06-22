@@ -109,6 +109,7 @@ const Video = forwardRef(function VideoComponent({
       } catch(error) { /* empty */ }
     }
 
+    console.log("BR");
     InitializeEluvioPlayer(
       targetRef.current,
       {
@@ -138,6 +139,9 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
+          dashjsOptions: {
+            selectionModeForInitialTrack: "highestBitrate",
+          },
           startTime,
           startProgress,
           errorCallback,
