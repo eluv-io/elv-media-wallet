@@ -391,7 +391,7 @@ const MediaSidebar = observer(({
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo.isMultiviewable ? null :
+                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo?.isMultiviewable ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
@@ -505,7 +505,7 @@ export const MultiviewSelectionModal = observer(({
       <div className={S("multiview-selection-modal__items")}>
         {
           tab?.groups.map(group =>
-            !group.content.find(item => item.authorized && item.scheduleInfo.isMultiviewable) ? null :
+            !group.content.find(item => item.authorized && item.scheduleInfo?.isMultiviewable) ? null :
               <div key={`group-${group.id}`} className={S("content__section")}>
                 {
                   !group.title ? null :

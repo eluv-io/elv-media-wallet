@@ -109,14 +109,15 @@ class MediaPropertyStore {
       };
     }
 
-    const groups = this.rootStore.mediaStore.searchResults.groups || [];
+    const groups = [...(this.rootStore.mediaStore.searchResults.groups || []), "__other"];
     return {
       showSingleTab: !!query,
       tabs: [{
         title: `Search: ${query}`,
-        groups: groups.map(group => {
-          return {
-            title: groups.length > 0 ? group : "",
+        groups: groups
+          .filter(group => !!this.rootStore.mediaStore.searchResults?.groupedResults[group])
+          .map(group => ({
+            title: group === "__other" ? "" : group,
             content: this.rootStore.mediaStore.searchResults.groupedResults[group]
               .map(({mediaItem}) => ({
                 mediaItem,
@@ -125,8 +126,7 @@ class MediaPropertyStore {
                 },
                 ...mediaItem,
               }))
-          };
-        })
+          }))
       }]
     };
   }
