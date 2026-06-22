@@ -91,7 +91,7 @@ class MediaPropertyStore {
       return {
         showSingleTab: true,
         tabs: [{
-          title: `Search Results: ${query}`,
+          title: `Search: ${query}`,
           groups: [{
             content: this.rootStore.mediaStore.searchResults.aiSearchResultMediaIds.map(id => {
               const mediaItem = this.MediaPropertyMediaItem({mediaItemSlugOrId: id});
@@ -113,7 +113,7 @@ class MediaPropertyStore {
     return {
       showSingleTab: !!query,
       tabs: [{
-        title: `Search Results: ${query}`,
+        title: `Search: ${query}`,
         groups: groups.map(group => {
           return {
             title: groups.length > 0 ? group : "",

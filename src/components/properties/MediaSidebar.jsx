@@ -351,7 +351,7 @@ const MediaSidebar = observer(({
                   <button
                     onClick={() => setTabIndex(index)}
                     key={`tab-${tab.id}`}
-                    className={S("tab", tabIndex === index ? "tab--active" : "")}
+                    className={S("tab", "ellipsis", tabIndex === index ? "tab--active" : "")}
                   >
                     {tab.title}
                   </button>

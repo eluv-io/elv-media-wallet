@@ -471,7 +471,11 @@
   font-weight: 500;
   height: min-content;
   line-height: 2em;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: border 0.25s ease;
+  white-space: nowrap;
 
   &--active {
     border-bottom: 2px solid white;
