@@ -37,9 +37,11 @@
   --property-button-option-text: #FFF;
   --property-button-option-text-active: #000;
   --property-page-padding: 65px;
+  --property-section-card-width-extra-small: 250px;
   --property-section-card-width-small: 300px;
   --property-section-card-width-medium: 400px;
   --property-section-card-width-large: 500px;
+  --property-section-card-width-extra-large: 550px;
 
   @media screen and (width <= 1200px) {
     --property-page-padding: 35px;

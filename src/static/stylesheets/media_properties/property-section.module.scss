@@ -111,6 +111,11 @@
   }
 
   // Card Sizes
+
+  &--extra-small {
+    --max-card-width: min(var(--property-section-card-width-extra-small), 75vw);
+  }
+
   &--small {
     --max-card-width: min(var(--property-section-card-width-small), 75vw);
   }
@@ -121,6 +126,10 @@
 
   &--large {
     --max-card-width: min(var(--property-section-card-width-large), 75vw);
+  }
+
+  &--extra-large {
+    --max-card-width: min(var(--property-section-card-width-extra-large), 75vw);
   }
 
   &__page-header {

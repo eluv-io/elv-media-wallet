@@ -782,6 +782,10 @@ const MediaCard = observer(({
       .join(" ")
   };
 
+  if(args.aspectRatio?.toLowerCase() !== "landscape") {
+    delete args.progress;
+  }
+
   switch(format) {
     case "horizontal":
       return <MediaCardHorizontal {...args} />;

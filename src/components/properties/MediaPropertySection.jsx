@@ -1000,7 +1000,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
           "section",
           `section--${section.display?.display_format || "grid"}`,
           `section--${section.display.justification || "left"}`,
-          `section--${section.display.card_size || "medium"}`
+          `section--${section.display.card_size?.replace("_", "-") || "medium"}`
         )}
       >
         {
