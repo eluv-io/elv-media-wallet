@@ -1037,6 +1037,10 @@
       max-height: 75px;
       max-width: 75px;
     }
+
+    .attribute-filter__attribute-title {
+      max-width: 75px;
+    }
   }
 
   @media screen and (width <= 800px) {
