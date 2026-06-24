@@ -729,18 +729,23 @@ export const AttributeFilter = observer(({
           >
             {
               image ?
-                <div className={S("attribute-filter__attribute-image-container")}>
-                  <LoaderImage
-                    src={image?.url}
-                    loaderHeight={100}
-                    alt={value || "All"}
-                    title={value || "All"}
-                    lazy={false}
-                    width={300}
-                    loaderAspectRatio={1}
-                    className={S("attribute-filter__attribute-image")}
-                  />
-                </div> :
+                <>
+                  <div className={S("attribute-filter__attribute-image-container")}>
+                    <LoaderImage
+                      src={image?.url}
+                      loaderHeight={100}
+                      alt={value || "All"}
+                      title={value || "All"}
+                      lazy={false}
+                      width={300}
+                      loaderAspectRatio={1}
+                      className={S("attribute-filter__attribute-image")}
+                    />
+                  </div>
+                  <div className={S("attribute-filter__attribute-title")}>
+                    { value }
+                  </div>
+                </> :
                 value || "All"
             }
           </button>

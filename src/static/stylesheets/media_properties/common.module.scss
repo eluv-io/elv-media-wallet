@@ -940,6 +940,15 @@
     width: max-content;
   }
 
+  &__attribute {
+    &--active,
+    &:hover {
+      .attribute-filter__attribute-title {
+        opacity: 1;
+      }
+    }
+  }
+
   &__attribute--box {
     border: 1px solid var(--property-text-secondary);
     border-radius: var(--property-filter-border-radius);
@@ -978,8 +987,9 @@
     border-radius: 13px;
     display: flex;
     height: auto;
-    max-height: 150px;
-    max-width: 150px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     opacity: 0.5;
     overflow: hidden;
     transition: opacity 0.25s ease;
@@ -994,12 +1004,32 @@
     }
   }
 
+  &__attribute-image-container {
+    max-height: 150px;
+    max-width: 150px;
+    height: auto;
+    width: auto;
+  }
+
   &__attribute-image {
     height: 100%;
     max-height: 100%;
     max-width: 100%;
     object-fit: cover;
     width: max-content;
+  }
+
+  &__attribute-title {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    font-weight: 600;
+    margin-top: 3px;
+    max-width: 150px;
+    text-align: center;
+    padding-inline: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   &--secondary {
@@ -1021,9 +1051,15 @@
       font-size: 14px;
     }
 
-    &__attribute--image {
-      max-height: 85px;
-      max-width: 85px;
+    &__attribute-image-container {
+      max-height: 95px;
+      max-width: 95px;
+    }
+
+    &__attribute-title {
+      font-size: 10px;
+      opacity: 1;
+      max-width: 95px;
     }
 
     &--secondary {
