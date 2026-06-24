@@ -1,4 +1,8 @@
+@import "variables";
+
 .footer {
+  @include page-fade-in(1s);
+
   padding: 75px;
   position: relative;
   width: 100%;

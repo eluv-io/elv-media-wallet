@@ -167,7 +167,7 @@ export const CopyButton = ({value, className=""}) => {
         Copy(value);
 
         setCopied(true);
-        setTimeout(() => setCopied(false), 600);
+        setTimeout(() => setCopied(false), 150);
       }}
       className={`copy-button ${copied ? "copy-button--active" : ""} ${className}`}
       title="Copy to Clipboard"

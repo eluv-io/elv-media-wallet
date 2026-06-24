@@ -18,7 +18,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "Components/properties/MediaSidebar";
-import {Linkish} from "Components/common/UIComponents";
+import {CopyableField, Linkish} from "Components/common/UIComponents";
 import {ActionIcon, Menu} from "@mantine/core";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
@@ -771,6 +771,7 @@ const Media = observer(({
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
   const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
+  const [contentElement, setContentElement] = useState();
 
   const mediaItem = !mediaStore.displayedContent[0] ? primaryMediaItem :
     mediaPropertyStore.MediaPropertyMediaItem({
@@ -859,6 +860,10 @@ const MediaPropertyMediaPage = observer(() => {
       </div>
     );
   } else {
+    // TODO: Remove
+    const objectId = !mediaItem?.media_link?.["/"] ? null :
+      mediaPropertyStore.client.utils.DecodeVersionHash(LinkTargetHash(mediaItem.media_link["/"]))?.objectId;
+
     const textContent = (
       !(hasText || !hasDescription) ? null :
         <div key={`media-info-${mediaItem.id}`} className={S("media-info")}>
@@ -969,8 +974,13 @@ const MediaPropertyMediaPage = observer(() => {
                     </div>
                 }
                 {
-                  !display.subtitle ? null :
-                    <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+                  !display.subtitle ?
+                    <CopyableField value={objectId} className={S("media-text__subtitle")}>
+                      {objectId}
+                    </CopyableField> :
+                    <h2 className={S("media-text__subtitle")}>
+                      {display.subtitle}
+                    </h2>
                 }
               </div>
           }
@@ -988,7 +998,11 @@ const MediaPropertyMediaPage = observer(() => {
     );
 
     content = (
-      <div className={S("media-page", sidebarAvailable ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
+      <div
+        // Don't show bottom content until main media has rendered
+        ref={element => setTimeout(() => setContentElement(element), 500)}
+        className={S("media-page", sidebarAvailable ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}
+      >
         <div className={S("media-container")}>
           <Media
             mediaItem={mediaItem}
@@ -1007,11 +1021,14 @@ const MediaPropertyMediaPage = observer(() => {
   return (
     <>
       { content }
-      <MediaPropertyPageContent
-        isMediaPage
-        params={match.params}
-        sections={page.layout?.sections}
-      />
+      {
+        !contentElement ? null :
+          <MediaPropertyPageContent
+            isMediaPage
+            params={match.params}
+            sections={page.layout?.sections}
+          />
+      }
     </>
   );
 });

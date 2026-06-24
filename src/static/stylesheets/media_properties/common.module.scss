@@ -984,11 +984,11 @@
   }
 
   &__attribute--image {
+    align-items: center;
     border-radius: 13px;
     display: flex;
-    height: auto;
     flex-direction: column;
-    align-items: center;
+    height: auto;
     justify-content: center;
     opacity: 0.5;
     overflow: hidden;
@@ -1005,9 +1005,9 @@
   }
 
   &__attribute-image-container {
+    height: auto;
     max-height: 150px;
     max-width: 150px;
-    height: auto;
     width: auto;
   }
 
@@ -1020,16 +1020,16 @@
   }
 
   &__attribute-title {
-    opacity: 0;
-    transition: opacity 0.35s ease;
     font-weight: 600;
     margin-top: 3px;
     max-width: 150px;
-    text-align: center;
-    padding-inline: 5px;
+    opacity: 0;
     overflow: hidden;
-    white-space: nowrap;
+    padding-inline: 5px;
+    text-align: center;
     text-overflow: ellipsis;
+    transition: opacity 0.35s ease;
+    white-space: nowrap;
   }
 
   &--secondary {
@@ -1062,8 +1062,8 @@
 
     &__attribute-title {
       font-size: 10px;
-      opacity: 1;
       max-width: 95px;
+      opacity: 1;
     }
 
     &--secondary {

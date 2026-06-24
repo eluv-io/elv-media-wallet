@@ -183,10 +183,9 @@
   min-height: 40px;
 
   &__content {
-    color: var(--color-component-text-highlight);
     font-size: 12px;
     max-width: calc(100% - 50px);
-    padding-right: 10px;
+    padding-right: 5px;
 
     * {
       font-size: 12px;
@@ -198,11 +197,11 @@
     border-radius: 8px;
     cursor: pointer;
     display: flex;
-    height: 25px;
+    height: 20px;
     justify-content: center;
     padding: 3px;
     transition: opacity 0.5s ease;
-    width: 35px;
+    width: 20px;
 
     svg {
       height: 100%;
@@ -216,10 +215,10 @@
 }
 
 .copy-button {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.07s ease;
 
   &--active {
-    opacity: 0.5;
+    opacity: 0.75;
   }
 }
 
