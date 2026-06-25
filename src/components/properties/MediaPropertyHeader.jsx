@@ -383,6 +383,10 @@ const SearchBar = observer(({autoFocus}) => {
     mediaProperty?.metadata?.search?.ai_options?.index_id;
 
   const UpdateQueryParams = query => {
+    if(!window.location.pathname.endsWith("/search")) {
+      return;
+    }
+
     // No results or ambiguous match - Go to search page
     const params = new URLSearchParams();
     params.set("q", query);
