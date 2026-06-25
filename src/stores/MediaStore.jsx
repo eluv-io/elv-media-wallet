@@ -279,7 +279,7 @@ class MediaStore {
     url.pathname = path;
 
     Object.keys(queryParams).forEach(key =>
-      queryParams[key] && url.searchParams.set(key, queryParams[key])
+      typeof queryParams[key] !== "undefined" && url.searchParams.set(key, queryParams[key])
     );
 
     const authToken =

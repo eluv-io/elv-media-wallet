@@ -210,6 +210,12 @@
     }
   }
 
+  &--standard {
+    .search__input {
+      padding-left: 20px;
+    }
+  }
+
   &__ai-toggle {
     align-items: center;
     background-color: var(--property-background-tertiary);

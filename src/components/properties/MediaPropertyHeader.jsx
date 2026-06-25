@@ -276,6 +276,99 @@ const AdvancedSearch = observer(() => {
   );
 });
 
+const AIAdvancedSearch = observer(() => {
+  const [show, setShow] = useState(false);
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
+  const parameters = mediaProperty?.metadata?.search?.ai_options?.advanced_search_options || [];
+
+  useEffect(() => {
+    mediaPropertyStore.LoadAISearchOptions(rootStore.routeParams);
+  }, []);
+
+  if(
+    !mediaProperty ||
+    !mediaProperty.metadata?.search?.ai_options?.enable_ai_search ||
+    parameters.length === 0
+  ) { return null; }
+
+  const searchPath = UrlJoin(basePath, "search");
+
+  const filtersActive = Object.keys(mediaPropertyStore.searchOptions.tracks).length > 0;
+
+  return (
+    <>
+      <Linkish
+        to={
+          window.location.pathname.endsWith("/search") ? null :
+            UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")
+        }
+        className={S("search__filter", filtersActive ? "search__filter--active" : "")}
+        onClick={() => setShow(true)}
+      >
+        Filter
+      </Linkish>
+      <Drawer
+        position="right"
+        opened={show}
+        onClose={() => setShow(false)}
+        title="Filter by"
+        classNames={{
+          content: S("filter"),
+          header: [S("filter__header"), "_title"].join(" "),
+          title: S("filter__title"),
+          body: S("filter__content")
+        }}
+      >
+        <div className={S("filter__fields")}>
+          <QueryInput />
+           {
+            parameters.map((spec, index) =>
+              <Select
+                searchable
+                clearable
+                key={`advanced-option-${index}`}
+                label={spec.title}
+                value={mediaPropertyStore.searchOptions.tracks?.[spec.track] || ""}
+                data={[
+                  { label: "All", value: ""},
+                  ...(mediaPropertyStore.aiSearchTrackOptions[spec.track] || [])
+                ]}
+                onChange={value =>
+                  mediaPropertyStore.SetSearchOption({
+                    field: "tracks",
+                    value: {
+                      ...(mediaPropertyStore.searchOptions.tracks || {}),
+                      [spec.track]: value
+                    }
+                  })}
+                classNames={inputClassnames}
+              />
+            )
+          }
+        </div>
+        <Group wrap="noWrap" grow className={S("filter__actions")}>
+          <Button
+            to={location.pathname === searchPath ? undefined : searchPath}
+            className={S("filter__action", "filter__action--primary")}
+            onClick={() => setShow(false)}
+          >
+            Done
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => mediaPropertyStore.ClearSearchOptions()}
+            defaultStyles
+            className={S("filter__action")}
+          >
+            Clear Filters
+          </Button>
+        </Group>
+      </Drawer>
+    </>
+  );
+});
+
 const SearchBar = observer(({autoFocus}) => {
   const [queryOptions, setQueryOptions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -283,6 +376,24 @@ const SearchBar = observer(({autoFocus}) => {
   const [debouncedQuery] = useDebouncedValue(query, 250);
   const searchRef = useRef();
   const history = useHistory();
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  const aiSearchEnabled =
+    mediaProperty?.metadata?.search?.ai_options?.enable_ai_search &&
+    mediaProperty?.metadata?.search?.ai_options?.index_id;
+
+  const UpdateQueryParams = query => {
+    // No results or ambiguous match - Go to search page
+    const params = new URLSearchParams();
+    params.set("q", query);
+
+    if(mediaPropertyStore.searchMode === "clip") {
+      params.set("m", "clip");
+    }
+
+    mediaPropertyStore.SetSearchOption({field: "query", value: query});
+    history.push(UrlJoin(basePath, "search", "?" + params.toString()));
+  };
 
   useEffect(() => {
     const text = new URLSearchParams(window.location.search).get("q");
@@ -294,6 +405,7 @@ const SearchBar = observer(({autoFocus}) => {
 
   useEffect(() => {
     setQuery(mediaPropertyStore.searchOptions.query);
+    UpdateQueryParams(mediaPropertyStore.searchOptions.query);
   }, [mediaPropertyStore.searchOptions.query]);
 
   useEffect(() => {
@@ -327,16 +439,7 @@ const SearchBar = observer(({autoFocus}) => {
 
       history.push(UrlJoin(basePath, type, id));
     } else {
-      // No results or ambiguous match - Go to search page
-      const params = new URLSearchParams();
-      params.set("q", text);
-
-      if(mediaPropertyStore.searchMode === "clip") {
-        params.set("m", "clip");
-      }
-
-      mediaPropertyStore.SetSearchOption({field: "query", value: query});
-      history.push(UrlJoin(basePath, "search", "?" + params.toString()));
+      UpdateQueryParams(text);
     }
 
     searchRef?.current.blur();
@@ -388,28 +491,29 @@ const SearchBar = observer(({autoFocus}) => {
         role="search"
         leftSectionWidth={rootStore.pageWidth > 800 ? 100 : 30}
         leftSection={
-          <button
-            onClick={event => {
-              event.preventDefault();
-              event.stopPropagation();
-              mediaPropertyStore.ToggleAISearchMode(
-                mediaPropertyStore.searchMode === "default" ? "clip" : "default"
-              );
+          !aiSearchEnabled ? null :
+            <button
+              onClick={event => {
+                event.preventDefault();
+                event.stopPropagation();
+                mediaPropertyStore.ToggleAISearchMode(
+                  mediaPropertyStore.searchMode === "default" ? "clip" : "default"
+                );
 
-              Select(query);
-            }}
-            className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
-          >
-            <ImageIcon icon={AISparkleIcon} />
-            <MantineSwitch
-              size="xs"
-              checked={mediaPropertyStore.searchMode === "clip"}
-              classNames={{
-                root: S("search__ai-switch"),
-                track: S("search__ai-switch-track"),
+                Select(query);
               }}
-            />
-          </button>
+              className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
+            >
+              <ImageIcon icon={AISparkleIcon} />
+              <MantineSwitch
+                size="xs"
+                checked={mediaPropertyStore.searchMode === "clip"}
+                classNames={{
+                  root: S("search__ai-switch"),
+                  track: S("search__ai-switch-track"),
+                }}
+              />
+            </button>
         }
         rightSection={
           <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
@@ -418,14 +522,18 @@ const SearchBar = observer(({autoFocus}) => {
         }
         rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
         classNames={{
-          root: S("search"),
+          root: S("search", aiSearchEnabled ? "search--ai" : "search--standard"),
           input: S("search__input"),
           dropdown: S("search__dropdown"),
           options: S("search__options"),
           option: S("search__option")
         }}
       />
-      <AdvancedSearch query={query} setQuery={setQuery} />
+      {
+        mediaPropertyStore.searchMode === "clip" ?
+          <AIAdvancedSearch query={query} setQuery={setQuery} /> :
+          <AdvancedSearch query={query} setQuery={setQuery} />
+      }
     </div>
   );
 });

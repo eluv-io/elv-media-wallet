@@ -472,6 +472,14 @@ const PropertyRouteWrapper = observer(({children}) => {
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
 
+  if(
+    mediaProperty?.metadata?.require_login_for_media &&
+    match.params.mediaItemSlugOrId &&
+    !rootStore.loggedIn
+  ) {
+    return <LoginGate backPath={rootStore.backPath} />;
+  }
+
   if(page?.permissions?.authorized && permissions?.authorized) {
     return children;
   }

@@ -74,16 +74,10 @@ const MediaPropertyAISearchPage = observer(() => {
   const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
 
   useEffect(() => {
-    if(!query) { return; }
-
     mediaStore.ClearSearchResults();
     mediaPropertyStore.ClipSearch({...match.params, query})
       .then(ids => mediaStore.SetSearchResults({query, aiSearchResultMediaIds: ids}));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
-
-  if(!query) {
-    return null;
-  }
 
   if(!mediaStore.searchResults?.aiSearchResultMediaIds) {
     return <PageLoader className={S("search__loader")} />;

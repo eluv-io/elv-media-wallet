@@ -18,19 +18,21 @@ class MediaPropertyStore {
   mediaCatalogs = {};
   media = {};
   aiSearchMedia = {};
+  aiSearchTrackOptions = {};
   objectIdToMediaIdsMap = {};
   permissionItems = {};
   previewPropertyId;
   previewAll = false;
   aiSearchResultMediaIds = [];
   previousSearchQueries = {};
-  searchIndexes = {};
+  mediaSearchIndexes = {};
   searchMode = new URLSearchParams(location.search).get("m") || "default";
   searchOptions = {
     query: new URLSearchParams(location.search).get("q") || "",
     attributes: {},
     tags: [],
     tagSelect: {},
+    tracks: {},
     mediaType: undefined,
     startTime: undefined,
     endTime: undefined
@@ -321,6 +323,7 @@ class MediaPropertyStore {
       attributes: {},
       tags: [],
       tagSelect: {},
+      tracks: {},
       mediaType: null,
       startTime: null,
       endTime: null
@@ -349,14 +352,14 @@ class MediaPropertyStore {
 
     let results;
     if(query) {
-      let suggestions = this.searchIndexes[mediaPropertyId].autoSuggest(query);
+      let suggestions = this.mediaSearchIndexes[mediaPropertyId].autoSuggest(query);
       if(suggestions.length === 0) {
         suggestions = [{suggestion: query}];
       }
 
       // TODO: Integrate category attr
       results = suggestions
-        .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
+        .map(({suggestion}) => this.mediaSearchIndexes[mediaPropertyId].search(suggestion))
         .flat()
         .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index)
         .map(result => ({
@@ -1776,7 +1779,7 @@ class MediaPropertyStore {
         });
         searchIndex.addAll(indexableMedia);
 
-        this.searchIndexes[mediaPropertyId] = searchIndex;
+        this.mediaSearchIndexes[mediaPropertyId] = searchIndex;
 
         // Resolve authorized state of sections and section items
 
@@ -2409,21 +2412,80 @@ class MediaPropertyStore {
   });
 
   // Search
-  ClipSearch = flow(function * ({query, start=0, limit=50}) {
+  LoadAISearchOptions = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    this.aiSearchTrackOptions = yield this.LoadResource({
+      key: "LoadAISearchOptions",
+      id: mediaPropertySlugOrId,
+      Load: (flow(function * () {
+        const searchSettings = mediaProperty.metadata.search?.ai_options;
+
+        // Determine tracks to query for and highest value for max results
+        let maxResults = 50;
+        let maxResultsPerTrack = {};
+        const tracks = searchSettings.advanced_search_options.map(spec => {
+          if(spec.max_options) {
+            maxResults = Math.max(maxResults, spec.max_options || 0);
+            maxResultsPerTrack[spec.track] = spec.max_options;
+          }
+
+          return spec.track;
+        });
+
+        const response = yield this.rootStore.mediaStore.QueryAIAPI({
+          server: "ai-04",
+          objectId: searchSettings.index_id,
+          path: UrlJoin("vector_store", "spaces", searchSettings.index_id, "stats"),
+          queryParams: {
+            max_results: maxResults,
+            tracks,
+            debug: true
+          }
+        });
+
+        let options = {};
+        Object.keys(response?.tags?.tracks || {}).forEach(track => {
+          const histogram = response.tags.tracks[track].histogram || {};
+          let trackOptions = Object.keys(histogram)
+            .sort((a, b) => histogram[a] > histogram[b] ? -1 : 1);
+
+          if(maxResultsPerTrack[track]) {
+            trackOptions = trackOptions.slice(0, maxResultsPerTrack[track]);
+          }
+          options[track] = [...trackOptions]
+            .sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1);
+        });
+
+        return options;
+      })).bind(this)
+    });
+  });
+
+  ClipSearch = flow(function * ({mediaPropertySlugOrId, query, start=0, limit=50}) {
     this.ClearAISearchResults();
 
-    // TODO: This shouldn't be hard-coded
-    const indexId = "iq__3cfW3PD7CWJYofymtECo5V8h6xBR";
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    const searchSettings = mediaProperty.metadata.search.ai_options;
 
     let {contents, versionHashes} = yield this.LoadResource({
       key: "ClipSearch",
-      id: `clip-search-${query}-${start}-${limit}`,
+      id: `clip-search-${query}-${start}-${limit}-${JSON.stringify(this.searchOptions.tracks || {})}`,
       ttl: 30,
       Load: async () => {
         const {contents} = (await this.rootStore.mediaStore.QueryAIAPI({
           server: "ai-04",
-          objectId: indexId,
-          path: UrlJoin("vector_search", indexId, "clip_search"),
+          method: "POST",
+          objectId: searchSettings.index_id,
+          path: UrlJoin("vector_search", searchSettings.index_id, "clip_search"),
+          headers: {
+            "Content-Type": "application/json"
+          },
           queryParams: {
             terms: query,
             start,
@@ -2433,6 +2495,15 @@ class MediaPropertyStore {
             get_chunks: true,
             max_total: 100,
             debug: true
+          },
+          body: {
+            text_filters: Object.keys(this.searchOptions.tracks || {})
+              .map(track => ({
+                query: this.searchOptions.tracks[track],
+                track,
+                target: "tag"
+              }))
+              .filter(filter => filter.query)
           }
         })) || {};
 
@@ -2456,7 +2527,7 @@ class MediaPropertyStore {
       }
     });
 
-    const versionHash = yield this.client.LatestVersionHash({objectId: indexId});
+    const versionHash = yield this.client.LatestVersionHash({objectId: searchSettings.index_id});
     const baseUrl = yield this.client.Rep({
       versionHash,
       rep: "frame",
