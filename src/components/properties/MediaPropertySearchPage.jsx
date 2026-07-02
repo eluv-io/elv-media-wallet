@@ -42,7 +42,14 @@ const MediaPropertySearchPage = observer(() => {
 
   let groups = Object.keys(searchResults || {}).filter(attr => attr !== "__other");
   if(groupBy === "__date") {
-    groups = groups.sort();
+    const today = new Date().toISOString().split("T")[0];
+    const upcoming = groups.filter(group => group >= today);
+    const past = groups.filter(group => group < today);
+
+    groups = [
+      ...upcoming.sort(),
+      ...past.sort().reverse()
+    ];
   } else if(groupBy !== "__media-type") {
     const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
 

@@ -385,8 +385,6 @@ class MediaPropertyStore {
   }
 
   GroupContent({content, groupBy, excludePast=true}) {
-    const today = new Date().toISOString().split("T")[0];
-
     let groupedResults = {};
     content
       .filter(result => {
@@ -397,8 +395,6 @@ class MediaPropertyStore {
         if(excludePast) {
           if(isLiveContent) {
             return !ended;
-          } else if(result.mediaItem?.canonical_date) {
-            return today <= result.mediaItem?.canonical_date;
           }
         }
 
