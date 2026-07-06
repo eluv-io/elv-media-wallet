@@ -457,7 +457,14 @@ class MediaPropertyStore {
     const groupedResults = mediaPropertyStore.GroupContent({content: results, groupBy});
     let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
     if(groupBy === "__date") {
-      groups = groups.sort();
+      const today = new Date().toISOString().split("T")[0];
+      const upcoming = groups.filter(group => group >= today);
+      const past = groups.filter(group => group < today);
+
+      groups = [
+        ...upcoming.sort(),
+        ...past.sort().reverse()
+      ];
     } else if(groupBy !== "__media-type") {
       const tags = mediaPropertyStore.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
 
@@ -488,8 +495,6 @@ class MediaPropertyStore {
   }
 
   GroupContent({content, groupBy, excludePast=true}) {
-    const today = new Date().toISOString().split("T")[0];
-
     let groupedResults = {};
     content
       .filter(result => {
@@ -500,8 +505,6 @@ class MediaPropertyStore {
         if(excludePast) {
           if(isLiveContent) {
             return !ended;
-          } else if(result.mediaItem?.canonical_date) {
-            return today <= result.mediaItem?.canonical_date;
           }
         }
 
