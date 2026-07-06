@@ -2113,10 +2113,17 @@ class MediaPropertyStore {
 
     progress = parseFloat(parseFloat(progress).toFixed(5));
 
+    const originalProgress = JSON.stringify(this.mediaProgress);
+
     if(progress < 0.01) {
       delete this.mediaProgress[mediaPropertyId][mediaItemId];
     } else {
       this.mediaProgress[mediaPropertyId][mediaItemId] = Math.min(1, Math.max(0, progress));
+    }
+
+    if(originalProgress === JSON.stringify(this.mediaProgress)) {
+      // Nothing changed - skip
+      return;
     }
 
     yield this.rootStore.walletClient.SetProfileMetadata({
