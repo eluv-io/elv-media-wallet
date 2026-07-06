@@ -11,6 +11,7 @@ class MediaStore {
   showSidebar = true;
   selectedShowTagSidebar = false;
   showMultiviewSelectionModal = false;
+  showVertical = false;
 
   // Dont want to observe entire player
   players = {};
@@ -46,11 +47,14 @@ class MediaStore {
     this.displayedContent = [];
     this.sidebarContent = {};
     this.mediaTags = {};
-
+    this.showVertical = false;
     this.playFullVideo = false;
     this.showSidebar = true;
     this.selectedShowTagSidebar = false;
     this.showMultiviewSelectionModal = false;
+
+    // TODO: Remove
+    this.client.ResetRegion();
   }
 
   SetDisplayedContent(displayedContent) {
@@ -75,6 +79,15 @@ class MediaStore {
 
   SetShowMultiviewSelectionModal(show) {
     this.showMultiviewSelectionModal = show;
+  }
+
+  SetShowVertical(showVertical) {
+    this.showVertical = showVertical;
+
+    if(!showVertical) {
+      // TODO: Remove
+      this.client.ResetRegion();
+    }
   }
 
   SetPlayFullVideo(playFullVideo) {

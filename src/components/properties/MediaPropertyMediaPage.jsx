@@ -24,7 +24,8 @@ import {ActionIcon, Menu} from "@mantine/core";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import MultiviewIcon from "Assets/icons/media/multiview";
 import DownloadIcon from "Assets/icons/download.svg";
-import PlayIcon from "Assets/icons/media/play";
+import PlayIcon from "Assets/icons/media/play.svg";
+import VerticalIcon from "Assets/icons/media/vertical.svg";
 import AIDescriptionIcon from "Assets/icons/ai-description.svg";
 import XIcon from "Assets/icons/x";
 
@@ -41,6 +42,7 @@ const MediaVideo = observer(({
   hideControls,
   allowCasting=true,
   mute,
+  showVertical,
   saveSettings,
   noReactiveMute,
   capLevelToPlayerSize,
@@ -192,6 +194,7 @@ const MediaVideo = observer(({
       showTitle={showTitle}
       hideControls={hideControls || mediaItem.player_controls}
       mute={mute || mediaItem.player_muted}
+      showVertical={showVertical}
       saveSettings={saveSettings}
       noReactiveMute={noReactiveMute}
       mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
@@ -236,7 +239,7 @@ const MediaVideo = observer(({
   );
 });
 
-const PIPContent = observer(({mediaInfo}) => {
+const PIPContent = observer(({mediaInfo, showVertical}) => {
   const [menuActive, setMenuActive] = useState(false);
 
   if(mediaInfo.length === 0) {
@@ -257,6 +260,7 @@ const PIPContent = observer(({mediaInfo}) => {
       key={`media-${mediaStore.displayedContent[0].id}`}
       playFullVideo={mediaStore.playFullVideo}
       saveSettings
+      showVertical={showVertical}
       mediaItem={primaryMedia.mediaItem}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
@@ -302,6 +306,7 @@ const PIPContent = observer(({mediaInfo}) => {
 const MediaVideoWithSidebar = observer(({
   mediaItem,
   display,
+  showVertical,
   textContent
 }) => {
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
@@ -366,7 +371,7 @@ const MediaVideoWithSidebar = observer(({
   if(mediaStore.multiviewMode === "pip" || mediaInfo.length === 1) {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
-        <PIPContent mediaInfo={mediaInfo} />
+        <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
       </div>
     );
   } else {
@@ -381,6 +386,7 @@ const MediaVideoWithSidebar = observer(({
                 mute={index > 0}
                 playFullVideo={mediaStore.playFullVideo && index === 0}
                 saveSettings={index === 0}
+                showVertical={index === 0 && showVertical}
                 noReactiveMute
                 mediaItem={item.mediaItem}
                 display={item.display || display}
@@ -703,6 +709,7 @@ const DownloadButton = observer(({mediaItem, title}) => {
 
 const Media = observer(({
   mediaItem,
+  showVertical,
   display,
   textContent
 }) => {
@@ -711,6 +718,7 @@ const Media = observer(({
   if(mediaItem.media_type === "Video") {
     return (
       <MediaVideoWithSidebar
+        showVertical={showVertical}
         mediaItem={mediaItem}
         display={display}
         textContent={textContent}
@@ -833,6 +841,11 @@ const MediaPropertyMediaPage = observer(() => {
   const showDetails = (hasText || hasDescription);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
+  const showVertical =
+    mediaItem.show_vertical_video === "always" ||
+    (mediaItem.show_vertical_video === "mobile" && rootStore.pageWidth < 850) ||
+    (mediaItem.show_vertical_video === "toggle" && mediaStore.showVertical);
+
   const permissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
     sectionSlugOrId: match.params.sectionSlugOrId || context
@@ -889,6 +902,33 @@ const MediaPropertyMediaPage = observer(() => {
                   </div>
 
                   <div className={S("media-text__title--right")}>
+                    {
+                      mediaItem.show_vertical_video !== "toggle" ? null :
+                        rootStore.pageWidth < 850 ?
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => mediaStore.SetShowVertical(!mediaStore.showVertical)}
+                            title={mediaStore.showVertical ? "Show Full Aspect Ratio" : "Show Vertical Video"}
+                            p={5}
+                            color={
+                              mediaStore.showVertical ?
+                                "var(--property-border-color-secondary)" :
+                                "var(--property-border-color)"
+                            }
+                            size={30}
+                            className={S("icon-button", "icon-button--dark")}
+                          >
+                            <ImageIcon icon={VerticalIcon} />
+                          </ActionIcon> :
+                          <Button
+                            title={mediaStore.showVertical ? "Show Full Aspect Ratio" : "Show Vertical Video"}
+                            onClick={() => mediaStore.SetShowVertical(!mediaStore.showVertical)}
+                            rightIcon={VerticalIcon}
+                            variant="outline"
+                            className={S("download-menu__button", mediaStore.showVertical ? "download-menu__button--active" : "")}
+                          >
+                          </Button>
+                    }
                     {
                       !mediaItem.isSearchResult ? null :
                         rootStore.pageWidth < 850 ?
@@ -1005,6 +1045,7 @@ const MediaPropertyMediaPage = observer(() => {
       >
         <div className={S("media-container")}>
           <Media
+            showVertical={showVertical}
             mediaItem={mediaItem}
             display={display}
             textContent={textContent}

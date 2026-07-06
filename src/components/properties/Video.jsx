@@ -27,6 +27,7 @@ const Video = forwardRef(function VideoComponent({
   settingsUpdateCallback,
   hideControls,
   showTitle,
+  showVertical=false,
   mute,
   saveSettings=false,
   noReactiveMute=false,
@@ -109,6 +110,16 @@ const Video = forwardRef(function VideoComponent({
       } catch(error) { /* empty */ }
     }
 
+    // TODO: Remove
+    if(showVertical) {
+      mediaPropertyStore.client.SetNodes({
+        fabricURIs: [
+          "https://host-76-74-29-29.contentfabric.io",
+          "https://host-76-74-29-7.contentfabric.io"
+        ]
+      });
+    }
+
     InitializeEluvioPlayer(
       targetRef.current,
       {
@@ -122,6 +133,7 @@ const Video = forwardRef(function VideoComponent({
             posterImage
           },
           playoutParameters: {
+            vertical: showVertical,
             ...playoutParameters,
             versionHash: contentHash,
           },
@@ -180,7 +192,7 @@ const Video = forwardRef(function VideoComponent({
 
       player.controls.RegisterVideoEventListener("volumechange", () => setSettingsUpdateKey(Math.random()));
     });
-  }, [targetRef, contentId, ignoreClipping]);
+  }, [targetRef, contentId, ignoreClipping, showVertical]);
 
   useEffect(() => {
     if(!player) { return; }
@@ -217,7 +229,7 @@ const Video = forwardRef(function VideoComponent({
       }
     };
 
-    const progressInterval = setInterval(SaveProgress, 60 * 1000);
+    const progressInterval = setInterval(SaveProgress, 10 * 1000);
 
     return () => {
       clearInterval(progressInterval);
