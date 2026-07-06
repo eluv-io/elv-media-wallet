@@ -59,8 +59,9 @@ const FilteredView = ({
     const start = (page - 1) * perPage;
     Method({
       ...filters,
-      tenantId: rootStore.isCustomDomain ?
-        rootStore.currentPropertyTenantId : filters.tenantId,
+      // TODO: Re-enable
+      //tenantId: rootStore.isCustomDomain ?
+//        rootStore.currentPropertyTenantId : filters.tenantId,
       start,
       limit: perPage
     })
