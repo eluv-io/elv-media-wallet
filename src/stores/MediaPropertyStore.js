@@ -26,6 +26,8 @@ class MediaPropertyStore {
     tags: [],
     tagSelect: {},
     mediaType: undefined,
+    startDate: undefined,
+    endDate: undefined,
     startTime: undefined,
     endTime: undefined
   };
@@ -240,6 +242,22 @@ class MediaPropertyStore {
     this.searchOptions[field] = value;
 
     if(
+      field === "startDate" &&
+      this.searchOptions.endDate &&
+      this.searchOptions.startDate > this.searchOptions.endDate
+    ) {
+      // Start date before end date
+      this.searchOptions.endDate = new Date(this.searchOptions.startDate.getTime() + 24 * 60 * 60 * 1000);
+    } else if(
+      field === "endDate" &&
+      this.searchOptions.startDate &&
+      this.searchOptions.endDate < this.searchOptions.startDate
+    ) {
+      // End date before start date
+      this.searchOptions.startDate = new Date(this.searchOptions.endDate.getTime() - 24 * 60 * 60 * 1000);
+    }
+
+    if(
       field === "startTime" &&
       this.searchOptions.endTime &&
       this.searchOptions.startTime > this.searchOptions.endTime
@@ -263,6 +281,8 @@ class MediaPropertyStore {
       tags: [],
       tagSelect: {},
       mediaType: null,
+      startDate: null,
+      endDate: null,
       startTime: null,
       endTime: null
     };
@@ -332,7 +352,7 @@ class MediaPropertyStore {
       .filter(result => !result?.mediaItem?.resolvedPermissions?.hide);
 
     // Filter
-    const hasDateFilter = !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
+    const hasDateFilter = !!(searchOptions.startDate || searchOptions.endDate) || !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
     let select = {
       attributes: Object.keys(searchOptions.attributes || {}).filter(key => !!searchOptions.attributes[key]),
       attribute_values: searchOptions.attributes,
@@ -342,6 +362,8 @@ class MediaPropertyStore {
       content_type: searchOptions.mediaType || hasDateFilter ? "media" : undefined,
       media_types: searchOptions.mediaType ? [searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
       schedule: searchOptions.schedule || (hasDateFilter ? "period" : undefined),
+      start_date: searchOptions.startDate,
+      end_date: searchOptions.endDate,
       start_time: searchOptions.startTime,
       end_time: searchOptions.endTime ? new Date(searchOptions.endTime.getTime() + 24 * 60 * 60 * 1000) : undefined
     };
@@ -767,7 +789,21 @@ class MediaPropertyStore {
 
       // Schedule filter
       // Only videos can be filtered by schedule
-      if(
+      if(scheduleFiltersActive && select.schedule === "period" && (select.start_date || select.end_date) && mediaItem.date) {
+        if(mediaItem.media_type !== "Video") {
+          return false;
+        }
+
+        const date = mediaItem.date.split("T")[0];
+
+        if(select.start_date && date < new Date(select.start_date).toISOString().split("T")[0]) {
+          return false;
+        }
+
+        if(select.end_date && date > new Date(select.end_date).toISOString().split("T")[0]) {
+          return false;
+        }
+      } else if(
         scheduleFiltersActive &&
         select.schedule
       ) {
