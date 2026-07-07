@@ -1,6 +1,7 @@
 import {makeAutoObservable, flow, runInAction, toJS} from "mobx";
 import MiniSearch from "minisearch";
 import {
+  MediaItemIsMultiviewable,
   MediaItemScheduleInfo,
   PurchaseParamsToItems
 } from "../utils/MediaPropertyUtils";
@@ -102,6 +103,7 @@ class MediaPropertyStore {
       }
     }
 
+    const multiviewSetting = mediaProperty?.metadata.sidebar_config?.multiview_content || "";
     const tabs = (yield Promise.all(
       tabConfig.map(async tab => ({
           ...tab,
@@ -146,11 +148,13 @@ class MediaPropertyStore {
 
                 return {
                   ...item,
+                  authorized: mediaItem.authorized || item.authorized,
                   mediaItem: item.mediaItem || item,
                   display: {
                     ...(item.mediaItem || item)
                   },
                   scheduleInfo: MediaItemScheduleInfo(mediaItem),
+                  isMultiviewable: mediaItem.authorized && MediaItemIsMultiviewable({mediaItem, multiviewSetting}),
                   additional_views: additionalViews,
                   additional_views_label: additionalViewLabel
                 };
@@ -170,7 +174,7 @@ class MediaPropertyStore {
     const anyMultiview = !!tabs.find(tab =>
       !!tab.groups.find(group =>
         !!group.content.find(item =>
-          item.authorized && item.scheduleInfo.currentlyLive
+          item.authorized && item.isMultiviewable
         )
       )
     );

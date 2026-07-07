@@ -54,6 +54,19 @@ const Item = observer(({
 
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
+  const [element, setElement] = useState(null);
+
+  useEffect(() => {
+    const container = element?.closest(`.${S("content")}`);
+
+    if(!container) { return; }
+
+    container.scrollTo({
+      top:
+        element.getBoundingClientRect().top -
+        container.getBoundingClientRect().top
+    });
+  }, [element]);
 
   const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
   const isPrimary = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id) === 0;
@@ -87,6 +100,10 @@ const Item = observer(({
     <Linkish
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
+      ref={
+        !isPrimary ? undefined :
+          setElement
+      }
       className={
         S(
           "item",
@@ -251,6 +268,18 @@ const MediaSidebar = observer(({
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
+  useEffect(() => {
+    const initialTabIndex = mediaStore.sidebarContent?.tabs?.findIndex(tab =>
+      tab?.groups?.find(group =>
+        group?.content?.find(item => item.mediaItem?.id === mediaItem.id)
+      )
+    );
+
+    if(initialTabIndex > 0) {
+      setTabIndex(initialTabIndex);
+    }
+  }, [mediaStore.sidebarContent]);
+
   if(mediaStore.sidebarContent?.tabs?.length === 0) {
     return;
   }
@@ -366,11 +395,11 @@ const MediaSidebar = observer(({
                       key={`item-${item.id}`}
                       contentItem={{type: "media-item", id: item.mediaItem.id}}
                       primaryMediaId={mediaItem.id}
-                      noActions={!item.authorized || !item.scheduleInfo?.isMultiviewable}
+                      noActions={!item?.isMultiviewable}
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || !item.authorized || !item.scheduleInfo.isMultiviewable ? null :
+                      (item?.additional_views || [])?.length === 0 || !item.isMultiviewable ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
@@ -413,7 +442,7 @@ export const MultiviewSelectionModal = observer(({
   let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
     tab.groups?.find(group =>
       group.content?.find(item =>
-        item?.scheduleInfo?.isMultiviewable
+        item?.isMultiviewable
       )
     )
   );
@@ -484,7 +513,7 @@ export const MultiviewSelectionModal = observer(({
       <div className={S("multiview-selection-modal__items")}>
         {
           tab?.groups.map(group =>
-            !group.content.find(item => item.authorized && item.scheduleInfo.isMultiviewable) ? null :
+            !group.content.find(item => item?.isMultiviewable) ? null :
               <div key={`group-${group.id}`} className={S("content__section")}>
                 {
                   !group.title ? null :
@@ -493,7 +522,7 @@ export const MultiviewSelectionModal = observer(({
                     </div>
                 }
                 {group.content
-                  .filter(item => item.authorized && item.scheduleInfo?.isMultiviewable)
+                  .filter(item => item?.isMultiviewable)
                   .map((item, index) => {
                     let {imageUrl} = MediaItemImageUrl({
                       mediaItem: item.mediaItem,

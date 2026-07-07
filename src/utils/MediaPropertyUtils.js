@@ -412,8 +412,7 @@ export const MediaItemScheduleInfo = mediaItem => {
 
   if(!isLiveVideoType) {
     return {
-      isLiveContent: false,
-      isMultiviewable: true
+      isLiveContent: false
     };
   }
 
@@ -434,7 +433,6 @@ export const MediaItemScheduleInfo = mediaItem => {
       endTime,
       isLiveContent: true,
       currentlyLive: started && !ended,
-      isMultiviewable: !ended,
       started,
       ended,
       displayStartDate,
@@ -453,6 +451,29 @@ export const MediaItemScheduleInfo = mediaItem => {
       isLiveContent: false
     };
   }
+};
+
+export const MediaItemIsMultiviewable = ({mediaItem, multiviewSetting}) => {
+  const scheduleInfo = MediaItemScheduleInfo(mediaItem);
+
+  // Note: "" -> live, upcoming and VOD
+  if(!scheduleInfo.isLiveContent) {
+    // VOD
+    return ["", "live_and_vod"].includes(multiviewSetting);
+  }
+
+  if(scheduleInfo.ended || multiviewSetting === "none") {
+    // Categorically not multiviewable
+    return false;
+  }
+
+  if(["live", "live_and_vod"].includes(multiviewSetting)) {
+    // Live only
+    return scheduleInfo.started;
+  }
+
+  // Live or upcoming
+  return true;
 };
 
 // Sets all video media to live
