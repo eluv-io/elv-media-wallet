@@ -1,13 +1,13 @@
 import {makeAutoObservable, flow, runInAction, toJS} from "mobx";
 import MiniSearch from "minisearch";
 import {
+  MediaItemIsMultiviewable,
   MediaItemScheduleInfo,
   PurchaseParamsToItems
 } from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
 import {LinkTargetHash, NFTInfo} from "../utils/Utils";
-import {mediaPropertyStore} from "./index";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -34,6 +34,8 @@ class MediaPropertyStore {
     tagSelect: {},
     tracks: {},
     mediaType: undefined,
+    startDate: undefined,
+    endDate: undefined,
     startTime: undefined,
     endTime: undefined
   };
@@ -159,6 +161,7 @@ class MediaPropertyStore {
       }
     }
 
+    const multiviewSetting = mediaProperty?.metadata.sidebar_config?.multiview_content || "";
     const tabs = (yield Promise.all(
       tabConfig.map(async tab => ({
           ...tab,
@@ -203,11 +206,13 @@ class MediaPropertyStore {
 
                 return {
                   ...item,
+                  authorized: mediaItem.authorized || item.authorized,
                   mediaItem: item.mediaItem || item,
                   display: {
                     ...(item.mediaItem || item)
                   },
                   scheduleInfo: MediaItemScheduleInfo(mediaItem),
+                  isMultiviewable: mediaItem.authorized && MediaItemIsMultiviewable({mediaItem, multiviewSetting}),
                   additional_views: additionalViews,
                   additional_views_label: additionalViewLabel
                 };
@@ -227,7 +232,7 @@ class MediaPropertyStore {
     const anyMultiview = !!tabs.find(tab =>
       !!tab.groups.find(group =>
         !!group.content.find(item =>
-          item.authorized && item.scheduleInfo.currentlyLive
+          item.authorized && item.isMultiviewable
         )
       )
     );
@@ -299,6 +304,22 @@ class MediaPropertyStore {
     this.searchOptions[field] = value;
 
     if(
+      field === "startDate" &&
+      this.searchOptions.endDate &&
+      this.searchOptions.startDate > this.searchOptions.endDate
+    ) {
+      // Start date before end date
+      this.searchOptions.endDate = new Date(this.searchOptions.startDate.getTime() + 24 * 60 * 60 * 1000);
+    } else if(
+      field === "endDate" &&
+      this.searchOptions.startDate &&
+      this.searchOptions.endDate < this.searchOptions.startDate
+    ) {
+      // End date before start date
+      this.searchOptions.startDate = new Date(this.searchOptions.endDate.getTime() - 24 * 60 * 60 * 1000);
+    }
+
+    if(
       field === "startTime" &&
       this.searchOptions.endTime &&
       this.searchOptions.startTime > this.searchOptions.endTime
@@ -325,6 +346,8 @@ class MediaPropertyStore {
       tagSelect: {},
       tracks: {},
       mediaType: null,
+      startDate: null,
+      endDate: null,
       startTime: null,
       endTime: null
     };
@@ -403,7 +426,7 @@ class MediaPropertyStore {
       .filter(result => !result?.mediaItem?.resolvedPermissions?.hide);
 
     // Filter
-    const hasDateFilter = !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
+    const hasDateFilter = !!(searchOptions.startDate || searchOptions.endDate) || !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
     let select = {
       attributes: Object.keys(searchOptions.attributes || {}).filter(key => !!searchOptions.attributes[key]),
       attribute_values: searchOptions.attributes,
@@ -413,6 +436,8 @@ class MediaPropertyStore {
       content_type: searchOptions.mediaType || hasDateFilter ? "media" : undefined,
       media_types: searchOptions.mediaType ? [searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
       schedule: searchOptions.schedule || (hasDateFilter ? "period" : undefined),
+      start_date: searchOptions.startDate,
+      end_date: searchOptions.endDate,
       start_time: searchOptions.startTime,
       end_time: searchOptions.endTime ? new Date(searchOptions.endTime.getTime() + 24 * 60 * 60 * 1000) : undefined
     };
@@ -454,7 +479,7 @@ class MediaPropertyStore {
 
     const groupBy = mediaProperty.metadata?.search?.group_by;
 
-    const groupedResults = mediaPropertyStore.GroupContent({content: results, groupBy});
+    const groupedResults = this.GroupContent({content: results, groupBy});
     let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
     if(groupBy === "__date") {
       const today = new Date().toISOString().split("T")[0];
@@ -466,7 +491,7 @@ class MediaPropertyStore {
         ...past.sort().reverse()
       ];
     } else if(groupBy !== "__media-type") {
-      const tags = mediaPropertyStore.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
+      const tags = this.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
 
       groups = groups.sort((a, b) => {
         const indexA = tags.indexOf(a);
@@ -877,7 +902,21 @@ class MediaPropertyStore {
 
       // Schedule filter
       // Only videos can be filtered by schedule
-      if(
+      if(scheduleFiltersActive && select.schedule === "period" && (select.start_date || select.end_date) && mediaItem.date) {
+        if(mediaItem.media_type !== "Video") {
+          return false;
+        }
+
+        const date = mediaItem.date.split("T")[0];
+
+        if(select.start_date && date < new Date(select.start_date).toISOString().split("T")[0]) {
+          return false;
+        }
+
+        if(select.end_date && date > new Date(select.end_date).toISOString().split("T")[0]) {
+          return false;
+        }
+      } else if(
         scheduleFiltersActive &&
         select.schedule
       ) {

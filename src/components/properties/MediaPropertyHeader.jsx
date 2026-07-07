@@ -145,15 +145,15 @@ const AdvancedSearchField = observer(({
     case "date":
       return (
         <div className={S("filter_field")}>
-          <h2 className={S("filter__input-label")}>Date Range</h2>
+          <h2 className={S("filter__input-label")}>{title || "Date Range"}</h2>
           <Group grow>
             <DatePickerInput
               clearable
-              value={mediaPropertyStore.searchOptions.startTime}
+              value={mediaPropertyStore.searchOptions.startDate}
               placeholder="Start Date"
               onChange={date => {
                 mediaPropertyStore.SetSearchOption({
-                  field: "startTime",
+                  field: "startDate",
                   value: date
                 });
               }}
@@ -161,13 +161,13 @@ const AdvancedSearchField = observer(({
             />
             <DatePickerInput
               clearable
-              value={mediaPropertyStore.searchOptions.endTime}
+              value={mediaPropertyStore.searchOptions.endDate}
               placeholder="End Date"
-              defaultDate={mediaPropertyStore.searchOptions.startTime}
+              defaultDate={mediaPropertyStore.searchOptions.startDate}
               onChange={date => {
                 mediaPropertyStore.SetSearchOption({
                   ...rootStore.routeParams,
-                  field: "endTime",
+                  field: "endDate",
                   value: date
                 });
               }}
