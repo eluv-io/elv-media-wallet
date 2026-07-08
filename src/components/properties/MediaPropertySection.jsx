@@ -1205,7 +1205,10 @@ const MediaPropertySectionPage = observer(() => {
     <PageContainer className={S("page", "section-page")}>
       <PageBackground display={section.display} />
       <PageHeader
-        display={section.display}
+        display={{
+          ...section.display,
+          logo: undefined
+        }}
         fontSizes={{maxPxMobile: 24, minPxMobile: 24}}
         className={S("section__page-header")}
       />
@@ -1213,6 +1216,7 @@ const MediaPropertySectionPage = observer(() => {
         filterSettings={section.filters || {}}
         activeFilters={activeFilters}
         SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
+        className={S("section__page-filters")}
       />
       <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
         {sectionItems}
