@@ -382,8 +382,8 @@ const SearchBar = observer(({autoFocus}) => {
     mediaProperty?.metadata?.search?.ai_options?.enable_ai_search &&
     mediaProperty?.metadata?.search?.ai_options?.index_id;
 
-  const UpdateQueryParams = query => {
-    if(!window.location.pathname.endsWith("/search")) {
+  const UpdateQueryParams = (query, force) => {
+    if(!force && !window.location.pathname.endsWith("/search")) {
       return;
     }
 
@@ -430,7 +430,7 @@ const SearchBar = observer(({autoFocus}) => {
   }, [debouncedQuery]);
 
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
-  const Select = (text) => {
+  const Select = (text, force) => {
     if(mediaPropertyStore.searchOptions.query !== query) {
       mediaPropertyStore.ClearSearchOptions();
     }
@@ -443,7 +443,7 @@ const SearchBar = observer(({autoFocus}) => {
 
       history.push(UrlJoin(basePath, type, id));
     } else {
-      UpdateQueryParams(text);
+      UpdateQueryParams(text, force);
     }
 
     searchRef?.current.blur();
@@ -480,7 +480,7 @@ const SearchBar = observer(({autoFocus}) => {
           const originalPath = location.pathname;
           setTimeout(() => {
             if(location.pathname === originalPath) {
-              Select(query);
+              Select(query, true);
             }
           }, 250);
         }}
@@ -491,7 +491,7 @@ const SearchBar = observer(({autoFocus}) => {
         }
         data={autocompleteOptions}
         limit={50}
-        onOptionSubmit={Select}
+        onOptionSubmit={text => Select(text, true)}
         role="search"
         leftSectionWidth={rootStore.pageWidth > 800 ? 100 : 30}
         leftSection={
@@ -520,7 +520,7 @@ const SearchBar = observer(({autoFocus}) => {
             </button>
         }
         rightSection={
-          <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
+          <button className={S("search__submit")} onClick={() => Select(query, true)} aria-label="Submit">
             <ImageIcon alt="search" icon={SearchIcon} />
           </button>
         }
