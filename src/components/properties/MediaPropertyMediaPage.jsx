@@ -771,7 +771,9 @@ const Media = observer(({
   }
 });
 
+let updateTimeout;
 const MediaPropertyMediaPage = observer(() => {
+  const [updateIndex, setUpdateIndex] = useState(0);
   const match = useRouteMatch();
   const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
@@ -796,7 +798,20 @@ const MediaPropertyMediaPage = observer(() => {
       .then(content => mediaStore.SetSidebarContent(content));
 
     return () => mediaStore.Reset();
-  }, []);
+  }, [updateIndex]);
+
+  // Set a timer for when the next upcoming item goes live, then force an update
+  useEffect(() => {
+    clearTimeout(updateTimeout);
+
+    if(!mediaStore.sidebarContent.nextLiveAt) { return; }
+
+    updateTimeout = setTimeout(() => {
+      setUpdateIndex(updateIndex + 1);
+    }, mediaStore.sidebarContent.nextLiveAt - Date.now());
+
+    return () => clearTimeout(updateTimeout);
+  }, [mediaStore.sidebarContent]);
 
   useEffect(() => {
     if(!mediaHash) { return; }

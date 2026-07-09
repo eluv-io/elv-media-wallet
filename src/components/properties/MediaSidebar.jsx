@@ -384,6 +384,11 @@ const MediaSidebar = observer(({
                   display: item.display
                 });
 
+                let additionalViews = item?.additional_views || [];
+                if(!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) {
+                  additionalViews = [];
+                }
+
                 return (
                   <>
                     <Item
@@ -399,7 +404,7 @@ const MediaSidebar = observer(({
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || !item.isMultiviewable ? null :
+                      additionalViews.length === 0 ? null :
                         <div className={S("content__views-container")}>
                           {
                             (item.additional_views || []).map((view, index) =>
@@ -529,6 +534,12 @@ export const MultiviewSelectionModal = observer(({
                       display: item.display
                     });
 
+                    let additionalViews = item?.additional_views || [];
+                    if(!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) {
+                      additionalViews = [];
+                    }
+
+
                     return (
                       <>
                         <Item
@@ -547,7 +558,7 @@ export const MultiviewSelectionModal = observer(({
                           setDisplayedContent={setSelectedContent}
                         />
                         {
-                          (item?.additional_views || [])?.length === 0 ? null :
+                          additionalViews.length === 0 ? null :
                             <div className={S("content__views-container")}>
                               {
                                 (item.additional_views || []).map((view, index) =>
