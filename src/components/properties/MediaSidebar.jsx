@@ -395,7 +395,11 @@ const MediaSidebar = observer(({
                 });
 
                 let additionalViews = item?.additional_views || [];
-                if(!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) {
+                if(
+                  (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                  item.mediaItem?.id !== mediaItem.id
+                ) {
+                  // Hide additional views if item is upcoming and not the active item
                   additionalViews = [];
                 }
 
@@ -417,7 +421,7 @@ const MediaSidebar = observer(({
                       additionalViews.length === 0 ? null :
                         <div className={S("content__views-container")}>
                           {
-                            (item.additional_views || []).map((view, index) =>
+                            additionalViews.map((view, index) =>
                               <Item
                                 imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                 title={view.label}
@@ -545,10 +549,12 @@ export const MultiviewSelectionModal = observer(({
                     });
 
                     let additionalViews = item?.additional_views || [];
-                    if(!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) {
+                    if(
+                      (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                      item.mediaItem?.id !== mediaItem.id
+                    ) {
                       additionalViews = [];
                     }
-
 
                     return (
                       <>
@@ -571,7 +577,7 @@ export const MultiviewSelectionModal = observer(({
                           additionalViews.length === 0 ? null :
                             <div className={S("content__views-container")}>
                               {
-                                (item.additional_views || []).map((view, index) =>
+                                additionalViews.map((view, index) =>
                                   <Item
                                     noBorder={index === 0}
                                     toggleOnClick
