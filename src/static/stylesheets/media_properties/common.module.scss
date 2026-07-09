@@ -922,7 +922,7 @@
 
   max-width: 100%;
   min-height: max-content;
-  padding: 20px;
+  padding: 20px 0;
   user-select: none;
   width: max-content;
 
@@ -1007,6 +1007,7 @@
 
     &__attribute--image {
       max-height: 75px;
+      max-width: 75px;
     }
   }
 }

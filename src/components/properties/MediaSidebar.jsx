@@ -261,6 +261,7 @@ const MediaSidebar = observer(({
   contentRef,
   streamLimit
 }) => {
+  const [contentElement, setContentElement] = useState(null);
   const [tabIndex, setTabIndex] = useState(0);
 
   const tab = mediaStore.sidebarContent?.tabs?.[tabIndex];
@@ -279,6 +280,12 @@ const MediaSidebar = observer(({
       setTabIndex(initialTabIndex);
     }
   }, [mediaStore.sidebarContent]);
+
+  useEffect(() => {
+    if(!contentElement) { return; }
+
+    contentElement.scrollTo({top: 0, left: 0});
+  }, [tab, contentElement]);
 
   if(mediaStore.sidebarContent?.tabs?.length === 0) {
     return;
@@ -359,7 +366,10 @@ const MediaSidebar = observer(({
                   <button
                     onClick={() => setTabIndex(index)}
                     key={`tab-${tab.id}`}
-                    className={S("tab", tabIndex === index ? "tab--active" : "")}
+                    className={[
+                      S("tab", tabIndex === index ? "tab--active" : ""),
+                      "_title"
+                    ].join(" ")}
                   >
                     {tab.title}
                   </button>
@@ -368,7 +378,7 @@ const MediaSidebar = observer(({
             </div>
         }
       </div>
-      <div className={S("content")}>
+      <div ref={setContentElement} className={S("content")}>
         {
           tab?.groups?.map(group =>
             <div key={`group-${group.id}`} className={S("content__section")}>
@@ -841,7 +851,10 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
               <button
                 onClick={() => setTab(t)}
                 key={`tab-${t}`}
-                className={S("tab", t === tab ? "tab--active" : "")}
+                className={[
+                  S("tab", t === tab ? "tab--active" : ""),
+                  "_title"
+                ].join(" ")}
               >
                 {t}
               </button>
