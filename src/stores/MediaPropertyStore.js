@@ -161,6 +161,7 @@ class MediaPropertyStore {
       }
     }
 
+    let nextLiveAt;
     const multiviewSetting = mediaProperty?.metadata.sidebar_config?.multiview_content || "";
     const tabs = (yield Promise.all(
       tabConfig.map(async tab => ({
@@ -204,6 +205,13 @@ class MediaPropertyStore {
                   .map((view, index) => ({...view, index}));
                 const additionalViewLabel = mediaItem?.additional_views_label;
 
+                const scheduleInfo = MediaItemScheduleInfo(mediaItem);
+
+                if(scheduleInfo.isLiveContent && !scheduleInfo.currentlyLive) {
+                  nextLiveAt = !nextLiveAt ? scheduleInfo.startTime.getTime() :
+                    Math.min(nextLiveAt, scheduleInfo.startTime.getTime());
+                }
+
                 return {
                   ...item,
                   authorized: mediaItem.authorized || item.authorized,
@@ -211,7 +219,7 @@ class MediaPropertyStore {
                   display: {
                     ...(item.mediaItem || item)
                   },
-                  scheduleInfo: MediaItemScheduleInfo(mediaItem),
+                  scheduleInfo,
                   isMultiviewable: mediaItem.authorized && MediaItemIsMultiviewable({mediaItem, multiviewSetting}),
                   additional_views: additionalViews,
                   additional_views_label: additionalViewLabel
@@ -239,6 +247,7 @@ class MediaPropertyStore {
 
     return {
       tabs,
+      nextLiveAt,
       anyMultiview,
     };
   });

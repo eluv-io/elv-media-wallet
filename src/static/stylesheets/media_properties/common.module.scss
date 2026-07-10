@@ -565,7 +565,7 @@
     align-self: flex-start;
     height: auto;
     margin: 30px 0 40px;
-    max-height: 300px;
+    max-height: 225px;
     max-width: 100%;
     object-fit: contain;
     width: auto;
@@ -930,7 +930,7 @@
 
   max-width: 100%;
   min-height: max-content;
-  padding: 20px;
+  padding: 20px 0;
   user-select: none;
   width: 100%;
 
@@ -1055,6 +1055,7 @@
       font-size: 14px;
     }
 
+<<<<<<< HEAD
     &__attribute-image-container {
       max-height: 95px;
       max-width: 95px;
@@ -1071,6 +1072,11 @@
         max-height: 50px;
         max-width: 50px;
       }
+=======
+    &__attribute--image {
+      max-height: 75px;
+      max-width: 75px;
+>>>>>>> main
     }
   }
 }

@@ -1213,15 +1213,19 @@ const MediaPropertySectionPage = observer(() => {
   return (
     <PageContainer className={S("page", "section-page")}>
       <PageBackground display={section.display} />
+      <PageHeader
+        display={{
+          ...section.display,
+          logo: undefined
+        }}
+        fontSizes={{maxPxMobile: 24, minPxMobile: 24}}
+        className={S("section__page-header")}
+      />
       <Filters
         filterSettings={section.filters || {}}
         activeFilters={activeFilters}
         SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
-      />
-      <PageHeader
-        display={section.display}
-        fontSizes={{maxPxMobile: 24, minPxMobile: 24}}
-        className={S("section__page-header")}
+        className={S("section__page-filters")}
       />
       <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
         {sectionItems}

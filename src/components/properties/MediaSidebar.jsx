@@ -161,11 +161,6 @@ const Item = observer(({
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
         }
-        {
-          // TODO: Decide if we want a live badge here
-          true || imageUrl || !scheduleInfo?.currentlyLive ? null :
-            <div className={S("live-badge")}>Live</div>
-        }
       </Linkish>
       {
         noActions ? null :
@@ -265,6 +260,8 @@ const MediaSidebar = observer(({
   contentRef,
   streamLimit
 }) => {
+  const match = useRouteMatch();
+  const [contentElement, setContentElement] = useState(null);
   const [tabIndex, setTabIndex] = useState(0);
 
   const tab = mediaStore.sidebarContent?.tabs?.[tabIndex];
@@ -273,16 +270,27 @@ const MediaSidebar = observer(({
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
   useEffect(() => {
+    // Automatically switch to tab of current item
     const initialTabIndex = mediaStore.sidebarContent?.tabs?.findIndex(tab =>
       tab?.groups?.find(group =>
-        group?.content?.find(item => item.mediaItem?.id === mediaItem.id)
+        group?.content?.find(item =>
+          item.mediaItem?.id === match.params.mediaItemSlugOrId ||
+          item.mediaItem?.slug === match.params.mediaItemSlugOrId
+        )
       )
     );
 
     if(initialTabIndex > 0) {
       setTabIndex(initialTabIndex);
     }
-  }, [mediaStore.sidebarContent]);
+  }, [mediaStore.sidebarContent, match.params.mediaItemSlugOrId]);
+
+  useEffect(() => {
+    // Automatically scroll to position of current item
+    if(!contentElement) { return; }
+
+    contentElement.scrollTo({top: 0, left: 0});
+  }, [tab, contentElement]);
 
   if(mediaStore.sidebarContent?.tabs?.length === 0) {
     return;
@@ -363,7 +371,10 @@ const MediaSidebar = observer(({
                   <button
                     onClick={() => setTabIndex(index)}
                     key={`tab-${tab.id}`}
-                    className={S("tab", "ellipsis", tabIndex === index ? "tab--active" : "")}
+                    className={[
+                      S("tab", "ellipsis", tabIndex === index ? "tab--active" : ""),
+                      "_title"
+                    ].join(" ")}
                   >
                     {tab.title}
                   </button>
@@ -372,7 +383,7 @@ const MediaSidebar = observer(({
             </div>
         }
       </div>
-      <div className={S("content")}>
+      <div ref={setContentElement} className={S("content")}>
         {
           tab?.groups?.map(group =>
             <div key={`group-${group.id}`} className={S("content__section")}>
@@ -387,6 +398,15 @@ const MediaSidebar = observer(({
                   mediaItem: item.mediaItem,
                   display: item.display
                 });
+
+                let additionalViews = item?.additional_views || [];
+                if(
+                  (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                  item.mediaItem?.id !== mediaItem.id
+                ) {
+                  // Hide additional views if item is upcoming and not the active item
+                  additionalViews = [];
+                }
 
                 return (
                   <>
@@ -403,10 +423,10 @@ const MediaSidebar = observer(({
                       streamLimit={streamLimit}
                     />
                     {
-                      (item?.additional_views || [])?.length === 0 || !item.isMultiviewable ? null :
+                      additionalViews.length === 0 ? null :
                         <div className={S("content__views-container")}>
                           {
-                            (item.additional_views || []).map((view, index) =>
+                            additionalViews.map((view, index) =>
                               <Item
                                 imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                 title={view.label}
@@ -417,6 +437,7 @@ const MediaSidebar = observer(({
                                   type: "additional-view",
                                   id: `${item.id}-${index}`,
                                   mediaItemId: item.id,
+                                  playerProfile: item.player_profile,
                                   index,
                                   label: `${item.display.title} - ${view.label}`
                                 }}
@@ -533,6 +554,14 @@ export const MultiviewSelectionModal = observer(({
                       display: item.display
                     });
 
+                    let additionalViews = item?.additional_views || [];
+                    if(
+                      (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                      item.mediaItem?.id !== mediaItem.id
+                    ) {
+                      additionalViews = [];
+                    }
+
                     return (
                       <>
                         <Item
@@ -551,10 +580,10 @@ export const MultiviewSelectionModal = observer(({
                           setDisplayedContent={setSelectedContent}
                         />
                         {
-                          (item?.additional_views || [])?.length === 0 ? null :
+                          additionalViews.length === 0 ? null :
                             <div className={S("content__views-container")}>
                               {
-                                (item.additional_views || []).map((view, index) =>
+                                additionalViews.map((view, index) =>
                                   <Item
                                     noBorder={index === 0}
                                     toggleOnClick
@@ -565,6 +594,8 @@ export const MultiviewSelectionModal = observer(({
                                       ...view,
                                       type: "additional-view",
                                       id: `${item.id}-${index}`,
+                                      mediaItemId: item.id,
+                                      playerProfile: item.player_profile,
                                       index,
                                       label: `${item.display.title} - ${view.label}`
                                     }}
@@ -834,7 +865,10 @@ export const MediaTagSidebar = observer(({mediaItem}) => {
               <button
                 onClick={() => setTab(t)}
                 key={`tab-${t}`}
-                className={S("tab", t === tab ? "tab--active" : "")}
+                className={[
+                  S("tab", t === tab ? "tab--active" : ""),
+                  "_title"
+                ].join(" ")}
               >
                 {t}
               </button>

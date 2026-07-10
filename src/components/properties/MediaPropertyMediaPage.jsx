@@ -36,6 +36,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 const MediaVideo = observer(({
   mediaItem,
   playFullVideo,
+  playerProfile,
   display,
   videoRef,
   showTitle,
@@ -207,7 +208,7 @@ const MediaVideo = observer(({
       }}
       playerOptions={{
         capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[capLevelToPlayerSize ? "ON" : "OFF"],
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile] || EluvioPlayerParameters.playerProfile.DEFAULT,
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || playerProfile] || EluvioPlayerParameters.playerProfile.DEFAULT,
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"],
@@ -262,6 +263,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
       saveSettings
       showVertical={showVertical}
       mediaItem={primaryMedia.mediaItem}
+      playerProfile={primaryMedia.playerProfile}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
       settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
@@ -277,6 +279,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
     <MediaVideo
       key={`media-${mediaStore.displayedContent[1].id}`}
       mediaItem={secondaryMedia.mediaItem}
+      playerProfile={secondaryMedia.playerProfile}
       display={secondaryMedia.display}
       showTitle
       hideControls
@@ -342,8 +345,10 @@ const MediaVideoWithSidebar = observer(({
       if(item.type === "additional-view") {
         return {
           id: item.id,
+          mediaItemId: item.mediaItemId,
           index: item.index,
           type: "additional-view",
+          playerProfile: item.playerProfile,
           mediaItem: {
             media_link: item.media_link,
             media_link_info: item.media_link_info,
@@ -389,6 +394,7 @@ const MediaVideoWithSidebar = observer(({
                 showVertical={index === 0 && showVertical}
                 noReactiveMute
                 mediaItem={item.mediaItem}
+                playerProfile={item.playerProfile}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
                 onClose={
@@ -431,7 +437,6 @@ const MediaVideoWithSidebar = observer(({
               showActions
               mediaItem={mediaItem}
               display={display}
-              setSelectedView={view => mediaStore.SetDisplayedContent([view])}
               contentRef={mediaGridRef}
               streamLimit={streamLimit}
             />
@@ -776,7 +781,9 @@ const Media = observer(({
   }
 });
 
+let updateTimeout;
 const MediaPropertyMediaPage = observer(() => {
+  const [updateIndex, setUpdateIndex] = useState(0);
   const match = useRouteMatch();
   const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
   const [contentElement, setContentElement] = useState();
@@ -809,7 +816,20 @@ const MediaPropertyMediaPage = observer(() => {
     }
 
     return () => mediaStore.Reset();
-  }, []);
+  }, [updateIndex]);
+
+  // Set a timer for when the next upcoming item goes live, then force an update
+  useEffect(() => {
+    clearTimeout(updateTimeout);
+
+    if(!mediaStore.sidebarContent.nextLiveAt) { return; }
+
+    updateTimeout = setTimeout(() => {
+      setUpdateIndex(updateIndex + 1);
+    }, mediaStore.sidebarContent.nextLiveAt - Date.now());
+
+    return () => clearTimeout(updateTimeout);
+  }, [mediaStore.sidebarContent]);
 
   useEffect(() => {
     if(!mediaHash) { return; }

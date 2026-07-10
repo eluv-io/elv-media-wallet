@@ -674,7 +674,7 @@ export const AttributeFilter = observer(({
       className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
       swiperOptions={{
         threshold: 0,
-        spaceBetween: variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 10 : 30,
+        spaceBetween: level === "primary" && !(variant === "box" || variant === "image") ? 30 : 10,
         slidesPerView: "auto",
         ...swiperOptions
       }}

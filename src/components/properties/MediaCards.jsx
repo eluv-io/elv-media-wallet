@@ -510,13 +510,13 @@ const MediaCardVertical = observer(({
                     maxLines={3}
                     className={[S("media-card-vertical__title--wrap"), "_title"].join(" ")}
                   /> :
-                  <h3 className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
+                  <h3 title={display.title} className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
                     { display.title }
                   </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText maxPx={16 * textScale} minPx={16 * textScale} className={S("media-card-vertical__subtitle")}>
+                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={S("media-card-vertical__subtitle")}>
                   { display.subtitle }
                 </ScaledText>
             }
