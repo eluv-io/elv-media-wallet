@@ -102,7 +102,7 @@ const Video = forwardRef(function VideoComponent({
       startProgress = 0;
     }
 
-    if(!player && saveSettings) {
+    if(saveSettings) {
       try {
         const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
 
