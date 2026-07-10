@@ -51,7 +51,6 @@ const MediaVideo = observer(({
   className="",
   containerProps
 }) => {
-  console.log(mediaItem?.player_profile, playerProfile)
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
