@@ -34,6 +34,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 const MediaVideo = observer(({
   mediaItem,
+  playerProfile,
   display,
   videoRef,
   showTitle,
@@ -50,6 +51,7 @@ const MediaVideo = observer(({
   className="",
   containerProps
 }) => {
+  console.log(mediaItem?.player_profile, playerProfile)
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
@@ -204,7 +206,7 @@ const MediaVideo = observer(({
       }}
       playerOptions={{
         capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[capLevelToPlayerSize ? "ON" : "OFF"],
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile] || EluvioPlayerParameters.playerProfile.DEFAULT,
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || playerProfile] || EluvioPlayerParameters.playerProfile.DEFAULT,
         permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"],
@@ -258,6 +260,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
       saveSettings
       showVertical={showVertical}
       mediaItem={primaryMedia.mediaItem}
+      playerProfile={primaryMedia.playerProfile}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
       settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
@@ -273,6 +276,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
     <MediaVideo
       key={`media-${mediaStore.displayedContent[1].id}`}
       mediaItem={secondaryMedia.mediaItem}
+      playerProfile={secondaryMedia.playerProfile}
       display={secondaryMedia.display}
       showTitle
       hideControls
@@ -338,8 +342,10 @@ const MediaVideoWithSidebar = observer(({
       if(item.type === "additional-view") {
         return {
           id: item.id,
+          mediaItemId: item.mediaItemId,
           index: item.index,
           type: "additional-view",
+          playerProfile: item.playerProfile,
           mediaItem: {
             media_link: item.media_link,
             media_link_info: item.media_link_info,
@@ -384,6 +390,7 @@ const MediaVideoWithSidebar = observer(({
                 showVertical={index === 0 && showVertical}
                 noReactiveMute
                 mediaItem={item.mediaItem}
+                playerProfile={item.playerProfile}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
                 onClose={
@@ -426,7 +433,6 @@ const MediaVideoWithSidebar = observer(({
               showActions
               mediaItem={mediaItem}
               display={display}
-              setSelectedView={view => mediaStore.SetDisplayedContent([view])}
               contentRef={mediaGridRef}
               streamLimit={streamLimit}
             />

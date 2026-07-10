@@ -157,11 +157,6 @@ const Item = observer(({
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
         }
-        {
-          // TODO: Decide if we want a live badge here
-          true || imageUrl || !scheduleInfo?.currentlyLive ? null :
-            <div className={S("live-badge")}>Live</div>
-        }
       </Linkish>
       {
         noActions ? null :
@@ -261,6 +256,7 @@ const MediaSidebar = observer(({
   contentRef,
   streamLimit
 }) => {
+  const match = useRouteMatch();
   const [contentElement, setContentElement] = useState(null);
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -270,18 +266,23 @@ const MediaSidebar = observer(({
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
   useEffect(() => {
+    // Automatically switch to tab of current item
     const initialTabIndex = mediaStore.sidebarContent?.tabs?.findIndex(tab =>
       tab?.groups?.find(group =>
-        group?.content?.find(item => item.mediaItem?.id === mediaItem.id)
+        group?.content?.find(item =>
+          item.mediaItem?.id === match.params.mediaItemSlugOrId ||
+          item.mediaItem?.slug === match.params.mediaItemSlugOrId
+        )
       )
     );
 
     if(initialTabIndex > 0) {
       setTabIndex(initialTabIndex);
     }
-  }, [mediaStore.sidebarContent]);
+  }, [mediaStore.sidebarContent, match.params.mediaItemSlugOrId]);
 
   useEffect(() => {
+    // Automatically scroll to position of current item
     if(!contentElement) { return; }
 
     contentElement.scrollTo({top: 0, left: 0});
@@ -432,6 +433,7 @@ const MediaSidebar = observer(({
                                   type: "additional-view",
                                   id: `${item.id}-${index}`,
                                   mediaItemId: item.id,
+                                  playerProfile: item.player_profile,
                                   index,
                                   label: `${item.display.title} - ${view.label}`
                                 }}
@@ -588,6 +590,8 @@ export const MultiviewSelectionModal = observer(({
                                       ...view,
                                       type: "additional-view",
                                       id: `${item.id}-${index}`,
+                                      mediaItemId: item.id,
+                                      playerProfile: item.player_profile,
                                       index,
                                       label: `${item.display.title} - ${view.label}`
                                     }}
