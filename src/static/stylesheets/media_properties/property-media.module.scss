@@ -813,9 +813,8 @@
     &__media-container {
       &:not(&--fullscreen) {
         max-height: calc(var(--property-full-content-height));
-
-        & > div,
-        .media > div {
+        
+        * {
           max-height: calc(var(--property-full-content-height));
         }
       }
