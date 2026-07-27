@@ -813,7 +813,7 @@ const MediaPropertyMediaPage = observer(() => {
 
     updateTimeout = setTimeout(() => {
       setUpdateIndex(updateIndex + 1);
-    }, mediaStore.sidebarContent.nextLiveAt - Date.now());
+    }, Math.max(30000, mediaStore.sidebarContent.nextLiveAt - Date.now()));
 
     return () => clearTimeout(updateTimeout);
   }, [mediaStore.sidebarContent]);
