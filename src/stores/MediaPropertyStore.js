@@ -209,7 +209,12 @@ class MediaPropertyStore {
 
                 const scheduleInfo = MediaItemScheduleInfo(mediaItem);
 
-                if(scheduleInfo.isLiveContent && !scheduleInfo.currentlyLive) {
+                if(
+                  scheduleInfo.isLiveContent &&
+                  !scheduleInfo.ended &&
+                  !scheduleInfo.currentlyLive &&
+                  scheduleInfo.startTime.getTime() > Date.now()
+                ) {
                   nextLiveAt = !nextLiveAt ? scheduleInfo.startTime.getTime() :
                     Math.min(nextLiveAt, scheduleInfo.startTime.getTime());
                 }
