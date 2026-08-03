@@ -623,6 +623,7 @@ const MediaCard = observer(({
   setImageDimensions,
   buttonText,
   navContext,
+  variants=[],
   size,
   fullBleed=false,
   lazy=true,
@@ -776,6 +777,7 @@ const MediaCard = observer(({
         !authorized ?
           S("media-card--unauthorized") : "",
       centered ? S("media-card--centered") : "",
+      ...(variants || []).map(variant => S(`media-card--${variant}`)),
       className
     ]
       .filter(c => c)

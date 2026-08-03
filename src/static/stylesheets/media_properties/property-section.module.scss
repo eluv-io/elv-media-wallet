@@ -74,11 +74,14 @@
   font-size: 16px;
   height: max-content;
   max-width: 100%;
-  overflow: hidden;
   position: relative;
   width: 100%;
 
   --max-card-width: 400px;
+
+  :global(.swiper) {
+    overflow: initial;
+  }
 
   &--page {
     .section__content--grid {
@@ -279,7 +282,8 @@
     /* Mixed aspect ratio grid */
     &--flex {
       gap: 25px 25px;
-      place-items: center center;
+
+      //place-items: center center;
     }
 
     &--banner {

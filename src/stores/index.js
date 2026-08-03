@@ -207,6 +207,10 @@ class RootStore {
   _resources = {};
   logTiming = false;
 
+  get mobile() {
+    return this.pageWidth < 850;
+  }
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }

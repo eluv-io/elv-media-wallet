@@ -534,11 +534,13 @@ export const MediaGrid = observer(({
   textJustification="left",
   cardFormat="vertical",
   cardSize="medium",
+  cardTheme,
   defaultButtonText,
   wrapTitles=false,
   className="",
   navContext,
 }) => {
+  const match = useRouteMatch();
   aspectRatio = aspectRatio?.toLowerCase() || "mixed";
 
   const columns = GridContentColumns({
@@ -548,14 +550,16 @@ export const MediaGrid = observer(({
     cardSize
   });
 
+  cardTheme = cardTheme || mediaPropertyStore.CardTheme({...match.params});
+
+  let style = {...(cardTheme?.css || {})};
+  if(columns > 1) {
+    style.gridTemplateColumns = `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`;
+  }
+
   return (
     <div
-      style={
-        columns <= 1 ? {} :
-          {
-            gridTemplateColumns: `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`
-          }
-      }
+      style={style}
       className={[S(
         "section__content",
         "section__content--grid",
@@ -572,6 +576,7 @@ export const MediaGrid = observer(({
               size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
               format={cardFormat || "vertical"}
               key={`section-item-${item.id}`}
+              variants={cardTheme?.variants}
               sectionItem={isSectionContent ? item : undefined}
               mediaItem={isSectionContent ? undefined : item}
               textDisplay={textDisplay}
@@ -623,7 +628,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
+const SectionContentCarousel = observer(({section, sectionContent, cardTheme, navContext}) => {
   sectionContent = sectionContent.slice(0, 100);
 
   return (
@@ -649,6 +654,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
         <MediaCard
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
           key={`media-card-${item.id}`}
+          variants={cardTheme?.variants}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
           textDisplay={section.display.content_display_text}
@@ -664,13 +670,14 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
   );
 });
 
-const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
+const SectionContentGrid = observer(({section, sectionContent, cardTheme, navContext}) => {
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
 
   return (
     <MediaGrid
       content={sectionContent}
       isSectionContent
+      cardTheme={cardTheme}
       aspectRatio={aspectRatio}
       textDisplay={section.display.content_display_text}
       justification={section.display.justification}
@@ -911,6 +918,11 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
+  const cardTheme = mediaPropertyStore.CardTheme({
+    ...match.params,
+    sectionSlugOrId: sectionId || match.params.sectionSlugOrId
+  });
+
   let ContentComponent;
   switch(section.display.display_format?.toLowerCase()) {
     case "carousel":
@@ -949,14 +961,19 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     displayLimit = columns * displayLimit;
   }
 
-  const style = SectionBackgroundStyle(section);
+  const style = {
+    ...SectionBackgroundStyle(section),
+    ...(cardTheme?.css || {})
+  };
 
+  //console.log("Render")
   return (
     <div
       data-section-id={sectionId}
       style={style}
       className={[S(
         "section-container",
+        //rootStore.mobile ? "section-container--mobile" : "",
         `section-container--${section.display?.display_format || "grid"}`,
         `section-container--${section.display.justification || "left"}`,
         section.display.full_bleed ? "section-container--full-bleed" : ""
@@ -1060,6 +1077,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <div className={S("section__content--empty")} /> :
             <ContentComponent
               navContext={sectionId}
+              cardTheme={cardTheme}
               section={section}
               sectionContent={
                 displayLimit ?

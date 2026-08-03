@@ -7,7 +7,7 @@ import {
 } from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {LinkTargetHash, NFTInfo} from "../utils/Utils";
+import {CardThemeProperties, LinkTargetHash, NFTInfo} from "../utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -45,6 +45,8 @@ class MediaPropertyStore {
   mediaPlayers = {};
 
   mediaProgress = {};
+
+  cardThemes = {};
 
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
@@ -1281,6 +1283,31 @@ class MediaPropertyStore {
       cause: cause || "",
       causeId
     };
+  }
+
+  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId}) {
+    const property = this.MediaProperty({mediaPropertySlugOrId})?.metadata;
+    let cardThemeId =
+      // Section
+      this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.card_theme_id ||
+      // Page
+      this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.card_theme_id ||
+      // Property
+      property?.card_theme_id;
+
+    if(!this.cardThemes[cardThemeId] || this.cardThemes[cardThemeId].mobile !== this.rootStore.mobile) {
+      const cardTheme = property?.styling?.card_themes?.[cardThemeId];
+
+      if(!cardTheme) {
+        // Default?
+        return;
+      }
+
+      this.cardThemes[cardThemeId] = CardThemeProperties(cardTheme);
+      this.cardThemes[cardThemeId].mobile = this.rootStore.mobile;
+    }
+
+    return this.cardThemes[cardThemeId];
   }
 
   LoadMediaPropertyHashes = flow(function * () {

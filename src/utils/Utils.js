@@ -1003,3 +1003,108 @@ export const SetHTMLMetaTags = ({metaTags={}}={metaTags: {}}) => {
 
   document.title = metaTags.title || "Eluvio Media Wallet";
 };
+
+export const ConvertColor = ({hex, rgb, alpha}) => {
+  if(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+      a: typeof alpha === "number" ? alpha : 1
+    } : null;
+  } else {
+    return `#${rgb.r.toString(16).padStart(2, "0")}${rgb.g.toString(16).padStart(2, "0")}${rgb.b.toString(16).padStart(2, "0")}`;
+  }
+};
+
+export const CardThemeProperties = (theme={}) => {
+  let css = {};
+  let variants = [];
+
+  const FormatColor = (hex, alpha) => {
+    const {r, g, b, a} = ConvertColor({hex, alpha: typeof alpha === "number" ? alpha/100 : 1});
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  };
+
+  switch(theme.border_radius) {
+    case "subtle":
+      css["--border-radius"] = "5px";
+      break;
+
+    case "curved":
+      css["--border-radius"] = "20px";
+      break;
+
+    default:
+      css["--border-radius"] = 0;
+      break;
+  }
+
+  css["--border-width"] = `${theme.border_width || 0}px`;
+
+  css["--square-border-radius"] = "var(--border-radius)";
+  if(theme.circularize) {
+    css["--square-border-radius"] = "100%";
+  }
+
+  css["--border-color--active"] = theme.active.border_color || "#FFFFFF";
+  css["--border-color--inactive"] = theme.inactive.border_color || "#FFFFFF";
+
+  if(!theme.border_width) {
+    css["--border-color--active"] = "transparent";
+    css["--border-color--inactive"] = "transparent";
+  }
+
+  const activeBackground1 = FormatColor(
+    theme.active.background_color || "#000000",
+    theme.active.background_color_opacity
+  );
+
+  const activeBackground2 = FormatColor(
+    theme.active.background_color_2 || "#000000",
+    theme.active.background_color_2_opacity
+  );
+
+  const inactiveBackground1 = FormatColor(
+    theme.inactive.background_color || "#000000",
+    theme.inactive.background_color_opacity
+  );
+
+  const inactiveBackground2 = FormatColor(
+    theme.inactive.background_color_2 || "#000000",
+    theme.inactive.background_color_2_opacity
+  );
+
+  css["--background-color--active"] = activeBackground1;
+  css["--background-color--inactive"] = inactiveBackground1;
+
+  css["--background-color-2--active"] = theme.active.background_type === "gradient" ?
+    activeBackground2 : activeBackground1;
+
+  css["--background-color-2--inactive"] = theme.inactive.background_type === "gradient" ?
+    inactiveBackground2 : inactiveBackground1;
+
+  css["--background-gradient-angle--active"] = `${theme.active.background_gradient_angle || 0}deg`;
+  css["--background-gradient-angle--inactive"] = `${theme.inactive.background_gradient_angle || 0}deg`;
+
+  if(theme.effect) {
+    variants.push(`effect-${theme.effect}`);
+  }
+
+  if(rootStore.mobile) {
+    if(theme.mobile_state === "no-transition") {
+      variants = [];
+    } else if(theme.mobile_state === "active") {
+      variants.push("mobile-active");
+    }
+
+    variants.push("mobile");
+  }
+
+  return {
+    css,
+    variants
+  };
+};
