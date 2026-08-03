@@ -699,6 +699,8 @@
     transition: opacity 0.25s ease-out;
     width: max-content;
     z-index: 1;
+    background: transparent;
+    border: 0;
 
     &:disabled {
       opacity: 0;
