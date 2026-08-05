@@ -7,7 +7,7 @@ import {
 } from "../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {CardThemeProperties, LinkTargetHash, NFTInfo} from "../utils/Utils";
+import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo} from "../utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -1285,25 +1285,32 @@ class MediaPropertyStore {
     };
   }
 
-  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId}) {
-    const property = this.MediaProperty({mediaPropertySlugOrId})?.metadata;
-    let cardThemeId =
-      // Section
-      this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.card_theme_id ||
-      // Page
-      this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.card_theme_id ||
-      // Property
-      property?.card_theme_id;
+  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, search=false}) {
+    const property = this.MediaProperty({
+      mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId
+    })?.metadata;
+
+    let cardThemeId;
+    if(search) {
+      cardThemeId = property?.search?.primary_filter_card_theme_id;
+    } else {
+      cardThemeId =
+        // Section
+        this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.card_theme_id ||
+        // Page
+        this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.card_theme_id ||
+        // Property
+        property?.card_theme_id;
+    }
 
     if(!this.cardThemes[cardThemeId] || this.cardThemes[cardThemeId].mobile !== this.rootStore.mobile) {
-      const cardTheme = property?.styling?.card_themes?.[cardThemeId];
+      let cardTheme = property?.styling?.card_themes?.[cardThemeId];
 
       if(!cardTheme) {
-        // Default?
-        return;
+        cardTheme = DefaultCardTheme;
       }
 
-      this.cardThemes[cardThemeId] = CardThemeProperties(cardTheme);
+      this.cardThemes[cardThemeId] = CardThemeProperties({theme: cardTheme, noMobile: !!search});
       this.cardThemes[cardThemeId].mobile = this.rootStore.mobile;
     }
 

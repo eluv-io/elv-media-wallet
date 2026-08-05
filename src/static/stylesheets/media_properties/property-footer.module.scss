@@ -63,8 +63,8 @@
     }
   }
 
-  @media screen and (width <= 800px) {
-    padding-inline: 25px;
+  @media screen and (width <= 850px) {
+    padding-inline: 15px;
 
     &__html {
       height: 100vh;

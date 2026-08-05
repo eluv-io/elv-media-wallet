@@ -8,7 +8,6 @@ import MediaCard, {ButtonCard} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import {
-  AttributeFilter,
   Button,
   Carousel,
   PageBackground,
@@ -28,7 +27,7 @@ import {
 } from "../../utils/MediaPropertyUtils";
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
-import Filters from "Components/properties/Filters";
+import Filters, {AttributeFilter} from "Components/properties/Filters";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
@@ -472,7 +471,6 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
                         </h2>
                     }
                   </div>
-
               }
               {
                 !section.display.subtitle ? null :
@@ -552,7 +550,7 @@ export const MediaGrid = observer(({
 
   cardTheme = cardTheme || mediaPropertyStore.CardTheme({...match.params});
 
-  let style = {...(cardTheme?.css || {})};
+  let style = {};
   if(columns > 1) {
     style.gridTemplateColumns = `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`;
   }
@@ -585,6 +583,7 @@ export const MediaGrid = observer(({
               wrapTitle={wrapTitles}
               buttonText={item?.card_button_text || defaultButtonText}
               navContext={navContext}
+              style={cardTheme?.css}
               centered={
                 (MediaItemImageUrl({
                   mediaItem: item,
@@ -662,6 +661,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, na
           aspectRatio={section.display.aspect_ratio}
           wrapTitle={section.display.wrap_titles}
           format={section.display.card_style || "vertical"}
+          style={cardTheme?.css}
           buttonText={item?.card_button_text || section.display.card_default_button_text}
           navContext={navContext}
         />
@@ -961,10 +961,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     displayLimit = columns * displayLimit;
   }
 
-  const style = {
-    ...SectionBackgroundStyle(section),
-    ...(cardTheme?.css || {})
-  };
+  const style = SectionBackgroundStyle(section);
 
   //console.log("Render")
   return (
@@ -973,7 +970,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       style={style}
       className={[S(
         "section-container",
-        //rootStore.mobile ? "section-container--mobile" : "",
         `section-container--${section.display?.display_format || "grid"}`,
         `section-container--${section.display.justification || "left"}`,
         section.display.full_bleed ? "section-container--full-bleed" : ""

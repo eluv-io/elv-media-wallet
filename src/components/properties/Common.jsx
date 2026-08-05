@@ -25,6 +25,7 @@ import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
 import {LoginGate} from "Components/common/LoginGate";
+
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
 export const PageContainer = ({children, className, ...props}) => {
@@ -193,6 +194,7 @@ export const LoaderImage = observer(({
   showWithoutSource=false,
   delay=25,
   loaderDelay=250,
+  onLoad,
   ...props
 }) => {
   const [loaded, setLoaded] = useState(false);
@@ -228,7 +230,10 @@ export const LoaderImage = observer(({
             className={S("lazy-image__loader-image") + " " + props.className}
             loading={lazy ? "lazy" : "eager"}
             src={(useAlternateSrc && alternateSrc) || src}
-            onLoad={() => setTimeout(() => setLoaded(true), delay)}
+            onLoad={event => {
+              onLoad?.(event);
+              setTimeout(() => setLoaded(true), delay);
+            }}
             onError={() => {
               setUseAlternateSrc(true);
             }}
@@ -648,110 +653,6 @@ export const Carousel = observer(({
         <ImageIcon label="Next Page" icon={RightArrow} />
       </button>
     </Swiper>
-  );
-});
-
-export const AttributeFilter = observer(({
-  attributeKey,
-  filterOptions,
-  dependentAttribute,
-  variant="text",
-  level="primary",
-  activeFilters,
-  SetActiveFilters,
-  className="",
-  swiperOptions={}
-}) => {
-  if(!attributeKey || !filterOptions || filterOptions.length === 0) { return null; }
-
-  const selected = attributeKey === "__media-type" ?
-    (activeFilters?.mediaType || "") :
-    activeFilters?.attributes[attributeKey] || "";
-
-  return (
-    <Carousel
-      content={filterOptions}
-      className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
-      swiperOptions={{
-        threshold: 0,
-        spaceBetween: level === "primary" && !(variant === "box" || variant === "image") ? 30 : 10,
-        slidesPerView: "auto",
-        ...swiperOptions
-      }}
-      RenderSlide={({item}) => {
-        const value = item?.value;
-        const image = variant === "image" ? item?.image : undefined;
-
-        return (
-          <button
-            onClick={() => {
-              let newFilters = {};
-
-              if(attributeKey === "__media-type") {
-                // Media type + attribute
-                newFilters.mediaType = value;
-
-                if(dependentAttribute) {
-                  newFilters.attributes = {
-                    ...activeFilters.attributes,
-                    [dependentAttribute]: ""
-                  };
-                }
-              } else {
-                // 2 Attributes
-                if(dependentAttribute && dependentAttribute !== "__media-type") {
-                  newFilters = {
-                    attributes: {
-                      ...activeFilters.attributes,
-                      [attributeKey]: value,
-                      [dependentAttribute]: ""
-                    }
-                  };
-                } else {
-                  // Attribute + media type
-                  newFilters.attributes = {...activeFilters.attributes, [attributeKey]: value};
-
-                  if(dependentAttribute === "__media-type") {
-                    newFilters.mediaType = "";
-                  }
-                }
-              }
-
-              SetActiveFilters(newFilters);
-            }}
-            className={
-              S(
-                "attribute-filter__attribute",
-                `attribute-filter__attribute--${image ? "image" : variant}`,
-                selected === value ? "attribute-filter__attribute--active" : ""
-              )
-            }
-          >
-            {
-              image ?
-                <>
-                  <div className={S("attribute-filter__attribute-image-container")}>
-                    <LoaderImage
-                      src={image?.url}
-                      loaderHeight={100}
-                      alt={value || "All"}
-                      title={value || "All"}
-                      lazy={false}
-                      width={300}
-                      loaderAspectRatio={1}
-                      className={S("attribute-filter__attribute-image")}
-                    />
-                  </div>
-                  <div className={S("attribute-filter__attribute-title")}>
-                    { value }
-                  </div>
-                </> :
-                value || "All"
-            }
-          </button>
-        );
-      }}
-    />
   );
 });
 

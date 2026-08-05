@@ -12,8 +12,340 @@ import {useRouteMatch} from "react-router-dom";
 import {FormatPriceString, Linkish} from "Components/common/UIComponents";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
+import {Popover} from "@mantine/core";
+import ImageIcon from "Components/common/ImageIcon";
+import {useIsVisible} from "Components/common/Hooks";
+
+import ArrowRightIcon from "Assets/icons/arrow-right";
+import PinIcon from "Assets/icons/pin";
+import CaretDownIcon from "Assets/icons/down-caret";
+import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
+
+const MediaDetailsModal = observer(({
+  display,
+  url,
+  linkPath,
+  onClick,
+  imageUrl,
+  livePreviewUrl,
+  lazy,
+  aspectRatio,
+  scheduleInfo,
+  progress,
+  style,
+  Close
+}) => {
+  return (
+    <Modal
+      noBackground
+      width={800}
+      opened
+      centered
+      withCloseButton={false}
+      onClose={Close}
+    >
+      <div
+        style={{...(style || {})}}
+        className={S("details-modal", `details-modal--${aspectRatio}`)}
+      >
+        <Linkish onClick={Close} aria-label="Close Details" className={S("details-modal__close")}>
+          <ImageIcon icon={XIcon} />
+        </Linkish>
+        <div className={S("details-modal__top")}>
+          <div className={S("styled-card", "styled-card--active", `styled-card--${aspectRatio}`, "details-modal__card")}>
+            <div className={S("styled-card__image-container", "details-modal__image-container")}>
+              <LoaderImage
+                lazy={lazy}
+                src={livePreviewUrl || imageUrl}
+                alternateSrc={livePreviewUrl ? imageUrl : undefined}
+                alt={display.thumbnail_alt_text || display.title}
+                width={600}
+                showWithoutSource
+                className={S("styled-card__image", "details-modal__image")}
+              />
+              {
+                // Schedule indicator
+                !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
+                  scheduleInfo.currentlyLive ?
+                    <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
+                      {mediaPropertyStore.rootStore.l10n.media_properties.media.live}
+                    </div> :
+                    <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
+                      <div>{scheduleInfo.displayStartDate} at {scheduleInfo.displayStartTime}</div>
+                    </div>
+              }
+              {
+                // Progress indicator
+                !progress || isNaN(progress) || progress ? null :
+                  <div className={S("styled-card__progress-container")}>
+                    <div
+                      style={{width: `${progress * 100}%`}}
+                      className={S("styled-card__progress-indicator")}
+                    />
+                  </div>
+              }
+            </div>
+          </div>
+          <div className={S("details-modal__top-content")}>
+            <div className={S("details-modal__top-text")}>
+              {
+                (display.headers || []).length === 0 ? null :
+                  <div className={S("details-modal__headers")}>
+                    {display.headers?.join?.("     ")}
+                  </div>
+              }
+              {
+                !display.title ? null :
+                  <div title={display.title} className={[S("details-modal__title"), "_title"].join(" ")}>
+                    {display.title}
+                  </div>
+              }
+              {
+                !display.subtitle ? null :
+                  <div className={S("details-modal__subtitle")}>
+                    {display.subtitle}
+                  </div>
+              }
+            </div>
+            <div className={S("details-modal__actions")}>
+              <Linkish
+                title="Go to Content"
+                to={linkPath}
+                href={url}
+                onClick={
+                  !onClick ? null :
+                    event => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onClick?.();
+                    }
+                }
+                className={S("details-modal__action")}
+              >
+                <ImageIcon icon={ArrowRightIcon}/>
+              </Linkish>
+              <Linkish
+                title="Add to My List"
+                onClick={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+                className={S("details-modal__action")}
+              >
+                <ImageIcon icon={PinIcon} />
+              </Linkish>
+            </div>
+          </div>
+        </div>
+        <div className={S("details-modal__content")}>
+          {
+            !display.description ? null :
+              <ExpandableDescription
+                description={display.description}
+                descriptionRichText={display.description_rich_text}
+                maxLines={1000}
+                className={S("details-modal__description")}
+              />
+          }
+        </div>
+      </div>
+    </Modal>
+  );
+});
+
+
+let hoverCardTimeout;
+let hoverCardOpenDelay = 750;
+let hoverCloseDelay = 100;
+const MediaHoverCard = observer(({
+  width,
+  display,
+  url,
+  linkPath,
+  onClick,
+  imageUrl,
+  livePreviewUrl,
+  lazy,
+  aspectRatio,
+  scheduleInfo,
+  progress,
+  children,
+  style,
+  ShowDetailsModal
+}) => {
+  const [closeTimeout, setCloseTimeout] = useState(undefined);
+  const [opened, setOpened] = useState(false);
+  const [targetRef, setTargetRef] = useState(undefined);
+  const visible = useIsVisible(targetRef);
+
+  useEffect(() => {
+    if(!visible) {
+      setOpened(false);
+    }
+  }, [visible]);
+
+  const overscale = 60;
+  const hoverCardWidth = Math.max((width || 0) + overscale, 250);
+  const extension = (hoverCardWidth - (width || 0)) / 2;
+
+  style = {...(style || {})};
+  style["--scale"] = 1;
+
+  if(width) {
+    style["--width"] = `${hoverCardWidth}px`;
+  }
+
+  if(parseInt(style["--border-radius"]) <= 5) {
+    // Square out subtle border radius in hover card
+    style["--border-radius"] = "0px";
+  }
+
+  return (
+    <Popover
+      opened={opened}
+      position="center"
+      offset={{mainAxis: -(extension), crossAxis: -(extension)}}
+      transitionProps={{
+        transition: "pop",
+        duration: 350,
+        exitDuration: 250
+      }}
+    >
+      <Popover.Target>
+        <div
+          ref={setTargetRef}
+          onMouseEnter={() => {
+            clearTimeout(hoverCardTimeout);
+            hoverCardTimeout = setTimeout(() => setOpened(true), hoverCardOpenDelay);
+          }}
+          onMouseLeave={() => clearTimeout(hoverCardTimeout)}
+          className={S("hover-card-target", opened ? "hover-card-target--delay-transition" : "")}
+        >
+          { children }
+        </div>
+      </Popover.Target>
+      <Popover.Dropdown
+        style={style}
+        className={S("hover-card-container")}
+      >
+        <Linkish
+          to={linkPath}
+          href={url}
+          onClick={onClick}
+          onMouseEnter={() => clearTimeout(closeTimeout)}
+          onMouseLeave={() => {
+            clearTimeout(closeTimeout);
+            setCloseTimeout(setTimeout(() => setOpened(false), hoverCloseDelay));
+          }}
+          className={S("styled-card", `styled-card--${aspectRatio}`, "styled-card--active", "hover-card")}
+        >
+          <div className={S("styled-card__image-container", "hover-card__image-container")}>
+            <LoaderImage
+              lazy={lazy}
+              src={livePreviewUrl || imageUrl}
+              alternateSrc={livePreviewUrl ? imageUrl : undefined}
+              alt={display.thumbnail_alt_text || display.title}
+              width={600}
+              showWithoutSource
+              className={S("styled-card__image", "hover-card__image")}
+            />
+            {
+              // Schedule indicator
+              !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
+                scheduleInfo.currentlyLive ?
+                  <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
+                    {mediaPropertyStore.rootStore.l10n.media_properties.media.live}
+                  </div> :
+                  <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
+                    <div>{scheduleInfo.displayStartDate} at {scheduleInfo.displayStartTime}</div>
+                  </div>
+            }
+            {
+              // Progress indicator
+              !progress || isNaN(progress) ? null :
+                <div className={S("styled-card__progress-container")}>
+                  <div
+                    style={{width: `${progress * 100}%`}}
+                    className={S("styled-card__progress-indicator")}
+                  />
+                </div>
+            }
+          </div>
+          <div className={S("hover-card__content")}>
+            <div className={S("hover-card__actions")}>
+              <Linkish title="Go to Content" className={S("hover-card__action")}>
+                <ImageIcon icon={ArrowRightIcon}/>
+              </Linkish>
+              <Linkish
+                title="Add to My List"
+                onClick={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+                className={S("hover-card__action")}
+              >
+                <ImageIcon icon={PinIcon} />
+              </Linkish>
+              <div className={S("hover-card__separator")} />
+              <Linkish
+                title="More Info"
+                to={linkPath}
+                href={url}
+                onClick={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  ShowDetailsModal();
+                  setOpened(false);
+                }}
+                className={S("hover-card__action")}
+              >
+                <ImageIcon icon={CaretDownIcon} />
+              </Linkish>
+            </div>
+            <div className={S("hover-card__text")}>
+              {
+                (display.headers || []).length === 0 ? null :
+                  <div className={S("hover-card__headers")}>
+                    {display.headers?.join?.("     ")}
+                  </div>
+              }
+              {
+                !display.title ? null :
+                  <div title={display.title} className={[S("hover-card__title"), "_title"].join(" ")}>
+                    {display.title}
+                  </div>
+              }
+              {
+                !display.subtitle ? null :
+                  <div className={S("hover-card__subtitle")}>
+                    {display.subtitle}
+                  </div>
+              }
+              {
+                !display.description ? null :
+                  <ExpandableDescription
+                    description={display.description}
+                    descriptionRichText={display.description_rich_text}
+                    maxLines={3}
+                    onClick={event => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      ShowDetailsModal();
+                      setOpened(false);
+                      return true;
+                    }}
+                    className={S("hover-card__description")}
+                  />
+              }
+            </div>
+          </div>
+        </Linkish>
+      </Popover.Dropdown>
+    </Popover>
+  );
+});
 
 export const MediaCardWithButtonVertical = observer(({
   display,
@@ -411,7 +743,6 @@ const MediaCardBanner = observer(({
   );
 });
 
-
 const MediaCardVertical = observer(({
   display,
   imageContainerRef,
@@ -424,11 +755,12 @@ const MediaCardVertical = observer(({
   linkPath="",
   url,
   size,
-  lazy=true,
-  wrapTitle=false,
+  lazy = true,
+  wrapTitle = false,
   progress,
   authorized,
   onClick,
+  style,
   className=""
 }) => {
   let textScale = (aspectRatio) === "landscape" ? 1 : 0.9;
@@ -440,20 +772,24 @@ const MediaCardVertical = observer(({
       to={linkPath}
       href={url}
       onClick={onClick}
+      style={{...(style || {})}}
       className={[
         S(
+          "media-card",
           "media-card-vertical",
+          "styled-card",
+          `styled-card--${aspectRatio}`,
           `media-card-vertical--${aspectRatio}`,
           `media-card-vertical--${textJustification || "left"}`,
           `media-card-vertical--text-${textDisplay || "left"}`,
-          size === "fixed" ? "media-card-vertical--size-fixed" : "",
-          size === "mixed" ? "media-card-vertical--size-mixed" : "",
-          size === "carousel-mixed" ? "media-card-vertical--size-carousel-mixed" : "",
+          size === "fixed" ? "styled-card--size-fixed" : "",
+          size === "mixed" ? "styled-card--size-mixed" : "",
+          size === "carousel-mixed" ? "styled-card--size-carousel-mixed" : "",
         ),
         className
       ].join(" ")}
     >
-      <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
+      <div ref={imageContainerRef} className={S("media-card-vertical__image-container", "styled-card__image-container")}>
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
@@ -462,16 +798,16 @@ const MediaCardVertical = observer(({
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
           showWithoutSource
-          className={S("media-card-vertical__image")}
+          className={S("media-card-vertical__image", "styled-card__image")}
         />
         {
           // Schedule indicator
           !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
             scheduleInfo.currentlyLive ?
-              <div className={S("media-card-vertical__indicator", "media-card-vertical__live-indicator")}>
+              <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
                 { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
               </div> :
-              <div className={S("media-card-vertical__indicator", "media-card-vertical__upcoming-indicator")}>
+              <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
                 <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
               </div>
         }
@@ -484,10 +820,10 @@ const MediaCardVertical = observer(({
         {
           // Progress indicator
           !progress || isNaN(progress) ? null :
-            <div className={S("media-card-vertical__progress-container")}>
+            <div className={S("styled-card__progress-container")}>
               <div
                 style={{width: `${progress * 100}%`}}
-                className={S("media-card-vertical__progress-indicator")}
+                className={S("styled-card__progress-indicator")}
               />
             </div>
         }
@@ -631,9 +967,11 @@ const MediaCard = observer(({
   onClick,
   className="",
   centered,
+  style={},
   ...props
 }) => {
   const match = useRouteMatch();
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
   const [livePreviewUrl, setLivePreviewUrl] = useState(undefined);
@@ -770,6 +1108,7 @@ const MediaCard = observer(({
     authorized,
     fullBleed,
     progress,
+    style,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?
@@ -777,29 +1116,56 @@ const MediaCard = observer(({
         !authorized ?
           S("media-card--unauthorized") : "",
       centered ? S("media-card--centered") : "",
-      ...(variants || []).map(variant => S(`media-card--${variant}`)),
+      ...(variants || []).map(variant => S(`styled-card--${variant}`)),
       className
     ]
       .filter(c => c)
       .join(" ")
   };
 
-  if(args.aspectRatio?.toLowerCase() !== "landscape") {
+  if(args.aspectRatio?.toLowerCase() !== "landscape" || args.progress > 0.95) {
     delete args.progress;
   }
 
+  let card;
   switch(format) {
     case "horizontal":
-      return <MediaCardHorizontal {...args} />;
+      card = <MediaCardHorizontal {...args} />;
+      break;
+
     case "button_vertical":
-      return <ButtonCard orientation="vertical" {...args} />;
+      card = <ButtonCard orientation="vertical" {...args} />;
+      break;
+
     case "button_horizontal":
-      return <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
+      card = <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
+      break;
+
     case "banner":
-      return <MediaCardBanner sectionItem={sectionItem} {...args} />;
+      card = <MediaCardBanner sectionItem={sectionItem} {...args} />;
+      break;
+
     default:
-      return <MediaCardVertical {...args} />;
+      card = (
+        <MediaHoverCard
+          {...args}
+          width={imageContainerRef?.current?.getBoundingClientRect()?.width}
+          ShowDetailsModal={() => setShowDetailsModal(true)}
+        >
+          <MediaCardVertical {...args}/>
+        </MediaHoverCard>
+      );
   }
+
+  return (
+    <>
+      {card}
+      {
+        !showDetailsModal ? null :
+          <MediaDetailsModal {...args} Close={() => setShowDetailsModal(false)} />
+      }
+    </>
+  );
 });
 
 export default MediaCard;

@@ -1018,9 +1018,39 @@ export const ConvertColor = ({hex, rgb, alpha}) => {
   }
 };
 
-export const CardThemeProperties = (theme={}) => {
+export const DefaultCardTheme = {
+  "active": {
+    "background_color": "#000000",
+    "background_color_2": "#000000",
+    "background_color_opacity": 0,
+    "background_gradient_angle": 0,
+    "background_type": "solid",
+    "border_color": "#FFFFFF"
+  },
+  "border_radius": "subtle",
+  "border_width": 0,
+  "circularize": false,
+  "description": "",
+  "effect": "",
+  "inactive": {
+    "background_color": "#000000",
+    "background_color_2": "#000000",
+    "background_color_opacity": 0,
+    "background_gradient_angle": 0,
+    "background_type": "solid",
+    "border_color": "#FFFFFF"
+  },
+  "label": "Default",
+  "mobile_state": ""
+};
+
+export const CardThemeProperties = ({theme, noMobile}) => {
   let css = {};
   let variants = [];
+
+  if(!theme) {
+    theme = DefaultCardTheme;
+  }
 
   const FormatColor = (hex, alpha) => {
     const {r, g, b, a} = ConvertColor({hex, alpha: typeof alpha === "number" ? alpha/100 : 1});
@@ -1093,7 +1123,7 @@ export const CardThemeProperties = (theme={}) => {
     variants.push(`effect-${theme.effect}`);
   }
 
-  if(rootStore.mobile) {
+  if(rootStore.mobile && !noMobile) {
     if(theme.mobile_state === "no-transition") {
       variants = [];
     } else if(theme.mobile_state === "active") {
