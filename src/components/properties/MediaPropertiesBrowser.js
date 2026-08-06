@@ -1,16 +1,37 @@
+import DiscoverStyles from "Assets/stylesheets/media_properties/discover.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import UrlJoin from "url-join";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
-import {LoaderImage} from "Components/properties/Common";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {Carousel, LoaderImage} from "Components/properties/Common";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Redirect} from "react-router-dom";
 
-const PropertyVideo = observer(({video}) => {
+const S = (...classes) => classes.map(c => DiscoverStyles[c] || "").join(" ");
+
+const LinkParams = ({mediaProperties, mediaProperty}) => {
+  let linkParams = {};
+  if(mediaProperty.main_page_url){
+    linkParams = {
+      href: mediaProperty.main_page_url,
+      target: "_blank",
+      rel: "noopener"
+    };
+  } else if(mediaProperty.parent_property) {
+    const parentSlug = mediaProperties.find(otherProperty => otherProperty.propertyId === mediaProperty.parent_property)?.slug || mediaProperty.parent_property;
+    linkParams.to = UrlJoin("/", parentSlug, "/p", mediaProperty.slug || mediaProperty.propertyId);
+  } else {
+    linkParams.to = UrlJoin("/", mediaProperty.slug || mediaProperty.propertyId);
+  }
+
+  return linkParams;
+};
+
+const PropertyVideo = observer(({video, className=""}) => {
   const [loaded, setLoaded] = useState(false);
 
   if(!rootStore.loaded || !video || Object.keys(video).length === 0) {
@@ -24,13 +45,76 @@ const PropertyVideo = observer(({video}) => {
       hideControls
       mute
       playerOptions={{
+        backgroundColor: "transparent",
         loop: EluvioPlayerParameters.loop.ON,
         showLoader: EluvioPlayerParameters.showLoader.OFF,
         capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
       }}
       autoAspectRatio={false}
-      className={`media-property-card__video ${!loaded ? "media-property-card__video--loading" : ""}`}
+      className={[S("video", loaded ? "video--loaded" : "video--loading"), className].join(" ")}
     />
+  );
+});
+
+const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
+  const [hovering, setHovering] = useState(false);
+
+  return (
+    <Linkish
+      {...linkParams}
+      onMouseEnter={() => setHovering(true)}
+      onFocus={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onBlur={() => setHovering(false)}
+      className={S("discover-card", featured ? "discover-card--featured" : "discover-card--standard")}
+    >
+      <div className={S("discover-card__image-container")}>
+        <LoaderImage
+          alt={mediaProperty.main_page_title || mediaProperty.title}
+          src={mediaProperty.image?.url}
+          width={800}
+          className={S("discover-card__image")}
+        />
+        {
+          !mediaProperty.video || !hovering ? null :
+            <PropertyVideo
+              video={mediaProperty.video}
+              className={S("discover-card__video")}
+            />
+        }
+      </div>
+      {
+        !featured ? null :
+          <div className={S("discover-card__content")}>
+            {
+              !mediaProperty.main_page_logo ? null :
+                <LoaderImage
+                  width={800}
+                  alt={mediaProperty.main_page_title || mediaProperty.title}
+                  src={mediaProperty.main_page_logo?.url}
+                  className={S("discover-card__logo")}
+                />
+            }
+            {
+              !mediaProperty.main_page_title ? null :
+                <div className={S("discover-card__title")}>
+                  {mediaProperty.main_page_title}
+                </div>
+            }
+            {
+              !mediaProperty.main_page_description ? null :
+                <div className={S("discover-card__description")}>
+                  {mediaProperty.main_page_description}
+                </div>
+            }
+            <div className={S("discover-card__button-container")}>
+              <div className={S("discover-card__button")}>
+                Launch
+              </div>
+            </div>
+          </div>
+      }
+    </Linkish>
   );
 });
 
@@ -52,7 +136,7 @@ export const MediaPropertiesBrowser = observer(() => {
     return <PageLoader />;
   }
 
-  const filteredProperties = mediaProperties
+  let filteredProperties = [...mediaProperties, ...mediaProperties]
     .filter(mediaProperty =>
       !rootStore.discoverFilter ||
       mediaProperty.title?.toLowerCase()?.includes(rootStore.discoverFilter.toLowerCase()) ||
@@ -60,48 +144,58 @@ export const MediaPropertiesBrowser = observer(() => {
     );
 
   return (
-    <div className="page-block page-block--properties-browser">
-      <div className="page-block__content page-block__content--unrestricted">
-        <div className="media-property-browser" key={`properties-${filteredProperties.length}`}>
-          {
-            filteredProperties
-              .map(mediaProperty => {
-                let linkParams = {};
-                if(mediaProperty.main_page_url){
-                  linkParams = {
-                    href: mediaProperty.main_page_url,
-                    target: "_blank",
-                    rel: "noopener"
-                  };
-                } else if(mediaProperty.parent_property) {
-                  const parentSlug = mediaProperties.find(otherProperty => otherProperty.propertyId === mediaProperty.parent_property)?.slug || mediaProperty.parent_property;
-                  linkParams.to = UrlJoin("/", parentSlug, "/p", mediaProperty.slug || mediaProperty.propertyId);
-                } else {
-                  linkParams.to = UrlJoin("/", mediaProperty.slug || mediaProperty.propertyId);
-                }
-
-                return (
-                  <Linkish
-                    key={`property-link-${mediaProperty.propertyId}`}
-                    className="media-property-card"
-                    {...linkParams}
-                  >
-                    <LoaderImage
-                      className="media-property-card__image"
-                      src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})}
-                      showWithoutSource
-                      loaderAspectRatio={2/3}
-                      alt={mediaProperty.title || mediaProperty.name || ""}
-                    />
-                    {
-                      !mediaProperty.video ? null :
-                        <PropertyVideo video={mediaProperty.video} />
-                    }
-                  </Linkish>
-                );
-              })
-            }
-          </div>
+    <div className={S("discover-page")}>
+      <div className={S("row", "featured")}>
+        <Carousel
+          content={filteredProperties}
+          className={S("carousel", "featured-carousel")}
+          paginate
+          swiperOptions={{
+            spaceBetween: 20,
+          }}
+          RenderSlide={({item}) =>
+            <DiscoverCard
+              featured
+              key={`property-${item.propertyId}`}
+              mediaProperty={item}
+              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+            />
+          }
+        />
+      </div>
+      <div className={S("row")}>
+        <div className={S("row__title")}>Sports</div>
+        <Carousel
+          content={filteredProperties}
+          className={S("carousel", "featured-carousel")}
+          swiperOptions={{
+            spaceBetween: 20,
+          }}
+          RenderSlide={({item}) =>
+            <DiscoverCard
+              key={`property-${item.propertyId}`}
+              mediaProperty={item}
+              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+            />
+          }
+        />
+      </div>
+      <div className={S("row")}>
+        <div className={S("row__title")}>Media</div>
+        <Carousel
+          content={filteredProperties}
+          className={S("carousel", "featured-carousel")}
+          swiperOptions={{
+            spaceBetween: 20
+          }}
+          RenderSlide={({item}) =>
+            <DiscoverCard
+              key={`property-${item.propertyId}`}
+              mediaProperty={item}
+              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+            />
+          }
+        />
       </div>
     </div>
   );

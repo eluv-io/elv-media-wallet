@@ -1444,6 +1444,9 @@ class MediaPropertyStore {
           "tenants/*/media_properties/*/slug",
           "tenants/*/media_properties/*/image",
           "tenants/*/media_properties/*/video",
+          "tenants/*/media_properties/*/main_page_title",
+          "tenants/*/media_properties/*/main_page_description",
+          "tenants/*/media_properties/*/main_page_logo",
           "tenants/*/media_properties/*/show_on_main_page",
           "tenants/*/media_properties/*/main_page_url",
           "tenants/*/media_properties/*/parent_property"

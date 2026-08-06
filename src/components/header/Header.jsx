@@ -8,7 +8,7 @@ import {Debounce} from "../../utils/Utils";
 import UrlJoin from "url-join";
 import ProfileMenu from "Components/header/ProfileMenu";
 
-import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
+import EluvioE from "Assets/images/eluvio-e";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import NotificationsIcon from "Assets/icons/header/Notification Icon";
 import MenuIcon from "Assets/icons/menu";
@@ -84,9 +84,6 @@ const Home = observer(() => {
           <div className={S("home__text")}>
             <div className={S("home__title")}>
               Media Wallet
-            </div>
-            <div className={S("home__subtitle")}>
-              { rootStore.l10n.header.subtitle}
             </div>
           </div>
         </Linkish>
@@ -281,7 +278,7 @@ const Header = observer(() => {
     <>
       <div className={S("header-placeholder")} />
       <header className={S("header", scrolled ? "header--scrolled" : "")}>
-        <div className={S("header__background")} />
+        <div className={S("header__background")}/>
         {
           !backPath || location.pathname === backPath ? null :
             <div className={S("back-link-container")}>
@@ -295,15 +292,13 @@ const Header = observer(() => {
             </div>
         }
 
-        <Home marketplaceId={marketplaceId} />
+        <Home marketplaceId={marketplaceId}/>
         {
           rootStore.routeParams.marketplaceId ? null :
-            <SearchBar />
+            <SearchBar/>
         }
-        { /* <Links marketplaceId={marketplaceId} /> */ }
-        { /* <UserLinks /> */ }
       </header>
-      <NotificationBanner />
+      <NotificationBanner/>
     </>
   );
 });

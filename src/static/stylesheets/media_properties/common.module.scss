@@ -672,7 +672,11 @@
   }
 }
 
+
 .carousel {
+  --swiper-pagination-bullet-inactive-color: var(--property-text-faded);
+  --swiper-pagination-color: var(--property-text-primary);
+
   max-width: 100%;
   position: relative;
 

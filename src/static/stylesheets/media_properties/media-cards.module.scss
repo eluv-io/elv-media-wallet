@@ -311,14 +311,14 @@ a {
   &:focus-visible,
   &.styled-card--active,
   &.styled-card--mobile-active {
+    --background-gradient-angle: var(--background-gradient-angle--active);
+
     transform: scale3d(var(--scale), var(--scale), 1);
     transition-delay: 0s!important;
 
     * {
       transition-delay: 0s!important;
     }
-
-    --background-gradient-angle: var(--background-gradient-angle--active);
 
     .styled-card__image-container {
       border: var(--border-width) solid var(--border-color--active);

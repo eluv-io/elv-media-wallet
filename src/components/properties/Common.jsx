@@ -14,17 +14,17 @@ import {
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
-import {A11y} from "swiper/modules";
+import {A11y, Pagination} from "swiper/modules";
 import {Loader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
 import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaPropertySection";
+import {LoginGate} from "Components/common/LoginGate";
 
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
-import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -549,6 +549,7 @@ export const Carousel = observer(({
   UpdateActiveSlideIndex,
   RenderSlide,
   initialImageDimensions,
+  paginate=false,
   className=""
 }) => {
   const [swiper, setSwiper] = useState(undefined);
@@ -591,13 +592,17 @@ export const Carousel = observer(({
   return (
     <Swiper
       className={[S("carousel"), className].join(" ")}
-      modules={[A11y]}
+      modules={[A11y, paginate ? Pagination : undefined].filter(m => m)}
       threshold={5}
       slidesPerView="auto"
       observer
       observeParents
       speed={750}
       parallax
+      pagination={
+        !paginate ? undefined :
+        {clickable: true}
+      }
       updateOnWindowResize
       onActiveIndexChange={swiper => setActiveSwiperSlide(swiper.activeIndex)}
       {...swiperOptions}
