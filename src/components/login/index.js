@@ -21,6 +21,7 @@ const searchParams = new URLSearchParams(decodeURIComponent(window.location.sear
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
+  isOpenIdCallback: searchParams.get("source") === "openId" && searchParams.get("action") === "loginCallback",
 
   // Third party login (Ory) - If flow parameter is present, there was a conflict and the login form needs to be shown
   isThirdPartyCallback: window.location.pathname === "/oidc" && !searchParams.has("flow"),
@@ -560,6 +561,55 @@ export const SaveCustomConsent = async (userData) => {
   }
 };
 
+export const LogInOpenId = async () => {
+  const callbackUrl = new URL(window.location.href);
+
+  callbackUrl.searchParams.delete("clear");
+  callbackUrl.searchParams.set("source", "openId");
+  callbackUrl.searchParams.set("action", "loginCallback");
+
+  if(rootStore.currentPropertyId) {
+    callbackUrl.searchParams.set("pid", rootStore.currentPropertyId);
+  }
+
+  if(params.loginCode) {
+    callbackUrl.searchParams.set("elvid", params.loginCode);
+  }
+
+  callbackUrl.hash = `#${callbackUrl.pathname}`;
+  callbackUrl.pathname = "";
+
+  console.log("getting")
+  const redirect = await rootStore.GetOpenIdLoginUrl(callbackUrl.toString());
+  console.log(redirect);
+
+  window.location.href = redirect;
+};
+
+const AuthenticateOpenId = async (userData) => {
+  if(rootStore.authenticating || rootStore.loggedIn) { return; }
+
+  try {
+    rootStore.Log("Authenticating with Open ID");
+
+    await rootStore.AuthenticateOpenId({
+      installId: params.installId,
+      nonce: params.nonce,
+      origin: params.origin,
+      userData
+    });
+  } catch(error){
+    rootStore.Log("OpenId authentication failed:", true);
+    rootStore.Log(error, true);
+
+    if(error.uiMessage) {
+      throw error;
+    }
+  } finally {
+    rootStore.ClearLoginParams();
+  }
+};
+
 const AuthenticateAuth0 = async (userData) => {
   if(rootStore.authenticating || rootStore.loggedIn) { return; }
 
@@ -622,13 +672,15 @@ export const LogInAuth0 = async () => {
 };
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
-  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
+  const [auth0Authenticating, setAuth0Authenticating] = useState(
+    params.isAuth0Callback || params.isOpenIdCallback
+  );
   const [userDataSaved, setUserDataSaved] = useState(false);
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback;
+  const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback && !params.isOpenIdCallback;
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -756,7 +808,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       rootStore.SignOut({returnUrl: returnURL.toString(), clearSavedLogin: !params.loginCode, logOutAuth0: true});
     };
 
-    if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback)) {
+    if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback && !params.isOpenIdCallback)) {
       ClearLogin();
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
@@ -765,6 +817,17 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
+    } else if(params.isOpenIdCallback) {
+      AuthenticateOpenId(params.userData)
+        .catch(error => {
+          if(error?.uiMessage) {
+            setErrorMessage(error?.uiMessage);
+          }
+
+          ClearLogin();
+        })
+        .then(() => setAuth0Authenticating(false));
+      rootStore.AuthenticateOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
