@@ -723,7 +723,7 @@ class RootStore {
     const {openIdClient, config} = yield this.InitializeOpenIdClient();
 
     const params = {
-      redirect_uri: callbackUrl,
+      redirect_uri: window.location.origin,
       scope: "openid firstname lastname email",
       code_challenge: yield openIdClient.calculatePKCECodeChallenge(
         openIdClient.randomPKCECodeVerifier()
