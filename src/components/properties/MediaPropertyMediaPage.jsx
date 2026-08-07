@@ -824,9 +824,19 @@ const MediaPropertyMediaPage = observer(() => {
 
     if(!mediaStore.sidebarContent.nextLiveAt) { return; }
 
+    const next = Math.max(
+      // Set min to prevent excessive reloading
+      30000,
+      Math.min(
+        mediaStore.sidebarContent.nextLiveAt - Date.now(),
+        // Set max to prevent overflow
+        24 * 60 * 60 * 1000
+      )
+    );
+
     updateTimeout = setTimeout(() => {
       setUpdateIndex(updateIndex + 1);
-    }, Math.max(30000, mediaStore.sidebarContent.nextLiveAt - Date.now()));
+    }, next);
 
     return () => clearTimeout(updateTimeout);
   }, [mediaStore.sidebarContent]);
