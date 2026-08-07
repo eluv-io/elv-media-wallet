@@ -701,6 +701,102 @@ class RootStore {
     }
   }
 
+  InitializeOpenIdClient = flow(function * () {
+    const openIdClient = yield import("openid-client");
+    const clientId = "XIgKfNmVnJyemX-6RaDcllui";
+    const apiKey = "3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I"
+    const endpoint = "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration"
+
+    const config = yield openIdClient.discovery(
+      new URL(endpoint),
+      clientId,
+      apiKey
+    );
+
+    return {
+      openIdClient,
+      config
+    };
+  });
+
+  GetOpenIdLoginUrl = flow(function * (callbackUrl) {
+    const {openIdClient, config} = yield this.InitializeOpenIdClient();
+
+    const params = {
+      redirect_uri: UrlJoin(window.location.origin, window.location.pathname.split("/")[1] || ""),
+      scope: "openid firstname lastname email",
+      code_challenge: yield openIdClient.calculatePKCECodeChallenge(
+        openIdClient.randomPKCECodeVerifier()
+      ),
+      code_challenge_method: "S256"
+    };
+
+    this.SetSessionStorage("pkceCodeVerifier", params.code_challenge);
+
+    if(!config.serverMetadata().supportsPKCE()) {
+      params.state = openIdClient.randomState();
+      this.SetSessionStorage("openidClientState", params.state);
+    }
+
+    return openIdClient.buildAuthorizationUrl(config, params);
+  });
+
+  AuthenticateOpenId = flow(function * ({nonce, installId, origin, userData}={}) {
+    try {
+      // eslint-disable-next-line no-console
+      console.time("OpenId Authentication");
+
+      const {openIdClient, config} = yield this.InitializeOpenIdClient();
+      const tokens = yield openIdClient.authorizationCodeGrant(
+        config,
+        () => window.location.href,
+        {
+          pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
+          state: this.GetSessionStorage("openidClientState")
+        }
+      );
+
+      console.log("Tokens", tokens);
+
+      const userInfo = yield openIdClient.fetchUserInfo(
+        config,
+        tokens.access_token,
+        tokens.id_token.sub
+      );
+
+      console.log("User Info", userInfo);
+
+      yield this.Authenticate({
+        idToken: tokens.id_token,
+        provider: "openId",
+        nonce,
+        installId,
+        origin,
+        user: {
+          name: userInfo.name,
+          email: userInfo.email,
+          userData
+        }
+      });
+
+      this.ClearLoginParams();
+    } catch(error) {
+      this.Log("Error logging in with OpenID:", true);
+      this.Log(error, true);
+
+      this.ClearLoginParams();
+
+      if([400, 403, 503].includes(parseInt(error?.status))) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
+
+      this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
+    } finally {
+      // eslint-disable-next-line no-console
+      console.timeEnd("Auth0 Authentication");
+    }
+  });
+
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
       this.GetPropertySlugOrId()

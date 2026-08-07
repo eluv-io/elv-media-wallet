@@ -15,7 +15,7 @@ import {Button} from "Components/properties/Common";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {LogInAuth0} from "Components/login";
+import {LogInAuth0, LogInOpenId} from "Components/login";
 
 import HomeIcon from "Assets/icons/home.svg";
 import SearchIcon from "Assets/icons/search.svg";
@@ -482,6 +482,16 @@ const HeaderLinks = observer(() => {
         <LanguageMenu/>
         <Button
           onClick={() => {
+            if(
+              rootStore.GetSessionStorage("use-openid") ||
+              new URLSearchParams(window.location.search).has("openid")
+            ) {
+              rootStore.SetSessionStorage("use-openid", "true");
+              LogInOpenId();
+              return;
+            }
+
+
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
             if(useAuth0) {
               LogInAuth0();
