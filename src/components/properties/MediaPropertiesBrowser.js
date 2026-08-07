@@ -13,6 +13,7 @@ import {Redirect} from "react-router-dom";
 
 const S = (...classes) => classes.map(c => DiscoverStyles[c] || "").join(" ");
 
+// TODO: Port to CS, fade in effect on load, splash image
 const LinkParams = ({mediaProperties, mediaProperty}) => {
   let linkParams = {};
   if(mediaProperty.main_page_url){
