@@ -1,3 +1,4 @@
+import "Assets/stylesheets/reset.scss";
 import "Assets/fonts/fonts.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
