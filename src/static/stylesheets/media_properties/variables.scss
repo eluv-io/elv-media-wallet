@@ -1,3 +1,13 @@
+@mixin page-fade-in($duration: 0.5s, $animation: ease, $delay: 0s) {
+  animation: $duration fadein $animation $delay forwards;
+  opacity: 0;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 :root {
   --property-header-height: 80px;
   --property-full-page-height: calc(var(--vh, 1vh) * 100);
@@ -42,6 +52,7 @@
   --property-section-card-width-medium: 400px;
   --property-section-card-width-large: 500px;
   --property-section-card-width-extra_large: 550px;
+  --animation-fade-in: fadein;
 
   @media screen and (width <= 1200px) {
     --property-page-padding: 35px;
@@ -54,14 +65,4 @@
     --property-section-card-width-medium: 300px;
     --property-section-card-width-large: 400px;
   }
-}
-
-@mixin page-fade-in($duration: 0.5s, $animation: ease, $delay: 0s) {
-  animation: $duration fadein $animation $delay forwards;
-  opacity: 0;
-}
-
-@keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }

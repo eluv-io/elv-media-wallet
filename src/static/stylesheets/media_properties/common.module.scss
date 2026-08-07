@@ -975,3 +975,49 @@
     min-width: 100%;
   }
 }
+
+.splash {
+  background-color: black;
+  height: calc(100 * var(--vh));
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  user-select: none;
+  width: 100vw;
+  z-index: 1000;
+
+  &__image {
+    animation: var(--animation-fade-in) 1s ease;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+  }
+
+  &__loader {
+    bottom: 30px;
+    display: block;
+    height: 50px;
+    position: absolute;
+    right: 50px;
+    width: 20px;
+    z-index: 10;
+  }
+
+  &__preview {
+    bottom: 10px;
+    color: var(--text-highlight);
+    filter: drop-shadow(0 0 7px var(--text-highlight));
+    font-size: 20px;
+    font-weight: 600;
+    left: 5px;
+    letter-spacing: 2px;
+    opacity: 0.7;
+    padding-inline: 10px;
+    position: absolute;
+    user-select: none;
+    z-index: 1;
+  }
+}

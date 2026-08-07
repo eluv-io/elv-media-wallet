@@ -122,6 +122,7 @@ class RootStore {
   loginBackPath;
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
+  showSplash = true;
 
   loggedIn = false;
   signingOut = false;
@@ -689,12 +690,8 @@ class RootStore {
     }
   });
 
-  GetPropertySlugOrId() {
-    let id = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
-
-    if(id) {
-      return id;
-    } else if(window.location.pathname.includes("/p/")) {
+  GetPropertySlugOrIdFromPath() {
+    if(window.location.pathname.includes("/p/")) {
       return window.location.pathname.split("/p/").slice(-1)[0].split("/")[0];
     } else {
       const slug = window.location.pathname.split("/")[1];
@@ -703,6 +700,14 @@ class RootStore {
         return slug;
       }
     }
+  }
+
+  GetPropertySlugOrId() {
+    return (
+      this.currentPropertyId ||
+      this.routeParams.mediaPropertySlugOrId ||
+      this.GetPropertySlugOrIdFromPath()
+    );
   }
 
   InitializeAuth0Client = flow(function * () {
@@ -2546,6 +2551,15 @@ class RootStore {
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
+  async SetShowSplash(show) {
+    while(!show && window.initSplashRender + 3000 > Date.now()) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    this.showSplash = show;
+    delete window.initSplashRender;
+  }
+
   ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
     const mediaProperty = this.mediaPropertyStore.MediaProperty(this.routeParams);
     if(mediaProperty?.metadata?.login?.settings?.disable_login) {
@@ -2563,6 +2577,8 @@ class RootStore {
       this.loginCancel = Cancel;
       this.showLogin = true;
     }
+
+    this.SetShowSplash(false);
   }
 
   HideLogin() {

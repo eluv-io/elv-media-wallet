@@ -1,4 +1,6 @@
 import React from "react";
+import {rootStore} from "Stores";
+import {observer} from "mobx-react";
 
 export const LoaderComponentDefault = ({className=""}) => (
   <div className={`spinner ${className}`}>
@@ -27,7 +29,9 @@ const LoaderComponent = ({loader}) => {
   }
 };
 
-export const PageLoader = ({loader="default", className=""}) => {
+export const PageLoader = observer(({loader="default", className=""}) => {
+  if(rootStore.showSplash) { return null; }
+
   return (
     <div className={`loader page-loader page-container ${className}`}>
       <div className="main-content-container loader-component">
@@ -35,7 +39,7 @@ export const PageLoader = ({loader="default", className=""}) => {
       </div>
     </div>
   );
-};
+});
 
 
 export const Loader = ({loader="default", small, className=""}) => {

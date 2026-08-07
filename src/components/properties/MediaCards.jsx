@@ -610,6 +610,7 @@ const MediaCardBanner = observer(({
   display,
   imageContainerRef,
   imageUrl,
+  imageHash,
   scheduleInfo,
   textDisplay,
   linkPath="",
@@ -682,6 +683,7 @@ const MediaCardBanner = observer(({
                 lazy={lazy}
                 showWithoutSource
                 src={imageUrl}
+                hash={imageHash}
                 alt={display.banner_alt_text || display.title}
                 loaderAspectRatio={10}
                 className={S("media-card-banner__image")}
@@ -747,6 +749,7 @@ const MediaCardVertical = observer(({
   display,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo,
   textDisplay,
@@ -793,6 +796,7 @@ const MediaCardVertical = observer(({
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
@@ -1025,7 +1029,7 @@ const MediaCard = observer(({
   }
 
   aspectRatio = aspectRatio?.toLowerCase() || "";
-  let {imageUrl, imageAspectRatio} = MediaItemImageUrl({
+  let {imageUrl, imageHash, imageAspectRatio} = MediaItemImageUrl({
     mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
     display,
     aspectRatio,
@@ -1034,9 +1038,14 @@ const MediaCard = observer(({
 
   if(format === "banner") {
     imageUrl =
-      (mediaPropertyStore.rootStore.pageWidth < 800 && sectionItem?.banner_image_mobile?.url) ||
+      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile_hash) ||
       sectionItem?.banner_image?.url ||
       imageUrl;
+
+    imageHash =
+      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile_hash) ||
+      sectionItem?.banner_image_hash ||
+      imageHash;
   }
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
@@ -1092,6 +1101,7 @@ const MediaCard = observer(({
     display,
     price,
     imageUrl,
+    imageHash,
     livePreviewUrl,
     textDisplay,
     textJustification,

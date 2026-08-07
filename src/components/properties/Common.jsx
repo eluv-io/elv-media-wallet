@@ -21,6 +21,7 @@ import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
 import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaPropertySection";
 import {LoginGate} from "Components/common/LoginGate";
+import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "../../utils/Thumbhash";
 
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
@@ -48,6 +49,9 @@ export const PageBackground = observer(({
   const backgroundImage = pageWidth <= 800 ?
     display?.background_image_mobile?.url :
     display?.background_image?.url;
+  const backgroundHash = pageWidth <= 800 ?
+    display?.background_image_mobile_hash :
+    display?.background_image_hash;
 
   const backgroundVideoKey = pageWidth <= 800 ?
     "background_video_mobile" :
@@ -70,6 +74,7 @@ export const PageBackground = observer(({
               url: backgroundImage,
               width: mediaPropertyStore.rootStore.fullscreenImageWidth
             })}
+            hash={backgroundHash}
             className={[S("page-background__image"), className, imageClassName].join(" ")}
             {...props}
           />
@@ -186,12 +191,14 @@ export const RichText = ({richText, ...props}) => {
 export const LoaderImage = observer(({
   src,
   alternateSrc,
+  hash,
   width,
   loaderHeight,
   loaderWidth,
   loaderAspectRatio,
   lazy=true,
   showWithoutSource=false,
+  hideLoader=false,
   delay=25,
   loaderDelay=250,
   onLoad,
@@ -200,6 +207,8 @@ export const LoaderImage = observer(({
   const [loaded, setLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [useAlternateSrc, setUseAlternateSrc] = useState(false);
+  hash = hash && decodeThumbHash(hash);
+  loaderAspectRatio = loaderAspectRatio || (hash && thumbHashToApproximateAspectRatio(hash));
 
   useEffect(() => {
     setLoaded(false);
@@ -240,18 +249,27 @@ export const LoaderImage = observer(({
           />
       }
       {
-        loaded ? null :
-          <div
-            {...props}
-            style={{
-              ...(props.style || {}),
-              ...(loaderWidth ? {width: loaderWidth} : {}),
-              ...(loaderHeight ? {height: loaderHeight} : {}),
-              ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
-            }}
-            key={props.key ? `${props.key}--placeholder` : undefined}
-            className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
-          />
+        loaded || hideLoader ? null :
+          hash ?
+            <div
+              {...props}
+              className={[S("lazy-image__hash"), props.className].join(" ")}
+              style={{
+                aspectRatio: loaderAspectRatio,
+                background: `center / cover url(${thumbHashToDataURL(hash)})`
+              }}
+            /> :
+            <div
+              {...props}
+              style={{
+                ...(props.style || {}),
+                ...(loaderWidth ? {width: loaderWidth} : {}),
+                ...(loaderHeight ? {height: loaderHeight} : {}),
+                ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+              }}
+              key={props.key ? `${props.key}--placeholder` : undefined}
+              className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
+            />
       }
     </>
   );
@@ -817,4 +835,68 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
   }
 
   return children;
+});
+
+export const SplashScreen = observer(() => {
+  const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+  const [styling, setStyling] = useState(undefined);
+
+  useEffect(() => {
+    let lastPropertySlugOrId = undefined;
+    const Update = async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+      delete window.initSplashRender;
+
+      if(lastPropertySlugOrId && lastPropertySlugOrId === mediaPropertySlugOrId) {
+        return;
+      }
+
+      setStyling(undefined);
+
+      rootStore.LoadPropertyCustomization(mediaPropertySlugOrId)
+        .then(settings => {
+          window.initSplashRender = Date.now();
+          setStyling({
+            ...(settings?.styling || {}),
+            mediaPropertySlugOrId
+          });
+
+          lastPropertySlugOrId = mediaPropertySlugOrId;
+        });
+    };
+
+    window.navigation.addEventListener("navigate", Update);
+
+    Update();
+
+    return () => window.navigation.removeEventListener("navigate", Update);
+  }, []);
+
+  if(!mediaPropertySlugOrId) { return null; }
+
+  const key = rootStore.mobile ?
+    "splash_screen_background_mobile" : "splash_screen_background";
+
+  return (
+    <div className={S("splash")}>
+      {
+        !styling?.[key] ? null :
+          <LoaderImage
+            src={styling[key].url}
+            hash={styling[`${key}_hash`]}
+            className={S("splash__image")}
+          />
+      }
+      <div className={S("splash__loader")}>
+        <Loader/>
+      </div>
+      {
+        !rootStore.isLocal && !window.location.origin.includes("preview") ? null :
+          <div className={S("splash__preview")}>
+            PREVIEW
+          </div>
+      }
+    </div>
+  );
 });

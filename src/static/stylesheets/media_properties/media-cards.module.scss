@@ -1,14 +1,3 @@
-a {
-  &.media-card-vertical,
-  &.media-card-horizontal,
-  &.media-card-button-vertical,
-  &.media-card-button-horizontal {
-    opacity: 1;
-
-    //transition: all 0.5s ease;
-  }
-}
-
 .media-card {
   &--disabled {
     opacity: 0.5!important;
@@ -336,6 +325,7 @@ a {
 
   &__image-container,
   &__image {
+    height: 100%;
     width: 100%;
   }
 
@@ -1065,18 +1055,12 @@ a {
 }
 
 .hover-card-container {
+  --width: 300px;
   background: linear-gradient(#3c3c3c, #2c2c2c);
   border: 2px solid var(--property-button-outline-border);
   border-radius: var(--border-radius);
   overflow: hidden;
   padding: 0;
-
-  //transition: all 0.5s ease;
-  --width: 300px;
-
-  * {
-    //transition: all 0.5s ease;
-  }
 }
 
 .hover-card-target {

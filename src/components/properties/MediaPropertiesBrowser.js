@@ -73,6 +73,7 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
         <LoaderImage
           alt={mediaProperty.main_page_title || mediaProperty.title}
           src={mediaProperty.image?.url}
+          hash={mediaProperty.image_hash}
           width={800}
           className={S("discover-card__image")}
         />
@@ -93,6 +94,7 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
                   width={800}
                   alt={mediaProperty.main_page_title || mediaProperty.title}
                   src={mediaProperty.main_page_logo?.url}
+                  hideLoader
                   className={S("discover-card__logo")}
                 />
             }
@@ -127,6 +129,8 @@ export const MediaPropertiesBrowser = observer(() => {
       .then(setMediaProperties);
 
     rootStore.RemoveSessionStorage("pid");
+
+    rootStore.SetShowSplash(true);
   }, []);
 
   if(rootStore.isCustomDomain) {

@@ -439,11 +439,8 @@ export const MediaItemScheduleInfo = mediaItem => {
       displayStartTime
     };
   } catch(error) {
-     
     console.error(`Error parsing start/end time in media item ${mediaItem.name}`);
-     
     console.error(error);
-     
     console.error(mediaItem);
 
     return {
@@ -544,6 +541,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
     [aspectRatio, ...aspectRatioPreference].find(ratio => display?.[`thumbnail_image_${ratio}`]) || aspectRatioPreference[0];
 
   let imageUrl = display?.[`thumbnail_image_${imageAspectRatio}`]?.url;
+  const imageHash = display?.[`thumbnail_image_${imageAspectRatio}_hash`];
 
   if(width) {
     imageUrl = SetImageUrlDimensions({url: imageUrl, width});
@@ -551,6 +549,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
 
   return {
     imageUrl,
+    imageHash,
     imageAspectRatio,
     altText: display.thumbnail_alt_text
   };

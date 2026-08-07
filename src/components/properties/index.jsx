@@ -4,8 +4,6 @@ import React, {useEffect, useState} from "react";
 import {mediaPropertyStore, rootStore} from "Stores/index";
 import {Redirect, Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
-import AsyncComponent from "Components/common/AsyncComponent";
-import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import {LoginGate} from "Components/common/LoginGate";
@@ -13,11 +11,13 @@ import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "../../utils/Utils";
 import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
+import {PageLoader} from "Components/common/Loaders";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
   const [itemLoaded, setItemLoaded] = useState(!match.params.propertyItemContractId);
   const [redirect, setRedirect] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const { parentMediaPropertySlugOrId, mediaPropertySlugOrId, pageSlugOrId } = match.params;
   const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
@@ -64,16 +64,62 @@ const PropertyWrapper = observer(({children}) => {
     };
   }, [mediaProperty]);
 
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      try {
+        await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
+
+        const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+
+        if(!property) {
+          return;
+        }
+
+        if(parentMediaPropertySlugOrId) {
+          await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
+        }
+
+        const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
+
+        rootStore.checkoutStore.SetCurrency({
+          currency: property?.metadata?.currency || parentProperty?.metadata?.currency || "USD"
+        });
+
+        SetHTMLMetaTags({
+          metaTags: property.metadata?.meta_tags
+        });
+
+        const provider = rootStore.AuthInfo()?.provider || "external";
+        const useAuth0 = !!(property?.metadata?.login?.settings?.use_auth0 && property?.metadata?.login?.settings?.auth0_domain);
+        const propertyProvider = useAuth0 ? "auth0" : "ory";
+
+        if(
+          rootStore.loggedIn &&
+          provider !== propertyProvider &&
+          !["code", "external"].includes(provider)
+        ) {
+          rootStore.Log("Signing out due to mismatched login provider with property");
+          await rootStore.SignOut({reload: false});
+        }
+      } finally {
+        rootStore.SetShowSplash(false);
+        setLoading(false);
+      }
+    })();
+  }, [mediaPropertySlugOrId, rootStore.CurrentAddress()]);
+
   if(isWrongPropertyInCustomDomain){
     return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
   }
 
-  if(!rootStore.loaded  || !itemLoaded) {
+  if(!rootStore.loaded || !itemLoaded || loading || rootStore.showSplash) {
     return <PageLoader />;
   }
 
   if(redirect) {
-    return <Redirect to="/wallet/users/me/items" />;
+    return <Redirect to="/wallet/users/me/items"/>;
   }
 
   if(mediaPropertySlugOrId) {
@@ -89,47 +135,7 @@ const PropertyWrapper = observer(({children}) => {
     const useCustomBackgroundColor = backgroundColor && CSS.supports("color", backgroundColor);
 
     return (
-      <AsyncComponent
-        // Store info is cleared when logged in
-        cacheSeconds={20}
-        key={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
-        loadKey={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
-        Load={async () => {
-          await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
-
-          const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
-
-          if(!property) { return; }
-
-          if(parentMediaPropertySlugOrId) {
-            await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
-          }
-
-          const parentProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: parentMediaPropertySlugOrId});
-
-          rootStore.checkoutStore.SetCurrency({
-            currency: property?.metadata?.currency || parentProperty?.metadata?.currency || "USD"
-          });
-
-          SetHTMLMetaTags({
-            metaTags: property.metadata?.meta_tags
-          });
-
-          const provider = rootStore.AuthInfo()?.provider || "external";
-          const useAuth0 = !!(property?.metadata?.login?.settings?.use_auth0 && property?.metadata?.login?.settings?.auth0_domain);
-          const propertyProvider = useAuth0 ? "auth0" : "ory";
-
-          if(
-            rootStore.loggedIn &&
-            provider !== propertyProvider &&
-            !["code", "external"].includes(provider)
-          ) {
-            rootStore.Log("Signing out due to mismatched login provider with property");
-            await rootStore.SignOut({reload: false});
-          }
-        }}
-        loadingClassName="page-loader content"
-      >
+      <>
         <PreviewPasswordGate
           id={parentProperty?.mediaPropertyId}
           name={parentProperty?.metadata?.title || parentProperty?.metadata?.name}
@@ -155,7 +161,7 @@ const PropertyWrapper = observer(({children}) => {
             </LoginGate>
           </PreviewPasswordGate>
         </PreviewPasswordGate>
-      </AsyncComponent>
+      </>
     );
   }
 

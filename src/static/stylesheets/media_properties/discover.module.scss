@@ -1,4 +1,15 @@
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 .discover-page {
+  animation: var(--animation-fade-in) 1s ease;
   background: #191919;
   min-height: var(--property-full-content-height);
   padding-bottom: 100px;
@@ -37,8 +48,8 @@
   --brightness--active: 105%;
   --scale: 1.05;
 
-  background-color: black;
   aspect-ratio: 2/3;
+  background-color: black;
   border-radius: 12px;
   cursor: pointer;
   display: block;
@@ -60,28 +71,6 @@
   * {
     transition: all var(--transition-duration) ease;
     transition-delay: 0s;
-  }
-
-  &:hover,
-  &:focus-visible {
-    transform: scale3d(var(--scale), var(--scale), 1);
-
-    &.discover-card--featured {
-      transition-delay: 0.25s;
-
-      * {
-        transition-delay: 0.25s;
-      }
-    }
-
-    &.discover-card--standard {
-      filter: brightness(var(--brightness--active));
-    }
-
-    .discover-card__button-container {
-      height: 100px;
-      padding: 5px 0 20px;
-    }
   }
 
   &__image-container,
@@ -131,6 +120,12 @@
     }
   }
 
+  &__logo {
+    animation: var(--animation-fade-in) 1s ease;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
   &__title {
     font-size: 18px;
     font-weight: 600;
@@ -160,12 +155,47 @@
     width: 100px;
   }
 
+  @media screen and (width > 850px) {
+    // Only transition on non-mobile
+    &:hover,
+    &:focus-visible {
+      transform: scale3d(var(--scale), var(--scale), 1);
+
+      &.discover-card--featured {
+        transition-delay: 0.25s;
+
+        * {
+          transition-delay: 0.25s;
+        }
+      }
+
+      &.discover-card--standard {
+        filter: brightness(var(--brightness--active));
+      }
+
+      .discover-card__button-container {
+        height: 100px;
+        padding: 5px 0 20px;
+      }
+    }
+  }
+
   @media screen and (width <= 850px) {
+    --brightness-inactive: 100%;
+
     height: 350px;
     max-height: 75vh;
 
     &--featured {
       height: 450px;
+    }
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__description {
+      font-size: 14px;
     }
   }
 }

@@ -31,6 +31,7 @@ import Actions from "Components/interface/Actions";
 import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
 import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
 import ImageIcon from "Components/common/ImageIcon";
+import {SplashScreen} from "Components/properties/Common";
 
 import XIcon from "Assets/icons/x.svg";
 
@@ -139,7 +140,7 @@ const Routes = observer(() => {
   }
 
   if(!rootStore.loaded && (location.pathname !== "/" || rootStore.isCustomDomain)) {
-    return <PageLoader />;
+    return null;
   }
 
   return (
@@ -293,6 +294,10 @@ const App = observer(() => {
       <AlertNotification />
       <Routes />
       <DebugFooter />
+      {
+        !rootStore.showSplash ? null :
+          <SplashScreen />
+      }
     </div>
   );
 });
