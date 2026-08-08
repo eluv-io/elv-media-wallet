@@ -90,26 +90,25 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
           <div className={S("discover-card__content")}>
             {
               !mediaProperty.main_page_logo ? null :
-                <LoaderImage
-                  width={800}
-                  alt={mediaProperty.main_page_title || mediaProperty.title}
-                  src={mediaProperty.main_page_logo?.url}
-                  hideLoader
-                  className={S("discover-card__logo")}
-                />
-            }
-            {
-              !mediaProperty.main_page_title ? null :
-                <div className={S("discover-card__title")}>
-                  {mediaProperty.main_page_title}
+                <div className={S("discover-card__logo-container")}>
+                  <LoaderImage
+                    width={800}
+                    alt={mediaProperty.main_page_title || mediaProperty.title}
+                    src={mediaProperty.main_page_logo?.url}
+                    hideLoader
+                    style={{
+                      width: `${mediaProperty.main_page_logo_scale || 100}%`
+                    }}
+                    className={S("discover-card__logo")}
+                  />
                 </div>
             }
-            {
-              !mediaProperty.main_page_description ? null :
-                <div className={S("discover-card__description")}>
-                  {mediaProperty.main_page_description}
-                </div>
-            }
+            <div className={S("discover-card__title")}>
+              {mediaProperty.main_page_title || ""}
+            </div>
+            <div className={S("discover-card__description")}>
+              {mediaProperty.main_page_description || ""}
+            </div>
             <div className={S("discover-card__button-container")}>
               <div className={S("discover-card__button")}>
                 Launch
@@ -141,7 +140,7 @@ export const MediaPropertiesBrowser = observer(() => {
     return <PageLoader />;
   }
 
-  let filteredProperties = [...mediaProperties, ...mediaProperties]
+  let filteredProperties = mediaProperties
     .filter(mediaProperty =>
       !rootStore.discoverFilter ||
       mediaProperty.title?.toLowerCase()?.includes(rootStore.discoverFilter.toLowerCase()) ||

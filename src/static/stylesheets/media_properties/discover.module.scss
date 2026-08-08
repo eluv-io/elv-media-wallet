@@ -1,13 +1,3 @@
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
 .discover-page {
   animation: var(--animation-fade-in) 1s ease;
   background: #191919;
@@ -77,10 +67,10 @@
   &__image,
   &__video {
     border-radius: 12px;
-    height: calc(100%);
+    height: 100%;
     object-fit: cover;
     position: absolute;
-    width: calc(100%);
+    width: 100%;
   }
 
   &__video {
@@ -120,19 +110,39 @@
     }
   }
 
+  &__logo-container {
+    align-items: center;
+    aspect-ratio: 3;
+    display: flex;
+    justify-content: center;
+    object-fit: contain;
+    object-position: center;
+    width: 100%;
+  }
+
   &__logo {
     animation: var(--animation-fade-in) 1s ease;
-    margin-bottom: 10px;
-    width: 100%;
+    max-width: 100%;
+  }
+
+  &__title,
+  &__description {
+    text-shadow: 0 0 2px black;
   }
 
   &__title {
     font-size: 18px;
     font-weight: 600;
+    height: 30px;
+    white-space: nowrap;
   }
 
   &__description {
+    align-items: flex-start;
+    display: flex;
     font-size: 16px;
+    max-height: 85px;
+    min-height: 85px;
   }
 
   &__button-container {
@@ -149,7 +159,8 @@
     border-radius: 10px;
     color: black;
     display: flex;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     height: 45px;
     justify-content: center;
     width: 100px;

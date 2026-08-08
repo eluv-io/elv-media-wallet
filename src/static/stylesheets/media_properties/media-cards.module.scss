@@ -1056,6 +1056,7 @@
 
 .hover-card-container {
   --width: 300px;
+
   background: linear-gradient(#3c3c3c, #2c2c2c);
   border: 2px solid var(--property-button-outline-border);
   border-radius: var(--border-radius);
@@ -1212,6 +1213,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    margin-top: 20px;
     padding: 10px;
   }
 
@@ -1256,10 +1258,6 @@
   &__subtitle {
     color: var(--property-text-faded);
     font-size: 14px;
-  }
-
-  &__content {
-    margin-top: 20px;
   }
 
   &__description {
