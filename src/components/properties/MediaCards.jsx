@@ -691,7 +691,6 @@ const MediaCardBanner = observer(({
                 src={imageUrl}
                 hash={imageHash}
                 alt={display.banner_alt_text || display.title}
-                loaderAspectRatio={10}
                 className={S("media-card-banner__image")}
               /> : null
         }

@@ -242,8 +242,8 @@ export const Banners = observer(() => {
               className={S("banner")}
             >
               <LoaderImage
-                loaderAspectRatio={3}
                 src={banner[imageKey]?.url}
+                hash={banner[`${imageKey}_hash`]}
                 width={1000}
                 alt={banner.image_alt}
                 className={S("banner__image")}

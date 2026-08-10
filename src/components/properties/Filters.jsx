@@ -74,9 +74,6 @@ const AttributeFilterOption = observer(({
     return (
       <button
         onClick={Select}
-        style={{
-          borderRadius: cardTheme?.css?.["--border-radius"],
-        }}
         className={S("attribute-filter__option", "attribute-filter__option--box", selected ? "attribute-filter__option--active" : "",)}
       >
         <div className={S("styled-card__image-container")}>
@@ -105,7 +102,7 @@ const AttributeFilterOption = observer(({
         ])
       }
     >
-      <div className={S("styled-card__image-container")}>
+      <div className={S("styled-card__image-container", "attribute-filter__option-image-container")}>
         <LoaderImage
           src={image?.url}
           hash={imageHash}

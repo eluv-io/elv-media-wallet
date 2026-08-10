@@ -485,6 +485,17 @@
     /* stylelint-disable-next-line no-important */
     width: 2px!important;
   }
+
+  &__hash-container {
+    overflow: hidden;
+    position: relative;
+  }
+
+  &__hash {
+    filter: blur(10px);
+    inset: 0;
+    position: absolute;
+  }
 }
 
 .countdown {

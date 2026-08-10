@@ -977,6 +977,7 @@
     &--box {
       align-items: center;
       border: 1px solid var(--property-text-secondary);
+      border-radius: var(--property-filter-border-radius);
       color: var(--property-text-secondary);
       display: flex;
       font-weight: 600;
@@ -1020,6 +1021,10 @@
         font-weight: 800;
       }
     }
+  }
+
+  &__option-image-container {
+    max-height: calc(var(--max-card-width) * 9 / 16 * 4 / 3);
   }
 
   @media screen and (width <= 850px) {

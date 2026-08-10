@@ -254,12 +254,14 @@ export const LoaderImage = observer(({
           hash ?
             <div
               {...props}
-              className={[S("lazy-image__hash"), props.className].join(" ")}
-              style={{
-                aspectRatio: loaderAspectRatio,
-                background: `center / cover url(${thumbHashToDataURL(hash)})`
-              }}
-            /> :
+              className={[S("lazy-image__hash-container"), props.className].join(" ")}
+              style={{aspectRatio: loaderAspectRatio}}
+            >
+              <div
+                style={{background: `center / cover url(${thumbHashToDataURL(hash)})`}}
+                className={S("lazy-image__hash")}
+              />
+            </div>:
             <div
               {...props}
               style={{
@@ -843,11 +845,12 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
 
 export const SplashScreen = observer(() => {
   const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+  const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
   const [styling, setStyling] = useState(undefined);
 
   useEffect(() => {
-    let lastPropertySlugOrId = undefined;
-    const Update = async () => {
+    // Load and splash details, set init timing for minimum display duration
+    (async () => {
       await new Promise(resolve => setTimeout(resolve, 100));
       const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
       delete window.initSplashRender;
@@ -866,16 +869,10 @@ export const SplashScreen = observer(() => {
             mediaPropertySlugOrId
           });
 
-          lastPropertySlugOrId = mediaPropertySlugOrId;
+          setLastPropertySlugOrId(mediaPropertySlugOrId);
         });
-    };
-
-    window.navigation.addEventListener("navigate", Update);
-
-    Update();
-
-    return () => window.navigation.removeEventListener("navigate", Update);
-  }, []);
+    })();
+  }, [rootStore.currentPath]);
 
   if(!mediaPropertySlugOrId) { return null; }
 

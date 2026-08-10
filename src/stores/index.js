@@ -177,6 +177,7 @@ class RootStore {
   basePublicUrl = undefined;
 
   route = location.pathname;
+  currentPath = window.location.pathname;
   routeParams = {};
   backPath = undefined;
 
@@ -304,6 +305,13 @@ class RootStore {
     });
 
     this.resizeHandler.observe(document.body);
+
+    setInterval(() => {
+      // Not all browsers support navigation callback, just set an interval to check if the path has changed
+      if(window.location.pathname !== this.currentPath) {
+        runInAction(() => this.currentPath = window.location.pathname);
+      }
+    }, 1000);
 
     // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
     const SetVH = () =>
@@ -1050,7 +1058,7 @@ class RootStore {
     }
 
     if(options?.styling?.filter_style === "squared") {
-      //variables.push("--property-filter-border-radius: 0px;");
+      variables.push("--property-filter-border-radius: 0px;");
     } else if(options?.styling?.filter_style === "alternating") {
       variables.push("--property-filter-border-radius: 7px 0 7px 0;");
     }
