@@ -35,6 +35,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
     <>
       <div className={S("search__filters")}>
         <Filters
+          centered
           filterSettings={mediaProperty.metadata.search}
           activeFilters={mediaPropertyStore.searchOptions}
           SetActiveFilters={filters => {

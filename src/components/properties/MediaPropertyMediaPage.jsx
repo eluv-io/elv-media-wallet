@@ -60,11 +60,21 @@ const MediaVideo = observer(({
   const [loadKey, setLoadKey] = useState(0);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-  let backgroundImage = SetImageUrlDimensions({
-    url: (rootStore.pageWidth <= 800 && page?.layout?.background_image_mobile?.url) || page?.layout?.background_image?.url,
+
+  let backgroundImage = page?.layout?.background_image?.url;
+  let backgroundImageHash = page?.layout?.background_image_hash;
+
+  if(rootStore.pageWidth <= 850 && page?.layout?.background_image_mobile?.url) {
+    backgroundImage = page?.layout?.background_image_mobile?.url;
+    backgroundImageHash = page?.layout?.background_image_mobile_hash;
+  }
+
+  backgroundImage = SetImageUrlDimensions({
+    url: backgroundImage,
     width: rootStore.fullscreenImageWidth
-  });
-  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
+  }) || backgroundImage;
+
+  const {imageUrl, imageHash} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
   const multiviewing =
     // Multiview
@@ -75,19 +85,25 @@ const MediaVideo = observer(({
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     // Upcoming - countdown
+    if(rootStore.pageWidth < 850) {
+      if(rootStore.pageWidth < 850 && mediaItem?.countdown_background_mobile?.url) {
+        backgroundImage = mediaItem?.countdown_background_mobile?.url;
+        backgroundImageHash = mediaItem?.countdown_background_mobile_hash;
+      } else if(rootStore.pageWidth < 850 && mediaProperty.metadata?.countdown_background_mobile?.url) {
+        backgroundImage = mediaProperty.metadata?.countdown_background_mobile?.url;
+        backgroundImageHash = mediaProperty.metadata?.countdown_background_mobile_hash;
+      } else if(mediaItem?.countdown_background_desktop?.url) {
+        backgroundImage = mediaItem?.countdown_background_desktop?.url;
+        backgroundImageHash = mediaItem?.countdown_background_desktop_hash;
+      } else if(mediaProperty.metadata?.countdown_background_desktop?.url) {
+        backgroundImage = mediaProperty.metadata?.countdown_background_desktop?.url;
+        backgroundImageHash = mediaProperty.metadata?.countdown_background_desktop_hash;
+      }
+    }
 
     // Background image for countdown is either from media item, from property general settings, or the page background
     backgroundImage = SetImageUrlDimensions({
-      url:
-        (
-          rootStore.pageWidth <= 800 &&
-          (
-            mediaItem?.countdown_background_mobile?.url ||
-            mediaProperty.metadata?.countdown_background_mobile?.url
-          )
-        ) ||
-        mediaItem?.countdown_background_desktop?.url ||
-        mediaProperty.metadata?.countdown_background_desktop?.url,
+      url: backgroundImage,
       width: rootStore.fullscreenImageWidth
     }) || backgroundImage;
 
@@ -103,7 +119,8 @@ const MediaVideo = observer(({
         }
       >
         <LoaderImage
-          src={backgroundImage || imageUrl}
+          src={backgroundImage}
+          hash={backgroundImageHash}
           alt={mediaItem?.thumbnail_alt_text || mediaItem.title}
           className={S("media__error-image")}
         />
@@ -111,10 +128,11 @@ const MediaVideo = observer(({
         {
           icons.length === 0 ? null :
             <div className={S("media__error-content-icons")}>
-              {icons.map(({icon, alt_text}, index) =>
+              {icons.map(({icon, icon_hash, alt_text}, index) =>
                 <LoaderImage
                   key={`icon-${index}`}
                   src={icon.url}
+                  hash={icon_hash}
                   alt={alt_text}
                   className={S("media__error-content-icon")}
                 />
@@ -152,7 +170,12 @@ const MediaVideo = observer(({
     return (
       <div onClick={onClick} className={[S("media__error", multiviewing ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
-        <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
+        <LoaderImage
+          src={backgroundImage || imageUrl}
+          hash={backgroundImageHash || imageHash}
+          alt={mediaItem.thumbnail_alt_text || mediaItem.title}
+          className={S("media__error-image")}
+        />
         <div className={S("media__error-cover")} />
         <div className={S("media__error-message")}>
           {
@@ -469,6 +492,7 @@ const GalleryContent = observer(({galleryItem}) => {
     <LoaderImage
       loaderHeight="100%"
       src={galleryItem.image?.url || galleryItem.thumbnail?.url}
+      hash={galleryItem.image_hash || galleryItem.thumbnail_hash}
       lazy={false}
       alt={galleryItem.title || ""}
       loaderAspectRatio={
@@ -538,6 +562,7 @@ const MediaGallery = observer(({mediaItem}) => {
                 width={400}
                 key={`gallery-item-${item.id}`}
                 src={item.thumbnail?.url}
+                hash={item.thumbnail_hash}
                 alt={item.title || ""}
                 loaderAspectRatio={
                   item.thumbnail_aspect_ratio === "Portrait" ? "2 / 3" :
@@ -732,15 +757,21 @@ const Media = observer(({
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
-    const imageUrl = mediaItem.image?.url || MediaItemImageUrl({
+    let {imageUrl, imageHash} = MediaItemImageUrl({
       mediaItem,
       aspectRatio: mediaItem.image_aspect_ratio
-    })?.imageUrl;
+    });
+
+    if(mediaItem.image?.url) {
+      imageUrl = mediaItem.image.url;
+      imageHash = mediaItem.image_hash;
+    }
 
     return (
       <div className={S("media", "image")}>
         <LoaderImage
           src={imageUrl}
+          hash={imageHash}
           lazy={false}
           alt={mediaItem?.thumbnail_alt_text || mediaItem?.title}
           loaderHeight="100%"

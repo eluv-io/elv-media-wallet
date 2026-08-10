@@ -42,6 +42,7 @@ const FooterContentModal = observer(({footerItem, Close}) => {
             loaderHeight={300}
             loaderWidth={300}
             src={footerItem.image?.url}
+            hash={footerItem.image_hash}
             alt={footerItem.image_alt}
             className={S("footer__modal__image")}
           />

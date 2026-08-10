@@ -867,6 +867,9 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     imageUrl: item.use_custom_image ?
       item.image?.url :
       itemInfo?.mediaInfo?.imageUrl,
+    imageHash: item.use_custom_image ?
+      item.image_hash :
+      itemInfo?.mediaInfo?.imageHash,
     itemInfo
   };
 };

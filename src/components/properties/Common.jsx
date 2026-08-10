@@ -138,6 +138,7 @@ export const PageHeader = observer(({
                 loaderWidth={400}
                 alt={display.logo_alt || display.title || "Logo"}
                 src={display.logo?.url}
+                hash={display.logo_hash}
                 className={S("page-header__logo")}
               />
           }

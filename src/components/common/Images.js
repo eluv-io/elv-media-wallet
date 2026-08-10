@@ -25,6 +25,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
   const image = media?.imageUrl ?
     <LoaderImage
       src={media.imageUrl.toString()}
+      hash={media.imageHash}
       showWithoutSource
       loaderAspectRatio={1}
       className={`item-card__image ${className}`}

@@ -11,6 +11,7 @@ const S = (...classes) => classes.map(c => CardStyles[c] || "").join(" ");
 const AttributeFilterOption = observer(({
   value,
   image,
+  imageHash,
   selected,
   attributeKey,
   dependentAttribute,
@@ -107,8 +108,8 @@ const AttributeFilterOption = observer(({
       <div className={S("styled-card__image-container")}>
         <LoaderImage
           src={image?.url}
+          hash={imageHash}
           loaderHeight={level === "primary" ? 150 : 120}
-          loaderAspectRatio={1}
           alt={value || "All"}
           title={value || "All"}
           lazy={false}
@@ -142,6 +143,7 @@ export const AttributeFilter = observer(({
   dependentAttribute,
   variant="text",
   level="primary",
+  centered=false,
   activeFilters,
   SetActiveFilters,
   className="",
@@ -159,7 +161,17 @@ export const AttributeFilter = observer(({
     <Carousel
       key={`filter-${level}-${variant}`}
       content={filterOptions}
-      className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
+      className={
+        [
+          S(
+            "attribute-filter",
+            centered ? "attribute-filter--centered" : "",
+            `attribute-filter--${variant}`,
+            `attribute-filter--${level}`
+          ),
+          className
+        ].join(" ")
+      }
       swiperOptions={{
         threshold: 0,
         spaceBetween: level === "primary" && !(variant === "box" || variant === "image") ? 30 : 15,
@@ -170,6 +182,7 @@ export const AttributeFilter = observer(({
         <AttributeFilterOption
           value={item?.value}
           image={item?.image}
+          imageHash={item?.imageHash}
           selected={selectedValue === item?.value}
           attributeKey={attributeKey}
           filterOptions={filterOptions}
@@ -198,6 +211,7 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
       filterOptions: filterSettings.filter_options?.map(option => ({
         value: option.primary_filter_value || "",
         image: option.primary_filter_image,
+        imageHash: option.primary_filter_image_hash
       }))
     };
   }
@@ -224,7 +238,8 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
       selectedPrimaryOption.secondary_filter_options.length > 0 ?
         selectedPrimaryOption.secondary_filter_options?.map(option => ({
           value: option.secondary_filter_value || "",
-          image: option.secondary_filter_image
+          image: option.secondary_filter_image,
+          imageHash: option.secondary_filter_image_hash
         })) :
         [
           "",
@@ -233,7 +248,7 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
   };
 };
 
-const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, SetActiveFilters, className=""}) => {
+const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, SetActiveFilters, centered=false, className=""}) => {
   const match = useRouteMatch();
   const primaryFilterOptions = FormatFilterOptions({match, type: "primary", filterSettings, activeFilters});
   const secondaryFilterOptions = FormatFilterOptions({match, type: "secondary", filterSettings, activeFilters});
@@ -280,6 +295,7 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
     <>
       <AttributeFilter
         {...primaryFilterOptions}
+        centered={centered}
         level="primary"
         activeFilters={activeFilters}
         SetActiveFilters={SetActiveFilters}
@@ -290,6 +306,7 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
         primaryOnly ? null :
           <AttributeFilter
             {...secondaryFilterOptions}
+            centered={centered}
             key={`secondary-filter-${secondaryFilterOptions?.attributeKey}`}
             level="secondary"
             activeFilters={activeFilters}

@@ -32,6 +32,7 @@ const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 
 const Item = observer(({
   imageUrl,
+  imageHash,
   title,
   subtitle,
   scheduleInfo,
@@ -130,9 +131,10 @@ const Item = observer(({
           >
             <LoaderImage
               loaderAspectRatio={16 / 9}
+              src={imageUrl}
+              hash={imageHash}
               alt={title}
               className={S("item__image")}
-              src={imageUrl}
             />
             {
               !scheduleInfo?.currentlyLive ? null :
@@ -394,7 +396,7 @@ const MediaSidebar = observer(({
                   </div>
               }
               {group.content.map((item, index) => {
-                let {imageUrl} = MediaItemImageUrl({
+                let {imageUrl, imageHash} = MediaItemImageUrl({
                   mediaItem: item.mediaItem,
                   display: item.display
                 });
@@ -413,6 +415,7 @@ const MediaSidebar = observer(({
                     <Item
                       noBorder={index === 0}
                       imageUrl={imageUrl}
+                      imageHash={imageHash}
                       title={item.display.sidebar_title || item.display.title}
                       subtitle={item.display.subtitle}
                       scheduleInfo={item.scheduleInfo}
@@ -429,6 +432,7 @@ const MediaSidebar = observer(({
                             additionalViews.map((view, index) =>
                               <Item
                                 imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                hash={view.image_url}
                                 title={view.label}
                                 key={`item-${item.id}-${index}`}
                                 scheduleInfo={item.scheduleInfo}
@@ -549,7 +553,7 @@ export const MultiviewSelectionModal = observer(({
                 {group.content
                   .filter(item => item?.isMultiviewable)
                   .map((item, index) => {
-                    let {imageUrl} = MediaItemImageUrl({
+                    let {imageUrl, imageHash} = MediaItemImageUrl({
                       mediaItem: item.mediaItem,
                       display: item.display
                     });
@@ -567,6 +571,7 @@ export const MultiviewSelectionModal = observer(({
                         <Item
                           noBorder={index === 0}
                           imageUrl={imageUrl}
+                          imageHash={imageHash}
                           toggleOnClick
                           title={item.display.sidebar_title || item.display.title}
                           subtitle={item.display.subtitle}
@@ -588,6 +593,7 @@ export const MultiviewSelectionModal = observer(({
                                     noBorder={index === 0}
                                     toggleOnClick
                                     imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                    imageHash={view.image_hash}
                                     title={view.label}
                                     key={`item-${item.id}-${index}`}
                                     contentItem={{

@@ -939,6 +939,8 @@
 
 
 .attribute-filter {
+  --max-card-width: 220px;
+
   margin-bottom: 20px;
   max-width: 100%;
   min-height: max-content;
@@ -949,16 +951,13 @@
   & > div {
     align-items: flex-end;
     justify-content: center;
-    margin: 0 auto;
     width: max-content;
   }
 
-  &--primary {
-    --max-card-width: 220px;
-  }
-
-  &--secondary {
-    --max-card-width: 120px;
+  &--centered {
+    & > div {
+      margin: 0 auto;
+    }
   }
 
   &__attribute-title {
@@ -1155,8 +1154,8 @@
     margin: 10px 0;
 
     * {
-      font-size: 14px;
       color: var(--property-text-faded);
+      font-size: 14px;
     }
   }
 

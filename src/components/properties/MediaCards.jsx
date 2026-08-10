@@ -166,6 +166,7 @@ const MediaHoverCard = observer(({
   linkPath,
   onClick,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   lazy,
   aspectRatio,
@@ -245,6 +246,7 @@ const MediaHoverCard = observer(({
             <LoaderImage
               lazy={lazy}
               src={livePreviewUrl || imageUrl}
+              hash={imageHash}
               alternateSrc={livePreviewUrl ? imageUrl : undefined}
               alt={display.thumbnail_alt_text || display.title}
               width={600}
@@ -352,6 +354,7 @@ export const MediaCardWithButtonVertical = observer(({
   price,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo={},
   textDisplay,
@@ -385,6 +388,7 @@ export const MediaCardWithButtonVertical = observer(({
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
           width={600}
@@ -468,6 +472,7 @@ const MediaCardWithButtonHorizontal = observer(({
   price,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo={},
   textDisplay,
@@ -499,6 +504,7 @@ const MediaCardWithButtonHorizontal = observer(({
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           loaderAspectRatio={aspectRatio}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}

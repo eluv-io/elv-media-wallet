@@ -131,6 +131,7 @@ const Subscription = observer(() => {
         <LoaderImage
           loaderAspectRatio={1}
           src={subscription.item.mediaInfo?.imageUrl}
+          hash={subscription.item.mediaInfo?.imageHash}
           className={S("subscription__image")}
         />
         <div className={S("subscription__text")}>

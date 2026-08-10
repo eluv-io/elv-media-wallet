@@ -178,8 +178,13 @@ const RedeemableOffers = observer(({nftInfo}) => {
                 {
                   !(offer.image || offer.animation) ? null :
                     <div className={S("redeemable-offer__image-container")}>
-                      <LoaderImage alt={offer.name} src={offer.image.url} width={500}
-                                   className={S("redeemable-offer__image")}/>
+                      <LoaderImage
+                        alt={offer.name}
+                        src={offer.image.url}
+                        hash={offer.image_hash}
+                        width={500}
+                        className={S("redeemable-offer__image")}
+                      />
                       {
                         !offer.animation ? null :
                           <Video

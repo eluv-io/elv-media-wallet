@@ -651,7 +651,7 @@ export const NFTMedia = ({nft, item, width}) => {
 // Additional media
 export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requiresPermissions, watchedMediaIds=[], width}) => {
   let embedUrl = new URL("https://embed.v3.contentfabric.io");
-  let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
+  let imageUrl, imageHash, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
 
   let versionHash = item ? item.nftTemplateHash : nft?.details?.VersionHash;
 
@@ -665,6 +665,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   }
 
   imageUrl = selectedMedia.image;
+  imageHash = selectedMedia.image_hash;
   mediaType = (selectedMedia.media_type || "Image").toLowerCase();
 
   const embedMediaTypeParameter = Object.keys(EmbedMediaTypes).find(key => EmbedMediaTypes[key].toLowerCase() === mediaType.toLowerCase());
@@ -815,6 +816,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
 
   return {
     imageUrl,
+    imageHash,
     embedUrl,
     mediaLink,
     mediaType,
