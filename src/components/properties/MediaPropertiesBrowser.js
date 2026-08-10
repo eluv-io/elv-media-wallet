@@ -72,9 +72,9 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
       <div className={S("discover-card__image-container")}>
         <LoaderImage
           alt={mediaProperty.main_page_title || mediaProperty.title}
-          src={mediaProperty.image?.url}
-          hash={mediaProperty.image_hash}
-          width={800}
+          src={(featured && mediaProperty.featured_image?.url) || mediaProperty.image?.url}
+          hash={(featured && mediaProperty.featured_image_hash) || mediaProperty.image_hash}
+          width={1000}
           className={S("discover-card__image")}
         />
         {
@@ -122,10 +122,14 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
 
 export const MediaPropertiesBrowser = observer(() => {
   const [mediaProperties, setMediaProperties] = useState(undefined);
+  const [featuredPropertyLists, setFeaturedPropertyLists] = useState(undefined);
 
   useEffect(() => {
     mediaPropertyStore.LoadMediaProperties()
-      .then(setMediaProperties);
+      .then(({properties, propertyLists}) => {
+        setMediaProperties(properties);
+        setFeaturedPropertyLists(propertyLists);
+      });
 
     rootStore.RemoveSessionStorage("pid");
 
@@ -136,7 +140,7 @@ export const MediaPropertiesBrowser = observer(() => {
     return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
   }
 
-  if(!mediaProperties) {
+  if(!mediaProperties || !featuredPropertyLists) {
     return <PageLoader />;
   }
 
@@ -147,60 +151,46 @@ export const MediaPropertiesBrowser = observer(() => {
       mediaProperty.name?.toLowerCase()?.includes(rootStore.discoverFilter.toLowerCase())
     );
 
+  const filteredPropertyLists = featuredPropertyLists
+    .map(({properties, ...rest}) => ({
+      ...rest,
+      properties: (properties || [])
+        .map(propertySlugOrId =>
+          filteredProperties.find(property => property.propertyId === propertySlugOrId) ||
+          filteredProperties.find(property => property.slug === propertySlugOrId)
+        )
+        .filter(p => p)
+    }))
+    .filter(list => list.properties.length > 0);
+
   return (
     <div className={S("discover-page")}>
-      <div className={S("row", "featured")}>
-        <Carousel
-          content={filteredProperties}
-          className={S("carousel", "featured-carousel")}
-          paginate
-          swiperOptions={{
-            spaceBetween: 20,
-          }}
-          RenderSlide={({item}) =>
-            <DiscoverCard
-              featured
-              key={`property-${item.propertyId}`}
-              mediaProperty={item}
-              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+      {
+        filteredPropertyLists.map(({title, featured, properties}, index) =>
+          <div key={`list-${index}`} className={S("row", featured ? "featured" : "")}>
+            {
+              !title ? null :
+                <div className={S("row__title")}>{title}</div>
+            }
+            <Carousel
+              content={[...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ]}
+              className={S("carousel", "featured-carousel")}
+              paginate
+              swiperOptions={{
+                spaceBetween: 20,
+              }}
+              RenderSlide={({item}) =>
+                <DiscoverCard
+                  featured={featured}
+                  key={`property-${item.propertyId}`}
+                  mediaProperty={item}
+                  linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+                />
+              }
             />
-          }
-        />
-      </div>
-      <div className={S("row")}>
-        <div className={S("row__title")}>Sports</div>
-        <Carousel
-          content={filteredProperties}
-          className={S("carousel", "featured-carousel")}
-          swiperOptions={{
-            spaceBetween: 20,
-          }}
-          RenderSlide={({item}) =>
-            <DiscoverCard
-              key={`property-${item.propertyId}`}
-              mediaProperty={item}
-              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
-            />
-          }
-        />
-      </div>
-      <div className={S("row")}>
-        <div className={S("row__title")}>Media</div>
-        <Carousel
-          content={filteredProperties}
-          className={S("carousel", "featured-carousel")}
-          swiperOptions={{
-            spaceBetween: 20
-          }}
-          RenderSlide={({item}) =>
-            <DiscoverCard
-              key={`property-${item.propertyId}`}
-              mediaProperty={item}
-              linkParams={LinkParams({mediaProperties, mediaProperty: item})}
-            />
-          }
-        />
-      </div>
+          </div>
+        )
+      }
     </div>
   );
 });

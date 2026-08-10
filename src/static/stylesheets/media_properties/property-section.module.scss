@@ -64,7 +64,44 @@
     width: 100%;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width > 850px) {
+    // For carousels with logo section, we need to limit width and prevent
+    // overflow for correct navigation arrow positioning, but add padding
+    // so the cards' grow effect won't be clipped
+    &--logo {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+
+      .section,
+      .section__content {
+        margin-top: 0;
+        max-width: calc(100vw - 250px);
+        overflow: hidden;
+      }
+
+      .section {
+        & > :not(.section__content) {
+          padding-left: 20px;
+        }
+      }
+
+      .section__content {
+        padding: 20px;
+      }
+
+      .section__carousel-arrow {
+        top: 20px;
+      }
+    }
+  }
+
+  &:not(.section-container--logo) {
+    :global(.swiper) {
+      overflow: visible;
+    }
+  }
+
+  @media screen and (width <= 850px) {
     gap: 30px;
   }
 }
@@ -77,10 +114,6 @@
   width: 100%;
 
   --max-card-width: 400px;
-
-  :global(.swiper) {
-    overflow: initial;
-  }
 
   &--page {
     .section__content--grid {
@@ -243,6 +276,7 @@
     @include page-fade-in;
 
     margin-top: 20px;
+    max-width: 100%;
     width: 100%;
 
     &--empty {

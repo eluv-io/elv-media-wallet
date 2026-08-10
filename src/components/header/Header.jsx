@@ -165,7 +165,7 @@ const SearchBar = observer(() => {
 
   useEffect(() => {
     mediaPropertyStore.LoadMediaProperties()
-      .then(setMediaProperties);
+      .then(({properties}) => setMediaProperties(properties));
 
     return () => rootStore.SetDiscoverFilter("");
   }, []);

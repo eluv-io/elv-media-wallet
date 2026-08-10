@@ -578,7 +578,7 @@ export const NFTMedia = ({nft, item, width}) => {
   }
 
   let mediaType = "image";
-  let embedUrl, imageUrl;
+  let embedUrl, imageUrl, imageHash;
   if(item?.video) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
     embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
@@ -624,8 +624,10 @@ export const NFTMedia = ({nft, item, width}) => {
 
   if(item?.image) {
     imageUrl = typeof item.image === "string" ? item.image : item.image.url;
+    imageHash = item.image_hash;
   } else if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
     imageUrl = nft.metadata.media.url;
+    imageHash = nft.metadata.media_hash;
 
     if(embedUrl) {
       embedUrl.searchParams.set("type", "Image");
@@ -633,6 +635,7 @@ export const NFTMedia = ({nft, item, width}) => {
     }
   } else {
     imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
+    imageHash = item?.nftTemplateMetadata?.image_hash || nft?.metadata?.image_hash;
   }
 
   if(imageUrl && width) {
@@ -644,6 +647,7 @@ export const NFTMedia = ({nft, item, width}) => {
   return {
     embedUrl,
     imageUrl,
+    imageHash,
     mediaType
   };
 };

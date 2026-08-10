@@ -157,7 +157,7 @@ const MediaDetailsModal = observer(({
 
 
 let hoverCardTimeout;
-let hoverCardOpenDelay = 750;
+let hoverCardOpenDelay = 1000;
 let hoverCloseDelay = 100;
 const MediaHoverCard = observer(({
   width,

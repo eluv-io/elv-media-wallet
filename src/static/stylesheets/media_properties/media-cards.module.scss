@@ -1,6 +1,6 @@
 .media-card {
   &--disabled {
-    opacity: 0.5!important;
+    filter: brightness(75%)!important;
     user-select: none;
 
     button {
@@ -19,7 +19,6 @@
   &__unauthorized-indicator {
     align-items: center;
     background: rgb(0 0 0 / 60%);
-    border-radius: 10px;
     display: flex;
     font-size: 20px;
     font-weight: 600;
@@ -31,19 +30,6 @@
     text-shadow: 0 0 5px black;
     transition: opacity 0.25s ease;
     z-index: 10;
-  }
-
-  &--unauthorized {
-    opacity: 0.75;
-
-    &:hover,
-    &:focus-visible {
-      opacity: 1;
-
-      .media-card__unauthorized-indicator {
-        opacity: 1;
-      }
-    }
   }
 
   &:hover,
@@ -131,7 +117,7 @@
 
 .styled-card {
   --transition-duration: 0.5s;
-  --brightness--inactive: 85%;
+  --brightness--inactive: 90%;
   --brightness--active: 105%;
   --scale: 1.05;
   --card-width: var(--max-card-width);
@@ -1165,7 +1151,7 @@
 }
 
 .details-modal {
-  background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
+  background: linear-gradient(#2c2c2c, #1c1c1c);
   border-radius: 10px;
   display: block;
   padding: 30px 20px;

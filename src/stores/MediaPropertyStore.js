@@ -1442,6 +1442,7 @@ class MediaPropertyStore {
 
         [
           "info/media_property_order",
+          "info/main_page_property_lists",
           "tenants/*/.",
           "tenants/*/media_properties/*/.",
           "tenants/*/media_properties/*/name",
@@ -1449,6 +1450,8 @@ class MediaPropertyStore {
           "tenants/*/media_properties/*/slug",
           "tenants/*/media_properties/*/image",
           "tenants/*/media_properties/*/image_hash",
+          "tenants/*/media_properties/*/featured_image",
+          "tenants/*/media_properties/*/featured_image_hash",
           "tenants/*/media_properties/*/video",
           "tenants/*/media_properties/*/main_page_title",
           "tenants/*/media_properties/*/main_page_description",
@@ -1514,7 +1517,10 @@ class MediaPropertyStore {
 
         this.allMediaProperties = allProperties;
 
-        return properties;
+        return {
+          properties,
+          propertyLists: metadata.info.main_page_property_lists || []
+        };
       }
     });
   });

@@ -31,7 +31,7 @@
   &__overlay {
     @include page-fade-in(0.25s);
 
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
   }
 
   &__inner {

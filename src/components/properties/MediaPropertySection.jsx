@@ -638,6 +638,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, na
         `section__content--${section.display.aspect_ratio?.toLowerCase()}`,
         `section__content--${section.display.justification || "left"}`
       )}
+      arrowClassName={S("section__carousel-arrow")}
       slidesPerPage={({imageDimensions, swiper}) =>
         // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
         section.display.aspect_ratio && section.display.aspect_ratio !== "Mixed" ?
@@ -972,6 +973,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
         "section-container",
         `section-container--${section.display?.display_format || "grid"}`,
         `section-container--${section.display.justification || "left"}`,
+        section.display.logo ? "section-container--logo" : "",
         section.display.full_bleed ? "section-container--full-bleed" : ""
       ), className].join(" ")}
     >
