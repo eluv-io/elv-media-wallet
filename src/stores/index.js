@@ -711,7 +711,7 @@ class RootStore {
     const config = yield openIdClient.discovery(
       new URL(endpoint),
       clientId,
-      apiKey
+      //apiKey
     );
 
     return {
@@ -800,7 +800,8 @@ class RootStore {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
 
-      this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
+      throw { uiMessage: this.l10n.login.errors.login_failed };
+      //this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
       // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
