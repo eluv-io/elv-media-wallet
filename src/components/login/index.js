@@ -806,6 +806,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         returnUrl: returnURL.toString(),
         clearSavedLogin: !params.loginCode,
         logOutAuth0: true,
+        logOutOpenId: true,
         message
       });
     };

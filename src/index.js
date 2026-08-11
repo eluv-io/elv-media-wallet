@@ -36,6 +36,11 @@ import XIcon from "Assets/icons/x.svg";
 
 const searchParams = SearchParams();
 
+// TODO: Remove
+if(Object.keys(searchParams).includes("openid")) {
+  sessionStorage.setItem("openid", "true");
+}
+
 const WalletRoutes = lazy(() => import("Components/wallet/index"));
 const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
 
