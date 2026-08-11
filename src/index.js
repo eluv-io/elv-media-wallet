@@ -306,16 +306,6 @@ if(window.location.hash?.startsWith("#/")) {
 }
 
 if(searchParams["code"] && sessionStorage.getItem("openid-callback-url")) {
-  rootStore.AuthenticateOpenId({})
-    .then(() => {
-      window.location.href = sessionStorage.getItem("openid-callback-url");
-    })
-    .catch(error => {
-      console.log("ERROR")
-      console.warn(error)
-    })
-    .finally(() => sessionStorage.removeItem("openid-callback-url"));
-  /*
   const url = new URL(sessionStorage.getItem("openid-callback-url"));
   // Preserve parameters
   new URLSearchParams(window.location.search)
@@ -324,8 +314,6 @@ if(searchParams["code"] && sessionStorage.getItem("openid-callback-url")) {
     );
 
   window.location.href = url.toString();
-
-   */
 } else {
   const root = createRoot(document.getElementById("app"));
   root.render(

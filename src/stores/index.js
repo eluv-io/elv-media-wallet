@@ -722,16 +722,15 @@ class RootStore {
   GetOpenIdLoginUrl = flow(function * (callbackUrl) {
     const {openIdClient, config} = yield this.InitializeOpenIdClient();
 
+    const codeVerifier = openIdClient.randomPKCECodeVerifier();
     const params = {
       redirect_uri: UrlJoin(window.location.origin, this.currentPropertySlug),
       scope: "openid firstname lastname email",
-      code_challenge: yield openIdClient.calculatePKCECodeChallenge(
-        openIdClient.randomPKCECodeVerifier()
-      ),
+      code_challenge: yield openIdClient.calculatePKCECodeChallenge(codeVerifier),
       code_challenge_method: "S256"
     };
 
-    this.SetSessionStorage("pkceCodeVerifier", params.code_challenge);
+    this.SetSessionStorage("pkceCodeVerifier", codeVerifier);
 
     if(!config.serverMetadata().supportsPKCE()) {
       params.state = openIdClient.randomState();
