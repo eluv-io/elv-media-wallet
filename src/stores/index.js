@@ -707,6 +707,7 @@ class RootStore {
     const apiKey = "3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I"
     const endpoint = "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration"
 
+    //const userInfoEndpoint = "https://login.id.cricket.com.au/oidc/op/v1.0/4_wFQfEYpKZwhBALKKEx2mTA/userinfo";
     const config = yield openIdClient.discovery(
       new URL(endpoint),
       clientId,
@@ -761,19 +762,19 @@ class RootStore {
         }
       );
 
-      console.log("Tokens", JSON.stringify(tokens, null, 2));
+      let userInfo = {};
+      try {
+        const sub = JSON.parse(atob(tokens.id_token.split(".")[1])).sub;
 
-      /*
-      const userInfo = yield openIdClient.fetchUserInfo(
-        config,
-        tokens.access_token,
-        //tokens.id_token.sub
-        "email"
-      );
-
-       */
-
-      
+        userInfo = yield openIdClient.fetchUserInfo(
+          config,
+          tokens.access_token,
+          sub
+        );
+      } catch(error) {
+        this.Log("Unable to fetch OpenID user info:", true);
+        this.Log(error, true);
+      }
 
       yield this.Authenticate({
         idToken: tokens.id_token,
@@ -782,8 +783,8 @@ class RootStore {
         installId,
         origin,
         user: {
-          name: "tesT",//userInfo.name,
-          email: "test@test.test",//userInfo.email,
+          name: userInfo.firstname ? `${userInfo.firstname} ${userInfo.lastname}` : userInfo.name,
+          email: userInfo.email,
           userData
         }
       });
