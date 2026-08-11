@@ -763,12 +763,15 @@ class RootStore {
 
       console.log("Tokens", JSON.stringify(tokens, null, 2));
 
+      /*
       const userInfo = yield openIdClient.fetchUserInfo(
         config,
         tokens.access_token,
         //tokens.id_token.sub
         "email"
       );
+
+       */
 
       console.log("User Info", userInfo);
 
@@ -779,8 +782,8 @@ class RootStore {
         installId,
         origin,
         user: {
-          name: userInfo.name,
-          email: userInfo.email,
+          name: "tesT",//userInfo.name,
+          email: "test@test.test",//userInfo.email,
           userData
         }
       });
