@@ -606,7 +606,7 @@ const AuthenticateOpenId = async (userData) => {
       throw error;
     }
   } finally {
-    rootStore.ClearLoginParams();
+    //rootStore.ClearLoginParams();
   }
 };
 

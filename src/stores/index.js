@@ -740,6 +740,10 @@ class RootStore {
 
     this.SetSessionStorage("openid-callback-url", callbackUrl || window.location.href);
 
+    console.log("\n\nOPENID PARAMS");
+    console.log(JSON.stringify(params, null, 2));
+    console.log("\n\n");
+
     return openIdClient.buildAuthorizationUrl(config, params);
   });
 
