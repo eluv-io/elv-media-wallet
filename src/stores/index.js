@@ -679,7 +679,7 @@ class RootStore {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
 
-      if([400, 403, 503].includes(parseInt(error?.status))) {
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
         throw { login_limited: true };
       }
     }
@@ -702,31 +702,40 @@ class RootStore {
   }
 
   InitializeOpenIdClient = flow(function * () {
-    const openIdClient = yield import("openid-client");
-    const clientId = "XIgKfNmVnJyemX-6RaDcllui";
-    const apiKey = "3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I"
-    const endpoint = "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration"
-
-    //const userInfoEndpoint = "https://login.id.cricket.com.au/oidc/op/v1.0/4_wFQfEYpKZwhBALKKEx2mTA/userinfo";
-    const config = yield openIdClient.discovery(
-      new URL(endpoint),
-      clientId,
-      //apiKey
+    const propertyConfig = yield this.LoadPropertyCustomization(
+      this.GetPropertySlugOrId()
     );
+
+    if(!propertyConfig?.login?.settings?.use_openid || !propertyConfig?.login?.settings?.openid_endpoint) { return {}; }
+
+    const openIdClient = yield import("openid-client");
+
+    const config = yield openIdClient.discovery(
+      new URL(propertyConfig.login.settings.openid_endpoint),
+      propertyConfig.login.settings.openid_client_id
+    );
+
+    const logoutUrl = new URL(propertyConfig?.login?.settings?.openid_logout_url);
 
     return {
       openIdClient,
-      config
+      config,
+      logoutUrl
     };
   });
 
   GetOpenIdLoginUrl = flow(function * (callbackUrl) {
     const {openIdClient, config} = yield this.InitializeOpenIdClient();
 
+    if(!openIdClient) {
+      this.Log("Missing openID client. Bad configuration?");
+      return;
+    }
+
     const codeVerifier = openIdClient.randomPKCECodeVerifier();
     const params = {
       redirect_uri: UrlJoin(window.location.origin, this.currentPropertySlug),
-      scope: "openid firstname lastname email",
+      scope: "openid name firstname lastname email",
       code_challenge: yield openIdClient.calculatePKCECodeChallenge(codeVerifier),
       code_challenge_method: "S256"
     };
@@ -739,10 +748,6 @@ class RootStore {
     }
 
     this.SetSessionStorage("openid-callback-url", callbackUrl || window.location.href);
-
-    console.log("\n\nOPENID PARAMS");
-    console.log(JSON.stringify(params, null, 2));
-    console.log("\n\n");
 
     return openIdClient.buildAuthorizationUrl(config, params);
   });
@@ -783,7 +788,7 @@ class RootStore {
         installId,
         origin,
         user: {
-          name: userInfo.firstname ? `${userInfo.firstname} ${userInfo.lastname}` : userInfo.name,
+          name: userInfo.name || (userInfo.firstname && `${userInfo.firstname} ${userInfo.lastname}`),
           email: userInfo.email,
           userData
         }
@@ -796,7 +801,7 @@ class RootStore {
 
       this.ClearLoginParams();
 
-      if([400, 403, 503].includes(parseInt(error?.status))) {
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
 
@@ -875,7 +880,7 @@ class RootStore {
         this.ClearLoginParams();
       }
 
-      if([400, 403, 503].includes(parseInt(error?.status))) {
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
 
@@ -1077,6 +1082,8 @@ class RootStore {
       this.ClearAuthInfo();
       this.Log(error, true);
 
+      error.fromAuthenticate = true;
+
       throw error;
     } finally {
       this.authenticating = false;
@@ -1189,6 +1196,15 @@ class RootStore {
     const metadata = yield this.mediaPropertyStore.LoadMediaPropertyCustomizationMetadata({
       mediaPropertySlugOrId
     });
+
+    // TODO: Remove
+    metadata.login.settings = {
+      ...metadata.login.settings,
+      use_openid: true,
+      openid_endpoint: "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration",
+      openid_client_id: "XIgKfNmVnJyemX-6RaDcllui",
+      openid_logout_url: "https://sit-identity-cdn.ca-digi.com/logout"
+    };
 
     return {
       mediaPropertyId: metadata.mediaPropertyId,
@@ -2043,7 +2059,14 @@ class RootStore {
     return offers.find(offer => offer.id === offerId);
   });
 
-  SignOut = flow(function * ({returnUrl, message, reload=true, clearSavedLogin=true, logOutAuth0=false}={}) {
+  SignOut = flow(function * ({
+    returnUrl,
+    message,
+    reload=true,
+    clearSavedLogin=true,
+    logOutAuth0=false,
+    logOutOpenId=false
+  }={}) {
     this.signingOut = true;
 
     clearInterval(this.tokenStatusInterval);
@@ -2072,6 +2095,34 @@ class RootStore {
       this.loggedIn = false;
       this.signingOut = false;
       return;
+    }
+
+    if(logOutOpenId) {
+      try {
+        const {logoutUrl, openIdClient, config} = yield this.InitializeOpenIdClient();
+
+        if(logoutUrl) {
+          logoutUrl.searchParams.set("redirect-uri", returnUrl || this.ReloadURL({signOut: true}));
+
+          window.location.href = logoutUrl.toString();
+
+          return;
+        } else {
+          const logoutUrl = yield openIdClient.buildEndSessionUrl(
+            config,
+            {
+              post_logout_redirect_uri: returnUrl || this.ReloadURL({signOut: true})
+            }
+          );
+
+          if(logoutUrl) {
+            window.location.href = logoutUrl;
+          }
+        }
+      } catch(error) {
+        this.Log("Failed to log out of Auth0:");
+        this.Log(error, true);
+      }
     }
 
     if(this.auth0 && (logOutAuth0 || (yield this.auth0.isAuthenticated()))) {

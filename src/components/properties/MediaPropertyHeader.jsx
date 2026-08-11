@@ -481,20 +481,14 @@ const HeaderLinks = observer(() => {
         }
         <LanguageMenu/>
         <Button
-          onClick={() => {
-            if(
-              rootStore.GetSessionStorage("use-openid") ||
-              new URLSearchParams(window.location.search).has("openid")
-            ) {
-              rootStore.SetSessionStorage("use-openid", "true");
-              LogInOpenId();
-              return;
-            }
-
-
+          onClick={async () => {
+            const useOpenId = !!(mediaProperty?.metadata?.login?.settings?.use_openid && mediaProperty?.metadata?.login?.settings?.openid_endpoint);
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);
-            if(useAuth0) {
-              LogInAuth0();
+
+            if(useOpenId) {
+              await LogInOpenId();
+            } else if(useAuth0) {
+              await LogInAuth0();
             } else {
               rootStore.ShowLogin();
             }

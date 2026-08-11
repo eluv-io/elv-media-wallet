@@ -122,7 +122,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       enabled: consent?.consent_options?.length > 0,
       options: consent?.consent_options
     },
-    use_ory: !(settings?.use_auth0 && settings?.auth0_domain),
+    use_ory: !(settings?.use_auth0 && settings?.auth0_domain) && !(settings?.use_openid && settings?.openid_endpoint),
     enable_metamask: settings?.enable_metamask,
     disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
@@ -576,14 +576,11 @@ export const LogInOpenId = async () => {
     callbackUrl.searchParams.set("elvid", params.loginCode);
   }
 
-  callbackUrl.hash = `#${callbackUrl.pathname}`;
-  callbackUrl.pathname = "";
-
-  console.log("getting")
   const redirect = await rootStore.GetOpenIdLoginUrl(callbackUrl.toString());
-  console.log(redirect);
 
-  window.location.href = redirect;
+  if(redirect) {
+    window.location.href = redirect;
+  }
 };
 
 const AuthenticateOpenId = async (userData) => {
@@ -796,7 +793,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       return;
     }
 
-    const ClearLogin = () => {
+    const ClearLogin = (message) => {
       rootStore.Log("Clearing login...");
 
       params.clearLogin = true;
@@ -805,7 +802,12 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.searchParams.delete("clear");
       returnURL.searchParams.delete("code");
 
-      rootStore.SignOut({returnUrl: returnURL.toString(), clearSavedLogin: !params.loginCode, logOutAuth0: true});
+      rootStore.SignOut({
+        returnUrl: returnURL.toString(),
+        clearSavedLogin: !params.loginCode,
+        logOutAuth0: true,
+        message
+      });
     };
 
     if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback && !params.isOpenIdCallback)) {
@@ -824,7 +826,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
             setErrorMessage(error?.uiMessage);
           }
 
-          ClearLogin();
+          ClearLogin(error?.uiMessage);
         })
         .then(() => setAuth0Authenticating(false));
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {

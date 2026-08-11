@@ -117,13 +117,13 @@ const PropertyWrapper = observer(({children}) => {
 
           const provider = rootStore.AuthInfo()?.provider || "external";
           const useAuth0 = !!(property?.metadata?.login?.settings?.use_auth0 && property?.metadata?.login?.settings?.auth0_domain);
-          const propertyProvider = useAuth0 ? "auth0" : "ory";
+          const useOpenId = !!(property?.metadata?.login?.settings?.use_openid && property?.metadata?.login?.settings?.openid_endpoint);
+          const propertyProvider = useOpenId ? "openId" :
+            useAuth0 ? "auth0" : "ory";
 
           if(
             rootStore.loggedIn &&
             provider !== propertyProvider &&
-            // TODO: Proper handling
-            provider !== "openId" &&
             !["code", "external"].includes(provider)
           ) {
             rootStore.Log("Signing out due to mismatched login provider with property");

@@ -1621,6 +1621,14 @@ class MediaPropertyStore {
             `/public/asset_metadata/localizations/${localizationKey}/info`
         });
 
+        metadata.login.settings = {
+          ...metadata.login.settings,
+          use_openid: true,
+          openid_endpoint: "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration",
+          openid_client_id: "XIgKfNmVnJyemX-6RaDcllui",
+          openid_logout_url: "https://sit-identity-cdn.ca-digi.com/logout"
+        };
+
         metadata.mediaPropertyId = mediaPropertyId;
 
         // Start loading associated marketplaces and owned items in those marketplaces but don't block on it
