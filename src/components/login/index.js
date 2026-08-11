@@ -20,7 +20,7 @@ import {SetImageUrlDimensions} from "../../utils/Utils";
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
   // If we've just come back from Auth0
-  isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register",
+  isAuth0Callback: searchParams.has("code") && window.location.pathname !== "/register" && searchParams.get("source") !== "openId",
   isOpenIdCallback: searchParams.get("source") === "openId" && searchParams.get("action") === "loginCallback",
 
   // Third party login (Ory) - If flow parameter is present, there was a conflict and the login form needs to be shown
@@ -827,7 +827,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           ClearLogin();
         })
         .then(() => setAuth0Authenticating(false));
-      rootStore.AuthenticateOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
