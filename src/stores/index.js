@@ -752,20 +752,33 @@ class RootStore {
     return openIdClient.buildAuthorizationUrl(config, params);
   });
 
-  AuthenticateOpenId = flow(function * ({nonce, installId, origin, userData}={}) {
+  AuthenticateOpenId = flow(function * ({refreshToken, nonce, installId, origin, userData}={}) {
     try {
       // eslint-disable-next-line no-console
       console.time("OpenId Authentication");
 
       const {openIdClient, config} = yield this.InitializeOpenIdClient();
-      const tokens = yield openIdClient.authorizationCodeGrant(
-        config,
-        new URL(window.location.href),
-        {
-          pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
-          state: this.GetSessionStorage("openidClientState")
-        }
-      );
+
+      let tokens;
+
+      if(refreshToken) {
+        tokens = yield openIdClient.refreshTokenGrant(
+          config,
+          refreshToken,
+          {
+            scope: "openid name firstname lastname email",
+          }
+        );
+      } else {
+        tokens = yield openIdClient.authorizationCodeGrant(
+          config,
+          new URL(window.location.href),
+          {
+            pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
+            state: this.GetSessionStorage("openidClientState")
+          }
+        );
+      }
 
       let userInfo = {};
       try {
@@ -783,6 +796,7 @@ class RootStore {
 
       yield this.Authenticate({
         idToken: tokens.id_token,
+        refreshToken: tokens.refresh_token,
         provider: "openId",
         nonce,
         installId,
@@ -795,6 +809,8 @@ class RootStore {
       });
 
       this.ClearLoginParams();
+
+      return true;
     } catch(error) {
       this.Log("Error logging in with OpenID:", true);
       this.Log(error, true);
@@ -941,6 +957,7 @@ class RootStore {
     idToken,
     clientAuthToken,
     clientSigningToken,
+    refreshToken,
     provider="external",
     externalWallet,
     walletName,
@@ -1015,6 +1032,7 @@ class RootStore {
       this.SetAuthInfo({
         clientAuthToken,
         clientSigningToken,
+        refreshToken,
         provider,
         nonce,
         installId,
@@ -2536,11 +2554,11 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
+        return { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2556,7 +2574,7 @@ class RootStore {
       anonymous: true,
       ttl: 20,
       Load: async () => {
-        let {provider, expiresAt} = this.AuthInfo() || {};
+        let {provider, expiresAt, refreshToken} = this.AuthInfo() || {};
 
         if(!provider || expiresAt - Date.now() > expirationBuffer) {
           return;
@@ -2565,6 +2583,8 @@ class RootStore {
         // Expired
         if(provider === "ory" && await this.AuthenticateOry()) {
           // Reauthentication from ory session successful
+          return;
+        } else if(provider === "openId" && refreshToken && await this.AuthenticateOpenId({refreshToken})) {
           return;
         }
 
@@ -2666,12 +2686,13 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", nonce, installId, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
       clientAuthToken,
+      refreshToken,
       provider,
       expiresAt,
       address,
