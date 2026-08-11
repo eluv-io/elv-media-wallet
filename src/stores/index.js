@@ -751,7 +751,7 @@ class RootStore {
       const {openIdClient, config} = yield this.InitializeOpenIdClient();
       const tokens = yield openIdClient.authorizationCodeGrant(
         config,
-        () => window.location.href,
+        new URL(window.location.href),
         {
           pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
           state: this.GetSessionStorage("openidClientState")
