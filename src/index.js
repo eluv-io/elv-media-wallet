@@ -28,11 +28,13 @@ import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
-import {SetImageUrlDimensions} from "./utils/Utils";
+import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
 import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
 import ImageIcon from "Components/common/ImageIcon";
 
 import XIcon from "Assets/icons/x.svg";
+
+const searchParams = SearchParams();
 
 const WalletRoutes = lazy(() => import("Components/wallet/index"));
 const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
@@ -303,7 +305,7 @@ if(window.location.hash?.startsWith("#/")) {
   history.replaceState("", document.title, path);
 }
 
-if(new URLSearchParams(window.location.search).get("code") && sessionStorage.getItem("openid-callback-url")) {
+if(searchParams["code"] && sessionStorage.getItem("openid-callback-url")) {
   const url = new URL(sessionStorage.getItem("openid-callback-url"));
   // Preserve parameters
   new URLSearchParams(window.location.search)
