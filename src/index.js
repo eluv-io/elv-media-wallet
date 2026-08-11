@@ -28,17 +28,11 @@ import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
-import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
+import {SetImageUrlDimensions} from "./utils/Utils";
 import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
 import ImageIcon from "Components/common/ImageIcon";
 
 import XIcon from "Assets/icons/x.svg";
-
-const searchParams = SearchParams();
-
-if("n" in searchParams) {
-  rootStore.ToggleNavigation(false);
-}
 
 const WalletRoutes = lazy(() => import("Components/wallet/index"));
 const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
@@ -309,53 +303,66 @@ if(window.location.hash?.startsWith("#/")) {
   history.replaceState("", document.title, path);
 }
 
-const root = createRoot(document.getElementById("app"));
-root.render(
-  <React.StrictMode>
-    <MantineProvider theme={MantineTheme} defaultColorScheme="dark" withCssVariables>
-      <BrowserRouter>
-        <Switch>
-          { /* Handle various popup actions */ }
-          <Route exact path="/flow/:flow/:parameters">
-            <Flows />
-          </Route>
+if(new URLSearchParams(window.location.search).get("code") && sessionStorage.getItem("openid-callback-url")) {
+  const url = new URL(sessionStorage.getItem("openid-callback-url"));
+  // Preserve parameters
+  new URLSearchParams(window.location.search)
+    .forEach((value, key) =>
+      url.searchParams.set(key, value)
+    );
 
-          { /* Handle various UI based popup/redirect flows - Generic view */ }
-          <Route exact path="/action/:action/:parameters">
-            <Actions />
-          </Route>
+  window.location.href = url.toString();
+} else {
+  const root = createRoot(document.getElementById("app"));
+  root.render(
+    <React.StrictMode>
+      <MantineProvider theme={MantineTheme} defaultColorScheme="dark" withCssVariables>
+        <BrowserRouter>
+          <Switch>
+            { /* Handle various popup actions */}
+            <Route exact path="/flow/:flow/:parameters">
+              <Flows/>
+            </Route>
 
-          <Route path="/login">
-            <div className="login-page-container">
-              <Login />
-            </div>
-          </Route>
+            { /* Handle various UI based popup/redirect flows - Generic view */}
+            <Route exact path="/action/:action/:parameters">
+              <Actions/>
+            </Route>
 
-          <Route path="/verification">
-            <div className="login-page-container">
-              <Login />
-            </div>
-          </Route>
+            <Route path="/login">
+              <div className="login-page-container">
+                <Login/>
+              </div>
+            </Route>
 
-          <Route path="/register">
-            <div className="login-page-container">
-              <Login />
-            </div>
-          </Route>
+            <Route path="/verification">
+              <div className="login-page-container">
+                <Login/>
+              </div>
+            </Route>
 
-          <Route path="/oidc">
-            <div className="login-page-container">
-              <Login />
-            </div>
-          </Route>
+            <Route path="/register">
+              <div className="login-page-container">
+                <Login/>
+              </div>
+            </Route>
 
-          { /* All other routes */ }
-          <Route>
-            <App/>
-            <LoginModal />
-          </Route>
-        </Switch>
-      </BrowserRouter>
-    </MantineProvider>
-  </React.StrictMode>
-);
+            <Route path="/oidc">
+              <div className="login-page-container">
+                <Login/>
+              </div>
+            </Route>
+
+            { /* All other routes */}
+            <Route>
+              <App/>
+              <LoginModal/>
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      </MantineProvider>
+    </React.StrictMode>
+  );
+}
+
+sessionStorage.removeItem("openid-callback-url");
