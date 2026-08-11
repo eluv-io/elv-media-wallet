@@ -773,7 +773,7 @@ class RootStore {
 
        */
 
-      console.log("User Info", userInfo);
+      
 
       yield this.Authenticate({
         idToken: tokens.id_token,
