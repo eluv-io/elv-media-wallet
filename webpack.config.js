@@ -37,7 +37,7 @@ module.exports = (env) => {
   );
 
   return {
-    entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/index.js"),
+    entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/main.jsx"),
     target: "web",
     cache: {
       type: "filesystem",

@@ -8,15 +8,15 @@ import {Debounce} from "../../utils/Utils";
 import UrlJoin from "url-join";
 import ProfileMenu from "Components/header/ProfileMenu";
 
-import EluvioE from "Assets/images/eluvio-e";
+import EluvioE from "Assets/images/eluvio-e.svg";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import NotificationsIcon from "Assets/icons/header/Notification Icon";
-import MenuIcon from "Assets/icons/menu";
-import DiscoverIcon from "Assets/icons/discover";
+import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import MenuIcon from "Assets/icons/menu.svg";
+import DiscoverIcon from "Assets/icons/discover.svg";
 import LeftArrowIcon from "Assets/icons/left-arrow.svg";
-import XIcon from "Assets/icons/x";
+import XIcon from "Assets/icons/x.svg";
 import {Autocomplete} from "@mantine/core";
-import SearchIcon from "Assets/icons/search";
+import SearchIcon from "Assets/icons/search.svg";
 import {useDebouncedValue} from "@mantine/hooks";
 
 

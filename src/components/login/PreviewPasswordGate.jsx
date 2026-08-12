@@ -1,4 +1,4 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module";
+import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useCallback, useEffect, useState} from "react";
 import {rootStore} from "Stores";

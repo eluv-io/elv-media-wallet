@@ -7,7 +7,7 @@ import FeaturedItemCard from "Components/common/FeaturedItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import {NFTInfo} from "../../utils/Utils";
 
-import TestIcon from "Assets/icons/alert-circle";
+import TestIcon from "Assets/icons/alert-circle.svg";
 
 const MarketplaceItemCard = ({
   type="Standard",

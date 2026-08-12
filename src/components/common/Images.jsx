@@ -5,7 +5,7 @@ import {rootStore} from "Stores";
 import SVG from "react-inlinesvg";
 import ImageIcon from "Components/common/ImageIcon";
 
-import NFTPlaceholderIcon from "Assets/icons/nft";
+import NFTPlaceholderIcon from "Assets/icons/nft.svg";
 import Modal from "Components/common/Modal";
 import {NFTMedia} from "../../utils/Utils";
 

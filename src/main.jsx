@@ -1,6 +1,7 @@
 import "Assets/fonts/fonts.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "swiper/swiper-bundle.css";
 import "Assets/stylesheets/reset.scss";
 import "Assets/stylesheets/app.scss";
 
@@ -22,7 +23,6 @@ import {
 } from "react-router-dom";
 import Login from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
-import { InitializeListener } from "Components/interface/Listener";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -215,8 +215,6 @@ const App = observer(() => {
 
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
-  useEffect(() => InitializeListener(), []);
-
   useEffect(() => {
     if(!rootStore.loaded) { return; }
 
@@ -252,12 +250,6 @@ const App = observer(() => {
 
     setHasBackgroundImage(!!backgroundImage);
   }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo]);
-
-  // Emit route change events when path changes
-  useEffect(() => {
-    rootStore.RouteChange(history.location.pathname);
-    history.listen(location => rootStore.RouteChange(location.pathname));
-  }, []);
 
   useEffect(() => {
     const route = rootStore.routeChange;

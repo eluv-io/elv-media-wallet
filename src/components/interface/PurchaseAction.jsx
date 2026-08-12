@@ -7,7 +7,7 @@ import {PageLoader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import PurchaseModal from "Components/listings/PurchaseModal";
 
-import EluvioLogo from "Assets/images/EluvioLogo";
+import EluvioLogo from "Assets/images/EluvioLogo.png";
 
 const PurchaseAction = observer(({parameters}) => {
   const match = useRouteMatch();

@@ -10,7 +10,7 @@ import HoverMenu from "Components/common/HoverMenu";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 import ProfileIcon from "Assets/icons/profile.svg";
-import ItemsIcon from "Assets/icons/items";
+import ItemsIcon from "Assets/icons/items.svg";
 import HomeIcon from "Assets/icons/home.svg";
 import MarketplaceIcon from "Assets/icons/marketplace.svg";
 

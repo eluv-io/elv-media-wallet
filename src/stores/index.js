@@ -18,9 +18,6 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 import {parseDomain} from "parse-domain";
 
-import {SendEvent} from "Components/interface/Listener";
-import EVENTS from "../../client/src/Events";
-
 import CheckoutStore from "Stores/CheckoutStore";
 import TransferStore from "Stores/TransferStore";
 import CryptoStore from "Stores/CryptoStore";
@@ -194,8 +191,6 @@ class RootStore {
 
   marketplaceFilters = [];
 
-  EVENTS = EVENTS;
-
   noItemsAvailable = false;
 
   analyticsInitialized = false;
@@ -337,10 +332,6 @@ class RootStore {
     }
 
     this.Initialize();
-  }
-
-  RouteChange(pathname) {
-    this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
   }
 
   SetDiscoverFilter(filter) {
@@ -597,8 +588,6 @@ class RootStore {
           specified: true
         });
       }
-
-      this.SendEvent({event: EVENTS.LOADED});
     } catch(error) {
       this.Log("Initialization failed:", true);
       this.Log(error, true);
@@ -958,8 +947,6 @@ class RootStore {
 
       this.RemoveLocalStorage("signed-out");
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
-
       this.notificationStore.InitializeNotifications(true);
 
       // Periodically check to ensure the token has not been revoked
@@ -1119,10 +1106,6 @@ class RootStore {
       return yield this.LoadPropertyCustomization(property);
     }
   });
-
-  SendEvent({event, data}) {
-    SendEvent({event, data});
-  }
 
   PublicLink({versionHash, path, queryParams={}}) {
     const url = new URL(this.basePublicUrl);
@@ -2576,9 +2559,7 @@ class RootStore {
     }
 
     if(this.capturedLogin && !ignoreCapture) {
-      if(this.loggedIn) { return; }
-
-      this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
+      return;
     } else {
       this.requireLogin = requireLogin;
       this.loginBackPath = backPath;
@@ -2751,17 +2732,6 @@ class RootStore {
 
         this.fullscreenImageWidth = width > 3000 ? 3840 : width > 2000 ? 2560 : 1920;
       });
-
-      const bodyScrollVisible = document.body.getBoundingClientRect().height > window.innerHeight;
-      if(this.embedded && bodyScrollVisible) {
-        this.SendEvent({
-          event: EVENTS.RESIZE,
-          data: {
-            width,
-            height: height + 200
-          }
-        });
-      }
     }, 100);
   }
 

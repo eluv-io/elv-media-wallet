@@ -20,8 +20,8 @@ import {
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
-import PurchaseIcon from "Assets/icons/listing";
-import XIcon from "Assets/icons/x";
+import PurchaseIcon from "Assets/icons/listing.svg";
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 

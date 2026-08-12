@@ -9,9 +9,9 @@ import {Redirect} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
 import ImageIcon from "Components/common/ImageIcon";
 
-import GoogleLogo from "Assets/icons/google-logo";
-import AppleLogo from "Assets/icons/apple-logo";
-import MetamaskIcon from "Assets/icons/metamask fox";
+import GoogleLogo from "Assets/icons/google-logo.png";
+import AppleLogo from "Assets/icons/apple-logo.png";
+import MetamaskIcon from "Assets/icons/metamask fox.png";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 

@@ -10,7 +10,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import OwnedIcon from "Assets/icons/owned icon.svg";
 import {PageLoader} from "Components/common/Loaders";
-import BackIcon from "Assets/icons/arrow-left";
+import BackIcon from "Assets/icons/arrow-left.svg";
 import NFTCard from "Components/nft/NFTCard";
 import {LocalizeString} from "Components/common/UIComponents";
 

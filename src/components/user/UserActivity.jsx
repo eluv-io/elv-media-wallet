@@ -9,7 +9,7 @@ import {RichText} from "Components/common/UIComponents";
 import ListingsIcon from "Assets/icons/listing.svg";
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 import PurchasesIcon from "Assets/icons/misc/purchases icon.svg";
-import OffersTableIcon from "Assets/icons/Offers table icon";
+import OffersTableIcon from "Assets/icons/Offers table icon.svg";
 
 const UserActivity = observer(() => {
   const match = useRouteMatch();

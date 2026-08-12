@@ -8,12 +8,12 @@ import {LoaderImage, Modal, RichText} from "Components/properties/Common";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 
-import BlueskyIcon from "Assets/icons/social/bluesky";
-import FacebookIcon from "Assets/icons/social/facebook";
-import InstagramIcon from "Assets/icons/social/instagram";
-import LinkedInIcon from "Assets/icons/social/linkedin";
-import TikTokIcon from "Assets/icons/social/tiktok";
-import TwitterIcon from "Assets/icons/social/twitter";
+import BlueskyIcon from "Assets/icons/social/bluesky.svg";
+import FacebookIcon from "Assets/icons/social/facebook.svg";
+import InstagramIcon from "Assets/icons/social/instagram.svg";
+import LinkedInIcon from "Assets/icons/social/linkedin.svg";
+import TikTokIcon from "Assets/icons/social/tiktok.svg";
+import TwitterIcon from "Assets/icons/social/twitter.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
 const icons = {

@@ -12,8 +12,8 @@ import ImageIcon from "Components/common/ImageIcon";
 import Video from "Components/properties/Video";
 import {Linkish} from "Components/common/UIComponents";
 
-import PlusIcon from "Assets/icons/plus";
-import MinusIcon from "Assets/icons/minus";
+import PlusIcon from "Assets/icons/plus.svg";
+import MinusIcon from "Assets/icons/minus.svg";
 
 const S = (...classes) => classes.map(c => FAQStyles[c] || "").join(" ");
 

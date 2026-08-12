@@ -16,10 +16,10 @@ import {Popover} from "@mantine/core";
 import ImageIcon from "Components/common/ImageIcon";
 import {useIsVisible} from "Components/common/Hooks";
 
-import ArrowRightIcon from "Assets/icons/arrow-right";
-import PinIcon from "Assets/icons/pin";
-import CaretDownIcon from "Assets/icons/down-caret";
-import XIcon from "Assets/icons/x";
+import ArrowRightIcon from "Assets/icons/arrow-right.svg";
+import PinIcon from "Assets/icons/pin.svg";
+import CaretDownIcon from "Assets/icons/down-caret.svg";
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 

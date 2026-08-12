@@ -22,8 +22,8 @@ import OfferModal from "Components/listings/OfferModal";
 import {Link, useRouteMatch} from "react-router-dom";
 import {Button} from "Components/properties/Common";
 import NFTCard from "Components/nft/NFTCard";
-import ListingIcon from "Assets/icons/listings icon";
-import LinkedIcon from "Assets/icons/linked wallet icon (r)";
+import ListingIcon from "Assets/icons/listings icon.svg";
+import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, perPage=100, Select}) => {
   const [initialListingId] = useState(selectedListingId);

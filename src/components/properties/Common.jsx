@@ -1,4 +1,4 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module";
+import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
@@ -23,9 +23,9 @@ import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaProperty
 import {LoginGate} from "Components/common/LoginGate";
 import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "../../utils/Thumbhash";
 
-import LeftArrow from "Assets/icons/left-arrow";
-import RightArrow from "Assets/icons/right-arrow";
-import XIcon from "Assets/icons/x";
+import LeftArrow from "Assets/icons/left-arrow.svg";
+import RightArrow from "Assets/icons/right-arrow.svg";
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 

@@ -15,7 +15,7 @@ import {
   PageHeader
 } from "Components/properties/Common";
 
-import RightArrow from "Assets/icons/right-arrow";
+import RightArrow from "Assets/icons/right-arrow.svg";
 import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
 import {
@@ -31,12 +31,12 @@ import Filters, {AttributeFilter} from "Components/properties/Filters";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
-import LeftArrow from "Assets/icons/left-arrow";
-import PoweredByImage from "Assets/images/apps/Eluvio";
-import RokuImage from "Assets/images/apps/roku";
-import AmazonImage from "Assets/images/apps/amazon";
-import AndroidImage from "Assets/images/apps/android";
-import AppleImage from "Assets/images/apps/apple";
+import LeftArrow from "Assets/icons/left-arrow.svg";
+import PoweredByImage from "Assets/images/apps/Eluvio.png";
+import RokuImage from "Assets/images/apps/roku.png";
+import AmazonImage from "Assets/images/apps/amazon.png";
+import AndroidImage from "Assets/images/apps/android.png";
+import AppleImage from "Assets/images/apps/apple.png";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 

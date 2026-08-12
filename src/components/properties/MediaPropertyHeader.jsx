@@ -23,9 +23,9 @@ import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import SelectIcon from "Assets/icons/select";
-import LanguageIcon from "Assets/icons/header/language";
-import AISparkleIcon from "Assets/icons/ai-sparkle1";
+import SelectIcon from "Assets/icons/select.svg";
+import LanguageIcon from "Assets/icons/header/language.svg";
+import AISparkleIcon from "Assets/icons/ai-sparkle1.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");

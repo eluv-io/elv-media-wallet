@@ -5,16 +5,16 @@ import {NavLink, useRouteMatch} from "react-router-dom";
 import {AnnotatedField, Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
-import ItemIcon from "Assets/icons/image";
+import ItemIcon from "Assets/icons/image.svg";
 import {MediaImageUrl, MediaLinkPath, MediaLockState} from "Components/nft/media/Utils";
 import {NFTRedeemableOfferModal} from "Components/nft/NFTRedeemableOffers";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Video from "Components/common/Video";
 
-import LockedIcon from "Assets/icons/Lock icon";
-import RightArrow from "Assets/icons/right-arrow";
-import UnlockedIcon from "Assets/icons/unlock icon";
-import LeftArrow from "Assets/icons/left-arrow";
+import LockedIcon from "Assets/icons/Lock icon.svg";
+import RightArrow from "Assets/icons/right-arrow.svg";
+import UnlockedIcon from "Assets/icons/unlock icon.svg";
+import LeftArrow from "Assets/icons/left-arrow.svg";
 import PlayIcon from "Assets/icons/media/play.svg";
 import {LiveMediaInfo, ScrollTo} from "../../../utils/Utils";
 

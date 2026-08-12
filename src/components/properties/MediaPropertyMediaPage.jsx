@@ -21,13 +21,13 @@ import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "Components
 import {CopyableField, Linkish} from "Components/common/UIComponents";
 import {ActionIcon, Menu} from "@mantine/core";
 
-import MediaErrorIcon from "Assets/icons/media-error-icon";
-import MultiviewIcon from "Assets/icons/media/multiview";
+import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
+import MultiviewIcon from "Assets/icons/media/multiview.svg";
 import DownloadIcon from "Assets/icons/download.svg";
 import PlayIcon from "Assets/icons/media/play.svg";
 import VerticalIcon from "Assets/icons/media/vertical.svg";
 import AIDescriptionIcon from "Assets/icons/ai-description.svg";
-import XIcon from "Assets/icons/x";
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 

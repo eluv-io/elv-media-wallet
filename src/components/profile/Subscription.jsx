@@ -9,7 +9,7 @@ import {LoaderImage} from "Components/properties/Common";
 import {Linkish, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
-import CaretRightIcon from "Assets/icons/right-caret";
+import CaretRightIcon from "Assets/icons/right-caret.svg";
 import Confirm from "Components/common/Confirm";
 
 const S = (...classes) => classes.map(c => SubscriptionStyles[c] || "").join(" ");

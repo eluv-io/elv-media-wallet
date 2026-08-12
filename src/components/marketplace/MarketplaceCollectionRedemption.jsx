@@ -7,9 +7,9 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import {PageLoader} from "Components/common/Loaders";
 import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import ListingIcon from "Assets/icons/listings icon";
+import ListingIcon from "Assets/icons/listings icon.svg";
 
-import BackIcon from "Assets/icons/arrow-left";
+import BackIcon from "Assets/icons/arrow-left.svg";
 import Confirm from "Components/common/Confirm";
 import NFTCard from "Components/nft/NFTCard";
 

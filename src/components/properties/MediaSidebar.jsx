@@ -18,15 +18,15 @@ import {TextInput} from "@mantine/core";
 import {useIsVisible} from "Components/common/Hooks";
 import UrlJoin from "url-join";
 
-import HideIcon from "Assets/icons/right-arrow";
-import ShowIcon from "Assets/icons/left-arrow";
-import FullscreenIcon from "Assets/icons/full screen";
-import PipVideoIcon from "Assets/icons/pip";
-import MultiviewIcon from "Assets/icons/media/multiview";
+import HideIcon from "Assets/icons/right-arrow.svg";
+import ShowIcon from "Assets/icons/left-arrow.svg";
+import FullscreenIcon from "Assets/icons/full screen.svg";
+import PipVideoIcon from "Assets/icons/pip.svg";
+import MultiviewIcon from "Assets/icons/media/multiview.svg";
 import EyeIcon from "Assets/icons/eye.svg";
-import XIcon from "Assets/icons/x";
-import AIDescriptionIcon from "Assets/icons/ai-description";
-import SearchIcon from "Assets/icons/search";
+import XIcon from "Assets/icons/x.svg";
+import AIDescriptionIcon from "Assets/icons/ai-description.svg";
+import SearchIcon from "Assets/icons/search.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 

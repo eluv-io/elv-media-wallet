@@ -33,8 +33,8 @@ import {OffersTable} from "Components/listings/TransferTables";
 import ListingStats from "Components/listings/ListingStats";
 
 import ProfileIcon from "Assets/icons/profile.svg";
-import TransactionIcon from "Assets/icons/transaction history icon";
-import PurchaseOffersIcon from "Assets/icons/Offers table icon";
+import TransactionIcon from "Assets/icons/transaction history icon.svg";
+import PurchaseOffersIcon from "Assets/icons/Offers table icon.svg";
 import RewardsIcon from "Assets/icons/Offers icon.svg";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";

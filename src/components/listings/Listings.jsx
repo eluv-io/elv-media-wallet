@@ -9,7 +9,7 @@ import FilteredView from "Components/listings/FilteredView";
 import NFTCard from "Components/nft/NFTCard";
 import {RecentSales} from "Components/listings/Activity";
 
-import ListingIcon from "Assets/icons/listings icon";
+import ListingIcon from "Assets/icons/listings icon.svg";
 import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
 import GraphIcon from "Assets/icons/bar-chart-2.svg";
 import XIcon from "Assets/icons/x.svg";

@@ -11,7 +11,7 @@ import {rootStore} from "Stores";
 import NFTMediaBrowser from "Components/nft/media/Browser";
 import NFTActiveMedia from "Components/nft/media/Active";
 import ImageIcon from "Components/common/ImageIcon";
-import BackIcon from "Assets/icons/arrow-left";
+import BackIcon from "Assets/icons/arrow-left.svg";
 import {LocalizeString} from "Components/common/UIComponents";
 
 export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) => {

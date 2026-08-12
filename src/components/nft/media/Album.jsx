@@ -5,16 +5,16 @@ import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {MediaLinkPath, NavigateToMedia} from "Components/nft/media/Utils";
 
-import SkipBackIcon from "Assets/icons/media/skip back icon";
-import PauseIcon from "Assets/icons/media/Pause icon";
-import PlayIcon from "Assets/icons/media/Play icon";
-import SkipForwardIcon from "Assets/icons/media/skip forward icon";
-import ShuffleIcon from "Assets/icons/media/shuffle icon";
-import LoopIcon from "Assets/icons/media/loop icon";
-import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon";
-import AudioPlayIcon from "Assets/icons/media/bars icon (no circle)";
-import VideoPlayCircleIcon from "Assets/icons/media/video play icon";
-import VideoPlayIcon from "Assets/icons/media/video play icon (no circle)";
+import SkipBackIcon from "Assets/icons/media/skip back icon.svg";
+import PauseIcon from "Assets/icons/media/Pause icon.svg";
+import PlayIcon from "Assets/icons/media/Play icon.svg";
+import SkipForwardIcon from "Assets/icons/media/skip forward icon.svg";
+import ShuffleIcon from "Assets/icons/media/shuffle icon.svg";
+import LoopIcon from "Assets/icons/media/loop icon.svg";
+import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
+import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
+import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
+import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 
 const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
