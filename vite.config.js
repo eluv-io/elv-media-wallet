@@ -62,11 +62,11 @@ export default defineConfig(() => {
       manifest: true,
       rollupOptions: {
         output: {
-          entryFileNames: "main.js",
+          entryFileNames: "index.js",
           assetFileNames: assetInfo => {
             const ext = assetInfo.names[0].split(".").slice(-1)[0];
             if(ext === "css") {
-              return "main.css";
+              return "index.css";
             } else {
               return assetInfo.originalFileName;
             }
