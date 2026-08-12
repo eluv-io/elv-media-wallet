@@ -13,7 +13,6 @@ module.exports = {
     sourceType: 'module'
   },
   settings: { react: { version: '18.2' } },
-  plugins: ['react-refresh'],
   rules: {
     "react-hooks/exhaustive-deps": 0,
     "react/jsx-uses-react": "error",
@@ -22,10 +21,6 @@ module.exports = {
     "no-case-declarations": 0,
     "react/prop-types": 0,
     "semi": ["error", "always", { "omitLastInOneLineClassBody": true }],
-    "react-refresh/only-export-components": [
-      'warn',
-      { allowConstantExport: true },
-    ],
     "no-console": ["error", { "allow": ["error", "info", "time", "timeEnd"] }],
     "quotes": [
       "error",

@@ -241,6 +241,18 @@
     }
   }
 
+  &__title {
+    background: var(--linear-light, linear-gradient(180deg, #FFF 0%, #C0C0C0 100%));
+    background-clip: text;
+    font-size: 32px;
+    font-weight: 500;
+    margin-top: 10px;
+    letter-spacing: -0.371px;
+    line-height: normal;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+  }
+
   &__logo-container {
     align-items: center;
     display: flex;

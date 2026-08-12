@@ -1,25 +1,26 @@
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "url";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import mkcert from "vite-plugin-mkcert";
 import {analyzer} from "vite-bundle-analyzer";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
+import autoprefixer from "autoprefixer";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig(() => {
   let plugins = [
     react(),
+    nodePolyfills({
+      include: ["stream", "crypto"]
+    }),
     ViteYaml(),
     viteStaticCopy({
       targets: [
         {
           src: "configuration.js",
           dest: ""
-        },
-        {
-          src: "src/static/icons/favicon.png",
-          dest: ""
-        },
+        }
       ]
     }),
     mkcert(),
@@ -38,11 +39,14 @@ export default defineConfig(() => {
         scss: {
           api: "modern-compiler"
         }
+      },
+      postcss: {
+        plugins: [autoprefixer()]
       }
     },
     plugins,
     server: {
-      port: 8091,
+      port: 8090,
       host: true
     },
     resolve: {
@@ -60,15 +64,19 @@ export default defineConfig(() => {
     },
     build: {
       manifest: true,
-      rollupOptions: {
+      modulePreload: {
+        polyfill: false
+      },
+      rolldownOptions: {
         output: {
+          codeSplitting: false,
           entryFileNames: "index.js",
           assetFileNames: assetInfo => {
             const ext = assetInfo.names[0].split(".").slice(-1)[0];
             if(ext === "css") {
               return "index.css";
             } else {
-              return assetInfo.originalFileName;
+              return "assets/[hash][extname]";
             }
           }
         }

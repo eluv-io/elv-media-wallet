@@ -8,14 +8,13 @@ import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {LocalizeString} from "Components/common/UIComponents";
 import {RichText} from "Components/properties/Common";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
-import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
-import {SetImageUrlDimensions} from "../../utils/Utils";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -151,7 +150,9 @@ const Logo = ({customizationOptions}) => {
     return (
       <div className="login-page__logo-container login-page__logo-container--default">
         <ImageIcon icon={EluvioE} className="login-page__logo login-page__logo--default login-page__logo--icon" title="Eluv.io" />
-        <ImageIcon icon={MediaWalletLogo} className="login-page__logo login-page__logo--default login-page__logo--text" title="Eluv.io" />
+        <div className={"login-page__title"}>
+          Media Wallet
+        </div>
       </div>
     );
   }
