@@ -106,7 +106,6 @@ class TransferStore {
               return { removed: listingStatus, offer };
             }
           }
-        // eslint-disable-next-line no-empty
         } catch(error) {}
       }
 
@@ -120,7 +119,6 @@ class TransferStore {
             tokenId: nft ? nft.details.TokenIdStr : tokenId,
             includeCheckoutLocked: true
           }))?.results || [])[0];
-          // eslint-disable-next-line no-empty
         } catch(error) {}
       }
 
@@ -131,7 +129,6 @@ class TransferStore {
               contractAddress: listing.details.ContractAddr,
               tokenId: listing.details.TokenIdStr
             });
-          // eslint-disable-next-line no-empty
           } catch(error) {}
         }
 

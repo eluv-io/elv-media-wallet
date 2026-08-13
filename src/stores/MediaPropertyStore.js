@@ -2178,7 +2178,6 @@ class MediaPropertyStore {
 
                 window.dataLayer = window.dataLayer || [];
 
-                // eslint-disable-next-line no-inner-declarations
                 function gtag() {
                   window.dataLayer.push(arguments);
                 }
@@ -2283,7 +2282,6 @@ class MediaPropertyStore {
     }
 
     if(reload) {
-      // eslint-disable-next-line no-self-assign
       window.location.href = window.location.href;
     }
   }

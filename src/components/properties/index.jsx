@@ -66,7 +66,6 @@ const PropertyWrapper = observer(({children}) => {
 
   useEffect(() => {
     (async () => {
-      console.time("LOADER")
       setLoading(true);
 
       try {
@@ -109,7 +108,6 @@ const PropertyWrapper = observer(({children}) => {
         }
       } finally {
         rootStore.SetShowSplash(false);
-        console.timeEnd("LOADER")
         setLoading(false);
       }
     })();

@@ -45,8 +45,8 @@
   flex: 1 0 100%;
   height: max-content;
   max-width: unset;
+  overflow-wrap: anywhere;
   width: 100%;
-  word-break: break-word;
 
   &__image-container,
   &__image,
@@ -443,11 +443,11 @@
   gap: 20px;
   max-width: 100%;
   min-height: 175px;
+  overflow-wrap: anywhere;
   overflow-x: hidden;
   padding: 10px 20px 10px 10px;
   transition: background 0.25s ease;
   width: 100%;
-  word-break: break-word;
 
   &:hover {
     background: var(--property-card-background-active);

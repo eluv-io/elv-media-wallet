@@ -542,9 +542,7 @@ class CryptoStore {
         const tokenBalances = yield connection.getTokenAccountsByOwner(publicKey, {mint: token}, "confirmed");
         const tokenKey = tokenBalances.value[0].pubkey;
         this.phantomUSDCBalance = (yield connection.getTokenAccountBalance(tokenKey, "confirmed")).value.uiAmount;
-        // eslint-disable-next-line no-empty
-      } catch(error) {
-      }
+      } catch(error) {}
 
       return {
         sol: this.phantomBalance,

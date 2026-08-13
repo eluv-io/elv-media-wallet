@@ -57,8 +57,6 @@ const params = {
   oryFlow: searchParams.get("flow")
 };
 
-console.log(JSON.stringify(params, null, 2));
-
 window.params = params;
 
 const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) => {
@@ -280,7 +278,6 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
-    // eslint-disable-next-line no-empty
   } catch(error) {}
 
   loading =
@@ -952,7 +949,6 @@ const Login = observer(({Close}) => {
               ...(JSON.parse(localStorage.getItem(userDataKey)))
             };
           }
-          // eslint-disable-next-line no-empty
         } catch(error) {}
 
         setUserData(initialUserData);
@@ -967,7 +963,6 @@ const Login = observer(({Close}) => {
     try {
       const userDataKey = `login-data-${customizationOptions?.marketplaceId || "default"}`;
       localStorage.setItem(userDataKey, JSON.stringify(data));
-      // eslint-disable-next-line no-empty
     } catch(error) {}
   };
 

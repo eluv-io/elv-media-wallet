@@ -22,14 +22,15 @@ import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
-  const ref = useRef();
+  const [ref, setRef] = useState(undefined);
+
   if(!paging || paging.total === 0) { return null; }
 
   const perPage = paging.limit || 1;
   const currentPage = Math.floor(paging.start / perPage) + 1;
   const pages = Math.ceil(paging.total / perPage);
 
-  const width = ref?.current?.getBoundingClientRect().width || rootStore.pageWidth;
+  const width = ref?.getBoundingClientRect().width || rootStore.pageWidth;
 
   let spread = maxSpread;
   if(width < 600) {
@@ -47,7 +48,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
   }
 
   return (
-    <div ref={ref} className={`page-controls ${className}`}>
+    <div ref={setRef} className={`page-controls ${className}`}>
       <button
         title="Previous Page"
         disabled={paging.start <= 0}
@@ -421,53 +422,6 @@ export const ButtonWithLoader = ({children, className="", onClick, isLoading, ac
   );
 };
 
-export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
-  const ref = useRef();
-  const [showMenu, setShowMenu] = useState(false);
-
-  useEffect(() => {
-    const onClickOutside = event => {
-      if(!ref.current || !ref.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, []);
-
-  let topMenu = false;
-  if(ref?.current) {
-    const buttonPosition = ref?.current?.getBoundingClientRect();
-    if((window.innerHeight - buttonPosition.top) / window.innerHeight < 0.5) {
-      topMenu = true;
-    }
-  }
-
-  return (
-    <div className={`action-menu ${showMenu ? "action-menu--active" : ""} ${className}`} ref={ref}>
-      <button
-        {...buttonProps}
-        className={`action-menu__button ${buttonProps?.className || ""}`}
-        onClick={() => {
-          setShowMenu(!showMenu);
-
-          if(buttonProps?.onClick) {
-            buttonProps.onClick();
-          }
-        }}
-      />
-      {
-        showMenu ?
-          <div className={`action-menu__menu ${topMenu ? "action-menu__menu--top" : ""}`}>
-            { RenderMenu(() => setShowMenu(false)) }
-          </div> : null
-      }
-    </div>
-  );
-};
-
 export const SwitchButton = ({value, onChange}) => {
   return (
     <button className={`switch-button ${value ? "switch-button--active" : ""}`} onClick={() => onChange(!value)}>
@@ -709,22 +663,6 @@ export const QRCodeElement = ({content, className=""}) => {
     </div>
   );
 };
-
-export const MenuLink = ({icon, children, className="", ...props}) => {
-  let Component = props.to ? NavLink :
-    props.href ? ({...args}) => <a {...args} /> :
-      ({...args}) => <button {...args} />;
-
-  return (
-    <Component className={`menu-link ${className}`} {...props}>
-      <ImageIcon className="menu-link__icon" icon={icon} />
-      <div className="menu-link__text">
-        { children }
-      </div>
-    </Component>
-  );
-};
-
 
 export const FullScreenImage = observer(({className="", modalClassName="", magnification=2, Toggle, ...props}) => {
   const imageRef = useRef();

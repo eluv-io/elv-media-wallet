@@ -7,7 +7,6 @@ window.sessionStorageAvailable = false;
 try {
   sessionStorage.getItem("test");
   window.sessionStorageAvailable = true;
-// eslint-disable-next-line no-empty
 } catch(error) {}
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
@@ -761,7 +760,6 @@ class RootStore {
 
   AuthenticateOpenId = flow(function * ({refreshToken, nonce, installId, origin, userData}={}) {
     try {
-      // eslint-disable-next-line no-console
       console.time("OpenId Authentication");
 
       const {openIdClient, config} = yield this.InitializeOpenIdClient();
@@ -833,7 +831,6 @@ class RootStore {
       throw { uiMessage: this.l10n.login.errors.login_failed };
       //this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
-      // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
     }
   });
@@ -864,7 +861,6 @@ class RootStore {
 
       // Check for existing Auth0 authentication status
       // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
-      // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
 
@@ -1307,7 +1303,6 @@ class RootStore {
       imageUrl.searchParams.set("width", width);
 
       return imageUrl.toString();
-    // eslint-disable-next-line no-empty
     } catch(error) {}
   }
 
@@ -1580,7 +1575,6 @@ class RootStore {
       }
 
       if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
-        // eslint-disable-next-line no-async-promise-executor
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
@@ -1902,8 +1896,6 @@ class RootStore {
 
             case "HP-CM-30":
               // Not enough balance - No special message
-
-            // eslint-disable-next-line no-fallthrough
             default:
               throw error;
           }
@@ -2386,7 +2378,6 @@ class RootStore {
           parameters.to = UrlJoin(parameters.to, SearchParams()["otp_code"] || "");
 
           // Fall through to redirect
-        // eslint-disable-next-line no-fallthrough
         case "redirect":
           if(parameters.url) {
             window.location.href = parameters.url;
@@ -2920,7 +2911,6 @@ class RootStore {
   }
 
   ParsedRouteParams() {
-    // eslint-disable-next-line no-unused-vars
     let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^/]+)/);
     const marketplaceId = (location.pathname.match(/\/marketplace\/([^/]+)/) || [])[1];
 

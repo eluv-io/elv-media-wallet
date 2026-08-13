@@ -56,8 +56,6 @@ button {
 :where([contenteditable]){
   -webkit-line-break: after-white-space;
   overflow-wrap: break-word;
-  -moz-user-modify: read-write;
-  -webkit-user-modify: read-write;
 }
 
 /* stylelint-disable no-important */
