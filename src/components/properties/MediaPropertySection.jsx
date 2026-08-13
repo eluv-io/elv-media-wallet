@@ -171,6 +171,7 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
 
     case "media_link":
       const mediaItem = mediaPropertyStore.media[action.media_id];
+
       if(mediaItem) {
         buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
       }
