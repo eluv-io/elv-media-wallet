@@ -58,7 +58,7 @@ const params = {
   oryFlow: searchParams.get("flow")
 };
 
-console.log(params);
+console.log(JSON.stringify(params, null, 2));
 
 window.params = params;
 
@@ -816,16 +816,20 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       });
     };
 
+    console.log(1)
     if(params.clearLogin || (!customizationOptions.use_ory && params.loginCode && rootStore.loggedIn && !params.isAuth0Callback && !params.isOpenIdCallback)) {
+      console.log(2)
       ClearLogin();
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
+      console.log(3)
       setSavingUserData(true);
       SaveCustomConsent(userData)
         .finally(() => {
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(params.isOpenIdCallback) {
+    } else if(params.isOpenIdCallback && !rootStore.loggedIn) {
+      console.log(4)
       AuthenticateOpenId(params.userData)
         .catch(error => {
           if(error?.uiMessage) {
@@ -836,8 +840,11 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         })
         .then(() => setAuth0Authenticating(false));
     } else if(customizationOptions.use_openid && !rootStore.loggedIn && rootStore.loaded && params.action !== "loginCallback") {
+      console.log(5)
+      console.log("REDIRECTING???", customizationOptions.use_openid, !rootStore.loggedIn, rootStore.loaded, params.action);
       LogInOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
+      console.log(6)
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
         .catch(error => {
@@ -849,8 +856,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         })
         .then(() => setAuth0Authenticating(false));
     } else if(automaticRedirect) {
+      console.log(7)
       LogIn({provider: "oauth", mode: "login"});
     } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
+      console.log(8)
       // Opened from frame - do appropriate login flow
       LogIn({provider: params.provider, mode: params.mode})
         .then(() => {
@@ -865,11 +874,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           }
         });
     } else if(userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "message") {
+      console.log(9)
       // Opened from frame and logged in, respond with auth info
       Respond();
     } else if(userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "redirect") {
+      console.log(10)
       Redirect();
     } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
+      console.log(11)
       SetCodeAuth();
     }
   }, [rootStore.loaded, rootStore.auth0, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
