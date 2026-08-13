@@ -851,13 +851,13 @@ export const SplashScreen = observer(() => {
   useEffect(() => {
     // Load and splash details, set init timing for minimum display duration
     (async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
       const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
-      delete window.initSplashRender;
 
       if(lastPropertySlugOrId && lastPropertySlugOrId === mediaPropertySlugOrId) {
         return;
       }
+
+      delete window.initSplashRender;
 
       setStyling(undefined);
 

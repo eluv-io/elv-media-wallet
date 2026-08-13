@@ -68,7 +68,13 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
       onFocus={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onBlur={() => setHovering(false)}
-      className={S("discover-card", featured ? "discover-card--featured" : "discover-card--standard")}
+      className={
+        S(
+          "discover-card",
+          featured ? "discover-card--featured" : "discover-card--standard",
+          rootStore.mobile ? "discover-card--active" : ""
+        )
+      }
     >
       <div className={S("discover-card__image-container")}>
         <LoaderImage
@@ -178,7 +184,7 @@ export const MediaPropertiesBrowser = observer(() => {
               <Carousel
                 content={[...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ]}
                 className={S("carousel", "featured-carousel")}
-                paginate
+                paginate={featured}
                 swiperOptions={{
                   spaceBetween: 20,
                 }}

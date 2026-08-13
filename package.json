@@ -11,6 +11,7 @@
     "build-test-l10n": "node src/static/localizatcions/LocalizeUtils.js test",
     "serve": "rm -rf node_modules/.vite; vite",
     "build": "rm -rf dist/* ; vite build",
+    "build-analyze": "ANALYZE_BUNDLE=true npm run build",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm-run-all -s -c lint-js-fix lint-scss-fix",
     "lint-js": "eslint ./src --ext js,jsx --report-unused-disable-directives",

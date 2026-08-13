@@ -183,17 +183,10 @@
     }
 
     &__loader {
-      height: 100%;
-      padding: 10px 0;
+      --loader-height: 30px;
+      --loader-width: 3px;
+
       position: absolute;
-      top: 0;
-
-      .spinner {
-        --spinner-width: 4px;
-
-        height: 30px;
-        width: 30px;
-      }
     }
 
     .lds-default,

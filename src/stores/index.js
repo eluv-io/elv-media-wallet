@@ -310,8 +310,10 @@ class RootStore {
     }, 1000);
 
     // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
-    const SetVH = () =>
+    const SetVH = () => {
       document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+      document.documentElement.style.setProperty("--vw", `${window.innerWidth * 0.01}px`);
+    };
 
     SetVH();
 

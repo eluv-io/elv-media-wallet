@@ -4,6 +4,10 @@
 }
 
 :root {
+  --loader-height: 40px;
+  --loader-width: 4px;
+  --loader-color: 255, 255, 255;
+  --vh: 1vh;
   --property-header-height: 80px;
   --property-full-page-height: calc(var(--vh, 1vh) * 100);
   --property-full-content-height: calc(var(--property-full-page-height) - var(--property-header-height) - 0px);

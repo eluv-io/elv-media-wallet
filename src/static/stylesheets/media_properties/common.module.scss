@@ -746,9 +746,9 @@
   }
 
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__arrow {
-      opacity: 1;
+      display: none;
     }
   }
 }
@@ -927,7 +927,9 @@
   }
 
   &__loader {
-    height: 30px;
+    --loader-height: 30px;
+    --loader-width: 4px;
+
     position: absolute;
 
     :global(.spinner) {

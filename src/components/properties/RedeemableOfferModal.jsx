@@ -465,7 +465,7 @@ const RedeemableOfferModal = observer(() => {
           !info ?
             <div className={S("form")}>
               <div className={S("form__content")}>
-                <Loader className={S("form__loader")}/>
+                <Loader/>
               </div>
             </div> :
             <RedeemableOfferContent

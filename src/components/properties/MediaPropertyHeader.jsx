@@ -644,6 +644,7 @@ const HeaderLinks = observer(() => {
         }
         <LanguageMenu/>
         <Button
+          loading
           onClick={async () => {
             const useOpenId = !!(mediaProperty?.metadata?.login?.settings?.use_openid && mediaProperty?.metadata?.login?.settings?.openid_endpoint);
             const useAuth0 = !!(mediaProperty?.metadata?.login?.settings?.use_auth0 && mediaProperty?.metadata?.login?.settings?.auth0_domain);

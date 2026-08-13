@@ -2,51 +2,18 @@ import React from "react";
 import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 
-export const LoaderComponentDefault = ({className=""}) => (
-  <div className={`spinner ${className}`}>
-    <div className="spinner-inner" />
-  </div>
-);
-
-const InlineLoaderComponent = () => {
+export const Loader = observer(({className=""}) => {
   return (
-    <div className="lds-ellipsis">
-      {
-        [...new Array(4)].map((_, i) =>
-          <div className="lds-ellipsis__element" key={`loader-${i}`}/>
-        )
-      }
-    </div>
-  );
-};
-
-const LoaderComponent = ({loader}) => {
-  switch(loader) {
-    case "inline":
-      return <InlineLoaderComponent />;
-    default:
-      return <LoaderComponentDefault />;
-  }
-};
-
-export const PageLoader = observer(({loader="default", force=false, className=""}) => {
-  if(rootStore.showSplash && !force) { return null; }
-
-  return (
-    <div className={`loader page-loader page-container ${className}`}>
-      <div className="main-content-container loader-component">
-        <LoaderComponent loader={loader} />
-      </div>
-    </div>
+    <div className={["loader", className].join(" ")} />
   );
 });
 
+export const PageLoader = observer(({containerClassName="", force=false, className=""}) => {
+  if(rootStore.showSplash && !force) { return null; }
 
-export const Loader = ({loader="default", small, className=""}) => {
   return (
-    <div className={`loader ${small ? "loader--small" : ""} ${className}`}>
-      <LoaderComponent loader={loader} />
+    <div className={["page-loader", containerClassName].join(" ")}>
+      <Loader className={className} />
     </div>
   );
-};
-
+});

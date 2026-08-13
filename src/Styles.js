@@ -10,6 +10,8 @@ import "@/assets/stylesheets/reset.scss";
 import "@/assets/stylesheets/themes/default.css";
 import "@/assets/stylesheets/media_properties/variables.css";
 
+import "@/assets/stylesheets/loaders.scss";
+
 import "@/assets/stylesheets/base.scss";
 import "@/assets/stylesheets/actions.scss";
 import "@/assets/stylesheets/cards.scss";
@@ -17,7 +19,6 @@ import "@/assets/stylesheets/crypto.scss";
 import "@/assets/stylesheets/filters.scss";
 import "@/assets/stylesheets/listings.scss";
 import "@/assets/stylesheets/listing-modal.scss";
-import "@/assets/stylesheets/loaders.scss";
 import "@/assets/stylesheets/login.scss";
 import "@/assets/stylesheets/modal.scss";
 import "@/assets/stylesheets/markdown.scss";

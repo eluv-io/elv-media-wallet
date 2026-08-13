@@ -23,7 +23,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
   if(!stats) {
     return (
       <div className="stats">
-        <Loader className="stats__loader" />
+        <Loader />
       </div>
     );
   }
