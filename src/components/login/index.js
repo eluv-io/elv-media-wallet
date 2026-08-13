@@ -58,6 +58,8 @@ const params = {
   oryFlow: searchParams.get("flow")
 };
 
+console.log(params);
+
 window.params = params;
 
 const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) => {
@@ -577,6 +579,8 @@ export const LogInOpenId = async () => {
     callbackUrl.searchParams.set("elvid", params.loginCode);
   }
 
+  console.log(callbackUrl.toString());
+
   const redirect = await rootStore.GetOpenIdLoginUrl(callbackUrl.toString());
 
   if(redirect) {
@@ -831,7 +835,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           ClearLogin(error?.uiMessage);
         })
         .then(() => setAuth0Authenticating(false));
-    } else if(customizationOptions.use_openid && !rootStore.loggedIn) {
+    } else if(customizationOptions.use_openid && !rootStore.loggedIn && rootStore.loaded && params.action !== "loginCallback") {
       LogInOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
