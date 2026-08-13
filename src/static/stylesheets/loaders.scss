@@ -23,7 +23,7 @@
 .spinner {
   --spinner-width: 5px;
   --spinner-color: #FFF;
-  --spinner-color-background: #666;
+  --spinner-color-background: transparent;
 
   animation: spin 1.5s ease infinite;
   aspect-ratio: 1;

@@ -290,7 +290,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
   linkPath = !linkPath ? undefined : linkPath + (params.size > 0 ? `?${params.toString()}` : "");
 
-  const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
+  const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions ||
+    mediaPropertyStore.ResolvePermission({...match.params, sectionItemSlugOrId: sectionItem?.id, mediaItemSlugOrId: mediaItem?.id});
 
   if(!permissions.authorized && permissions.showAlternatePage) {
     linkPath = MediaPropertyBasePath({
