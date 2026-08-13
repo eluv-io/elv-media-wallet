@@ -123,6 +123,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
       options: consent?.consent_options
     },
     use_ory: !(settings?.use_auth0 && settings?.auth0_domain) && !(settings?.use_openid && settings?.openid_endpoint),
+    use_openid: settings?.use_openid && settings?.openid_endpoint,
     enable_metamask: settings?.enable_metamask,
     disable_third_party_login: settings?.disable_third_party_login || false,
     disable_registration: settings?.disable_registration || false
@@ -830,6 +831,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           ClearLogin(error?.uiMessage);
         })
         .then(() => setAuth0Authenticating(false));
+    } else if(customizationOptions.use_openid) {
+      LogInOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
