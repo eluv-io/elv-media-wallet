@@ -836,7 +836,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
             setErrorMessage(error?.uiMessage);
           }
 
-          ClearLogin(error?.uiMessage);
+          //ClearLogin(error?.uiMessage);
         })
         .then(() => setAuth0Authenticating(false));
     } else if(customizationOptions.use_openid && !rootStore.loggedIn && rootStore.loaded && params.action !== "loginCallback") {
