@@ -1,5 +1,3 @@
-@import "./variables";
-
 .header,
 .header-placeholder {
   height: 80px;
@@ -25,7 +23,7 @@
   }
 
   & > * {
-    @include page-fade-in;
+    animation: var(--animation-fade-in) 0.25s ease;;
   }
 }
 
@@ -123,10 +121,9 @@
   width: 300px;
 }
 
-.button {
-  @include page-fade-in;
-
+.button {;
   align-items: center;
+  animation: var(--animation-fade-in) 0.25s ease;
   background-color: #424242;
   border: 1px solid transparent;
   border-radius: 100%;
@@ -423,7 +420,7 @@
   }
 
   & > * {
-    @include page-fade-in(0.5s);
+    animation: var(--animation-fade-in) 0.25s ease;
   }
 
   .home {

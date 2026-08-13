@@ -1,37 +1,19 @@
 import React, {useEffect, useState} from "react";
 import {mediaPropertyStore, rootStore} from "Stores";
 import Profile from "Components/profile";
-import Leaderboard from "Components/marketplace/Leaderboard";
 import UrlJoin from "url-join";
-import {MarketplaceItemDetails} from "Components/nft/NFTDetails";
 import Listings from "Components/listings/Listings";
-import {RecentSales} from "Components/listings/Activity";
-import {
-  ClaimMintingStatus,
-  CollectionRedeemStatus,
-  DropMintingStatus,
-  PackOpenStatus,
-  PurchaseMintingStatus,
-  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus
-} from "Components/marketplace/MintingStatus";
+import {PackOpenStatus} from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
 import {Link, Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
-import MarketplaceCollectionsSummaryPage from "Components/marketplace/MarketplaceCollectionsSummary";
-import MarketplaceCollection from "Components/marketplace/MarketplaceCollection";
-import MarketplaceCollectionRedemption from "Components/marketplace/MarketplaceCollectionRedemption";
 import {LoginGate} from "Components/common/LoginGate";
 import {observer} from "mobx-react";
 import UserProfileContainer from "Components/profile/UserProfileContainer";
-import Drop from "Components/event/Drop";
-import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import UserActivity from "Components/user/UserActivity";
-import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
-import NFTMedia from "Components/nft/media/index";
 import Notifications from "Components/header/NotificationsMenu";
-import CodeRedemption from "Components/marketplace/CodeRedemption";
 import UserGifts from "Components/user/UserGifts";
 
 import MediaPropertyPage from "Components/properties/MediaPropertyPage";
@@ -51,23 +33,8 @@ const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
 };
 
-const GetMarketplace = (match) => {
-  return rootStore.marketplaces[match.params.marketplaceId] || {};
-};
-
-const GetItem = (match) => {
-  const marketplace = GetMarketplace(match);
-  return (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
-};
-
 const GetNFT = (match) => {
   return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
-};
-
-const UserMarketplaceRoutes = () => {
-  return [
-    { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
-  ];
 };
 
 const TokenRoutes = basePath => {
@@ -75,16 +42,11 @@ const TokenRoutes = basePath => {
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "" },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId", noBreadcrumb: true, noBlock: true, Component: ItemDetailsPage, backPath: "" },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "" },
-
-    // Deprecated
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia, backPath: "/:contractId/:tokenId" },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
   ]
     .map(route => ({...route, path: UrlJoin(basePath, route.path), backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath }));
 };
 
-const UserRoutes = ({includeMarketplaceRoutes}={}) => {
+const UserRoutes = () => {
   return [
     {
       name: "Subscriptions",
@@ -98,8 +60,6 @@ const UserRoutes = ({includeMarketplaceRoutes}={}) => {
       backPath: "items",
       Component: Subscription
     },
-
-    ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
 
     { name: "Listings", path: "listings", includeUserProfile: true, backPath: "/", Component: UserListings },
     { name: "Listings", path: "listings/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/listings" },
@@ -283,78 +243,9 @@ const BundledPropertyRoutes = () => {
   });
 };
 
-const SharedRoutes = ({includeMarketplaceRoutes}) => {
-  return [
-    ...UserRoutes({includeMarketplaceRoutes}),
-
-    { name: "Listing", path: "listings/:contractId/:tokenId/open", backPath: "listings", Component: PackOpenStatus },
-    { name: "Listing", path: "listings/:contractId/:tokenId", backPath: "listings", noBlock: true, Component: ItemDetailsPage },
-    { name: "Listings", path: "listings", Component: Listings },
-
-    { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId/open", backPath: "activity", Component: PackOpenStatus },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId", backPath: "activity", noBlock: true, Component: ItemDetailsPage },
-    { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
-
-    { name: "Profile", path: "profile", Component: Profile, authed: true },
-    { name: "Deposit Status", path: "profile/deposit/:confirmationId", Component: DepositStatus, authed: true }
-  ]
-    .map(route => ({
-      ...route,
-      backPath: route.backPath || (includeMarketplaceRoutes ? "store" : undefined),
-      navigationKey: route.navigationKey || "shared",
-      locationType: "shared"
-    }));
-};
-
-const MarketplaceRoutes = () => {
-  return [
-    { name: "Offer Redemption", path: "code/:eventSlug/:offerId", Component: CodeRedemption },
-
-    { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
-    { name: "Collections", path: "collections/:collectionSKU", backPath: "collections", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", backPath: "collections/:collectionSKU/store", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:action", backPath: "collections/:collectionSKU/store/:sku", authed: true, noBlock: true, Component: MarketplaceItemDetails },
-
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", backPath: "collections", Component: MarketplaceCollectionRedemption },
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", backPath: "collections", Component: CollectionRedeemStatus },
-
-    ...TokenRoutes("collections/:collectionSKU/owned"),
-
-    { name: "Drop Event", path: "events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
-    { name: "Drop Status", path: "events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
-
-    { name: "Claim", path: "store/:sku/claim/status", Component: ClaimMintingStatus, authed: true },
-    { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-    { name: "Purchase", path: "store/:sku/purchase-gift/:confirmationId", Component: GiftPurchaseMintingStatus },
-    { name: "Purchase", path: "store/:sku/gift/:confirmationId/:code?", Component: GiftRedemptionStatus, authed: true },
-
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: match => match.params.action !== "purchase-gift", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetMarketplace(match)?.branding?.name || rootStore.l10n.item_details.marketplace), path: "store", noBlock: true, Component: MarketplaceStorefront },
-
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media", noBlock: true, Component: NFTMedia },
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
-
-    { path: "/", redirect: "/store" }
-  ].map(route => ({
-    ...route,
-    navigationKey: "marketplace",
-    locationType: "marketplace",
-    backPath: route.backPath || route.path !== "store" && "store"
-  }));
-};
-
 const UserRouteWrapper = observer(({children}) => {
   const match = useRouteMatch();
   const [userNotFound, setUserNotFound] = useState(false);
-
-  useEffect(() => {
-    rootStore.ToggleMarketplaceNavigation(false);
-
-    return () => rootStore.ToggleMarketplaceNavigation(true);
-  }, []);
 
   useEffect(() => {
     setUserNotFound(false);
@@ -540,21 +431,6 @@ const GlobalWrapper = observer(({routes, children}) => {
 const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
   let routes = [];
   switch(routeList) {
-    case "marketplace":
-      routes = [
-        ...SharedRoutes({includeMarketplaceRoutes: true}),
-        ...(MarketplaceRoutes())
-      ];
-
-      break;
-
-    case "wallet":
-      routes = [
-        ...SharedRoutes({includeMarketplaceRoutes: false})
-      ];
-
-      break;
-
     case "property":
       routes = [
         ...PropertyRoutes({basePath: "/", rootPath: "/"})

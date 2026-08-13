@@ -10,6 +10,7 @@ import {Carousel, LoaderImage} from "Components/properties/Common";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Redirect} from "react-router-dom";
+import Header from "../header/Header.jsx";
 
 const S = (...classes) => classes.map(c => DiscoverStyles[c] || "").join(" ");
 
@@ -141,7 +142,7 @@ export const MediaPropertiesBrowser = observer(() => {
   }
 
   if(!mediaProperties || !featuredPropertyLists) {
-    return <PageLoader />;
+    return <PageLoader force />;
   }
 
   let filteredProperties = mediaProperties
@@ -164,34 +165,37 @@ export const MediaPropertiesBrowser = observer(() => {
     .filter(list => list.properties.length > 0);
 
   return (
-    <div className={S("discover-page")}>
-      {
-        filteredPropertyLists.map(({title, featured, properties}, index) =>
-          <div key={`list-${index}`} className={S("row", featured ? "featured" : "")}>
-            {
-              !title ? null :
-                <div className={S("row__title")}>{title}</div>
-            }
-            <Carousel
-              content={[...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ]}
-              className={S("carousel", "featured-carousel")}
-              paginate
-              swiperOptions={{
-                spaceBetween: 20,
-              }}
-              RenderSlide={({item}) =>
-                <DiscoverCard
-                  featured={featured}
-                  key={`property-${item.propertyId}`}
-                  mediaProperty={item}
-                  linkParams={LinkParams({mediaProperties, mediaProperty: item})}
-                />
+    <>
+      <Header />
+      <div className={S("discover-page")}>
+        {
+          filteredPropertyLists.map(({title, featured, properties}, index) =>
+            <div key={`list-${index}`} className={S("row", featured ? "featured" : "")}>
+              {
+                !title ? null :
+                  <div className={S("row__title")}>{title}</div>
               }
-            />
-          </div>
-        )
-      }
-    </div>
+              <Carousel
+                content={[...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ]}
+                className={S("carousel", "featured-carousel")}
+                paginate
+                swiperOptions={{
+                  spaceBetween: 20,
+                }}
+                RenderSlide={({item}) =>
+                  <DiscoverCard
+                    featured={featured}
+                    key={`property-${item.propertyId}`}
+                    mediaProperty={item}
+                    linkParams={LinkParams({mediaProperties, mediaProperty: item})}
+                  />
+                }
+              />
+            </div>
+          )
+        }
+      </div>
+    </>
   );
 });
 

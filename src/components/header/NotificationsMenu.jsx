@@ -110,12 +110,7 @@ const Notification = observer(({notification, Hide}) => {
 
   let valid = true;
 
-  let basePath = "/wallet";
-  if(rootStore.routeParams.marketplaceId) {
-    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
-  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
-    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
-  }
+  const basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
 
   const contractId = notification?.data?.contract ? `ictr${Utils.AddressToHash(notification.data.contract)}` : "";
 
@@ -259,7 +254,6 @@ const Notification = observer(({notification, Hide}) => {
   );
 });
 
-
 const Notifications = observer(({Hide}) => {
   const perPage = 10;
   const [loading, setLoading] = useState(true);
@@ -268,7 +262,7 @@ const Notifications = observer(({Hide}) => {
   const [more, setMore] = useState(false);
   const [onlyNew, setOnlyNew] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
-  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
 
@@ -362,12 +356,7 @@ export const NotificationsMenu = observer(({Hide}) => {
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
 
-  let basePath = "/wallet";
-  if(rootStore.routeParams.marketplaceId) {
-    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
-  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
-    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
-  }
+  const basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
 
   useEffect(() => {
     return () => notificationStore.SetNotificationMarker({id: notificationStore.notifications[0]?.id});

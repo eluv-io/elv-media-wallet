@@ -9,7 +9,7 @@
 
   .card-container {
     flex: 1 1 100%;
-    max-width: calc(#{$breakpoint} / 3 - 27px);
+    max-width: 300px;
     min-width: 350px;
   }
 
@@ -364,7 +364,7 @@
       z-index: 10;
 
       &::after {
-        background: $black;
+        background: #000;
         content: "";
         height: 100%;
         left: 0;
@@ -396,7 +396,7 @@
         z-index: 1;
 
         * {
-          color: $white;
+          color: #FFF;
         }
       }
 
@@ -467,7 +467,7 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     &__actions {
       .action {
         padding-inline: 15px;

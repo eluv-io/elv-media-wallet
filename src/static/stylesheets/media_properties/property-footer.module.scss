@@ -1,8 +1,5 @@
-@import "variables";
-
 .footer {
-  @include page-fade-in(1s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   padding: 75px;
   position: relative;
   width: 100%;

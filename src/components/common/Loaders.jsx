@@ -29,8 +29,8 @@ const LoaderComponent = ({loader}) => {
   }
 };
 
-export const PageLoader = observer(({loader="default", className=""}) => {
-  if(rootStore.showSplash) { return null; }
+export const PageLoader = observer(({loader="default", force=false, className=""}) => {
+  if(rootStore.showSplash && !force) { return null; }
 
   return (
     <div className={`loader page-loader page-container ${className}`}>

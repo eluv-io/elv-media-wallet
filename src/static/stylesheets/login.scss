@@ -246,9 +246,9 @@
     background-clip: text;
     font-size: 32px;
     font-weight: 500;
-    margin-top: 10px;
     letter-spacing: -0.371px;
     line-height: normal;
+    margin-top: 10px;
     -webkit-text-fill-color: transparent;
     user-select: none;
   }
@@ -641,8 +641,9 @@
 }
 
 .custom-consent {
-  @include modal;
-
+  background: var(--background-modal-primary);
+  border: var(--border-modal-primary);
+  border-radius: var(--border-radius-modal);
   max-width: 900px;
 
   &__header {
@@ -693,7 +694,7 @@
 }
 
 
-@media screen and (max-width: $mobile-breakpoint) {
+@media screen and (width <= 600px) {
   .consent-modal {
     .modal__content {
       align-items: flex-start;

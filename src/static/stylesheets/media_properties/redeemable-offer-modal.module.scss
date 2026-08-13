@@ -1,8 +1,6 @@
-@import "variables";
 
 .form {
-  @include page-fade-in(0.5s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   max-width: 400px;
   min-width: 400px;
   padding: 15px 15px 25px;
@@ -26,8 +24,7 @@
   }
 
   &__content {
-    @include page-fade-in(1s);
-
+    animation: var(--animation-fade-in) 0.25s ease;
     display: flex;
     flex-direction: column;
     gap: 20px;

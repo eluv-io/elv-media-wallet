@@ -35,7 +35,7 @@
     padding: 0 20px;
   }
 
-  @media screen and (max-width: $tablet-breakpoint) {
+  @media screen and (width <= 850px) {
     .page-header {
       font-size: 20px;
     }
@@ -134,7 +134,7 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     &__video-container {
       width: 100vw;
 
@@ -157,8 +157,7 @@
   width: 100%;
 
   .card-list {
-    @include page-fade-in;
-
+    animation: var(--animation-fade-in) 0.25s ease;;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     width: 100%;
   }

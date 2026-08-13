@@ -1,5 +1,3 @@
-@import "./variables";
-
 .item-details-page {
   &.item-details-page {
     background-color: var(--property-background-secondary);
@@ -110,7 +108,7 @@
 }
 
 .page {
-  @include page-fade-in;
+  animation: var(--animation-fade-in) 0.25s ease;;
 }
 
 .details-container {

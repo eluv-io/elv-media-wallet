@@ -12,13 +12,13 @@
     width: 100%;
   }
 
-  @media screen and (max-width: $intermediate-breakpoint) {
+  @media screen and (width <= 1000px) {
     .modal__content {
-      max-width: $mobile-breakpoint;
+      max-width: 600px;
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     .modal__content {
       max-width: unset;
       min-height: 100%;
@@ -28,12 +28,10 @@
   }
 }
 
-$content-width: 1075px;
-
 .purchase-modal {
-  @include component;
-  @include modal;
-
+  background: var(--background-modal-primary);
+  border: var(--border-modal-primary);
+  border-radius: var(--border-radius-modal);
   display: flex;
   flex-direction: column;
   height: max-content;
@@ -67,15 +65,14 @@ $content-width: 1075px;
     grid-template-columns: 1fr 1fr;
     padding: 35px 75px 75px;
 
-    @media screen and (max-width: $intermediate-breakpoint) {
-      grid-gap: 25px;
+    @media screen and (width <= 1000px) {
+      gap: 25px;
       grid-template-columns: 1fr;
     }
   }
 
   &__section--right {
-    @include page-fade-in(0.5s, ease-in);
-
+    animation: var(--animation-fade-in) 0.25s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -358,12 +355,12 @@ $content-width: 1075px;
   textarea {
     font-size: 16px;
     min-height: 150px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   &__gift-form {
     display: grid;
-    grid-gap: 20px;
+    gap: 20px;
 
     &__title {
       font-size: 24px;
@@ -385,7 +382,7 @@ $content-width: 1075px;
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     border: 0;
     border-radius: 0;
     margin-bottom: 0;
@@ -463,7 +460,7 @@ $content-width: 1075px;
     box-shadow: none;
     font-size: 24px;
     font-weight: 300;
-    height: $action-height;
+    height: var(--action-height);
     margin: 0 5px;
     max-width: 50px;
     min-width: 50px;

@@ -1,10 +1,4 @@
-import "Assets/stylesheets/reset.scss";
-import "Assets/fonts/fonts.css";
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
-import "swiper/swiper-bundle.css";
-import "Assets/stylesheets/reset.scss";
-import "Assets/stylesheets/app.scss";
+import "./Styles.js";
 
 import React, {lazy, Suspense, useEffect, useState} from "react";
 import UrlJoin from "url-join";
@@ -35,6 +29,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {SplashScreen} from "Components/properties/Common";
 
 import XIcon from "Assets/icons/x.svg";
+import MediaPropertiesBrowser from "./components/properties/MediaPropertiesBrowser.jsx";
 
 const searchParams = SearchParams();
 
@@ -42,9 +37,6 @@ const searchParams = SearchParams();
 if(Object.keys(searchParams).includes("openid")) {
   sessionStorage.setItem("openid", "true");
 }
-
-const WalletRoutes = lazy(() => import("Components/wallet/index"));
-const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
 
 const DebugFooter = observer(() => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -73,26 +65,6 @@ const RedirectHandler = ({storageKey}) => {
 
   return null;
 };
-
-// Given a tenant/marketplace slug, redirect to the proper marketplace
-const MarketplaceSlugRedirect = observer(() => {
-  const match = useRouteMatch();
-
-  if(!rootStore.loaded) { return <PageLoader />; }
-
-  const marketplaceInfo = rootStore.walletClient.MarketplaceInfo({
-    marketplaceParams: {
-      tenantSlug: match.params.tenantSlug,
-      marketplaceSlug: match.params.marketplaceSlug
-    }
-  });
-
-  if(!marketplaceInfo) {
-    return <Redirect to="/marketplaces" />;
-  }
-
-  return <Redirect to={UrlJoin("/marketplace", marketplaceInfo.marketplaceId, match.params.location || "store")} />;
-});
 
 const LoginModal = observer(() => {
   const history = useHistory();
@@ -150,14 +122,6 @@ const Routes = observer(() => {
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
-            { /* Handle various UI based popup/redirect flows - Marketplace view */ }
-            <Route path="/action/:action/marketplace/:marketplaceId/:parameters">
-              <Actions />
-            </Route>
-
-            <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
-              <MarketplaceSlugRedirect />
-            </Route>
             <Route path="/login">
               <Login />
             </Route>
@@ -167,21 +131,6 @@ const Routes = observer(() => {
             <Route exact path="/cancel">
               <RedirectHandler storageKey="cancelPath" />
             </Route>
-            <Route path="/wallet">
-              <Suspense fallback={<PageLoader />}>
-                <WalletRoutes />
-              </Suspense>
-            </Route>
-            <Route path="/marketplaces">
-              <Suspense fallback={<PageLoader />}>
-                <WalletRoutes />
-              </Suspense>
-            </Route>
-            <Route path="/marketplace">
-              <Suspense fallback={<PageLoader />}>
-                <MarketplaceRoutes />
-              </Suspense>
-            </Route>
             <Route path="/p">
               <Suspense fallback={<PageLoader />}>
                 <PropertyRoutes basePath="/p" />
@@ -190,14 +139,6 @@ const Routes = observer(() => {
             <Route path="/m">
               <Suspense fallback={<PageLoader />}>
                 <BundledPropertyRoutes />
-              </Suspense>
-            </Route>
-            <Route path="/profile">
-              <Redirect to="/wallet/profile" />
-            </Route>
-            <Route path="/" exact>
-              <Suspense fallback={<PageLoader />}>
-                <WalletRoutes />
               </Suspense>
             </Route>
             <Route path="*">
@@ -356,6 +297,10 @@ if(searchParams["code"] && sessionStorage.getItem("openid-callback-url")) {
               <div className="login-page-container">
                 <Login/>
               </div>
+            </Route>
+
+            <Route path="/" exact>
+              <MediaPropertiesBrowser />
             </Route>
 
             { /* All other routes */}

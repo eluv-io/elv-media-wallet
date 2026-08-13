@@ -1,5 +1,3 @@
-@import "variables";
-
 .notification {
   --notification-background: #202023;
   --notification-text-secondary: #C6C6C6;
@@ -76,7 +74,7 @@
   }
 
   &__menu {
-    @include page-fade-in(0.2s);
+    animation: var(--animation-fade-in) 0.25s ease;
 
     --notification-menu-background: #202023;
     --notification-menu-border: #444445;

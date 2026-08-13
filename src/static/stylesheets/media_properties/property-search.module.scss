@@ -1,5 +1,3 @@
-@import "variables";
-
 .search {
   background-color: var(--property-background);
 
@@ -8,8 +6,7 @@
   }
 
   &__content {
-    @include page-fade-in;
-
+    animation: var(--animation-fade-in) 0.25s ease;;
     display: grid;
     gap: 50px;
   }

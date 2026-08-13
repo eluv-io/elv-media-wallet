@@ -1,7 +1,5 @@
 /* stylelint-disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting */
 
-@import "variables";
-
 * {
   font-family: var(--font-family-secondary);
   font-synthesis-weight: none;
@@ -129,8 +127,7 @@ header,
 }
 
 .page-block {
-  @include page-fade-in(0.25s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   display: flex;
   height: max-content;
   justify-content: center;
@@ -262,7 +259,7 @@ select {
 
 textarea,
 input {
-  height: $action-height;
+  height: var(--action-height);
 
   &:not(.mantine-Checkbox-input) {
     &[type="checkbox"] {
@@ -400,7 +397,7 @@ em {
     font-size: 16px;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     .content-header,
     .page-header {
       font-weight: 400;
@@ -426,7 +423,7 @@ em {
 }
 
 .debug-error-message {
-  background: $black;
+  background: #000;
   bottom: 0;
   color: var(--color-text-error);
   font-family: monospace;
@@ -447,20 +444,20 @@ em {
 }
 
 /* Large */
-@media screen and (min-width: $breakpoint) {
+@media screen and (width >= 1250px) {
   .app-container {
     margin: auto;
   }
 
   .page-block__content {
     &:not(&--unrestricted) {
-      max-width: $extra-large-breakpoint;
+      max-width: 1600px;
     }
   }
 }
 
 /* Medium */
-@media screen and (max-width: $breakpoint) {
+@media screen and (width <= 1250px) {
   .page-block {
     &__content {
       border-radius: 0;
@@ -487,7 +484,7 @@ em {
 }
 
 /* Small */
-@media screen and (max-width: $mobile-breakpoint) {
+@media screen and (width <= 600px) {
   .no-mobile {
     display: none !important;
   }
@@ -553,7 +550,7 @@ em {
     white-space: nowrap;
   }
 
-  @media screen and (max-width: $tablet-breakpoint) {
+  @media screen and (width <= 850px) {
     &__image {
       height: 20px;
       width: 20px;
@@ -569,10 +566,9 @@ em {
   z-index: 100;
 }
 
-.alert-notification {
-  @include page-fade-in;
-
+.alert-notification {;
   align-items: center;
+  animation: var(--animation-fade-in) 0.25s ease;
   background-color: var(--property-background-secondary);
   border: 0;
   border-radius: 5px;
@@ -611,5 +607,5 @@ em {
 }
 
 .fade-in {
-  @include page-fade-in(0.25s);
+  animation: var(--animation-fade-in) 0.25s ease;
 }

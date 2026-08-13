@@ -6,7 +6,7 @@
   color: var(--color-button-secondary-text);
   display: flex;
   font: var(--font-button);
-  height: $action-height;
+  height: var(--action-height);
   justify-content: center;
   min-width: 120px;
   padding: 0 20px;
@@ -283,10 +283,8 @@
   }
 
   &__menu {
-    @include component;
-    @include page-fade-in(0.15s);
-
     align-items: center;
+    animation: var(--animation-fade-in) 0.25s ease;
     display: flex;
     flex-direction: column;
     justify-content: center;

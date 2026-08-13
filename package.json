@@ -13,8 +13,8 @@
     "build": "rm -rf dist/* ; vite build",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm-run-all -s -c lint-js-fix lint-scss-fix",
-    "lint-js": "eslint ./src ./client/src --ext js,jsx --report-unused-disable-directives",
-    "lint-js-fix": "eslint ./src ./client/src --fix --ext js,jsx --report-unused-disable-directives",
+    "lint-js": "eslint ./src --ext js,jsx --report-unused-disable-directives",
+    "lint-js-fix": "eslint ./src --fix --ext js,jsx --report-unused-disable-directives",
     "lint-scss": "npx stylelint \"src/**/*.{css,scss}\"",
     "lint-scss-fix": "npx stylelint \"src/**/*.{css,scss}\" --fix"
   },

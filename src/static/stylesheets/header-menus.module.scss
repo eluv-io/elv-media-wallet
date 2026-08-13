@@ -1,7 +1,6 @@
-@import "./variables";
 
 .header-menu {
-  @include page-fade-in(0.2s);
+  animation: var(--animation-fade-in) 0.25s ease;
 
   --menu-text-secondary: #797979;
   --menu-background: #202023;

@@ -1,8 +1,3 @@
-@mixin page-fade-in($duration: 0.5s, $animation: ease, $delay: 0s) {
-  animation: $duration fadein $animation $delay forwards;
-  opacity: 0;
-}
-
 @keyframes fadein {
   from { opacity: 0; }
   to { opacity: 1; }
