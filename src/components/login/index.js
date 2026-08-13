@@ -821,6 +821,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
+    } else if(customizationOptions.use_openid && !rootStore.loggedIn) {
+      LogInOpenId();
     } else if(params.isOpenIdCallback) {
       AuthenticateOpenId(params.userData)
         .catch(error => {
@@ -865,8 +867,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       Redirect();
     } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
       SetCodeAuth();
-    } else if(customizationOptions.use_openid && !rootStore.loggedIn) {
-      LogInOpenId();
     }
   }, [rootStore.loaded, rootStore.auth0, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating, customizationOptions]);
 
