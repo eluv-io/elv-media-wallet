@@ -821,8 +821,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(customizationOptions.use_openid && !rootStore.loggedIn) {
-      LogInOpenId();
     } else if(params.isOpenIdCallback) {
       AuthenticateOpenId(params.userData)
         .catch(error => {
@@ -833,6 +831,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           ClearLogin(error?.uiMessage);
         })
         .then(() => setAuth0Authenticating(false));
+    } else if(customizationOptions.use_openid && !rootStore.loggedIn) {
+      LogInOpenId();
     } else if(!customizationOptions.use_ory && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
