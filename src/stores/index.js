@@ -772,12 +772,12 @@ class RootStore {
           }
         );
       } else {
-        const loginUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-        loginUrl.searchParams.set("code", new URLSearchParams(window.location.search).get("code"));
-        console.log("LOGIN URL", loginUrl.toString());
+        //const loginUrl = new URL(window.location.origin, window.location.pathname);
+        //loginUrl.searchParams.set("code", new URLSearchParams(window.location.search).get("code"));
+
         tokens = yield openIdClient.authorizationCodeGrant(
           config,
-          loginUrl,
+          new URL(window.location.href),
           {
             pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
             state: this.GetSessionStorage("openidClientState")
