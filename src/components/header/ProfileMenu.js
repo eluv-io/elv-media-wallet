@@ -89,7 +89,7 @@ const ProfileMenu = observer(({Hide}) => {
         <ButtonWithLoader
           action={false}
           onClick={async () => {
-            await rootStore.SignOut();
+            await rootStore.SignOut({logOutOpenId: true});
             Hide();
           }}
           className={S("header-menu__action")}

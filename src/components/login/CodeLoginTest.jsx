@@ -20,7 +20,6 @@ const CodeLoginTest = observer(() => {
         const url = new URL(response.url);
         url.searchParams.set("pid", rootStore.currentPropertySlug);
         url.searchParams.set("clear", "");
-        //url.searchParams.set("nonce", "TESTNONCE");
         url.searchParams.set("installId", await SHA512(nonce));
         url.searchParams.set("origin", "CODE TEST LOGIN");
 

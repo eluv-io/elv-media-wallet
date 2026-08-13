@@ -679,7 +679,7 @@ class RootStore {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
 
-      if([400, 403, 503].includes(parseInt(error?.status))) {
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
         throw { login_limited: true };
       }
     }
@@ -700,6 +700,137 @@ class RootStore {
       }
     }
   }
+
+  InitializeOpenIdClient = flow(function * () {
+    const propertyConfig = yield this.LoadPropertyCustomization(
+      this.GetPropertySlugOrId()
+    );
+
+    if(!propertyConfig?.login?.settings?.use_openid || !propertyConfig?.login?.settings?.openid_endpoint) { return {}; }
+
+    const openIdClient = yield import("openid-client");
+
+    const config = yield openIdClient.discovery(
+      new URL(propertyConfig.login.settings.openid_endpoint),
+      propertyConfig.login.settings.openid_client_id
+    );
+
+    const logoutUrl = new URL(propertyConfig?.login?.settings?.openid_logout_url);
+
+    return {
+      openIdClient,
+      config,
+      logoutUrl
+    };
+  });
+
+  GetOpenIdLoginUrl = flow(function * (callbackUrl) {
+    const {openIdClient, config} = yield this.InitializeOpenIdClient();
+
+    if(!openIdClient) {
+      this.Log("Missing openID client. Bad configuration?");
+      return;
+    }
+
+    const codeVerifier = openIdClient.randomPKCECodeVerifier();
+    const params = {
+      redirect_uri: UrlJoin(window.location.origin, this.currentPropertySlug),
+      scope: "openid name firstname lastname email",
+      code_challenge: yield openIdClient.calculatePKCECodeChallenge(codeVerifier),
+      code_challenge_method: "S256"
+    };
+
+    this.SetSessionStorage("pkceCodeVerifier", codeVerifier);
+
+    if(!config.serverMetadata().supportsPKCE()) {
+      params.state = openIdClient.randomState();
+      this.SetSessionStorage("openidClientState", params.state);
+    }
+
+    this.SetSessionStorage("openid-redirect-url", UrlJoin(window.location.origin, this.currentPropertySlug));
+    this.SetSessionStorage("openid-callback-url", callbackUrl || window.location.href);
+
+    return openIdClient.buildAuthorizationUrl(config, params);
+  });
+
+  AuthenticateOpenId = flow(function * ({refreshToken, nonce, installId, origin, userData}={}) {
+    try {
+      // eslint-disable-next-line no-console
+      console.time("OpenId Authentication");
+
+      const {openIdClient, config} = yield this.InitializeOpenIdClient();
+
+      let tokens;
+
+      if(refreshToken) {
+        tokens = yield openIdClient.refreshTokenGrant(
+          config,
+          refreshToken,
+          {
+            scope: "openid name firstname lastname email",
+          }
+        );
+      } else {
+        const loginUrl = new URL(this.GetSessionStorage("openid-redirect-url") || UrlJoin(window.location.origin, this.currentPropertySlug));
+        loginUrl.searchParams.set("code", new URLSearchParams(window.location.search).get("code"));
+        tokens = yield openIdClient.authorizationCodeGrant(
+          config,
+          loginUrl,
+          {
+            pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
+            state: this.GetSessionStorage("openidClientState")
+          }
+        );
+      }
+
+      let userInfo = {};
+      try {
+        const sub = JSON.parse(atob(tokens.id_token.split(".")[1])).sub;
+
+        userInfo = yield openIdClient.fetchUserInfo(
+          config,
+          tokens.access_token,
+          sub
+        );
+      } catch(error) {
+        this.Log("Unable to fetch OpenID user info:", true);
+        this.Log(error, true);
+      }
+
+      yield this.Authenticate({
+        idToken: tokens.id_token,
+        refreshToken: tokens.refresh_token,
+        provider: "openId",
+        nonce,
+        installId,
+        origin,
+        user: {
+          name: userInfo.name || (userInfo.firstname && `${userInfo.firstname} ${userInfo.lastname}`),
+          email: userInfo.email,
+          userData
+        }
+      });
+
+      this.ClearLoginParams();
+
+      return true;
+    } catch(error) {
+      this.Log("Error logging in with OpenID:", true);
+      this.Log(error, true);
+
+      this.ClearLoginParams();
+
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
+
+      throw { uiMessage: this.l10n.login.errors.login_failed };
+      //this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
+    } finally {
+      // eslint-disable-next-line no-console
+      console.timeEnd("Auth0 Authentication");
+    }
+  });
 
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
@@ -768,7 +899,7 @@ class RootStore {
         this.ClearLoginParams();
       }
 
-      if([400, 403, 503].includes(parseInt(error?.status))) {
+      if(error.fromAuthenticate && [400, 403, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
 
@@ -829,6 +960,7 @@ class RootStore {
     idToken,
     clientAuthToken,
     clientSigningToken,
+    refreshToken,
     provider="external",
     externalWallet,
     walletName,
@@ -903,6 +1035,7 @@ class RootStore {
       this.SetAuthInfo({
         clientAuthToken,
         clientSigningToken,
+        refreshToken,
         provider,
         nonce,
         installId,
@@ -969,6 +1102,8 @@ class RootStore {
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
+
+      error.fromAuthenticate = true;
 
       throw error;
     } finally {
@@ -1082,6 +1217,17 @@ class RootStore {
     const metadata = yield this.mediaPropertyStore.LoadMediaPropertyCustomizationMetadata({
       mediaPropertySlugOrId
     });
+
+    // TODO: Remove
+    if(sessionStorage.getItem("openid")) {
+      metadata.login.settings = {
+        ...metadata.login.settings,
+        use_openid: true,
+        openid_endpoint: "https://login.sit-identity-cdn.ca-digi.com/oidc/op/v1.0/3_KpMYzpHCEDK5pfaGckE4CitUMVlVYUA8kGeBetcNHmo9TUBj3ajj-Z1DFsaJ_Y8I/.well-known/openid-configuration",
+        openid_client_id: "XIgKfNmVnJyemX-6RaDcllui",
+        openid_logout_url: "https://sit-identity-cdn.ca-digi.com/logout"
+      };
+    }
 
     return {
       mediaPropertyId: metadata.mediaPropertyId,
@@ -1936,7 +2082,14 @@ class RootStore {
     return offers.find(offer => offer.id === offerId);
   });
 
-  SignOut = flow(function * ({returnUrl, message, reload=true, clearSavedLogin=true, logOutAuth0=false}={}) {
+  SignOut = flow(function * ({
+    returnUrl,
+    message,
+    reload=true,
+    clearSavedLogin=true,
+    logOutAuth0=false,
+    logOutOpenId=false
+  }={}) {
     this.signingOut = true;
 
     clearInterval(this.tokenStatusInterval);
@@ -1965,6 +2118,34 @@ class RootStore {
       this.loggedIn = false;
       this.signingOut = false;
       return;
+    }
+
+    if(logOutOpenId) {
+      try {
+        const {logoutUrl, openIdClient, config} = yield this.InitializeOpenIdClient();
+
+        if(logoutUrl) {
+          logoutUrl.searchParams.set("redirect-uri", returnUrl || this.ReloadURL({signOut: true}));
+
+          window.location.href = logoutUrl.toString();
+
+          return;
+        } else {
+          const logoutUrl = yield openIdClient.buildEndSessionUrl(
+            config,
+            {
+              post_logout_redirect_uri: returnUrl || this.ReloadURL({signOut: true})
+            }
+          );
+
+          if(logoutUrl) {
+            window.location.href = logoutUrl;
+          }
+        }
+      } catch(error) {
+        this.Log("Failed to log out of Auth0:");
+        this.Log(error, true);
+      }
     }
 
     if(this.auth0 && (logOutAuth0 || (yield this.auth0.isAuthenticated()))) {
@@ -2376,11 +2557,11 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
+        return { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2396,7 +2577,7 @@ class RootStore {
       anonymous: true,
       ttl: 20,
       Load: async () => {
-        let {provider, expiresAt} = this.AuthInfo() || {};
+        let {provider, expiresAt, refreshToken} = this.AuthInfo() || {};
 
         if(!provider || expiresAt - Date.now() > expirationBuffer) {
           return;
@@ -2405,6 +2586,8 @@ class RootStore {
         // Expired
         if(provider === "ory" && await this.AuthenticateOry()) {
           // Reauthentication from ory session successful
+          return;
+        } else if(provider === "openId" && refreshToken && await this.AuthenticateOpenId({refreshToken})) {
           return;
         }
 
@@ -2506,12 +2689,13 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", nonce, installId, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
       clientAuthToken,
+      refreshToken,
       provider,
       expiresAt,
       address,

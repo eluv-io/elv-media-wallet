@@ -171,6 +171,7 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
 
     case "media_link":
       const mediaItem = mediaPropertyStore.media[action.media_id];
+
       if(mediaItem) {
         buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
       }
@@ -196,7 +197,7 @@ const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
       <Button
         {...buttonParams}
         icon={action.button.icon?.url}
-        className={S("action")}
+        className={S("action", action.button_style ? `action--${action.button_style}` : "")}
         styles={action.button}
       >
         { action.button.text }
