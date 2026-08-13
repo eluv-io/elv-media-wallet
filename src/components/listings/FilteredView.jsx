@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from "react";
-import {PageLoader} from "Components/common/Loaders";
-import ListingFilters from "Components/listings/ListingFilters";
-import {rootStore} from "Stores";
-import {LocalizeString, PageControls} from "Components/common/UIComponents";
-import {SavedValue, ScrollTo} from "../../utils/Utils";
+import {PageLoader} from "@/components/common/Loaders";
+import ListingFilters from "@/components/listings/ListingFilters";
+import {rootStore} from "@/stores";
+import {LocalizeString, PageControls} from "@/components/common/UIComponents";
+import {SavedValue, ScrollTo} from "@/utils/Utils";
 
 const savedPage = SavedValue(1, "");
 

@@ -1,20 +1,20 @@
-import UserProfileStyles from "Assets/stylesheets/user.module.scss";
+import UserProfileStyles from "@/assets/stylesheets/user.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
-import {ButtonWithLoader, CopyButton, DebouncedInput} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import {ButtonWithLoader, CopyButton, DebouncedInput} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
 import {observer} from "mobx-react";
-import {PageLoader} from "Components/common/Loaders";
+import {PageLoader} from "@/components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import Modal from "Components/common/Modal";
-import {LoginGate} from "Components/common/LoginGate";
+import Modal from "@/components/common/Modal";
+import {LoginGate} from "@/components/common/LoginGate";
 
-import UserIcon from "Assets/icons/user.svg";
-import EditIcon from "Assets/icons/edit listing icon.svg";
-import ProfileBackground from "Assets/images/BG-Profile.jpg";
-import PreferencesMenu from "Components/header/PreferencesMenu";
+import UserIcon from "@/assets/icons/user.svg";
+import EditIcon from "@/assets/icons/edit listing icon.svg";
+import ProfileBackground from "@/assets/images/BG-Profile.jpg";
+import PreferencesMenu from "@/components/header/PreferencesMenu";
 
 const S = (...classes) => classes.map(c => UserProfileStyles[c] || "").join(" ");
 

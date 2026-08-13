@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
-import {Loader} from "Components/common/Loaders";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {Loader} from "@/components/common/Loaders";
+import {FormatPriceString} from "@/components/common/UIComponents";
 
 const ListingStats = ({mode="listings", filterParams}) => {
   const match = useRouteMatch();

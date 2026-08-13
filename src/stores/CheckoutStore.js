@@ -4,7 +4,7 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import {rootStore} from "./index";
-import {NFTInfo} from "../utils/Utils";
+import {NFTInfo} from "@/utils/Utils";
 
 const PUBLIC_KEYS = {
   stripe: {

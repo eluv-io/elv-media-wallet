@@ -4,10 +4,10 @@ import {
   MediaItemIsMultiviewable,
   MediaItemScheduleInfo,
   PurchaseParamsToItems
-} from "../utils/MediaPropertyUtils";
+} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo} from "../utils/Utils";
+import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo} from "@/utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;

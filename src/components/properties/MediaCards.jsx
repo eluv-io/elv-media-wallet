@@ -1,25 +1,25 @@
-import MediaCardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
+import MediaCardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import {
   MediaItemImageUrl, MediaItemLivePreviewImageUrl,
   MediaItemScheduleInfo, MediaPropertyLink
-} from "../../utils/MediaPropertyUtils";
-import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "Components/properties/Common";
+} from "@/utils/MediaPropertyUtils";
+import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "@/components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
-import {FormatPriceString, Linkish} from "Components/common/UIComponents";
-import Video from "Components/properties/Video";
+import {FormatPriceString, Linkish} from "@/components/common/UIComponents";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Popover} from "@mantine/core";
-import ImageIcon from "Components/common/ImageIcon";
-import {useIsVisible} from "Components/common/Hooks";
+import ImageIcon from "@/components/common/ImageIcon";
+import {useIsVisible} from "@/components/common/Hooks";
 
-import ArrowRightIcon from "Assets/icons/arrow-right.svg";
-import PinIcon from "Assets/icons/pin.svg";
-import CaretDownIcon from "Assets/icons/down-caret.svg";
-import XIcon from "Assets/icons/x.svg";
+import ArrowRightIcon from "@/assets/icons/arrow-right.svg";
+import PinIcon from "@/assets/icons/pin.svg";
+import CaretDownIcon from "@/assets/icons/down-caret.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 
 const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className=""}) => {

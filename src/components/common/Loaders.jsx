@@ -1,5 +1,5 @@
 import React from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 
 export const LoaderComponentDefault = ({className=""}) => (

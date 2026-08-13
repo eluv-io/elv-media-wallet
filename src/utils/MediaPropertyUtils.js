@@ -1,6 +1,6 @@
 import {LinkTargetHash, NFTInfo, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }

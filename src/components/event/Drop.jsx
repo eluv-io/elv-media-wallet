@@ -1,14 +1,14 @@
 import React, {useState} from "react";
-import {rootStore} from "Stores/index";
-import AsyncComponent from "Components/common/AsyncComponent";
+import {rootStore} from "@/stores/index";
+import AsyncComponent from "@/components/common/AsyncComponent";
 import {
   Redirect,
   useRouteMatch
 } from "react-router-dom";
 import UrlJoin from "url-join";
-import {MarketplaceImage} from "Components/common/Images";
-import Countdown from "Components/common/Countdown";
-import ItemCard from "Components/common/ItemCard";
+import {MarketplaceImage} from "@/components/common/Images";
+import Countdown from "@/components/common/Countdown";
+import ItemCard from "@/components/common/ItemCard";
 
 const DropCard = ({marketplace, label, sku, image, selected=false, pendingSelection=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);

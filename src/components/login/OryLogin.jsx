@@ -1,17 +1,17 @@
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
-import {Loader} from "Components/common/Loaders";
+import {rootStore} from "@/stores";
+import {Loader} from "@/components/common/Loaders";
 
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import {ValidEmail} from "../../utils/Utils";
+import {ButtonWithLoader, LocalizeString} from "@/components/common/UIComponents";
+import {ValidEmail} from "@/utils/Utils";
 import {Redirect} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import GoogleLogo from "Assets/icons/google-logo.png";
-import AppleLogo from "Assets/icons/apple-logo.png";
-import MetamaskIcon from "Assets/icons/metamask fox.png";
+import GoogleLogo from "@/assets/icons/google-logo.png";
+import AppleLogo from "@/assets/icons/apple-logo.png";
+import MetamaskIcon from "@/assets/icons/metamask fox.png";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 

@@ -1,17 +1,17 @@
-import HeaderStyles from "Assets/stylesheets/header.module.scss";
+import HeaderStyles from "@/assets/stylesheets/header.module.scss";
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Linkish} from "Components/common/UIComponents";
-import {mediaPropertyStore, rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
-import {Debounce} from "../../utils/Utils";
+import {Linkish} from "@/components/common/UIComponents";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
+import {Debounce} from "@/utils/Utils";
 import {useDebouncedValue} from "@mantine/hooks";
 import {Autocomplete} from "@mantine/core";
 
-import EluvioE from "Assets/images/eluvio-e.svg";
-import LeftArrowIcon from "Assets/icons/left-arrow.svg";
-import XIcon from "Assets/icons/x.svg";
-import SearchIcon from "Assets/icons/search.svg";
+import EluvioE from "@/assets/images/eluvio-e.svg";
+import LeftArrowIcon from "@/assets/icons/left-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
+import SearchIcon from "@/assets/icons/search.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");

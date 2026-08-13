@@ -3,10 +3,10 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {ethers} from "ethers";
 
-import MetamaskLogo from "Assets/icons/crypto/metamask fox.png";
-import PhantomLogo from "Assets/icons/crypto/phantom.png";
-import EthereumLogo from "Assets/icons/ethereum-eth-logo.svg";
-import SolanaLogo from "Assets/icons/solana icon.svg";
+import MetamaskLogo from "@/assets/icons/crypto/metamask fox.png";
+import PhantomLogo from "@/assets/icons/crypto/phantom.png";
+import EthereumLogo from "@/assets/icons/ethereum-eth-logo.svg";
+import SolanaLogo from "@/assets/icons/solana icon.svg";
 import {rootStore} from "./index";
 
 class CryptoStore {

@@ -1,6 +1,6 @@
 import React from "react";
 import {Redirect, withRouter} from "react-router-dom";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 
 class ErrorBoundaryClass extends React.Component {
   constructor(props) {

@@ -1,18 +1,18 @@
-import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
+import HeaderMenuStyles from "@/assets/stylesheets/header-menus.module.scss";
 
 import React from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader, Linkish} from "Components/common/UIComponents";
+import {rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
+import {ButtonWithLoader, Linkish} from "@/components/common/UIComponents";
 import UrlJoin from "url-join";
-import HoverMenu from "Components/common/HoverMenu";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import HoverMenu from "@/components/common/HoverMenu";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
-import ProfileIcon from "Assets/icons/profile.svg";
-import ItemsIcon from "Assets/icons/items.svg";
-import HomeIcon from "Assets/icons/home.svg";
-import MarketplaceIcon from "Assets/icons/marketplace.svg";
+import ProfileIcon from "@/assets/icons/profile.svg";
+import ItemsIcon from "@/assets/icons/items.svg";
+import HomeIcon from "@/assets/icons/home.svg";
+import MarketplaceIcon from "@/assets/icons/marketplace.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");

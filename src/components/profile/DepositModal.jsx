@@ -1,13 +1,13 @@
 import React, {useState} from "react";
-import Modal from "Components/common/Modal";
+import Modal from "@/components/common/Modal";
 import {observer} from "mobx-react";
-import {ButtonWithLoader, RichText, Select} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import {rootStore, checkoutStore, mediaPropertyStore} from "Stores";
-import {ValidEmail} from "../../utils/Utils";
+import {ButtonWithLoader, RichText, Select} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import {rootStore, checkoutStore, mediaPropertyStore} from "@/stores";
+import {ValidEmail} from "@/utils/Utils";
 import {useRouteMatch} from "react-router-dom";
 
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
+import USDIcon from "@/assets/icons/crypto/USD icon.svg";
 
 const DepositModal = observer(({Close}) => {
   const match = useRouteMatch();

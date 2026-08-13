@@ -1,25 +1,25 @@
 import React, {useEffect, useRef, useState, forwardRef} from "react";
 import SVG from "react-inlinesvg";
 import {observer} from "mobx-react";
-import {checkoutStore, rootStore} from "Stores";
-import {Loader} from "Components/common/Loaders";
-import ImageIcon from "Components/common/ImageIcon";
+import {checkoutStore, rootStore} from "@/stores";
+import {Loader} from "@/components/common/Loaders";
+import ImageIcon from "@/components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
 import {createRoot} from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
 import {Link, NavLink} from "react-router-dom";
-import Modal from "Components/common/Modal";
+import Modal from "@/components/common/Modal";
 import Money from "js-money";
 import Currencies from "js-money/lib/currency";
 
-import SelectIcon from "Assets/icons/select-icon.svg";
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import CopyIcon from "Assets/icons/copy.svg";
-import PageBackIcon from "Assets/icons/pagination arrow back.svg";
-import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
+import SelectIcon from "@/assets/icons/select-icon.svg";
+import USDIcon from "@/assets/icons/crypto/USD icon.svg";
+import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
+import CopyIcon from "@/assets/icons/copy.svg";
+import PageBackIcon from "@/assets/icons/pagination arrow back.svg";
+import PageForwardIcon from "@/assets/icons/pagination arrow forward.svg";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   const [ref, setRef] = useState(undefined);

@@ -6,11 +6,11 @@ import {
   Redirect, useRouteMatch,
 } from "react-router-dom";
 
-import {rootStore} from "Stores/index";
+import {rootStore} from "@/stores/index";
 
-import RenderRoutes from "Routes";
-import MediaPropertiesBrowser from "Components/properties/MediaPropertiesBrowser";
-import Header from "Components/header/Header";
+import RenderRoutes from "@/routes";
+import MediaPropertiesBrowser from "@/components/properties/MediaPropertiesBrowser";
+import Header from "@/components/header/Header";
 
 const WalletWrapper = ({children}) => {
   useEffect(() => {

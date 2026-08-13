@@ -2,9 +2,9 @@
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
-import {Select, SwitchButton} from "Components/common/UIComponents";
-import {checkoutStore, notificationStore, rootStore} from "Stores";
+import Modal from "@/components/common/Modal";
+import {Select, SwitchButton} from "@/components/common/UIComponents";
+import {checkoutStore, notificationStore, rootStore} from "@/stores";
 import CountryCodesList from "country-codes-list";
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");

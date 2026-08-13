@@ -1,16 +1,16 @@
-import ItemCardStyles from "Assets/stylesheets/item-card.module.scss";
+import ItemCardStyles from "@/assets/stylesheets/item-card.module.scss";
 
 const S = (...classes) => classes.map(c => ItemCardStyles[c] || "").join(" ");
 
 import React from "react";
-import {NFTImage} from "Components/common/Images";
+import {NFTImage} from "@/components/common/Images";
 import {observer} from "mobx-react";
-import {NFTInfo} from "../../utils/Utils";
-import {FormatPriceString, Linkish} from "Components/common/UIComponents";
-import ItemCard from "Components/common/ItemCard";
+import {NFTInfo} from "@/utils/Utils";
+import {FormatPriceString, Linkish} from "@/components/common/UIComponents";
+import ItemCard from "@/components/common/ItemCard";
 import UrlJoin from "url-join";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import {rootStore} from "Stores";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
+import {rootStore} from "@/stores";
 
 
 const NFTCard = observer(({

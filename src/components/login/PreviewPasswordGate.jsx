@@ -1,12 +1,12 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useCallback, useEffect, useState} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
-import {Button, Modal} from "Components/properties/Common";
+import {Button, Modal} from "@/components/properties/Common";
 import {useHistory} from "react-router-dom";
 import {PasswordInput} from "@mantine/core";
-import {SHA512} from "../../utils/Utils";
+import {SHA512} from "@/utils/Utils";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 

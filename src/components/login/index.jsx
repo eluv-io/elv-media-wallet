@@ -1,20 +1,20 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
-import {Loader, PageLoader} from "Components/common/Loaders";
+import {rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
+import {Loader, PageLoader} from "@/components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import Modal from "Components/common/Modal";
-import Confirm from "Components/common/Confirm";
-import {LocalizeString} from "Components/common/UIComponents";
-import {RichText} from "Components/properties/Common";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import Modal from "@/components/common/Modal";
+import Confirm from "@/components/common/Confirm";
+import {LocalizeString} from "@/components/common/UIComponents";
+import {RichText} from "@/components/properties/Common";
+import {SetImageUrlDimensions} from "@/utils/Utils";
 
-import MetamaskIcon from "Assets/icons/metamask fox.png";
-import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
-import EluvioLogo from "Assets/images/Eluvio_logo.svg";
-import CheckIcon from "Assets/icons/check.svg";
-import OryLogin from "Components/login/OryLogin";
+import MetamaskIcon from "@/assets/icons/metamask fox.png";
+import EluvioE from "@/assets/images/ELUV.IO-E-Icon.png";
+import EluvioLogo from "@/assets/images/Eluvio_logo.svg";
+import CheckIcon from "@/assets/icons/check.svg";
+import OryLogin from "@/components/login/OryLogin";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {

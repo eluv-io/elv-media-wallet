@@ -1,18 +1,18 @@
 import React, {memo, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import ImageIcon from "Components/common/ImageIcon";
-import FilteredView from "Components/listings/FilteredView";
-import NFTCard from "Components/nft/NFTCard";
-import {RecentSales} from "Components/listings/Activity";
+import ImageIcon from "@/components/common/ImageIcon";
+import FilteredView from "@/components/listings/FilteredView";
+import NFTCard from "@/components/nft/NFTCard";
+import {RecentSales} from "@/components/listings/Activity";
 
-import ListingIcon from "Assets/icons/listings icon.svg";
-import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
-import GraphIcon from "Assets/icons/bar-chart-2.svg";
-import XIcon from "Assets/icons/x.svg";
+import ListingIcon from "@/assets/icons/listings icon.svg";
+import LinkedIcon from "@/assets/icons/linked wallet icon (r).svg";
+import GraphIcon from "@/assets/icons/bar-chart-2.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 // eslint-disable-next-line react/display-name
 const Listing = memo(({url, listing}) => (

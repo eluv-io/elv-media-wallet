@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
-import {checkoutStore, cryptoStore, rootStore} from "Stores";
-import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import Modal from "@/components/common/Modal";
+import {checkoutStore, cryptoStore, rootStore} from "@/stores";
+import {ActiveListings} from "@/components/listings/TransferTables";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "@/components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import NFTCard from "Components/nft/NFTCard";
-import ImageIcon from "Components/common/ImageIcon";
+import NFTCard from "@/components/nft/NFTCard";
+import ImageIcon from "@/components/common/ImageIcon";
 import {roundToDown} from "round-to";
-import WalletConnect from "Components/crypto/WalletConnect";
-import {PageLoader} from "Components/common/Loaders";
-import {NFTInfo, ScrollTo, ValidEmail} from "../../utils/Utils";
-import SupportedCountries from "../../utils/SupportedCountries";
+import WalletConnect from "@/components/crypto/WalletConnect";
+import {PageLoader} from "@/components/common/Loaders";
+import {NFTInfo, ScrollTo, ValidEmail} from "@/utils/Utils";
+import SupportedCountries from "@/utils/SupportedCountries";
 
-import PlusIcon from "Assets/icons/plus.svg";
-import MinusIcon from "Assets/icons/minus.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import PlusIcon from "@/assets/icons/plus.svg";
+import MinusIcon from "@/assets/icons/minus.svg";
+import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
 
 const ScrollTopOnMount = ({children}) => {
   useEffect(() => {

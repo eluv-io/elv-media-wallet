@@ -1,16 +1,16 @@
-import SubscriptionStyles from "Assets/stylesheets/media_properties/subscription.module.scss";
+import SubscriptionStyles from "@/assets/stylesheets/media_properties/subscription.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore} from "@/stores";
 import {useParams} from "react-router-dom";
-import {Loader, PageLoader} from "Components/common/Loaders";
-import {LoaderImage} from "Components/properties/Common";
-import {Linkish, LocalizeString} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
+import {Loader, PageLoader} from "@/components/common/Loaders";
+import {LoaderImage} from "@/components/properties/Common";
+import {Linkish, LocalizeString} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import CaretRightIcon from "Assets/icons/right-caret.svg";
-import Confirm from "Components/common/Confirm";
+import CaretRightIcon from "@/assets/icons/right-caret.svg";
+import Confirm from "@/components/common/Confirm";
 
 const S = (...classes) => classes.map(c => SubscriptionStyles[c] || "").join(" ");
 

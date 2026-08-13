@@ -2,10 +2,10 @@ import {observer} from "mobx-react";
 import {useHistory, useRouteMatch} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {rootStore} from "Stores";
-import {LoginGate} from "Components/common/LoginGate";
-import {PageLoader} from "Components/common/Loaders";
-import {SearchParams} from "../../utils/Utils";
+import {rootStore} from "@/stores";
+import {LoginGate} from "@/components/common/LoginGate";
+import {PageLoader} from "@/components/common/Loaders";
+import {SearchParams} from "@/utils/Utils";
 
 
 // Flows are popups that do not require UI input (redirecting to purchase, etc)

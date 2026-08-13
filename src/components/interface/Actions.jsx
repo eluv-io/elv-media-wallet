@@ -2,12 +2,12 @@ import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {rootStore} from "Stores";
-import {PageLoader} from "Components/common/Loaders";
+import {rootStore} from "@/stores";
+import {PageLoader} from "@/components/common/Loaders";
 
-import SignaturePopup from "Components/interface/SignaturePopup";
-import ConsentPopup from "Components/interface/ConsentPopup";
-import PurchaseAction from "Components/interface/PurchaseAction";
+import SignaturePopup from "@/components/interface/SignaturePopup";
+import ConsentPopup from "@/components/interface/ConsentPopup";
+import PurchaseAction from "@/components/interface/PurchaseAction";
 
 // Actions are popups that present UI (signing, accepting permissions, etc.)
 const Actions = observer(() => {

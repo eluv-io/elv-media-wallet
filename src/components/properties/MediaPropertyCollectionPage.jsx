@@ -1,13 +1,13 @@
-import MediaCollectionStyles from "Assets/stylesheets/media_properties/property-media-collection.module.scss";
+import MediaCollectionStyles from "@/assets/stylesheets/media_properties/property-media-collection.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
-import {PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
-import MediaCard from "Components/properties/MediaCards";
-import {Select} from "Components/common/UIComponents";
-import {LoginGate} from "Components/common/LoginGate";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import {PageBackground, PageContainer, PageHeader} from "@/components/properties/Common";
+import MediaCard from "@/components/properties/MediaCards";
+import {Select} from "@/components/common/UIComponents";
+import {LoginGate} from "@/components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
 

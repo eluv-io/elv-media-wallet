@@ -1,10 +1,10 @@
 import React from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {UserGiftsHistory} from "Components/listings/TransferTables";
+import {UserGiftsHistory} from "@/components/listings/TransferTables";
 
-import GiftIcon from "Assets/icons/gift.svg";
+import GiftIcon from "@/assets/icons/gift.svg";
 
 const UserActivity = observer(() => {
   const match = useRouteMatch();

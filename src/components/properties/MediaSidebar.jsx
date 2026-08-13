@@ -1,4 +1,4 @@
-import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
+import SidebarStyles from "@/assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
@@ -7,26 +7,26 @@ import {
   MediaItemScheduleInfo,
   MediaPropertyBasePath,
   MediaPropertyLink
-} from "../../utils/MediaPropertyUtils";
-import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
+} from "@/utils/MediaPropertyUtils";
+import {mediaPropertyStore, mediaStore, rootStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
-import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {Linkish} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {Button, LoaderImage, Modal} from "@/components/properties/Common";
+import {Linkish} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
 import {TextInput} from "@mantine/core";
-import {useIsVisible} from "Components/common/Hooks";
+import {useIsVisible} from "@/components/common/Hooks";
 import UrlJoin from "url-join";
 
-import HideIcon from "Assets/icons/right-arrow.svg";
-import ShowIcon from "Assets/icons/left-arrow.svg";
-import FullscreenIcon from "Assets/icons/full screen.svg";
-import PipVideoIcon from "Assets/icons/pip.svg";
-import MultiviewIcon from "Assets/icons/media/multiview.svg";
-import EyeIcon from "Assets/icons/eye.svg";
-import XIcon from "Assets/icons/x.svg";
-import AIDescriptionIcon from "Assets/icons/ai-description.svg";
-import SearchIcon from "Assets/icons/search.svg";
+import HideIcon from "@/assets/icons/right-arrow.svg";
+import ShowIcon from "@/assets/icons/left-arrow.svg";
+import FullscreenIcon from "@/assets/icons/full screen.svg";
+import PipVideoIcon from "@/assets/icons/pip.svg";
+import MultiviewIcon from "@/assets/icons/media/multiview.svg";
+import EyeIcon from "@/assets/icons/eye.svg";
+import XIcon from "@/assets/icons/x.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
+import SearchIcon from "@/assets/icons/search.svg";
 
 const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
 

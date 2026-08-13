@@ -1,11 +1,11 @@
-import ItemCardStyles from "Assets/stylesheets/item-card.module.scss";
+import ItemCardStyles from "@/assets/stylesheets/item-card.module.scss";
 
 const S = (...classes) => classes.map(c => ItemCardStyles[c] || "").join(" ");
 
 import React from "react";
 import {observer} from "mobx-react";
-import {Linkish} from "Components/common/UIComponents";
-import {ScaledText} from "Components/properties/Common";
+import {Linkish} from "@/components/common/UIComponents";
+import {ScaledText} from "@/components/properties/Common";
 
 const ItemCard = observer(({
   collectionImage,

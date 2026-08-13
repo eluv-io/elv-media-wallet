@@ -1,31 +1,31 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import SanitizeHTML from "sanitize-html";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {SetImageUrlDimensions} from "@/utils/Utils";
 import {useHistory} from "react-router-dom";
 import {Modal as MantineModal} from "@mantine/core";
 import {
   CreateMediaPropertyPurchaseParams,
   MediaPropertyPurchaseParams
-} from "../../utils/MediaPropertyUtils";
-import ImageIcon from "Components/common/ImageIcon";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+} from "@/utils/MediaPropertyUtils";
+import ImageIcon from "@/components/common/ImageIcon";
+import ResponsiveEllipsis from "@/components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {A11y, Pagination} from "swiper/modules";
-import {Loader} from "Components/common/Loaders";
-import {Linkish} from "Components/common/UIComponents";
-import Video from "Components/properties/Video";
+import {Loader} from "@/components/common/Loaders";
+import {Linkish} from "@/components/common/UIComponents";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
-import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaPropertySection";
-import {LoginGate} from "Components/common/LoginGate";
-import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "../../utils/Thumbhash";
+import {MediaPropertyPurchaseGatePage} from "@/components/properties/MediaPropertySection";
+import {LoginGate} from "@/components/common/LoginGate";
+import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "@/utils/Thumbhash";
 
-import LeftArrow from "Assets/icons/left-arrow.svg";
-import RightArrow from "Assets/icons/right-arrow.svg";
-import XIcon from "Assets/icons/x.svg";
+import LeftArrow from "@/assets/icons/left-arrow.svg";
+import RightArrow from "@/assets/icons/right-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 

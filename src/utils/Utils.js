@@ -1,13 +1,13 @@
-import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
-import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
-import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
-import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
-import PlayIcon from "Assets/icons/media/Play icon.svg";
-import Favicon from "Assets/icons/favicon.png";
+import AudioPlayCircleIcon from "@/assets/icons/media/blue play bars icon.svg";
+import AudioPlayIcon from "@/assets/icons/media/bars icon (no circle).svg";
+import VideoPlayCircleIcon from "@/assets/icons/media/video play icon.svg";
+import VideoPlayIcon from "@/assets/icons/media/video play icon (no circle).svg";
+import PlayIcon from "@/assets/icons/media/Play icon.svg";
+import Favicon from "@/assets/icons/favicon.png";
 
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore} from "@/stores";
 import UrlJoin from "url-join";
-import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString, PriceCurrency} from "@/components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const SHA512 = async (str) => {

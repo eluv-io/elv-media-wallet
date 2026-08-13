@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {v4 as UUID} from "uuid";
-import ImageIcon from "Components/common/ImageIcon";
-import ClearIcon from "Assets/icons/x.svg";
+import ImageIcon from "@/components/common/ImageIcon";
+import ClearIcon from "@/assets/icons/x.svg";
 
 const AutoComplete = ({
   value,

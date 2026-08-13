@@ -1,33 +1,33 @@
-import MediaStyles from "Assets/stylesheets/media_properties/property-media.module.scss";
+import MediaStyles from "@/assets/stylesheets/media_properties/property-media.module.scss";
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import { Redirect, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
+import {mediaPropertyStore, mediaStore, rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
   MediaItemScheduleInfo
-} from "../../utils/MediaPropertyUtils";
-import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
+} from "@/utils/MediaPropertyUtils";
+import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "@/components/properties/Common";
 import Video from "./Video";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
-import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
-import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "Components/properties/MediaSidebar";
-import {CopyableField, Linkish} from "Components/common/UIComponents";
+import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
+import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "@/components/properties/MediaSidebar";
+import {CopyableField, Linkish} from "@/components/common/UIComponents";
 import {ActionIcon, Menu} from "@mantine/core";
 
-import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
-import MultiviewIcon from "Assets/icons/media/multiview.svg";
-import DownloadIcon from "Assets/icons/download.svg";
-import PlayIcon from "Assets/icons/media/play.svg";
-import VerticalIcon from "Assets/icons/media/vertical.svg";
-import AIDescriptionIcon from "Assets/icons/ai-description.svg";
-import XIcon from "Assets/icons/x.svg";
+import MediaErrorIcon from "@/assets/icons/media-error-icon.svg";
+import MultiviewIcon from "@/assets/icons/media/multiview.svg";
+import DownloadIcon from "@/assets/icons/download.svg";
+import PlayIcon from "@/assets/icons/media/play.svg";
+import VerticalIcon from "@/assets/icons/media/vertical.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 

@@ -6,7 +6,7 @@ import { observer} from "mobx-react";
 import {MantineProvider} from "@mantine/core";
 import MantineTheme from "./MantineTheme";
 
-import { rootStore } from "Stores/index.js";
+import { rootStore } from "@/stores/index.js";
 import {
   Switch,
   Route,
@@ -14,19 +14,19 @@ import {
   BrowserRouter,
   useHistory
 } from "react-router-dom";
-import Login from "Components/login/index";
-import ScrollToTop from "Components/common/ScrollToTop";
-import {ErrorBoundary} from "Components/common/ErrorBoundary";
-import {PageLoader} from "Components/common/Loaders";
-import Modal from "Components/common/Modal";
-import Flows from "Components/interface/Flows";
-import Actions from "Components/interface/Actions";
+import Login from "@/components/login/index";
+import ScrollToTop from "@/components/common/ScrollToTop";
+import {ErrorBoundary} from "@/components/common/ErrorBoundary";
+import {PageLoader} from "@/components/common/Loaders";
+import Modal from "@/components/common/Modal";
+import Flows from "@/components/interface/Flows";
+import Actions from "@/components/interface/Actions";
 import {SearchParams} from "./utils/Utils";
-import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
-import ImageIcon from "Components/common/ImageIcon";
-import {SplashScreen} from "Components/properties/Common";
+import {PropertyRoutes, BundledPropertyRoutes} from "@/components/properties";
+import ImageIcon from "@/components/common/ImageIcon";
+import {SplashScreen} from "@/components/properties/Common";
 
-import XIcon from "Assets/icons/x.svg";
+import XIcon from "@/assets/icons/x.svg";
 import MediaPropertiesBrowser from "./components/properties/MediaPropertiesBrowser.jsx";
 
 const searchParams = SearchParams();

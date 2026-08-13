@@ -1,20 +1,20 @@
-import FooterStyles from "Assets/stylesheets/media_properties/property-footer.module.scss";
+import FooterStyles from "@/assets/stylesheets/media_properties/property-footer.module.scss";
 
 import React, {useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, mediaPropertyStore} from "Stores";
-import {Linkish} from "Components/common/UIComponents";
-import {LoaderImage, Modal, RichText} from "Components/properties/Common";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {rootStore, mediaPropertyStore} from "@/stores";
+import {Linkish} from "@/components/common/UIComponents";
+import {LoaderImage, Modal, RichText} from "@/components/properties/Common";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 
-import BlueskyIcon from "Assets/icons/social/bluesky.svg";
-import FacebookIcon from "Assets/icons/social/facebook.svg";
-import InstagramIcon from "Assets/icons/social/instagram.svg";
-import LinkedInIcon from "Assets/icons/social/linkedin.svg";
-import TikTokIcon from "Assets/icons/social/tiktok.svg";
-import TwitterIcon from "Assets/icons/social/twitter.svg";
-import ImageIcon from "Components/common/ImageIcon";
+import BlueskyIcon from "@/assets/icons/social/bluesky.svg";
+import FacebookIcon from "@/assets/icons/social/facebook.svg";
+import InstagramIcon from "@/assets/icons/social/instagram.svg";
+import LinkedInIcon from "@/assets/icons/social/linkedin.svg";
+import TikTokIcon from "@/assets/icons/social/tiktok.svg";
+import TwitterIcon from "@/assets/icons/social/twitter.svg";
+import ImageIcon from "@/components/common/ImageIcon";
 
 const icons = {
   bluesky: BlueskyIcon,

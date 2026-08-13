@@ -1,17 +1,17 @@
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore} from "@/stores";
 import UrlJoin from "url-join";
 import {useRouteMatch} from "react-router-dom";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import FilteredView from "Components/listings/FilteredView";
+import FilteredView from "@/components/listings/FilteredView";
 
-import ListingIcon from "Assets/icons/listings icon.svg";
-import TestIcon from "Assets/icons/alert-circle.svg";
-import NFTCard from "Components/nft/NFTCard";
+import ListingIcon from "@/assets/icons/listings icon.svg";
+import TestIcon from "@/assets/icons/alert-circle.svg";
+import NFTCard from "@/components/nft/NFTCard";
 
 const UserItems = observer(() => {
   const [subscriptions, setSubscriptions] = useState([]);

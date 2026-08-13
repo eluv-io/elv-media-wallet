@@ -1,30 +1,30 @@
-import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
-import NotificationStyles from "Assets/stylesheets/notifications.module.scss";
+import HeaderMenuStyles from "@/assets/stylesheets/header-menus.module.scss";
+import NotificationStyles from "@/assets/stylesheets/notifications.module.scss";
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
-import {rootStore, notificationStore} from "Stores";
-import {ButtonWithLoader, FormatPriceString, Linkish, LocalizeString} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import {Ago} from "../../utils/Utils";
+import {rootStore, notificationStore} from "@/stores";
+import {ButtonWithLoader, FormatPriceString, Linkish, LocalizeString} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import {Ago} from "@/utils/Utils";
 import UrlJoin from "url-join";
 import {Link} from "react-router-dom";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {createPortal} from "react-dom";
-import HoverMenu from "Components/common/HoverMenu";
-import PreferencesMenu from "Components/header/PreferencesMenu";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import HoverMenu from "@/components/common/HoverMenu";
+import PreferencesMenu from "@/components/header/PreferencesMenu";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
-import ListingSoldIcon from "Assets/icons/header/listings icon.svg";
-import TokenUpdatedIcon from "Assets/icons/plus.svg";
-import OfferReceivedIcon from "Assets/icons/header/offer icon.svg";
-import OfferDeclinedIcon from "Assets/icons/x.svg";
-import OfferExpiredIcon from "Assets/icons/minus.svg";
-import OfferAcceptedIcon from "Assets/icons/header/offer icon.svg";
-import GiftIcon from "Assets/icons/gift.svg";
-import MenuIcon from "Assets/icons/more-horizontal.svg";
-import NotificationDisabledIcon from "Assets/icons/header/bell-off.svg";
-import CheckmarkIcon from "Assets/icons/check.svg";
+import ListingSoldIcon from "@/assets/icons/header/listings icon.svg";
+import TokenUpdatedIcon from "@/assets/icons/plus.svg";
+import OfferReceivedIcon from "@/assets/icons/header/offer icon.svg";
+import OfferDeclinedIcon from "@/assets/icons/x.svg";
+import OfferExpiredIcon from "@/assets/icons/minus.svg";
+import OfferAcceptedIcon from "@/assets/icons/header/offer icon.svg";
+import GiftIcon from "@/assets/icons/gift.svg";
+import MenuIcon from "@/assets/icons/more-horizontal.svg";
+import NotificationDisabledIcon from "@/assets/icons/header/bell-off.svg";
+import CheckmarkIcon from "@/assets/icons/check.svg";
 
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || NotificationStyles[c] || "").join(" ");
 

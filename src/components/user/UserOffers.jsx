@@ -1,10 +1,10 @@
 import React from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {OffersTable} from "Components/listings/TransferTables";
+import {OffersTable} from "@/components/listings/TransferTables";
 
-import OffersTableIcon from "Assets/icons/Offers table icon.svg";
+import OffersTableIcon from "@/assets/icons/Offers table icon.svg";
 
 const UserOffers = observer(() => {
   const match = useRouteMatch();

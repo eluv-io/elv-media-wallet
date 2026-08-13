@@ -1,10 +1,10 @@
-import CardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
+import CardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "Stores";
+import {mediaPropertyStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
-import {Carousel, LoaderImage} from "Components/properties/Common";
+import {Carousel, LoaderImage} from "@/components/properties/Common";
 
 const S = (...classes) => classes.map(c => CardStyles[c] || "").join(" ");
 

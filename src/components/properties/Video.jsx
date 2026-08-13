@@ -1,12 +1,12 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {forwardRef, useEffect, useRef, useState} from "react";
-import {LinkTargetHash} from "../../utils/Utils";
-import {rootStore, mediaPropertyStore, mediaStore} from "Stores";
+import {LinkTargetHash} from "@/utils/Utils";
+import {rootStore, mediaPropertyStore, mediaStore} from "@/stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import XIcon from "Assets/icons/x.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 

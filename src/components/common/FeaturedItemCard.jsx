@@ -1,12 +1,12 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+import {rootStore} from "@/stores";
+import ResponsiveEllipsis from "@/components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
-import {RichText} from "Components/common/UIComponents";
-import Countdown from "Components/common/Countdown";
+import {RichText} from "@/components/common/UIComponents";
+import Countdown from "@/components/common/Countdown";
 
 const FeaturedItemCard = observer(({
   link,

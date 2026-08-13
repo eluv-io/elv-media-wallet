@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from "react";
-import {Loader} from "Components/common/Loaders";
-import {rootStore, cryptoStore} from "Stores";
+import {Loader} from "@/components/common/Loaders";
+import {rootStore, cryptoStore} from "@/stores";
 import {observer} from "mobx-react";
 
-import EluvioLogo from "Assets/images/EluvioLogo.png";
-import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import EluvioLogo from "@/assets/images/EluvioLogo.png";
+import ImageIcon from "@/components/common/ImageIcon";
+import {ButtonWithLoader} from "@/components/common/UIComponents";
 
 const Sign = async (params, Respond, SetMessage) => {
   try {

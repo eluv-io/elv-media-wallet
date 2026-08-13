@@ -1,15 +1,15 @@
 import React from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {OffersTable, UserListingTable, UserTransferTable} from "Components/listings/TransferTables";
+import {OffersTable, UserListingTable, UserTransferTable} from "@/components/listings/TransferTables";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {RichText} from "Components/common/UIComponents";
+import {RichText} from "@/components/common/UIComponents";
 
-import ListingsIcon from "Assets/icons/listing.svg";
-import SalesIcon from "Assets/icons/misc/sales icon.svg";
-import PurchasesIcon from "Assets/icons/misc/purchases icon.svg";
-import OffersTableIcon from "Assets/icons/Offers table icon.svg";
+import ListingsIcon from "@/assets/icons/listing.svg";
+import SalesIcon from "@/assets/icons/misc/sales icon.svg";
+import PurchasesIcon from "@/assets/icons/misc/purchases icon.svg";
+import OffersTableIcon from "@/assets/icons/Offers table icon.svg";
 
 const UserActivity = observer(() => {
   const match = useRouteMatch();

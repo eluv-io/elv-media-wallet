@@ -1,7 +1,7 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");

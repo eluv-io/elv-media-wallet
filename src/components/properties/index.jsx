@@ -1,17 +1,17 @@
-import PropertyStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
+import PropertyStyles from "@/assets/stylesheets/media_properties/property-page.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {mediaPropertyStore, rootStore} from "Stores/index";
+import {mediaPropertyStore, rootStore} from "@/stores/index";
 import {Redirect, Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
-import RenderRoutes from "Routes";
-import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
-import {LoginGate} from "Components/common/LoginGate";
-import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
-import {SetHTMLMetaTags} from "../../utils/Utils";
-import PreviewPasswordGate from "Components/login/PreviewPasswordGate";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
-import {PageLoader} from "Components/common/Loaders";
+import RenderRoutes from "@/routes";
+import MediaPropertyHeader from "@/components/properties/MediaPropertyHeader";
+import {LoginGate} from "@/components/common/LoginGate";
+import MediaPropertyFooter from "@/components/properties/MediaPropertyFooter";
+import {SetHTMLMetaTags} from "@/utils/Utils";
+import PreviewPasswordGate from "@/components/login/PreviewPasswordGate";
+import MediaPropertyPurchaseModal from "@/components/properties/MediaPropertyPurchaseModal";
+import {PageLoader} from "@/components/common/Loaders";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();

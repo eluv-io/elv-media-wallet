@@ -1,16 +1,16 @@
-import RedeemableOfferStyles from "Assets/stylesheets/media_properties/redeemable-offer-modal.module.scss";
+import RedeemableOfferStyles from "@/assets/stylesheets/media_properties/redeemable-offer-modal.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {QRCodeElement} from "Components/common/UIComponents";
-import {checkoutStore, rootStore, mediaPropertyStore} from "Stores";
+import {QRCodeElement} from "@/components/common/UIComponents";
+import {checkoutStore, rootStore, mediaPropertyStore} from "@/stores";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {Loader} from "Components/common/Loaders";
-import Video from "Components/properties/Video";
+import {Loader} from "@/components/common/Loaders";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
-import {LoginGate} from "Components/common/LoginGate";
-import {Button, ExpandableDescription, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
-import {NFTInfo} from "../../utils/Utils";
+import {LoginGate} from "@/components/common/LoginGate";
+import {Button, ExpandableDescription, LoaderImage, Modal, ScaledText} from "@/components/properties/Common";
+import {NFTInfo} from "@/utils/Utils";
 import {useHistory, useRouteMatch} from "react-router-dom";
 
 const S = (...classes) => classes.map(c => RedeemableOfferStyles[c] || "").join(" ");

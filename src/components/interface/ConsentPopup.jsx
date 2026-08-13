@@ -1,11 +1,11 @@
 import React, {useState} from "react";
-import {Loader} from "Components/common/Loaders";
-import {rootStore} from "Stores";
+import {Loader} from "@/components/common/Loaders";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import EluvioLogo from "Assets/images/EluvioLogo.png";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import EluvioLogo from "@/assets/images/EluvioLogo.png";
+import {ButtonWithLoader} from "@/components/common/UIComponents";
 
 const ConsentPopup = observer(({parameters, Respond}) => {
   const [trusted, setTrusted] = useState(

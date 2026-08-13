@@ -1,17 +1,17 @@
 import React, {useState, useEffect} from "react";
 import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {observer} from "mobx-react";
-import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
-import {Loader, PageLoader} from "Components/common/Loaders";
+import {rootStore, checkoutStore, cryptoStore} from "@/stores/index";
+import {Loader, PageLoader} from "@/components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import NFTCard from "Components/nft/NFTCard";
-import {LinkTargetHash, MobileOption, ScrollTo, SearchParams} from "../../utils/Utils";
-import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
-import ItemCard from "Components/common/ItemCard";
-import {NFTImage} from "Components/common/Images";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import NFTCard from "@/components/nft/NFTCard";
+import {LinkTargetHash, MobileOption, ScrollTo, SearchParams} from "@/utils/Utils";
+import {FormatPriceString, LocalizeString} from "@/components/common/UIComponents";
+import ItemCard from "@/components/common/ItemCard";
+import {NFTImage} from "@/components/common/Images";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
 const searchParams = SearchParams();
 

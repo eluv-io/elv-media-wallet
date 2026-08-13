@@ -52,12 +52,9 @@ export default defineConfig(() => {
     resolve: {
       // Synchronize with jsonconfig.json
       alias: {
-        Assets: fileURLToPath(new URL("src/static", import.meta.url)),
-        Components: fileURLToPath(new URL("src/components", import.meta.url)),
-        Routes: fileURLToPath(new URL("src/routes", import.meta.url)),
-        Stores: fileURLToPath(new URL("src/stores", import.meta.url)),
         "@/assets": fileURLToPath(new URL("./src/static", import.meta.url)),
         "@/components": fileURLToPath(new URL("./src/components", import.meta.url)),
+        "@/routes": fileURLToPath(new URL("./src/routes", import.meta.url)),
         "@/stores": fileURLToPath(new URL("./src/stores", import.meta.url)),
         "@/utils": fileURLToPath(new URL("./src/utils", import.meta.url))
       }

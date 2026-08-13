@@ -1,14 +1,14 @@
 import React from "react";
 import {observer} from "mobx-react";
-import {FormatPriceString} from "Components/common/UIComponents";
-import {Ago, MiddleEllipsis} from "../../utils/Utils";
+import {FormatPriceString} from "@/components/common/UIComponents";
+import {Ago, MiddleEllipsis} from "@/utils/Utils";
 import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {FilteredTable} from "Components/common/Table";
-import {rootStore} from "Stores";
+import {FilteredTable} from "@/components/common/Table";
+import {rootStore} from "@/stores";
 
-import SalesIcon from "Assets/icons/misc/sales icon.svg";
+import SalesIcon from "@/assets/icons/misc/sales icon.svg";
 
 
 const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFilters, ...props}) => {

@@ -1,26 +1,26 @@
 import React, {useEffect, useState} from "react";
-import {checkoutStore, mediaPropertyStore, rootStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore} from "@/stores";
 import UrlJoin from "url-join";
 import {
   Link,
   useRouteMatch
 } from "react-router-dom";
-import {ButtonWithLoader, CopyableField, FormatPriceString, Linkish, RichText} from "Components/common/UIComponents";
-import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
+import {ButtonWithLoader, CopyableField, FormatPriceString, Linkish, RichText} from "@/components/common/UIComponents";
+import {OffersTable, UserTransferTable} from "@/components/listings/TransferTables";
 import {observer} from "mobx-react";
-import WithdrawalModal from "Components/profile/WithdrawalModal";
-import WalletConnect from "Components/crypto/WalletConnect";
-import ImageIcon from "Components/common/ImageIcon";
-import DepositModal from "Components/profile/DepositModal";
-import {SearchParams} from "../../utils/Utils";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import {LoaderImage} from "Components/properties/Common";
+import WithdrawalModal from "@/components/profile/WithdrawalModal";
+import WalletConnect from "@/components/crypto/WalletConnect";
+import ImageIcon from "@/components/common/ImageIcon";
+import DepositModal from "@/components/profile/DepositModal";
+import {SearchParams} from "@/utils/Utils";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
+import {LoaderImage} from "@/components/properties/Common";
 
-import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
-import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
-import OffersIcon from "Assets/icons/Offers table icon.svg";
-import DownCaret from "Assets/icons/down-caret.svg";
-import UpCaret from "Assets/icons/up-caret.svg";
+import MetamaskIcon from "@/assets/icons/crypto/metamask fox.png";
+import WithdrawalsIcon from "@/assets/icons/crypto/USD icon.svg";
+import OffersIcon from "@/assets/icons/Offers table icon.svg";
+import DownCaret from "@/assets/icons/down-caret.svg";
+import UpCaret from "@/assets/icons/up-caret.svg";
 
 
 const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children, className=""}) => {

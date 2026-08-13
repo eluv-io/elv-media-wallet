@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import UrlJoin from "url-join";
-import {MarketplaceImage, NFTImage} from "Components/common/Images";
-import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
-import ItemCard from "Components/common/ItemCard";
-import ImageIcon from "Components/common/ImageIcon";
+import {MarketplaceImage, NFTImage} from "@/components/common/Images";
+import MarketplaceItemCard from "@/components/marketplace/MarketplaceItemCard";
+import ItemCard from "@/components/common/ItemCard";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import OwnedIcon from "Assets/icons/owned icon.svg";
-import {PageLoader} from "Components/common/Loaders";
-import NFTCard from "Components/nft/NFTCard";
+import OwnedIcon from "@/assets/icons/owned icon.svg";
+import {PageLoader} from "@/components/common/Loaders";
+import NFTCard from "@/components/nft/NFTCard";
 
 const UserCollection = observer(({collectionSKU}) => {
   const match = useRouteMatch();

@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {createPortal} from "react-dom";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
 const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", className=""}) => {
   const [scrolled, setScrolled] = useState(false);

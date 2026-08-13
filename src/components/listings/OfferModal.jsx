@@ -1,19 +1,19 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Confirm from "Components/common/Confirm";
-import {OffersTable} from "Components/listings/TransferTables";
-import {rootStore} from "Stores";
-import NFTCard from "Components/nft/NFTCard";
-import {FormatPriceString, ParseMoney, LocalizeString} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
+import Confirm from "@/components/common/Confirm";
+import {OffersTable} from "@/components/listings/TransferTables";
+import {rootStore} from "@/stores";
+import NFTCard from "@/components/nft/NFTCard";
+import {FormatPriceString, ParseMoney, LocalizeString} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
 import {roundToDown} from "round-to";
 import UrlJoin from "url-join";
 import {Link, useRouteMatch} from "react-router-dom";
 
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
-import CalendarIcon from "Assets/icons/calendar.svg";
-import {Button, Modal} from "Components/properties/Common";
+import USDIcon from "@/assets/icons/crypto/USD icon.svg";
+import CalendarIcon from "@/assets/icons/calendar.svg";
+import {Button, Modal} from "@/components/properties/Common";
 
 const DateOrdinal = date => date + (date > 0 ? ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10] : "");
 const ExpirationDate = duration => {

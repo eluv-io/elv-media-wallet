@@ -1,7 +1,7 @@
 
 console.time("Initial Load");
 
-import {SearchParams} from "../utils/Utils";
+import {SearchParams} from "@/utils/Utils";
 
 window.sessionStorageAvailable = false;
 try {
@@ -18,20 +18,20 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 import {parseDomain} from "parse-domain";
 
-import CheckoutStore from "Stores/CheckoutStore";
-import TransferStore from "Stores/TransferStore";
-import CryptoStore from "Stores/CryptoStore";
-import NotificationStore from "Stores/NotificationStore";
-import MediaPropertyStore from "Stores/MediaPropertyStore";
-import MediaStore from "Stores/MediaStore";
+import CheckoutStore from "@/stores/CheckoutStore";
+import TransferStore from "@/stores/TransferStore";
+import CryptoStore from "@/stores/CryptoStore";
+import NotificationStore from "@/stores/NotificationStore";
+import MediaPropertyStore from "@/stores/MediaPropertyStore";
+import MediaStore from "@/stores/MediaStore";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
 import MergeWith from "lodash/mergeWith";
 
-import LocalizationEN from "Assets/localizations/en.yml";
-import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
+import LocalizationEN from "@/assets/localizations/en.yml";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -360,7 +360,7 @@ class RootStore {
       return false;
     }
 
-    const localization = (yield import(`Assets/localizations/${language}.yml`)).default;
+    const localization = (yield import(`@/assets/localizations/${language}.yml`)).default;
 
     const MergeLocalization = (l10n, en) => {
       if(Array.isArray(en)) {

@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {rootStore, transferStore} from "Stores";
-import {NFTInfo} from "../../utils/Utils";
-import {PageLoader} from "Components/common/Loaders";
-import ImageIcon from "Components/common/ImageIcon";
-import PurchaseModal from "Components/listings/PurchaseModal";
+import {rootStore, transferStore} from "@/stores";
+import {NFTInfo} from "@/utils/Utils";
+import {PageLoader} from "@/components/common/Loaders";
+import ImageIcon from "@/components/common/ImageIcon";
+import PurchaseModal from "@/components/listings/PurchaseModal";
 
-import EluvioLogo from "Assets/images/EluvioLogo.png";
+import EluvioLogo from "@/assets/images/EluvioLogo.png";
 
 const PurchaseAction = observer(({parameters}) => {
   const match = useRouteMatch();

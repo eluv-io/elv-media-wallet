@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, transferStore} from "Stores";
-import Modal from "Components/common/Modal";
-import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import Confirm from "Components/common/Confirm";
+import {rootStore, transferStore} from "@/stores";
+import Modal from "@/components/common/Modal";
+import NFTCard from "@/components/nft/NFTCard";
+import {ButtonWithLoader, LocalizeString} from "@/components/common/UIComponents";
+import Confirm from "@/components/common/Confirm";
 
 const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => {
   const [transferring, setTransferring] = useState(false);

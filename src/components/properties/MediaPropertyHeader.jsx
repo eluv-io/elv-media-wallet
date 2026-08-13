@@ -1,31 +1,31 @@
-import HeaderStyles from "Assets/stylesheets/media_properties/property-header.module.scss";
+import HeaderStyles from "@/assets/stylesheets/media_properties/property-header.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useHistory} from "react-router-dom";
-import {rootStore, mediaPropertyStore, notificationStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
+import {rootStore, mediaPropertyStore, notificationStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
 import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch, Select, TextInput, useCombobox} from "@mantine/core";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import {Linkish} from "Components/common/UIComponents";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
+import {Linkish} from "@/components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
-import {Button} from "Components/properties/Common";
-import ProfileMenu from "Components/header/ProfileMenu";
-import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import {SetImageUrlDimensions} from "../../utils/Utils";
-import {LogInAuth0, LogInOpenId} from "Components/login";
+import {Button} from "@/components/properties/Common";
+import ProfileMenu from "@/components/header/ProfileMenu";
+import {NotificationsMenu} from "@/components/header/NotificationsMenu";
+import {SetImageUrlDimensions} from "@/utils/Utils";
+import {LogInAuth0, LogInOpenId} from "@/components/login";
 
-import HomeIcon from "Assets/icons/home.svg";
-import SearchIcon from "Assets/icons/search.svg";
-import LeftArrowIcon from "Assets/icons/left-arrow.svg";
-import XIcon from "Assets/icons/x.svg";
-import MenuIcon from "Assets/icons/menu.svg";
-import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import SelectIcon from "Assets/icons/select.svg";
-import LanguageIcon from "Assets/icons/header/language.svg";
-import AISparkleIcon from "Assets/icons/ai-sparkle1.svg";
+import HomeIcon from "@/assets/icons/home.svg";
+import SearchIcon from "@/assets/icons/search.svg";
+import LeftArrowIcon from "@/assets/icons/left-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
+import MenuIcon from "@/assets/icons/menu.svg";
+import NotificationsIcon from "@/assets/icons/header/Notification Icon.svg";
+import SelectIcon from "@/assets/icons/select.svg";
+import LanguageIcon from "@/assets/icons/header/language.svg";
+import AISparkleIcon from "@/assets/icons/ai-sparkle1.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");

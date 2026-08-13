@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
-import {LinkTargetHash} from "../../utils/Utils";
+import {LinkTargetHash} from "@/utils/Utils";
 import {observer} from "mobx-react";
 
 // Fabric video - Default options is muted looping animation

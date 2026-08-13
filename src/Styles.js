@@ -1,11 +1,11 @@
 // All style imports
 
-import "Assets/stylesheets/reset.scss";
-import "Assets/fonts/fonts.css";
+import "@/assets/stylesheets/reset.scss";
+import "@/assets/fonts/fonts.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "swiper/swiper-bundle.css";
-import "Assets/stylesheets/reset.scss";
+import "@/assets/stylesheets/reset.scss";
 
 import "@/assets/stylesheets/themes/default.css";
 import "@/assets/stylesheets/media_properties/variables.css";

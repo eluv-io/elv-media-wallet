@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 
 // Show only login page until logged in

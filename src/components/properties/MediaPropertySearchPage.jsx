@@ -1,18 +1,18 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, mediaStore} from "Stores";
+import {mediaPropertyStore, mediaStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
 
-import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
-import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
-import SearchStyles from "Assets/stylesheets/media_properties/property-search.module.scss";
+import PageStyles from "@/assets/stylesheets/media_properties/property-page.module.scss";
+import SectionStyles from "@/assets/stylesheets/media_properties/property-section.module.scss";
+import SearchStyles from "@/assets/stylesheets/media_properties/property-search.module.scss";
 
 import {
   PageContainer
-} from "Components/properties/Common";
-import {SectionResultsGroup} from "Components/properties/MediaPropertySection";
-import Filters from "Components/properties/Filters";
-import {PageLoader} from "Components/common/Loaders";
+} from "@/components/properties/Common";
+import {SectionResultsGroup} from "@/components/properties/MediaPropertySection";
+import Filters from "@/components/properties/Filters";
+import {PageLoader} from "@/components/common/Loaders";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 

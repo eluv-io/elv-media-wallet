@@ -3,18 +3,18 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 
-import ImageIcon from "Components/common/ImageIcon";
-import {rootStore, cryptoStore} from "Stores";
-import {Loader} from "Components/common/Loaders";
-import Modal from "Components/common/Modal";
+import ImageIcon from "@/components/common/ImageIcon";
+import {rootStore, cryptoStore} from "@/stores";
+import {Loader} from "@/components/common/Loaders";
+import Modal from "@/components/common/Modal";
 
 
-import MetamaskLogo from "Assets/icons/crypto/metamask fox.png";
-import PhantomLogo from "Assets/icons/crypto/phantom.png";
+import MetamaskLogo from "@/assets/icons/crypto/metamask fox.png";
+import PhantomLogo from "@/assets/icons/crypto/phantom.png";
 
-import USDIcon from "Assets/icons/crypto/USD blue.svg";
-import ConversionIcon from "Assets/icons/crypto/Conversion button.png";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import USDIcon from "@/assets/icons/crypto/USD blue.svg";
+import ConversionIcon from "@/assets/icons/crypto/Conversion button.png";
+import {ButtonWithLoader, FormatPriceString} from "@/components/common/UIComponents";
 
 const ETH_CONVERSION = 0.000382078968081;
 

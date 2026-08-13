@@ -1,13 +1,13 @@
-import {PageLoader} from "Components/common/Loaders";
+import {PageLoader} from "@/components/common/Loaders";
 
 const params = new URLSearchParams(window.location.search);
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
-import {LoginGate} from "Components/common/LoginGate";
+import {rootStore} from "@/stores";
+import {LoginGate} from "@/components/common/LoginGate";
 import {Redirect} from "react-router-dom";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
 const EmailVerification = observer(() => {
   const [finished, setFinished] = useState(false);

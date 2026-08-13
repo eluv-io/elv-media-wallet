@@ -1,27 +1,27 @@
-import PurchaseModalStyles from "Assets/stylesheets/media_properties/property-purchase-modal.module.scss";
+import PurchaseModalStyles from "@/assets/stylesheets/media_properties/property-purchase-modal.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "@/stores";
 import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
-import {Loader} from "Components/common/Loaders";
-import {NFTInfo, SHA512, ValidEmail} from "../../utils/Utils";
-import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "Components/common/UIComponents";
-import SupportedCountries from "../../utils/SupportedCountries";
+import {Loader} from "@/components/common/Loaders";
+import {NFTInfo, SHA512, ValidEmail} from "@/utils/Utils";
+import {Button, LoaderImage, Modal} from "@/components/properties/Common";
+import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "@/components/common/UIComponents";
+import SupportedCountries from "@/utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
-import {LoginGate} from "Components/common/LoginGate";
+import {LoginGate} from "@/components/common/LoginGate";
 import {
   MediaPropertyBasePath,
   MediaPropertyPurchaseParams,
   PurchaseParamsToItems
-} from "../../utils/MediaPropertyUtils";
+} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import PurchaseIcon from "Assets/icons/listing.svg";
-import XIcon from "Assets/icons/x.svg";
+import PurchaseIcon from "@/assets/icons/listing.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 

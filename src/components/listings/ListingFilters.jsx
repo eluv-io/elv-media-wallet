@@ -1,14 +1,14 @@
 import React, {useState, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
-import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader, Select} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import FilterIcon from "Assets/icons/filter icon.svg";
-import ClearIcon from "Assets/icons/x.svg";
-import {SavedValue} from "../../utils/Utils";
-import {Button} from "Components/properties/Common";
+import {rootStore} from "@/stores";
+import AutoComplete from "@/components/common/AutoComplete";
+import {ButtonWithLoader, Select} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import FilterIcon from "@/assets/icons/filter icon.svg";
+import ClearIcon from "@/assets/icons/x.svg";
+import {SavedValue} from "@/utils/Utils";
+import {Button} from "@/components/properties/Common";
 
 const SortOptions = mode => {
   const sortLabels = rootStore.l10n.filters.sort;

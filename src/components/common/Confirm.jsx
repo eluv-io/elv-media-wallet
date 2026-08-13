@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 import {createRoot} from "react-dom/client";
-import {rootStore} from "Stores";
-import Modal from "Components/common/Modal";
-import {Loader} from "Components/common/Loaders";
+import {rootStore} from "@/stores";
+import Modal from "@/components/common/Modal";
+import {Loader} from "@/components/common/Loaders";
 import {observer} from "mobx-react";
-import {Button} from "Components/properties/Common";
+import {Button} from "@/components/properties/Common";
 
 const ConfirmModal = observer(({message, Confirm, Close}) => {
   const [confirming, setConfirming] = useState(false);

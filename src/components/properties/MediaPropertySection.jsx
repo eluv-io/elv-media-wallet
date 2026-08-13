@@ -1,42 +1,42 @@
-import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
+import SectionStyles from "@/assets/stylesheets/media_properties/property-section.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
-import MediaCard, {ButtonCard} from "Components/properties/MediaCards";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import MediaCard, {ButtonCard} from "@/components/properties/MediaCards";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 import {
   Button,
   Carousel,
   PageBackground,
   PageContainer,
   PageHeader
-} from "Components/properties/Common";
+} from "@/components/properties/Common";
 
-import RightArrow from "Assets/icons/right-arrow.svg";
-import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
-import {LoginGate} from "Components/common/LoginGate";
+import RightArrow from "@/assets/icons/right-arrow.svg";
+import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "@/utils/Utils";
+import {LoginGate} from "@/components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
   MediaItemImageUrl,
   MediaPropertyBasePath,
   MediaPropertyLink,
   PurchaseParamsToItems
-} from "../../utils/MediaPropertyUtils";
-import Modal from "Components/common/Modal";
-import Video from "Components/properties/Video";
-import Filters, {AttributeFilter} from "Components/properties/Filters";
-import {FormatPriceString} from "Components/common/UIComponents";
-import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
+} from "@/utils/MediaPropertyUtils";
+import Modal from "@/components/common/Modal";
+import Video from "@/components/properties/Video";
+import Filters, {AttributeFilter} from "@/components/properties/Filters";
+import {FormatPriceString} from "@/components/common/UIComponents";
+import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
 
-import LeftArrow from "Assets/icons/left-arrow.svg";
-import PoweredByImage from "Assets/images/apps/Eluvio.png";
-import RokuImage from "Assets/images/apps/roku.png";
-import AmazonImage from "Assets/images/apps/amazon.png";
-import AndroidImage from "Assets/images/apps/android.png";
-import AppleImage from "Assets/images/apps/apple.png";
+import LeftArrow from "@/assets/icons/left-arrow.svg";
+import PoweredByImage from "@/assets/images/apps/Eluvio.png";
+import RokuImage from "@/assets/images/apps/roku.png";
+import AmazonImage from "@/assets/images/apps/amazon.png";
+import AndroidImage from "@/assets/images/apps/android.png";
+import AppleImage from "@/assets/images/apps/apple.png";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 

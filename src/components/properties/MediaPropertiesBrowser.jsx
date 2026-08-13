@@ -1,13 +1,13 @@
-import DiscoverStyles from "Assets/stylesheets/media_properties/discover.module.scss";
+import DiscoverStyles from "@/assets/stylesheets/media_properties/discover.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, mediaPropertyStore} from "Stores";
+import {rootStore, mediaPropertyStore} from "@/stores";
 import UrlJoin from "url-join";
-import {PageLoader} from "Components/common/Loaders";
-import {Linkish} from "Components/common/UIComponents";
-import {Carousel, LoaderImage} from "Components/properties/Common";
-import Video from "Components/properties/Video";
+import {PageLoader} from "@/components/common/Loaders";
+import {Linkish} from "@/components/common/UIComponents";
+import {Carousel, LoaderImage} from "@/components/properties/Common";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Redirect} from "react-router-dom";
 import Header from "../header/Header.jsx";

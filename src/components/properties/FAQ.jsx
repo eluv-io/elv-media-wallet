@@ -1,19 +1,19 @@
-import FAQStyles from "Assets/stylesheets/media_properties/faq.module.scss";
+import FAQStyles from "@/assets/stylesheets/media_properties/faq.module.scss";
 
 import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
-import {LoaderImage, PageContainer, RichText} from "Components/properties/Common";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import {LoaderImage, PageContainer, RichText} from "@/components/properties/Common";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 import {Accordion} from "@mantine/core";
-import {SetImageUrlDimensions} from "../../utils/Utils";
-import ImageIcon from "Components/common/ImageIcon";
-import Video from "Components/properties/Video";
-import {Linkish} from "Components/common/UIComponents";
+import {SetImageUrlDimensions} from "@/utils/Utils";
+import ImageIcon from "@/components/common/ImageIcon";
+import Video from "@/components/properties/Video";
+import {Linkish} from "@/components/common/UIComponents";
 
-import PlusIcon from "Assets/icons/plus.svg";
-import MinusIcon from "Assets/icons/minus.svg";
+import PlusIcon from "@/assets/icons/plus.svg";
+import MinusIcon from "@/assets/icons/minus.svg";
 
 const S = (...classes) => classes.map(c => FAQStyles[c] || "").join(" ");
 

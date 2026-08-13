@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
-import {cryptoStore, rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import Confirm from "Components/common/Confirm";
+import {cryptoStore, rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
+import {ButtonWithLoader, LocalizeString} from "@/components/common/UIComponents";
+import Confirm from "@/components/common/Confirm";
 
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import HelpIcon from "Assets/icons/help-circle.svg";
+import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
+import HelpIcon from "@/assets/icons/help-circle.svg";
 
 const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnect}) => {
   const wallet = cryptoStore.WalletFunctions(type);

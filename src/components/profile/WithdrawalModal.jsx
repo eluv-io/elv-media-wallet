@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from "react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
-import {ButtonWithLoader, FormatPriceString, LocalizeString, Select} from "Components/common/UIComponents";
+import Modal from "@/components/common/Modal";
+import {ButtonWithLoader, FormatPriceString, LocalizeString, Select} from "@/components/common/UIComponents";
 import {roundToUp} from "round-to";
 
-import SupportedCountries from "../../utils/SupportedCountries";
-import {ValidEmail} from "../../utils/Utils";
-import {Loader} from "Components/common/Loaders";
+import SupportedCountries from "@/utils/SupportedCountries";
+import {ValidEmail} from "@/utils/Utils";
+import {Loader} from "@/components/common/Loaders";
 import {useRouteMatch} from "react-router-dom";
 
 const priceOptions = {stringOnly: true};

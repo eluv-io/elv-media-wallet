@@ -1,16 +1,16 @@
-import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
+import PageStyles from "@/assets/stylesheets/media_properties/property-page.module.scss";
 
 import React from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "Stores";
+import {mediaPropertyStore} from "@/stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {PageContainer} from "Components/properties/Common";
+import {PageContainer} from "@/components/properties/Common";
 import {
   MediaPropertyHeroSection,
   MediaPropertySection,
   MediaPropertySectionContainer,
   MediaPropertySpacerSection
-} from "Components/properties/MediaPropertySection";
+} from "@/components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 

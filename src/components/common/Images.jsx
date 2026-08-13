@@ -1,19 +1,19 @@
 import React, {useState} from "react";
 
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import SVG from "react-inlinesvg";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import NFTPlaceholderIcon from "Assets/icons/nft.svg";
-import Modal from "Components/common/Modal";
-import {NFTMedia} from "../../utils/Utils";
+import NFTPlaceholderIcon from "@/assets/icons/nft.svg";
+import Modal from "@/components/common/Modal";
+import {NFTMedia} from "@/utils/Utils";
 
-import FullscreenIcon from "Assets/icons/full screen.svg";
-import MinimizeIcon from "Assets/icons/minimize.svg";
-import ExternalLinkIcon from "Assets/icons/external-link.svg";
+import FullscreenIcon from "@/assets/icons/full screen.svg";
+import MinimizeIcon from "@/assets/icons/minimize.svg";
+import ExternalLinkIcon from "@/assets/icons/external-link.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {LoaderImage} from "Components/properties/Common";
+import {LoaderImage} from "@/components/properties/Common";
 
 export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
   const [fullscreen, setFullscreen] = useState(false);

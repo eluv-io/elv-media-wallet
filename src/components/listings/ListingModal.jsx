@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Confirm from "Components/common/Confirm";
-import {ActiveListings} from "Components/listings/TransferTables";
-import {cryptoStore, rootStore} from "Stores";
-import NFTCard from "Components/nft/NFTCard";
+import Confirm from "@/components/common/Confirm";
+import {ActiveListings} from "@/components/listings/TransferTables";
+import {cryptoStore, rootStore} from "@/stores";
+import NFTCard from "@/components/nft/NFTCard";
 import {
   FormatPriceString,
   LocalizeString,
   ParseMoney
-} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import WalletConnect from "Components/crypto/WalletConnect";
+} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import WalletConnect from "@/components/crypto/WalletConnect";
 
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import {Loader} from "Components/common/Loaders";
-import {Button, Modal} from "Components/properties/Common";
+import USDIcon from "@/assets/icons/crypto/USD icon.svg";
+import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
+import {Loader} from "@/components/common/Loaders";
+import {Button, Modal} from "@/components/properties/Common";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? ParseMoney(nft.details.Price, "USD").toString() : "");

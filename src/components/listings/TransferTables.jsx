@@ -1,29 +1,29 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {checkoutStore, rootStore, transferStore} from "Stores";
-import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
-import {Loader} from "Components/common/Loaders";
+import {checkoutStore, rootStore, transferStore} from "@/stores";
+import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "@/utils/Utils";
+import {Loader} from "@/components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
-import Table, {FilteredTable} from "Components/common/Table";
+import ImageIcon from "@/components/common/ImageIcon";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "@/components/common/UIComponents";
+import Table, {FilteredTable} from "@/components/common/Table";
 import UrlJoin from "url-join";
 
-import UpCaret from "Assets/icons/up-caret.svg";
-import DownCaret from "Assets/icons/down-caret.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
+import UpCaret from "@/assets/icons/up-caret.svg";
+import DownCaret from "@/assets/icons/down-caret.svg";
+import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
+import USDIcon from "@/assets/icons/crypto/USD icon.svg";
 
-import AcceptIcon from "Assets/icons/thumbs up.svg";
-import RejectIcon from "Assets/icons/thumbs down.svg";
-import EditIcon from "Assets/icons/edit listing icon.svg";
-import Confirm from "Components/common/Confirm";
-import OfferModal from "Components/listings/OfferModal";
+import AcceptIcon from "@/assets/icons/thumbs up.svg";
+import RejectIcon from "@/assets/icons/thumbs down.svg";
+import EditIcon from "@/assets/icons/edit listing icon.svg";
+import Confirm from "@/components/common/Confirm";
+import OfferModal from "@/components/listings/OfferModal";
 import {Link, useRouteMatch} from "react-router-dom";
-import {Button} from "Components/properties/Common";
-import NFTCard from "Components/nft/NFTCard";
-import ListingIcon from "Assets/icons/listings icon.svg";
-import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
+import {Button} from "@/components/properties/Common";
+import NFTCard from "@/components/nft/NFTCard";
+import ListingIcon from "@/assets/icons/listings icon.svg";
+import LinkedIcon from "@/assets/icons/linked wallet icon (r).svg";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, perPage=100, Select}) => {
   const [initialListingId] = useState(selectedListingId);

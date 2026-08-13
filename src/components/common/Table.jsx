@@ -1,16 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
-import {rootStore} from "Stores";
+import {rootStore} from "@/stores";
 import {Link} from "react-router-dom";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 import {observer} from "mobx-react";
-import {Loader} from "Components/common/Loaders";
-import {Linkish, LocalizeString, PageControls} from "Components/common/UIComponents";
-import ListingFilters from "Components/listings/ListingFilters";
-import {SavedValue} from "../../utils/Utils";
+import {Loader} from "@/components/common/Loaders";
+import {Linkish, LocalizeString, PageControls} from "@/components/common/UIComponents";
+import ListingFilters from "@/components/listings/ListingFilters";
+import {SavedValue} from "@/utils/Utils";
 
-import CaretUpIcon from "Assets/icons/up-caret.svg";
-import CaretDownIcon from "Assets/icons/down-caret.svg";
-import ListingStats from "Components/listings/ListingStats";
+import CaretUpIcon from "@/assets/icons/up-caret.svg";
+import CaretDownIcon from "@/assets/icons/down-caret.svg";
+import ListingStats from "@/components/listings/ListingStats";
 
 const Table = observer(({
   headerText,
