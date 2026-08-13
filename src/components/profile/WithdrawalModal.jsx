@@ -310,6 +310,7 @@ const StripeSetup = observer(({Cancel, Close}) => {
                 rootStore.StripeOnboard(countryCode);
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 Close();
+              // eslint-disable-next-line no-unused-vars
               } catch(error) {
                 setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
               }

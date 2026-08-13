@@ -1,7 +1,6 @@
 import "./Styles.js";
 
-import React, {lazy, Suspense, useEffect, useState} from "react";
-import UrlJoin from "url-join";
+import React, {Suspense, useEffect} from "react";
 import { createRoot } from "react-dom/client";
 import { observer} from "mobx-react";
 import {MantineProvider} from "@mantine/core";
@@ -12,7 +11,6 @@ import {
   Switch,
   Route,
   Redirect,
-  useRouteMatch,
   BrowserRouter,
   useHistory
 } from "react-router-dom";
@@ -23,7 +21,7 @@ import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
-import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
+import {SearchParams} from "./utils/Utils";
 import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
 import ImageIcon from "Components/common/ImageIcon";
 import {SplashScreen} from "Components/properties/Common";
@@ -154,46 +152,6 @@ const Routes = observer(() => {
 });
 
 const App = observer(() => {
-  const history = useHistory();
-
-  const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
-
-  useEffect(() => {
-    if(!rootStore.loaded) { return; }
-
-    const backgroundElement = document.querySelector("#app-background");
-
-    // Marketplace background image - All pages within marketplace
-    let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
-
-    // Storefront background image - All pages except user profile, unless overridden by tenant
-    if(rootStore.navigationInfo.navigationKey === "marketplace") {
-      backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.marketplaceMobile) || rootStore.appBackground.marketplaceDesktop || backgroundImage;
-    }
-
-    // Tenant background image - Non-storefront pages
-    if(rootStore.appBackground.useTenantStyling && rootStore.navigationInfo.locationType !== "marketplace") {
-      backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.tenantMobile) || rootStore.appBackground.tenantDesktop || backgroundImage;
-    }
-
-    const currentBackground = backgroundElement.style.backgroundImage || "";
-    const currentBackgroundImageUrl = ((currentBackground || "").split("contentfabric.io")[1] || "").split("?")[0];
-    const newBackgroundImageUrl = ((backgroundImage || "").split("contentfabric.io")[1] || "").split("?")[0];
-
-    if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
-      if(backgroundImage) {
-        backgroundElement.style.background = `no-repeat top center / cover url("${SetImageUrlDimensions({url: backgroundImage, width: rootStore.pageWidth < 800 ? "1000" : "2500"})}")`;
-        document.querySelector("#app").style.background = "transparent";
-        rootStore.SetSessionStorage("current-background", backgroundImage);
-      } else {
-        backgroundElement.style.removeProperty("background");
-        rootStore.RemoveSessionStorage("current-background");
-      }
-    }
-
-    setHasBackgroundImage(!!backgroundImage);
-  }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo]);
-
   useEffect(() => {
     const route = rootStore.routeChange;
     if(route) {
@@ -209,17 +167,14 @@ const App = observer(() => {
     return <Redirect to="/login" />;
   }
 
-  const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
       key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
-        hasBackgroundImage ? "app-container--transparent" : "",
         rootStore.centerContent ? "app--centered" : "",
         rootStore.hideNavigation ? "navigation-hidden" : "",
         rootStore.sidePanelMode ? "side-panel" : "",
-        hasHeader ? "" : "no-header",
         rootStore.activeModals > 0 ? "modal-active" : ""
       ]
         .filter(className => className)

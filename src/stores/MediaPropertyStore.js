@@ -2282,6 +2282,7 @@ class MediaPropertyStore {
     }
 
     if(reload) {
+      // eslint-disable-next-line no-self-assign
       window.location.href = window.location.href;
     }
   }
@@ -2399,7 +2400,8 @@ class MediaPropertyStore {
               key: `media-progress-${mediaPropertyId}`
             })
           );
-        } catch(error) { /* empty */ }
+        // eslint-disable-next-line no-unused-vars
+        } catch(error) {}
 
         this.mediaProgress[mediaPropertyId] = progress;
       }
@@ -2633,7 +2635,8 @@ class MediaPropertyStore {
           objectIds.map(async objectId => {
             try {
               versionHashes[objectId] = await this.client.LatestVersionHash({objectId});
-            } catch(error) { /* empty */ }
+              // eslint-disable-next-line no-unused-vars
+            } catch(error) {}
           })
         );
 

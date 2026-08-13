@@ -147,6 +147,7 @@ export const Copy = async (value) => {
     value = (value || "").toString();
 
     await navigator.clipboard.writeText(value);
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {
     const input = document.createElement("input");
 

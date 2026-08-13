@@ -217,6 +217,7 @@ export const NFTDisplayToken = nft => {
         return cap ? `${ordinal} / ${cap}` : ordinal;
 
     }
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {
     return nft?.details?.TokenIdStr || "";
   }

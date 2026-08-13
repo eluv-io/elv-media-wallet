@@ -105,6 +105,7 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
                 await transferStore.TransferNFT({nft, targetAddress});
                 SetTransferred();
                 Close();
+              // eslint-disable-next-line no-unused-vars
               } catch(error) {
                 setError("Transfer failed");
               }
@@ -489,6 +490,7 @@ const DetailsPage = observer(({nftInfo, contractStats}) => {
       } else {
         mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       mintDate = "";
     }

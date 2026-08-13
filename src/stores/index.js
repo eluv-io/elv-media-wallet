@@ -7,6 +7,7 @@ window.sessionStorageAvailable = false;
 try {
   sessionStorage.getItem("test");
   window.sessionStorageAvailable = true;
+// eslint-disable-next-line no-unused-vars
 } catch(error) {}
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
@@ -46,6 +47,7 @@ try {
 
   sessionStorage.getItem("TestStorage");
   localStorage.getItem("TestStorage");
+// eslint-disable-next-line no-unused-vars
 } catch(error) {
   storageSupported = false;
 }
@@ -1290,6 +1292,7 @@ class RootStore {
       const url = new URL(imageUrl);
 
       return url.hostname.endsWith("contentfabric.io");
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return false;
     }
@@ -1303,6 +1306,7 @@ class RootStore {
       imageUrl.searchParams.set("width", width);
 
       return imageUrl.toString();
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {}
   }
 
@@ -1896,6 +1900,7 @@ class RootStore {
 
             case "HP-CM-30":
               // Not enough balance - No special message
+            // eslint-disable-next-line no-fallthrough
             default:
               throw error;
           }
@@ -2820,6 +2825,7 @@ class RootStore {
   GetLocalStorage(key) {
     try {
       return localStorage.getItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2832,6 +2838,7 @@ class RootStore {
       } else {
         return JSON.parse(this.GetLocalStorage(key));
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2840,6 +2847,7 @@ class RootStore {
   SetLocalStorage(key, value) {
     try {
       return localStorage.setItem(key, value);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2848,6 +2856,7 @@ class RootStore {
   RemoveLocalStorage(key) {
     try {
       return localStorage.removeItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2856,6 +2865,7 @@ class RootStore {
   GetSessionStorage(key) {
     try {
       return sessionStorage.getItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2868,6 +2878,7 @@ class RootStore {
       } else {
         return JSON.parse(this.GetSessionStorage(key));
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2876,6 +2887,7 @@ class RootStore {
   SetSessionStorage(key, value) {
     try {
       return sessionStorage.setItem(key, value);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2884,6 +2896,7 @@ class RootStore {
   RemoveSessionStorage(key) {
     try {
       return sessionStorage.removeItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2911,6 +2924,7 @@ class RootStore {
   }
 
   ParsedRouteParams() {
+    // eslint-disable-next-line no-unused-vars
     let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^/]+)/);
     const marketplaceId = (location.pathname.match(/\/marketplace\/([^/]+)/) || [])[1];
 

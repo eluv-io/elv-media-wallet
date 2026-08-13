@@ -113,6 +113,7 @@ const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0})
 const DateToISO = (millis) => {
   try {
     return millis ? new Date(millis).toISOString() : "";
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {
     return "";
   }
@@ -121,6 +122,7 @@ const DateToISO = (millis) => {
 const DateToMillis = (iso) => {
   try {
     return iso ? new Date(iso).getTime() : undefined;
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {
     return undefined;
   }
@@ -623,7 +625,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters={}, men
         tokenIdRange: savedOptions.tokenIdRange
       });
     } catch(error) {
-       
+
       console.error("Error loading saved sort options", error);
     } finally {
       setSavedOptionsLoaded(true);

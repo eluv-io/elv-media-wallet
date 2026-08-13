@@ -108,6 +108,7 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
                   await transferStore.TransferNFT({nft, targetAddress});
 
                   await onTransferred(targetAddress);
+                // eslint-disable-next-line no-unused-vars
                 } catch(error) {
                   setMessage("");
                   setError(rootStore.l10n.transfers.errors.failed);

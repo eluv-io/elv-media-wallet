@@ -278,6 +278,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {}
 
   loading =
@@ -949,6 +950,7 @@ const Login = observer(({Close}) => {
               ...(JSON.parse(localStorage.getItem(userDataKey)))
             };
           }
+        // eslint-disable-next-line no-unused-vars
         } catch(error) {}
 
         setUserData(initialUserData);
@@ -963,6 +965,7 @@ const Login = observer(({Close}) => {
     try {
       const userDataKey = `login-data-${customizationOptions?.marketplaceId || "default"}`;
       localStorage.setItem(userDataKey, JSON.stringify(data));
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {}
   };
 

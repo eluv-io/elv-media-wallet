@@ -623,6 +623,7 @@ class CheckoutStore {
       try {
         // Ensure listing is still available
         yield this.rootStore.walletClient.Listing({listingId});
+      // eslint-disable-next-line no-unused-vars
       } catch(error) {
         throw {
           status: 409,

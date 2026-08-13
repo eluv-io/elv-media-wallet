@@ -107,7 +107,8 @@ const Video = forwardRef(function VideoComponent({
         const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
 
         mute = mute || savedSettings.muted;
-      } catch(error) { /* empty */ }
+      // eslint-disable-next-line no-unused-vars
+      } catch(error) {}
     }
 
     // TODO: Remove

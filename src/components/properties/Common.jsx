@@ -608,6 +608,7 @@ export const Carousel = observer(({
   let slidesPerPage = 1;
   try {
     slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {}
 
   return (
