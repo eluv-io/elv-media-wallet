@@ -758,8 +758,6 @@ class RootStore {
       // eslint-disable-next-line no-console
       console.time("OpenId Authentication");
 
-      console.log("AUTHENTICATE OPEN ID", window.location.href)
-
       const {openIdClient, config} = yield this.InitializeOpenIdClient();
 
       let tokens;
@@ -913,7 +911,6 @@ class RootStore {
   });
 
   ClearLoginParams() {
-    return;
     try {
       // Ensure login parameters are cleared
       let paramKeys = [
