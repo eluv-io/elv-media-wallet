@@ -908,6 +908,7 @@ class RootStore {
   });
 
   ClearLoginParams() {
+    return;
     try {
       // Ensure login parameters are cleared
       let paramKeys = [
