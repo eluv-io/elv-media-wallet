@@ -747,6 +747,7 @@ class RootStore {
       this.SetSessionStorage("openidClientState", params.state);
     }
 
+    this.SetSessionStorage("openid-redirect-url", UrlJoin(window.location.origin, this.currentPropertySlug));
     this.SetSessionStorage("openid-callback-url", callbackUrl || window.location.href);
 
     return openIdClient.buildAuthorizationUrl(config, params);
@@ -772,12 +773,11 @@ class RootStore {
           }
         );
       } else {
-        //const loginUrl = new URL(window.location.origin, window.location.pathname);
-        //loginUrl.searchParams.set("code", new URLSearchParams(window.location.search).get("code"));
-
+        const loginUrl = new URL(this.GetSessionStorage("openid-redirect-url") || UrlJoin(window.location.origin, this.currentPropertySlug));
+        loginUrl.searchParams.set("code", new URLSearchParams(window.location.search).get("code"));
         tokens = yield openIdClient.authorizationCodeGrant(
           config,
-          new URL(window.location.href),
+          loginUrl,
           {
             pkceCodeVerifier: this.GetSessionStorage("pkceCodeVerifier"),
             state: this.GetSessionStorage("openidClientState")
