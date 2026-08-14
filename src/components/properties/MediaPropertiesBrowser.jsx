@@ -154,8 +154,7 @@ export const MediaPropertiesBrowser = observer(() => {
   let filteredProperties = mediaProperties
     .filter(mediaProperty =>
       !rootStore.discoverFilter ||
-      mediaProperty.title?.toLowerCase()?.includes(rootStore.discoverFilter.toLowerCase()) ||
-      mediaProperty.name?.toLowerCase()?.includes(rootStore.discoverFilter.toLowerCase())
+      mediaProperty.propertyId !== rootStore.discoverFilter
     );
 
   const filteredPropertyLists = featuredPropertyLists

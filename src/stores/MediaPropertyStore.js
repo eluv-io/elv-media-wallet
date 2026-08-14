@@ -1466,7 +1466,6 @@ class MediaPropertyStore {
         const metadata = await (await fetch(metadataUrl.toString())).json();
 
         let allProperties = {};
-        const propertyOrder = metadata?.info?.media_property_order || [];
         const properties = Object.keys(metadata?.tenants || {}).map(tenantSlug => {
           return Object.keys(metadata.tenants[tenantSlug]?.media_properties || {}).map(propertySlug => {
             try {
@@ -1475,30 +1474,12 @@ class MediaPropertyStore {
               const propertyId = Utils.DecodeVersionHash(property["."].source).objectId;
               property = {
                 ...property,
-                order: propertyOrder.findIndex(propertySlugOrId => property.slug === propertySlugOrId || propertyId === propertySlugOrId),
                 tenantSlug,
                 tenantObjectHash: metadata.tenants[tenantSlug]["."].source,
                 tenantObjectId: Utils.DecodeVersionHash(metadata.tenants[tenantSlug]["."].source).objectId,
                 propertyHash: property["."].source,
                 propertyId
               };
-
-              // Sort unordered properties
-              property.order = property.order >= 0 ?
-                property.order :
-                1000 + (property.slug || propertyId).charCodeAt(0);
-
-              if(property.image) {
-                const imageUrl = new URL(
-                  this.rootStore.network === "demo" ?
-                    "https://demov3.net955210.contentfabric.io/s/demov3" :
-                    "https://main.glb.contentfabric.io/s/main"
-                );
-
-                imageUrl.pathname = UrlJoin(imageUrl.pathname, "q", property.propertyHash, "meta/public/asset_metadata/info/image");
-
-                property.image.url = imageUrl.toString();
-              }
 
               allProperties[property.propertyId] = property;
               allProperties[property.slug] = property;

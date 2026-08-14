@@ -46,10 +46,14 @@ const SearchBar = observer(() => {
   const [filter, setFilter] = useState(rootStore.discoverFilter);
   const [debouncedFilter] = useDebouncedValue(filter, 300);
   const [mediaProperties, setMediaProperties] = useState(undefined);
+  const [featuredPropertyLists, setFeaturedPropertyLists] = useState(undefined);
 
   useEffect(() => {
     mediaPropertyStore.LoadMediaProperties()
-      .then(({properties}) => setMediaProperties(properties));
+      .then(({properties, propertyLists}) => {
+        setMediaProperties(properties);
+        setFeaturedPropertyLists(propertyLists);
+      });
 
     return () => rootStore.SetDiscoverFilter("");
   }, []);
@@ -58,12 +62,27 @@ const SearchBar = observer(() => {
     rootStore.SetDiscoverFilter(debouncedFilter);
   }, [debouncedFilter]);
 
+  let allDisplayedProperties = [];
+  featuredPropertyLists
+    ?.forEach(({properties}) =>
+      (properties || []).map(propertySlugOrId => {
+        const property = (
+          mediaProperties.find(property => property.propertyId === propertySlugOrId) ||
+          mediaProperties.find(property => property.slug === propertySlugOrId)
+        );
+
+        if(property && !allDisplayedProperties.find(p => p.slug === property.slug || p.propertyId === property.propertyId)) {
+          allDisplayedProperties.push(property);
+        }
+      })
+    );
+
   return (
     <Autocomplete
+      clearable
       data={
-        mediaProperties
-          ?.map(property => property.title || property.name)
-          ?.filter((value, index, array) => array.indexOf(value) === index)
+        allDisplayedProperties
+          .map(property => ({label: property.title || property.name, value: property.propertyId}))
       }
       value={filter}
       onChange={value => setFilter(value)}
@@ -76,9 +95,13 @@ const SearchBar = observer(() => {
       role="search"
       rightSection={
         rootStore.pageWidth < 800 ? null :
-          <div className={S("search__submit")}>
-            <ImageIcon alt="search" icon={SearchIcon} />
-          </div>
+          filter ?
+            <button onClick={() => setFilter("")} className={S("search__submit")}>
+              <ImageIcon alt="search" icon={XIcon}/>
+            </button> :
+            <div className={S("search__submit")}>
+              <ImageIcon alt="search" icon={SearchIcon}/>
+            </div>
       }
       rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
       classNames={{
@@ -150,7 +173,7 @@ const Header = observer(() => {
     document.addEventListener("scroll", ScrollFade);
 
     return () => document.removeEventListener("scroll", ScrollFade);
-  }, [marketplaceId]);
+  }, []);
 
   if(rootStore.pageWidth < 800) {
     return <MobileHeader scrolled={scrolled} />;
@@ -177,10 +200,7 @@ const Header = observer(() => {
         }
 
         <Home marketplaceId={marketplaceId}/>
-        {
-          rootStore.routeParams.marketplaceId ? null :
-            <SearchBar/>
-        }
+        <SearchBar />
       </header>
     </>
   );
