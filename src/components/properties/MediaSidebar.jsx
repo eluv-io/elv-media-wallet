@@ -1,4 +1,5 @@
 import SidebarStyles from "@/assets/stylesheets/media_properties/media-sidebar.module.scss";
+import CardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
@@ -28,7 +29,7 @@ import XIcon from "@/assets/icons/x.svg";
 import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
 import SearchIcon from "@/assets/icons/search.svg";
 
-const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => SidebarStyles[c] || CardStyles[c] || "").join(" ");
 
 const Item = observer(({
   imageUrl,
@@ -47,7 +48,8 @@ const Item = observer(({
   multiviewMode,
   displayedContent,
   setDisplayedContent,
-  wrapTitle=false
+  wrapTitle=false,
+  variants=[]
 }) => {
   multiviewMode = multiviewMode || mediaStore.multiviewMode;
   displayedContent = displayedContent || mediaStore.displayedContent;
@@ -82,7 +84,10 @@ const Item = observer(({
     })?.linkPath || "";
   }
 
-  const ToggleMultiview = () => {
+  const ToggleMultiview = event => {
+    event.preventDefault();
+    event.stopPropagation();
+
     if(isActive) {
       setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
     } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
@@ -90,6 +95,8 @@ const Item = observer(({
     } else if(displayedContent.length < streamLimit) {
       setDisplayedContent([...displayedContent, contentItem]);
     }
+
+    return true;
   };
 
   onClick = onClick ? onClick :
@@ -103,6 +110,9 @@ const Item = observer(({
 
   return (
     <Linkish
+      onClick={onClick}
+      to={linkPath}
+      disabled={disabled}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       ref={
@@ -123,31 +133,33 @@ const Item = observer(({
     >
       {
         !imageUrl ? null :
-          <Linkish
-            onClick={onClick}
-            to={linkPath}
-            disabled={disabled}
-            className={S("item__image-container", "item__image-container--landscape")}
-          >
-            <LoaderImage
-              loaderAspectRatio={16 / 9}
-              src={imageUrl}
-              hash={imageHash}
-              alt={title}
-              className={S("item__image")}
-            />
-            {
-              !scheduleInfo?.currentlyLive ? null :
-                <div className={S("live-badge")}>Live</div>
+          <div
+            className={
+              S(
+                "styled-card",
+                "styled-card--landscape",
+                hovering ? "styled-card--transition-active" : "",
+                "item__card",
+                ...(variants || []).map(variant => `styled-card--${variant}`)
+              )
             }
-          </Linkish>
+          >
+            <div className={S("styled-card__image-container", "item__image-container", "item__image-container--landscape")}>
+              <LoaderImage
+                loaderAspectRatio={16 / 9}
+                src={imageUrl}
+                hash={imageHash}
+                alt={title}
+                className={S("styled-card__image", "item__image")}
+              />
+              {
+                !scheduleInfo?.currentlyLive ? null :
+                  <div className={S("live-badge")}>Live</div>
+              }
+            </div>
+          </div>
       }
-      <Linkish
-        onClick={onClick}
-        to={linkPath}
-        disabled={disabled}
-        className={S("item__text")}
-      >
+      <div className={S("item__text")}>
         <div title={title} className={S("item__title", !wrapTitle ? "ellipsis" : "")}>
           {title}
         </div>
@@ -163,7 +175,7 @@ const Item = observer(({
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
         }
-      </Linkish>
+      </div>
       {
         noActions ? null :
           <div className={S("item__actions")}>
@@ -308,8 +320,13 @@ const MediaSidebar = observer(({
     );
   }
 
+  const cardTheme = mediaPropertyStore.CardTheme({...match.params});
+
   return (
-    <div className={S("sidebar", mediaStore.sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
+    <div
+      style={{...(cardTheme.css || {})}}
+      className={S("sidebar", mediaStore.sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}
+    >
       <div className={S("sidebar__actions")}>
         {
           !mediaStore.sidebarContent.anyMultiview ? null :
@@ -424,6 +441,7 @@ const MediaSidebar = observer(({
                       primaryMediaId={mediaItem.id}
                       noActions={!item?.isMultiviewable}
                       streamLimit={streamLimit}
+                      variants={cardTheme.variants}
                     />
                     {
                       additionalViews.length === 0 ? null :
@@ -448,6 +466,7 @@ const MediaSidebar = observer(({
                                 wrapTitle
                                 primaryMediaId={mediaItem.id}
                                 streamLimit={streamLimit}
+                                variants={cardTheme.variants}
                               />
                             )
                           }
@@ -468,6 +487,8 @@ export const MultiviewSelectionModal = observer(({
   mediaItem,
   streamLimit
 }) => {
+  const match = useRouteMatch();
+
   let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
     tab.groups?.find(group =>
       group.content?.find(item =>
@@ -495,6 +516,8 @@ export const MultiviewSelectionModal = observer(({
   if(tabs.length === 0) {
     return null;
   }
+
+  const cardTheme = mediaPropertyStore.CardTheme({...match.params});
 
   return (
     <Modal
@@ -539,7 +562,7 @@ export const MultiviewSelectionModal = observer(({
             </div>
           </div>
       }
-      <div className={S("multiview-selection-modal__items")}>
+      <div style={{...(cardTheme?.css || {})}} className={S("multiview-selection-modal__items")}>
         {
           tab?.groups.map(group =>
             !group.content.find(item => item?.isMultiviewable) ? null :
@@ -583,6 +606,7 @@ export const MultiviewSelectionModal = observer(({
                           streamLimit={streamLimit}
                           displayedContent={selectedContent}
                           setDisplayedContent={setSelectedContent}
+                          variants={cardTheme?.variants}
                         />
                         {
                           additionalViews.length === 0 ? null :
@@ -612,6 +636,7 @@ export const MultiviewSelectionModal = observer(({
                                     streamLimit={streamLimit}
                                     displayedContent={selectedContent}
                                     setDisplayedContent={setSelectedContent}
+                                    variants={cardTheme?.variants}
                                   />
                                 )
                               }

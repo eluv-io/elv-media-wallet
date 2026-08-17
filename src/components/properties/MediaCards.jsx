@@ -47,37 +47,37 @@ const MediaItem = observer(({mediaItemId, index}) => {
       to={linkInfo.linkPath}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      className={S("media-item")}
+      className={S("media-list-item")}
     >
-      <div className={S("media-item__info")}>
-        <div className={S("media-item__index")}>
+      <div className={S("media-list-item__info")}>
+        <div className={S("media-list-item__index")}>
           { index + 1 }
         </div>
-        <div className={S("styled-card", `styled-card--${imageInfo.imageAspectRatio}`, "media-item__card", hovering ? "styled-card--transition-active" : "")}>
-          <div className={S("styled-card__image-container", "media-item__image-container")}>
+        <div className={S("styled-card", `styled-card--${imageInfo.imageAspectRatio}`, "media-list-item__card", hovering ? "styled-card--transition-active" : "")}>
+          <div className={S("styled-card__image-container", "media-list-item__image-container")}>
             <LoaderImage
               src={imageInfo.imageUrl}
               hash={imageInfo.imageHash}
-              className={S("styled-card__image", "media-item__image")}
+              className={S("styled-card__image", "media-list-item__image")}
             />
           </div>
         </div>
-        <div className={S("media-item__text")}>
+        <div className={S("media-list-item__text")}>
           {
             (mediaItem.headers || []).length === 0 ? null :
-              <div className={S("media-item__headers")}>
+              <div className={S("media-list-item__headers")}>
                 {mediaItem.headers?.join?.("     ")}
               </div>
           }
           {
             !mediaItem.title ? null :
-              <div title={mediaItem.title} className={[S("media-item__title"), "_title"].join(" ")}>
+              <div title={mediaItem.title} className={[S("media-list-item__title"), "_title"].join(" ")}>
                 {mediaItem.title}
               </div>
           }
           {
             !mediaItem.subtitle ? null :
-              <div className={S("media-item__subtitle")}>
+              <div className={S("media-list-item__subtitle")}>
                 {mediaItem.subtitle}
               </div>
           }
@@ -93,8 +93,8 @@ const MediaItem = observer(({mediaItemId, index}) => {
             }}
             description={mediaItem.description}
             maxLines={2}
-            className={S("media-item__description")}
-            indicatorClassName={S("media-item__description-expand")}
+            className={S("media-list-item__description")}
+            indicatorClassName={S("media-list-item__description-expand")}
           />
       }
     </Linkish>

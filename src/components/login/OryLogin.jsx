@@ -115,7 +115,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
     if(searchParams.get("code")) {
       setFlowType("login");
 
-      setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_recovery_email), 250);
+      setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_recovery_email), 25);
       return;
     }
 
@@ -307,7 +307,9 @@ const OryLogin = observer(({
   if(!flow || loading || loggingOut) {
     return (
       <div className="ory-login">
-        <Loader />
+        <div className="ory-login__loader">
+          <Loader />
+        </div>
       </div>
     );
   }
@@ -343,7 +345,7 @@ const OryLogin = observer(({
             onClick={() => {
               setFlows({...flows, recovery_email: {}});
               setFlowType("recovery_email");
-              setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 100);
+              setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 10);
             }}
             className="login-page__button login-page__button--link"
           >
@@ -498,7 +500,7 @@ const OryLogin = observer(({
           response = await rootStore.oryClient.getRecoveryFlow({id: flowInfo.flow});
           setFlows({...flows, recovery: response.data});
           setFlowType("recovery");
-          setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_code_prompt), 100);
+          setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_code_prompt), 10);
 
           break;
         case "recovery":

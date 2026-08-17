@@ -39,10 +39,6 @@
   max-width: 265px;
   width: 100%;
 
-  & > .loader {
-    min-height: 100px;
-  }
-
   &__title {
     font-size: 18px;
     margin-bottom: 10px;
@@ -59,6 +55,13 @@
   &__form {
     display: grid;
     gap: 10px;
+  }
+
+  &__loader {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: 100px;
   }
 
   input {
