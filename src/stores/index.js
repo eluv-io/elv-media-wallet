@@ -724,7 +724,8 @@ class RootStore {
       propertyConfig.login.settings.openid_client_id
     );
 
-    const logoutUrl = new URL(propertyConfig?.login?.settings?.openid_logout_url);
+    const logoutUrl = !propertyConfig?.login?.settings?.openid_logout_url ? undefined :
+      new URL(propertyConfig?.login?.settings?.openid_logout_url);
 
     return {
       openIdClient,

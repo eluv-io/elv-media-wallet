@@ -626,7 +626,10 @@ export const Carousel = observer(({
         {clickable: true}
       }
       updateOnWindowResize
-      onActiveIndexChange={swiper => setActiveSwiperSlide(swiper.activeIndex)}
+      onActiveIndexChange={swiper => {
+        setActiveSwiperSlide(swiper.activeIndex);
+        setActiveIndex(swiper.activeIndex);
+      }}
       {...swiperOptions}
       onSwiper={swiper => {
         setSwiper(swiper);

@@ -33,7 +33,7 @@ const LinkParams = ({mediaProperties, mediaProperty}) => {
   return linkParams;
 };
 
-const PropertyVideo = observer(({video, className=""}) => {
+const CardVideo = observer(({video, videoInfo, className=""}) => {
   const [loaded, setLoaded] = useState(false);
 
   if(!rootStore.loaded || !video || Object.keys(video).length === 0) {
@@ -44,6 +44,7 @@ const PropertyVideo = observer(({video, className=""}) => {
     <Video
       readyCallback={() => setLoaded(true)}
       link={video}
+      linkInfo={videoInfo}
       hideControls
       mute
       playerOptions={{
@@ -58,8 +59,10 @@ const PropertyVideo = observer(({video, className=""}) => {
   );
 });
 
-const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
+const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) => {
   const [hovering, setHovering] = useState(false);
+
+  const showVideo =  hovering || (rootStore.mobile && active);
 
   return (
     <Linkish
@@ -85,11 +88,17 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured}) => {
           className={S("discover-card__image")}
         />
         {
-          !mediaProperty.video || !hovering ? null :
-            <PropertyVideo
-              video={mediaProperty.video}
-              className={S("discover-card__video")}
-            />
+          !mediaProperty.main_page_card_video ? null :
+            <div className={S("discover-card__video-container", showVideo ? "discover-card__video-container--active" : "")}>
+              {
+                !showVideo ? null :
+                  <CardVideo
+                    video={mediaProperty.main_page_card_video}
+                    videoInfo={mediaProperty.main_page_card_video_info}
+                    className={S("discover-card__video")}
+                  />
+              }
+            </div>
         }
       </div>
       {
@@ -187,9 +196,10 @@ export const MediaPropertiesBrowser = observer(() => {
                 swiperOptions={{
                   spaceBetween: 20,
                 }}
-                RenderSlide={({item}) =>
+                RenderSlide={({item, index, activeIndex}) =>
                   <DiscoverCard
                     featured={featured}
+                    active={index === activeIndex}
                     key={`property-${item.propertyId}`}
                     mediaProperty={item}
                     linkParams={LinkParams({mediaProperties, mediaProperty: item})}
