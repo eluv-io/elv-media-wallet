@@ -76,8 +76,8 @@
   &__image,
   &__video,
   &__video-container {
-    display: block;
     border-radius: 12px;
+    display: block;
     height: 100%;
     object-fit: cover;
     position: absolute;
@@ -85,8 +85,8 @@
   }
 
   &__video-container {
-    opacity: 0;
     background: transparent;
+    opacity: 0;
 
     &--active {
       background: black;

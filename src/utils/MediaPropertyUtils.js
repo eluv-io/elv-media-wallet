@@ -199,7 +199,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url, purchaseItems;
+  let url, purchaseItems, mediaType;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
       linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
@@ -213,9 +213,12 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
     if((mediaItem?.type || sectionItem?.media_type) === "collection") {
       linkPath = UrlJoin(linkPath, "c", mediaId);
+      mediaType = "collection";
     } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
       linkPath = UrlJoin(linkPath, "l", mediaId);
+      mediaType = "list";
     } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
+      mediaType = "media";
       const listParam = new URLSearchParams(location.search).get("l");
 
       if(listParam) {
@@ -305,7 +308,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath,
     url,
     purchaseItems: purchaseItems || [],
-    authorized: permissions?.authorized
+    authorized: permissions?.authorized,
+    mediaType
   };
 };
 

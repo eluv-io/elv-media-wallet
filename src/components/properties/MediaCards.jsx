@@ -12,7 +12,7 @@ import {useRouteMatch} from "react-router-dom";
 import {FormatPriceString, Linkish} from "@/components/common/UIComponents";
 import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
-import {Popover} from "@mantine/core";
+import {Popover, Select} from "@mantine/core";
 import ImageIcon from "@/components/common/ImageIcon";
 import {useIsVisible} from "@/components/common/Hooks";
 
@@ -22,6 +22,84 @@ import CaretDownIcon from "@/assets/icons/down-caret.svg";
 import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
+
+const MediaItem = observer(({mediaItemId, index}) => {
+  const match = useRouteMatch();
+  const [hovering, setHovering] = useState(true);
+  const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItemId});
+
+  if(!mediaItem) { return null; }
+
+  const permissions = mediaPropertyStore.ResolvePermission({...match.params, mediaItemSlugOrId: mediaItemId});
+
+  if(permissions.hide) { return null; }
+
+  const linkInfo = MediaPropertyLink({match, mediaItem});
+  const imageInfo = MediaItemImageUrl({
+    mediaItem,
+    display: mediaItem,
+    width: 600
+  });
+
+  return (
+    <Linkish
+      disabled={permissions.disable}
+      to={linkInfo.linkPath}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      className={S("media-item")}
+    >
+      <div className={S("media-item__info")}>
+        <div className={S("media-item__index")}>
+          { index + 1 }
+        </div>
+        <div className={S("styled-card", `styled-card--${imageInfo.imageAspectRatio}`, "media-item__card", hovering ? "styled-card--transition-active" : "")}>
+          <div className={S("styled-card__image-container", "media-item__image-container")}>
+            <LoaderImage
+              src={imageInfo.imageUrl}
+              hash={imageInfo.imageHash}
+              className={S("styled-card__image", "media-item__image")}
+            />
+          </div>
+        </div>
+        <div className={S("media-item__text")}>
+          {
+            (mediaItem.headers || []).length === 0 ? null :
+              <div className={S("media-item__headers")}>
+                {mediaItem.headers?.join?.("     ")}
+              </div>
+          }
+          {
+            !mediaItem.title ? null :
+              <div title={mediaItem.title} className={[S("media-item__title"), "_title"].join(" ")}>
+                {mediaItem.title}
+              </div>
+          }
+          {
+            !mediaItem.subtitle ? null :
+              <div className={S("media-item__subtitle")}>
+                {mediaItem.subtitle}
+              </div>
+          }
+        </div>
+      </div>
+      {
+        !mediaItem.description ? null :
+          <ExpandableDescription
+            onClick={event => {
+              event.stopPropagation();
+              event.preventDefault();
+              return false;
+            }}
+            description={mediaItem.description}
+            maxLines={2}
+            className={S("media-item__description")}
+            indicatorClassName={S("media-item__description-expand")}
+          />
+      }
+    </Linkish>
+  );
+});
 
 const MediaDetailsModal = observer(({
   display,
@@ -37,6 +115,14 @@ const MediaDetailsModal = observer(({
   style,
   Close
 }) => {
+  const [selectedMediaListId, setSelectedMediaListId] = useState(
+    display?.type === "collection" ? display.media_lists?.[0] :
+      display.type === "list" ? display.id : undefined
+  );
+
+  const selectedMediaList = !selectedMediaListId ? undefined :
+    mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: selectedMediaListId});
+
   return (
     <Modal
       noBackground
@@ -50,9 +136,11 @@ const MediaDetailsModal = observer(({
         style={{...(style || {})}}
         className={S("details-modal", `details-modal--${aspectRatio}`)}
       >
-        <Linkish onClick={Close} aria-label="Close Details" className={S("details-modal__close")}>
-          <ImageIcon icon={XIcon} />
-        </Linkish>
+        <div className={S("details-modal__close-header")}>
+          <Linkish title="Close" onClick={Close} aria-label="Close Details" className={S("details-modal__close")}>
+            <ImageIcon icon={XIcon} />
+          </Linkish>
+        </div>
         <div className={S("details-modal__top")}>
           <div className={S("styled-card", "styled-card--active", `styled-card--${aspectRatio}`, "details-modal__card")}>
             <div className={S("styled-card__image-container", "details-modal__image-container")}>
@@ -110,22 +198,25 @@ const MediaDetailsModal = observer(({
               }
             </div>
             <div className={S("details-modal__actions")}>
-              <Linkish
-                title="Go to Content"
-                to={linkPath}
-                href={url}
-                onClick={
-                  !onClick ? null :
-                    event => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      onClick?.();
+              {
+                display.type !== "media" ? null :
+                  <Linkish
+                    title="Go to Content"
+                    to={linkPath}
+                    href={url}
+                    onClick={
+                      !onClick ? null :
+                        event => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onClick?.();
+                        }
                     }
-                }
-                className={S("details-modal__action")}
-              >
-                <ImageIcon icon={ArrowRightIcon}/>
-              </Linkish>
+                    className={S("details-modal__action")}
+                  >
+                    <ImageIcon icon={ArrowRightIcon}/>
+                  </Linkish>
+              }
               <Linkish
                 title="Add to My List"
                 onClick={event => {
@@ -145,11 +236,53 @@ const MediaDetailsModal = observer(({
               <ExpandableDescription
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
-                maxLines={1000}
+                maxLines={5}
                 className={S("details-modal__description")}
               />
           }
         </div>
+        {
+          !selectedMediaListId ? null :
+            <>
+              {
+                display.type !== "collection" || display.media_lists.length <= 1 ? null :
+                  <div className={S("details-modal__list-header")}>
+                    <div className={S("details-modal__list-header-text")}>
+                      {display.media_lists_label || "Lists"}
+                    </div>
+                    <Select
+                      value={selectedMediaListId}
+                      onChange={value => setSelectedMediaListId(value)}
+                      maw={225}
+                      fz={20}
+                      data={
+                        display.media_lists
+                          .map(mediaListId => ({
+                            value: mediaListId,
+                            label: mediaPropertyStore.MediaPropertyMediaItem({
+                              mediaItemSlugOrId: mediaListId
+                            })?.title
+                          }))
+                      }
+                    />
+                  </div>
+              }
+              {
+                !selectedMediaList ? null :
+                  <div key={selectedMediaListId} className={S("media-list")}>
+                    {
+                      selectedMediaList.media?.map((mediaItemId, index) =>
+                        <MediaItem
+                          key={mediaItemId}
+                          index={index}
+                          mediaItemId={mediaItemId}
+                        />
+                      )
+                    }
+                  </div>
+              }
+            </>
+        }
       </div>
     </Modal>
   );
@@ -160,9 +293,9 @@ let hoverCardTimeout;
 let hoverCardOpenDelay = 1000;
 let hoverCloseDelay = 100;
 const MediaHoverCard = observer(({
-  width,
-  display,
-  url,
+                                   width,
+                                   display,
+                                   url,
   linkPath,
   onClick,
   imageUrl,
@@ -329,7 +462,6 @@ const MediaHoverCard = observer(({
                 !display.description ? null :
                   <ExpandableDescription
                     description={display.description}
-                    descriptionRichText={display.description_rich_text}
                     maxLines={3}
                     onClick={event => {
                       event.preventDefault();
@@ -1071,6 +1203,11 @@ const MediaCard = observer(({
     url = linkInfo?.url;
     authorized = linkInfo?.authorized;
 
+    // For collections and lists, show details modal on click
+    if(["collection", "list"].includes(linkInfo.mediaType)) {
+      onClick = () => setShowDetailsModal(true);
+    }
+
     if(sectionItem?.display?.show_price && linkInfo.purchaseItems && linkInfo.purchaseItems.length > 0) {
       const prices = linkInfo.purchaseItems
         .map(item => {
@@ -1177,7 +1314,11 @@ const MediaCard = observer(({
       {card}
       {
         !showDetailsModal ? null :
-          <MediaDetailsModal {...args} Close={() => setShowDetailsModal(false)} />
+          <MediaDetailsModal
+            {...args}
+            onClick={undefined}
+            Close={() => setShowDetailsModal(false)}
+          />
       }
     </>
   );

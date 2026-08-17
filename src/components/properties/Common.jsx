@@ -448,7 +448,8 @@ export const ExpandableDescription = observer(({
   togglePosition="left",
   maxLines,
   expandable=true,
-  className=""
+  className="",
+  indicatorClassName=""
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -481,7 +482,7 @@ export const ExpandableDescription = observer(({
     }
 
     if(onClick && onClick(event) === true) {
-      return;
+      return true;
     }
 
     useModal ?
@@ -536,7 +537,18 @@ export const ExpandableDescription = observer(({
         {
           !showToggle ? null :
             expandable ?
-              <button onClick={Expand} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
+              <button
+                onClick={Expand}
+                className={
+                  [
+                    S(
+                      "expandable-description__toggle",
+                      `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`
+                    ),
+                    indicatorClassName || ""
+                  ].join(" ")
+                }
+              >
                 {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
               </button> :
               <div className={S("expandable-description__ellipsis")}>

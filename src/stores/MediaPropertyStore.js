@@ -1070,7 +1070,7 @@ class MediaPropertyStore {
     );
 
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
-    behavior = page.permissions?.behavior || behavior;
+    behavior = page?.permissions?.behavior || behavior;
 
     alternatePageId = (
       page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
