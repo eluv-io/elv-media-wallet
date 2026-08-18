@@ -14,7 +14,7 @@ import {DatePickerInput} from "@mantine/dates";
 import {Button} from "@/components/properties/Common";
 import ProfileMenu from "@/components/header/ProfileMenu";
 import {NotificationsMenu} from "@/components/header/NotificationsMenu";
-import {SetImageUrlDimensions} from "@/utils/Utils";
+import {Debounce, SetImageUrlDimensions} from "@/utils/Utils";
 import {LogInAuth0, LogInOpenId} from "@/components/login";
 
 import HomeIcon from "@/assets/icons/home.svg";
@@ -862,8 +862,34 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
   );
 });
 
+let lastPageHeight = document.body.scrollHeight;
 const MediaPropertyHeader = observer(() => {
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setScrolled(false);
+
+    // Handle scroll change and whether the header should have a background
+    const ScrollFade = Debounce(() => {
+      const newPageHeight = document.querySelector("body").scrollHeight;
+      const scrollPosition = window.scrollY;
+      try {
+        if(newPageHeight !== lastPageHeight) {
+          // Page height changed - probably scrolled due to content change, ignore
+          return;
+        }
+
+        setScrolled(scrollPosition > 0);
+      } finally {
+        lastPageHeight = newPageHeight;
+      }
+    }, 50);
+
+    document.addEventListener("scroll", ScrollFade);
+
+    return () => document.removeEventListener("scroll", ScrollFade);
+  }, []);
 
   if(!mediaProperty) { return null; }
 
@@ -896,7 +922,16 @@ const MediaPropertyHeader = observer(() => {
   }
 
   return (
-    <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
+    <div
+      className={
+        S(
+          "header",
+          scrolled ? "header--scrolled" : "",
+          rootStore.routeParams.mediaItemSlugOrId ? "header--media" : ""
+        )
+      }
+    >
+      <div className={S("header__background")} />
       <div className={S("nav")}>
         {
           !backPath ? null :

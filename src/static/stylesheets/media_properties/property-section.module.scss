@@ -22,6 +22,10 @@
   padding-top: 30px;
   z-index: 1;
 
+  &:first-child {
+    margin-top: var(--property-header-height);
+  }
+
   &--carousel {
     padding-right: 0!important;
   }
@@ -479,6 +483,10 @@
   overflow: visible;
   position: relative;
   width: 100%;
+
+  &:first-child {
+    padding-top: var(--property-header-height);
+  }
 
   &__header {
     padding-inline: var(--property-page-padding);

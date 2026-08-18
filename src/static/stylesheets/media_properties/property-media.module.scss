@@ -2,6 +2,7 @@
   height: 100%;
   max-width: 100%;
   min-height: var(--property-full-content-height);
+  padding-top: var(--property-header-height);
   position: relative;
 
   &__back-link {

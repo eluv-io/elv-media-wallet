@@ -295,7 +295,7 @@
   height: max-content;
   max-width: 100%;
   min-height: var(--property-full-content-height);
-  padding: 25px 25px 100px;
+  padding: 100px 25px;
   position: relative;
 
   &__links {
@@ -325,6 +325,7 @@
     min-height: var(--property-full-content-height);
     object-fit: cover;
     object-position: center;
+    pointer-events: none;
     position: absolute!important;
     top: 0;
     width: 100%;
