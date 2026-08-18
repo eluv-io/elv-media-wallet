@@ -313,7 +313,6 @@
 
   &__image-container,
   &__image {
-    height: 100%;
     width: 100%;
   }
 
@@ -1245,9 +1244,14 @@
 
   &__description {
     color: var(--property-text-secondary);
+    font-size: 14px;
     line-height: 1.6em;
     margin: 10px 0;
     transition: none;
+
+    p {
+      font-size: 14px;
+    }
 
     * {
       color: var(--property-text-secondary);
@@ -1263,10 +1267,8 @@
   }
 
   &__close-header {
-    display: flex;
-    height: max-content;
-    justify-content: flex-end;
-    padding: 10px 5px 0 0;
+    height: 20px;
+    padding-right: 5px;
     position: sticky;
     top: 0;
     width: 100%;
@@ -1275,6 +1277,9 @@
 
   &__close {
     height: 30px;
+    position: absolute;
+    right: 5px;
+    top: 50%;
     width: 30px;
 
     * {
@@ -1300,6 +1305,15 @@
     padding-bottom: 100px;
     width: 100vw;
 
+    &__close-header {
+      height: 45px;
+    }
+
+    &__close {
+      right: 15px;
+      top: 10px;
+    }
+
     &__top,
     &__content,
     &__list-header {
@@ -1320,7 +1334,7 @@
     }
 
     &__title {
-      font-size: 18px;
+      font-size: 20px;
     }
 
     &__list-header {
@@ -1334,7 +1348,6 @@
 .media-list {
   animation: var(--animation-fade-in) 0.5s ease;
   margin-top: 20px;
-  padding: 0 30px 50px 0;
 }
 
 .media-list-item {
@@ -1343,7 +1356,12 @@
   border-top: 1px solid var(--property-border-color);
   display: flex;
   flex-direction: column;
-  padding: 15px 20px;
+  padding: 15px 40px 15px 20px;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--property-background-secondary);
+  }
 
   &__info {
     display: flex;
@@ -1359,16 +1377,13 @@
     width: 35px;
   }
 
-  &__card,
-  &__image-container {
+  &__card {
     max-width: 150px;
     width: 150px;
   }
 
   &__image-container {
     border-radius: calc(var(--border-radius) / 2);
-    max-width: 150px;
-    width: 150px;
   }
 
   &__title {
@@ -1388,7 +1403,7 @@
     font-size: 14px;
     margin-left: 55px;
     margin-top: 10px;
-    padding: 20px;
+    padding: 15px 20px 20px;
   }
 
   &__description-expand {
@@ -1400,19 +1415,19 @@
   }
 
   @media screen and (width <= 850px) {
-    padding: 12px;
+    padding: 12px 25px 12px 0;
 
     &__info {
       gap: 10px;
     }
 
-    &__image-container {
-      min-width: 100px;
-      width: 100px;
-    }
-
     &__index {
       font-size: 14px;
+    }
+
+    &__card {
+      max-width: 100px;
+      width: 100px;
     }
 
     &__text {

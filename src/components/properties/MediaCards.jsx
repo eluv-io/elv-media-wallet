@@ -25,7 +25,7 @@ const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
 const MediaItem = observer(({mediaItemId, index}) => {
   const match = useRouteMatch();
-  const [hovering, setHovering] = useState(true);
+  const [hovering, setHovering] = useState(false);
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItemId});
 
   if(!mediaItem) { return null; }
