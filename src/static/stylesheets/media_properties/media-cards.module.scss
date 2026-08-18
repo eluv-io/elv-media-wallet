@@ -1352,7 +1352,7 @@
 
 .media-list-item {
   --scale: 1.05;
-
+  --max-card-width: 150px;
   border-top: 1px solid var(--property-border-color);
   display: flex;
   flex-direction: column;
@@ -1375,11 +1375,6 @@
     justify-content: center;
     min-width: 35px;
     width: 35px;
-  }
-
-  &__card {
-    max-width: 150px;
-    width: 150px;
   }
 
   &__image-container {
@@ -1415,6 +1410,7 @@
   }
 
   @media screen and (width <= 850px) {
+    --max-card-width: 100px;
     padding: 12px 25px 12px 0;
 
     &__info {
@@ -1423,11 +1419,6 @@
 
     &__index {
       font-size: 14px;
-    }
-
-    &__card {
-      max-width: 100px;
-      width: 100px;
     }
 
     &__text {
