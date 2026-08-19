@@ -119,9 +119,6 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
                   />
                 </div>
             }
-            <div className={S("discover-card__title")}>
-              {mediaProperty.main_page_title || ""}
-            </div>
             <div className={S("discover-card__description")}>
               {mediaProperty.main_page_description || ""}
             </div>
