@@ -654,6 +654,7 @@
     flex-direction: column;
     height: 100%;
     padding: 20px 25px;
+    z-index: 1;
   }
 
   &__headers {
@@ -929,6 +930,7 @@
   --max-card-width: 220px;
 
   margin-bottom: 20px;
+  max-height: 200px;
   max-width: 100%;
   min-height: max-content;
   overflow: visible;

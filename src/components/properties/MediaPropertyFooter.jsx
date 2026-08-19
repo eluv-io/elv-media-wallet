@@ -139,10 +139,13 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
       type: "link",
       text: "Get Support",
       url: supportUrl || "https://eluviolive.zendesk.com/hc/en-us/requests/new"
-    },
-    { type: "link", text: "Eluvio Terms", url: "https://eluv.io/terms" },
-    { type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" }
+    }
   ];
+
+  if(!mediaProperty?.metadata?.domain?.hide_eluvio_terms) {
+    items.push({ type: "link", text: "Eluvio Terms", url: "https://eluv.io/terms" });
+    items.push({ type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" });
+  }
 
   return (
     <>

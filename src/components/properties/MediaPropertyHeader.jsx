@@ -604,11 +604,10 @@ const LanguageMenu = observer(() => {
   );
 });
 
-const HeaderLinks = observer(() => {
+const HeaderLinks = observer(({discoverDisabled}) => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
 
-  const discoverDisabled = rootStore.isCustomDomain;
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
   if(mediaProperty?.metadata?.login?.settings?.disable_login) {
@@ -824,7 +823,7 @@ const PropertySelector = observer(({logo, basePath, mobile = false}) => {
   );
 });
 
-const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) => {
+const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, searchDisabled}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   if(showSearchBar) {
@@ -842,21 +841,21 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
     <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
-          !rootStore.backPath ?
+          !rootStore.backPath || discoverDisabled ?
             <PropertySelector logo={logo} basePath={basePath} mobile /> :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
+      </div>
+      <div className={S("links")}>
         {
           searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>
               <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </button>
         }
-      </div>
-      <div className={S("links")}>
-        <HeaderLinks mobile />
+        <HeaderLinks discoverDisabled={discoverDisabled} />
       </div>
     </div>
   );
@@ -893,6 +892,7 @@ const MediaPropertyHeader = observer(() => {
 
   if(!mediaProperty) { return null; }
 
+  const discoverDisabled = rootStore.isCustomDomain || mediaProperty?.metadata?.domain?.hide_home_button;
   const searchDisabled = mediaProperty.metadata.search?.disabled ||
     (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated);
 
@@ -909,6 +909,7 @@ const MediaPropertyHeader = observer(() => {
   if(rootStore.pageWidth < 800) {
     return (
       <MediaPropertyMobileHeader
+        discoverDisabled={discoverDisabled}
         logo={logo}
         basePath={basePath}
         searchDisabled={searchDisabled}
@@ -934,7 +935,7 @@ const MediaPropertyHeader = observer(() => {
       <div className={S("header__background")} />
       <div className={S("nav")}>
         {
-          !backPath ? null :
+          !backPath || discoverDisabled ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
@@ -947,7 +948,7 @@ const MediaPropertyHeader = observer(() => {
           <SearchBar/>
       }
       <div className={S("links")}>
-        <HeaderLinks />
+        <HeaderLinks discoverDisabled={discoverDisabled} />
       </div>
     </div>
   );

@@ -1290,14 +1290,14 @@ class MediaPropertyStore {
     };
   }
 
-  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, search=false}) {
+  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, search=false, searchLevel="primary"}) {
     const property = this.MediaProperty({
       mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId
     })?.metadata;
 
     let cardThemeId;
     if(search) {
-      cardThemeId = property?.search?.primary_filter_card_theme_id;
+      cardThemeId = property?.search?.[`${searchLevel}_filter_card_theme_id`];
     } else {
       cardThemeId =
         // Section

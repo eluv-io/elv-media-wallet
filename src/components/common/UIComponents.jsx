@@ -123,10 +123,6 @@ export const Linkish = forwardRef(function Linkish({
   disabled,
   ...props
 }, ref) {
-  if(onClick || props.type === "submit") {
-    return <button onClick={onClick} ref={ref} disabled={disabled} {...props} />;
-  }
-
   if(!disabled) {
     if(href) {
       return <a href={href} target={target} rel={rel} onClick={onClick} ref={ref} {...props} />;
@@ -137,6 +133,10 @@ export const Linkish = forwardRef(function Linkish({
         return <Link to={to} onClick={onClick} ref={ref} {...props} />;
       }
     }
+  }
+
+  if(onClick || props.type === "submit") {
+    return <button onClick={onClick} ref={ref} disabled={disabled} {...props} />;
   }
 
   return <div ref={ref} {...props} />;
