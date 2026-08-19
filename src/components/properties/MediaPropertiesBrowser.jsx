@@ -122,11 +122,11 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
             <div className={S("discover-card__description")}>
               {mediaProperty.main_page_description || ""}
             </div>
-            <div className={S("discover-card__button-container")}>
+            <button onClick={() => {}} className={S("discover-card__button-container")}>
               <div className={S("discover-card__button")}>
                 Launch
               </div>
-            </div>
+            </button>
           </div>
       }
     </Linkish>

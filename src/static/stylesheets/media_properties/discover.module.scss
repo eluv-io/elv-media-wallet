@@ -176,7 +176,7 @@
 
   &__button {
     align-items: center;
-    background: white;
+    background-color: #cbcbcb;
     border-radius: 10px;
     color: black;
     display: flex;
@@ -184,35 +184,41 @@
     font-weight: 700;
     height: 45px;
     justify-content: center;
+    transition-delay: 0s!important;
     width: 100px;
+
+    &:hover,
+    &:focus-visible {
+      &:not(&:active) {
+        background-color: white;
+      }
+    }
   }
 
-    // Only transition on non-mobile
-    &:hover,
-    &:focus-visible,
-    &--active {
-      transform: scale3d(var(--scale), var(--scale), 1);
+  &:hover,
+  &:focus-visible,
+  &--active {
+    transform: scale3d(var(--scale), var(--scale), 1);
 
-      &.discover-card--featured {
+    &.discover-card--featured {
+      transition-delay: 0.25s;
+
+      * {
         transition-delay: 0.25s;
-
-        * {
-          transition-delay: 0.25s;
-        }
-      }
-
-      &.discover-card--standard {
-        filter: brightness(var(--brightness--active));
-      }
-
-      .discover-card__button-container {
-        height: 100px;
-        padding: 5px 0 20px;
       }
     }
 
+    &.discover-card--standard {
+      filter: brightness(var(--brightness--active));
+    }
 
-  @media screen and (width <= 850px) {
+    .discover-card__button-container {
+      height: 100px;
+      padding: 5px 0 20px;
+    }
+  }
+
+  @media screen and (width <= 1250px) {
     --scale: 1;
     --brightness-inactive: 100%;
 
@@ -230,11 +236,11 @@
     &__description {
       font-size: 14px;
       font-weight: 600;
-      max-height: 120px;
-      min-height: 120px;
     }
 
     &__content {
+      padding-inline: 20px;
+
       &::before {
         background: linear-gradient(rgb(0 0 0 / 10%) 0%, black);
       }
