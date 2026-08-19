@@ -190,7 +190,7 @@ export const MediaPropertiesBrowser = observer(() => {
                   <div className={S("row__title")}>{title}</div>
               }
               <Carousel
-                content={[...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ...properties, ]}
+                content={properties}
                 className={S("carousel", "featured-carousel")}
                 paginate={featured}
                 swiperOptions={{

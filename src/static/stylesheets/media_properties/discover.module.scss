@@ -112,7 +112,7 @@
     gap: 10px;
     inset: 0;
     justify-content: flex-end;
-    padding: 40px 30px 0;
+    padding: 40px 50px 0;
     position: absolute;
     text-align: center;
     z-index: 2;
@@ -162,8 +162,8 @@
     align-items: flex-start;
     display: flex;
     font-size: 16px;
-    max-height: 85px;
-    min-height: 85px;
+    max-height: 100px;
+    min-height: 100px;
   }
 
   &__button-container {

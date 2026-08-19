@@ -7,7 +7,7 @@ import {
 } from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo} from "@/utils/Utils";
+import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo, StaticFabricUrl} from "@/utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -1441,7 +1441,6 @@ class MediaPropertyStore {
         metadataUrl.searchParams.set("link_depth", "2");
 
         [
-          "info/media_property_order",
           "info/main_page_property_lists",
           "tenants/*/.",
           "tenants/*/media_properties/*/.",
@@ -1481,6 +1480,21 @@ class MediaPropertyStore {
                 propertyHash: property["."].source,
                 propertyId
               };
+
+              // Generate image urls
+              if(property.image) {
+                property.image.url = StaticFabricUrl({
+                  versionHash: LinkTargetHash(property.image) || property.propertyHash,
+                  path: UrlJoin("/files", property.image["/"].split("files/").slice(1).join("files/"))
+                });
+              }
+
+              if(property.featured_image) {
+                property.featured_image.url = StaticFabricUrl({
+                  versionHash: LinkTargetHash(property.featured_image) || property.propertyHash,
+                  path: UrlJoin("/files", property.featured_image["/"].split("files/").slice(1).join("files/"))
+                });
+              }
 
               allProperties[property.propertyId] = property;
               allProperties[property.slug] = property;
