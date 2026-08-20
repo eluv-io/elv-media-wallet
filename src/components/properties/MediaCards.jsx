@@ -14,7 +14,6 @@ import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Popover, Select} from "@mantine/core";
 import ImageIcon from "@/components/common/ImageIcon";
-import {useIsVisible} from "@/components/common/Hooks";
 
 import ArrowRightIcon from "@/assets/icons/arrow-right.svg";
 import PinIcon from "@/assets/icons/pin.svg";
@@ -293,9 +292,9 @@ let hoverCardTimeout;
 let hoverCardOpenDelay = 1000;
 let hoverCloseDelay = 100;
 const MediaHoverCard = observer(({
-                                   width,
-                                   display,
-                                   url,
+  display,
+  mediaType,
+  url,
   linkPath,
   onClick,
   imageUrl,
@@ -312,22 +311,65 @@ const MediaHoverCard = observer(({
   const [closeTimeout, setCloseTimeout] = useState(undefined);
   const [opened, setOpened] = useState(false);
   const [targetRef, setTargetRef] = useState(undefined);
-  const visible = useIsVisible(targetRef);
+  const [hoverCardRef, setHoverCardRef] = useState(undefined);
+  const [dimensions, setDimensions] = useState({});
+
+  const Focus = (duration=hoverCardOpenDelay) => {
+    clearTimeout(hoverCardTimeout);
+    clearTimeout(closeTimeout);
+    hoverCardTimeout = setTimeout(() => setOpened(true), duration);
+
+    setDimensions(targetRef?.getBoundingClientRect());
+  };
+
+  const Blur = (duration=hoverCloseDelay) => {
+    clearTimeout(hoverCardTimeout);
+    clearTimeout(closeTimeout);
+    setCloseTimeout(setTimeout(() => setOpened(false), duration));
+  };
 
   useEffect(() => {
-    if(!visible) {
-      setOpened(false);
-    }
-  }, [visible]);
+    if(!targetRef) { return; }
+
+    setDimensions(targetRef.getBoundingClientRect());
+  }, [opened]);
+
+  // Close on unfocus
+  useEffect(() => {
+    if(!opened || !hoverCardRef) { return; }
+
+    const DetectUnfocus = event => {
+      if(!hoverCardRef.contains(event.target)) {
+        Blur(hoverCloseDelay);
+      }
+    };
+
+    document.addEventListener("focusin", DetectUnfocus);
+
+    return () => document.removeEventListener("focusin", DetectUnfocus);
+  }, [opened, hoverCardRef]);
+
+  if(!mediaType) {
+    return children;
+  }
 
   const overscale = 60;
-  const hoverCardWidth = Math.max((width || 0) + overscale, 250);
-  const extension = (hoverCardWidth - (width || 0)) / 2;
+  const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
+  const extensionY = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
+  let extensionX = extensionY;
+
+  if(dimensions.x - (overscale / 2) < 0) {
+    // Offscreen left
+    extensionX = -1 * (dimensions.x - 5);
+  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > 0) {
+    // Offscreen right
+    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width);
+  }
 
   style = {...(style || {})};
   style["--scale"] = 1;
 
-  if(width) {
+  if(dimensions.width) {
     style["--width"] = `${hoverCardWidth}px`;
   }
 
@@ -338,22 +380,25 @@ const MediaHoverCard = observer(({
 
   return (
     <Popover
+      trapFocus
       opened={opened}
       position="center"
-      offset={{mainAxis: -(extension), crossAxis: -(extension)}}
+      middlewares={{flip: false, shift: false}}
+      onDismiss={() => setOpened(false)}
+      // x - mainAxis, y - crossAxis
+      offset={{mainAxis: extensionX, crossAxis: extensionY}}
       transitionProps={{
         transition: "pop",
-        duration: 350,
+        duration: 500,
         exitDuration: 250
       }}
     >
       <Popover.Target>
         <div
           ref={setTargetRef}
-          onMouseEnter={() => {
-            clearTimeout(hoverCardTimeout);
-            hoverCardTimeout = setTimeout(() => setOpened(true), hoverCardOpenDelay);
-          }}
+          onMouseEnter={() => Focus(hoverCardOpenDelay)}
+          onFocus={() => Focus(hoverCardOpenDelay)}
+          onBlur={() => clearTimeout(hoverCardTimeout)}
           onMouseLeave={() => clearTimeout(hoverCardTimeout)}
           className={S("hover-card-target", opened ? "hover-card-target--delay-transition" : "")}
         >
@@ -365,14 +410,12 @@ const MediaHoverCard = observer(({
         className={S("hover-card-container")}
       >
         <Linkish
+          ref={setHoverCardRef}
           to={linkPath}
           href={url}
           onClick={onClick}
           onMouseEnter={() => clearTimeout(closeTimeout)}
-          onMouseLeave={() => {
-            clearTimeout(closeTimeout);
-            setCloseTimeout(setTimeout(() => setOpened(false), hoverCloseDelay));
-          }}
+          onMouseLeave={() => Blur(0)}
           className={S("styled-card", `styled-card--${aspectRatio}`, "styled-card--active", "hover-card")}
         >
           <div className={S("styled-card__image-container", "hover-card__image-container")}>
@@ -410,7 +453,14 @@ const MediaHoverCard = observer(({
           </div>
           <div className={S("hover-card__content")}>
             <div className={S("hover-card__actions")}>
-              <Linkish title="Go to Content" className={S("hover-card__action")}>
+              <Linkish
+                data-autofocus
+                to={linkPath}
+                href={url}
+                onClick={onClick}
+                title="Go to Content"
+                className={S("hover-card__action")}
+              >
                 <ImageIcon icon={ArrowRightIcon}/>
               </Linkish>
               <Linkish
@@ -426,8 +476,6 @@ const MediaHoverCard = observer(({
               <div className={S("hover-card__separator")} />
               <Linkish
                 title="More Info"
-                to={linkPath}
-                href={url}
                 onClick={event => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -1196,9 +1244,10 @@ const MediaCard = observer(({
 
   disabled = disabled || permissions.disable;
 
-  let linkPath, url, authorized, price;
+  let linkPath, url, authorized, price, mediaType;
   if(!disabled) {
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
+    mediaType = linkInfo.mediaType;
     linkPath = linkInfo?.linkPath;
     url = linkInfo?.url;
     authorized = linkInfo?.authorized;
@@ -1261,6 +1310,7 @@ const MediaCard = observer(({
     fullBleed,
     progress,
     style,
+    mediaType,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?
@@ -1301,7 +1351,6 @@ const MediaCard = observer(({
       card = (
         <MediaHoverCard
           {...args}
-          width={imageContainerRef?.current?.getBoundingClientRect()?.width}
           ShowDetailsModal={() => setShowDetailsModal(true)}
         >
           <MediaCardVertical {...args}/>

@@ -202,20 +202,20 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   let url, purchaseItems, mediaType;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
-      linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
+      //linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
     }
 
     if(match.params.mediaListSlugOrId) {
-      linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
+      //linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
     }
 
     const mediaId = mediaItem?.id || sectionItem?.media_id;
 
     if((mediaItem?.type || sectionItem?.media_type) === "collection") {
-      linkPath = UrlJoin(linkPath, "c", mediaId);
+      //linkPath = UrlJoin(linkPath, "c", mediaId);
       mediaType = "collection";
     } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
-      linkPath = UrlJoin(linkPath, "l", mediaId);
+      //linkPath = UrlJoin(linkPath, "l", mediaId);
       mediaType = "list";
     } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
       mediaType = "media";
