@@ -823,28 +823,49 @@ const PropertySelector = observer(({logo, basePath, mobile = false}) => {
   );
 });
 
-const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, searchDisabled}) => {
+const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, scrolled, searchDisabled}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   if(showSearchBar) {
     return (
-      <div key="header-search" className={S("header-mobile", "header-mobile--search", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
-        <SearchBar autoFocus />
+      <div
+        key="header-search"
+        className={
+          S(
+            "header-mobile",
+            "header-mobile--search",
+            scrolled ? "header-mobile--scrolled" : "",
+            rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : ""
+          )
+        }
+      >
+        <div className={S("header__background")}/>
+        <SearchBar autoFocus/>
         <button className={S("button")} onClick={() => setShowSearchBar(false)}>
-          <ImageIcon icon={XIcon} label="Cancel Search" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Cancel Search" className={S("button__icon")}/>
         </button>
       </div>
     );
   }
 
   return (
-    <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
+    <div
+      key="header"
+      className={
+        S(
+          "header-mobile",
+          scrolled ? "header-mobile--scrolled" : "",
+          rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : ""
+        )
+      }
+    >
+      <div className={S("header__background")}/>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
           !rootStore.backPath || discoverDisabled ?
-            <PropertySelector logo={logo} basePath={basePath} mobile /> :
+            <PropertySelector logo={logo} basePath={basePath} mobile/> :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
-              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")}/>
             </Linkish>
         }
       </div>
@@ -855,7 +876,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
               <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </button>
         }
-        <HeaderLinks discoverDisabled={discoverDisabled} />
+        <HeaderLinks discoverDisabled={discoverDisabled}/>
       </div>
     </div>
   );
@@ -909,6 +930,7 @@ const MediaPropertyHeader = observer(() => {
   if(rootStore.pageWidth < 800) {
     return (
       <MediaPropertyMobileHeader
+        scrolled={scrolled}
         discoverDisabled={discoverDisabled}
         logo={logo}
         basePath={basePath}

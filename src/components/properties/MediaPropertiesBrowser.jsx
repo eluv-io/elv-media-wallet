@@ -1,6 +1,6 @@
 import DiscoverStyles from "@/assets/stylesheets/media_properties/discover.module.scss";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "@/stores";
 import UrlJoin from "url-join";
@@ -11,6 +11,7 @@ import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {Redirect} from "react-router-dom";
 import Header from "../header/Header.jsx";
+import {useIsVisible} from "@/components/common/Hooks.jsx";
 
 const S = (...classes) => classes.map(c => DiscoverStyles[c] || "").join(" ");
 
@@ -61,12 +62,15 @@ const CardVideo = observer(({video, videoInfo, className=""}) => {
 
 const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) => {
   const [hovering, setHovering] = useState(false);
+  const ref = useRef(undefined);
+  const visible = useIsVisible(ref?.current);
 
-  const showVideo =  hovering || (rootStore.mobile && active);
-
+  const showVideo = visible && (hovering || (rootStore.mobile && active));
+  
   return (
     <Linkish
       {...linkParams}
+      ref={ref}
       onMouseEnter={() => setHovering(true)}
       onFocus={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}

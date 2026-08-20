@@ -295,7 +295,7 @@
   height: max-content;
   max-width: 100%;
   min-height: var(--property-full-content-height);
-  padding: 100px 25px;
+  padding: var(--property-header-height) 25px;
   position: relative;
 
   &__links {
@@ -304,7 +304,7 @@
     z-index: 1;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     padding-inline: 15px;
 
     &__links {
@@ -720,14 +720,14 @@
     }
 
     svg {
-      background: rgba(0, 0, 0, 30%);
-      padding: 12px;
+      background: rgb(0 0 0 / 30%);
       border-radius: 100%;
       filter: drop-shadow(1px 1px 5px black);
       height: 50px;
-      width: 50px;
+      padding: 12px;
       position: relative;
       stroke-width: 2px;
+      width: 50px;
       z-index: 1;
 
       * {
@@ -737,8 +737,8 @@
 
     &--previous {
       left: 0;
-      padding-right: 20px;
       padding-left: 5px;
+      padding-right: 20px;
 
       svg {
         padding-left: 7px;
@@ -760,7 +760,6 @@
       opacity: 0;
     }
   }
-
 
   @media screen and (width <= 850px) {
     &__arrow {

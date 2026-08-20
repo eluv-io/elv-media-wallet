@@ -1483,17 +1483,15 @@ class MediaPropertyStore {
 
               // Generate image urls
               if(property.image) {
-                property.image.url = StaticFabricUrl({
-                  versionHash: LinkTargetHash(property.image) || property.propertyHash,
-                  path: UrlJoin("/files", property.image["/"].split("files/").slice(1).join("files/"))
-                });
+                property.image.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.image});
               }
 
               if(property.featured_image) {
-                property.featured_image.url = StaticFabricUrl({
-                  versionHash: LinkTargetHash(property.featured_image) || property.propertyHash,
-                  path: UrlJoin("/files", property.featured_image["/"].split("files/").slice(1).join("files/"))
-                });
+                property.featured_image.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.featured_image});
+              }
+
+              if(property.main_page_logo) {
+                property.main_page_logo.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.main_page_logo});
               }
 
               allProperties[property.propertyId] = property;

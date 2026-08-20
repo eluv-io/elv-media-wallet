@@ -886,14 +886,19 @@ export const LinkTargetHash = (link) => {
   }
 };
 
-export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, path="", authToken, resolve=true, width}) => {
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, link, path="", authToken, resolve=true, width}) => {
+  if(link) {
+    versionHash = LinkTargetHash(link) || versionHash;
+    path = UrlJoin("/files", link?.["/"]?.split("files/").slice(1).join("files/"));
+  }
+
   let url = new URL(
     rootStore.network === "main" ?
       "https://main.glb.contentfabric.io/s/main" :
-      "https://demov3.net955210.contentfabric.io"
+      "https://demov3.net955210.contentfabric.io/s/demov3"
   );
 
-  let urlPath = UrlJoin("s", rootStore.network);
+  let urlPath = UrlJoin("s", rootStore.network === "main" ? "main" : "demov3");
   if(authToken) {
     urlPath = UrlJoin("t", authToken);
   }
