@@ -28,7 +28,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
   if(!mediaStore.searchResults?.results) {
-    return <PageLoader className={S("search__loader")} />;
+    return <PageLoader containerClassName={S("search__loader")} />;
   }
 
   return (
@@ -82,7 +82,7 @@ const MediaPropertyAISearchPage = observer(() => {
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
   if(!mediaStore.searchResults?.aiSearchResultMediaIds) {
-    return <PageLoader className={S("search__loader")} />;
+    return <PageLoader containerClassName={S("search__loader")} />;
   }
 
   const searchResults = mediaStore.searchResults.aiSearchResultMediaIds
@@ -120,14 +120,13 @@ const MediaPropertySearchPage = observer(() => {
     setLoaded(true);
   }, []);
 
-  if(!loaded) { return; }
-
   return (
     <PageContainer className={S("search")}>
       {
-        mediaPropertyStore.searchMode === "clip" ?
-          <MediaPropertyAISearchPage /> :
-          <MediaPropertyDefaultSearchPage />
+        !loaded ? <PageLoader /> :
+          mediaPropertyStore.searchMode === "clip" ?
+            <MediaPropertyAISearchPage /> :
+            <MediaPropertyDefaultSearchPage />
       }
     </PageContainer>
   );

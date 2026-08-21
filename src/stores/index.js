@@ -303,12 +303,18 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
-    setInterval(() => {
-      // Not all browsers support navigation callback, just set an interval to check if the path has changed
-      if(window.location.pathname !== this.currentPath) {
-        runInAction(() => this.currentPath = window.location.pathname);
-      }
-    }, 500);
+    if(navigation?.addEventListener) {
+      navigation.addEventListener("navigate", event =>
+        runInAction(() => this.currentPath = new URL(event.destination.url).pathname)
+      );
+    } else {
+      setInterval(() => {
+        // Not all browsers support navigation callback, just set an interval to check if the path has changed
+        if(window.location.pathname !== this.currentPath) {
+          runInAction(() => this.currentPath = window.location.pathname);
+        }
+      }, 500);
+    }
 
     // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
     const SetVH = () => {

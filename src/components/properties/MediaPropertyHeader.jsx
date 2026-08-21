@@ -8,7 +8,7 @@ import ImageIcon from "@/components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
 import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch, Select, TextInput, useCombobox} from "@mantine/core";
-import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
+import {MediaPropertyBasePath, MediaPropertyLink} from "@/utils/MediaPropertyUtils";
 import {Linkish} from "@/components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
 import {Button, DefaultProfileImage, RenderAction} from "@/components/properties/Common";
@@ -431,13 +431,22 @@ const SearchBar = observer(({autoFocus}) => {
       mediaPropertyStore.ClearSearchOptions();
     }
 
-    const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === text?.toLowerCase());
+    const matchingResults = searchResults
+      .filter(result =>
+        result.title?.toLowerCase() === text?.toLowerCase()
+      );
 
-    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1 && matchingResults[0].mediaItem?.type === "media") {
-      const {id, category} = matchingResults[0];
-      const type = category === "collection" ? "c" : category === "list" ? "l" : "m";
+    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1 && matchingResults[0]?.mediaItem?.type === "media") {
+      const {linkPath} = MediaPropertyLink({
+        match: {
+          params: rootStore.routeParams,
+          url: window.location.pathname
+        },
+        mediaItem: matchingResults[0]?.mediaItem,
+        navContext: "search"
+      });
 
-      history.push(UrlJoin(basePath, type, id));
+      history.push(linkPath);
     } else {
       UpdateQueryParams(text, force);
     }
@@ -472,9 +481,10 @@ const SearchBar = observer(({autoFocus}) => {
           if(event.key !== "Enter") { return; }
 
           // Enter key pressed - will fire if a dropdown item is selected, so need to wait and see if the path changed
-          const originalPath = location.pathname;
+          const originalQuery = new URLSearchParams(window.location.search).get("q");
           setTimeout(() => {
-            if(location.pathname === originalPath) {
+            const currentQuery = new URLSearchParams(window.location.search).get("q");
+            if(originalQuery === currentQuery) {
               Select(query, true);
             }
           }, 250);
@@ -952,6 +962,7 @@ const MediaPropertyHeader = observer(() => {
 
   useEffect(() => {
     setShowSearchBar(rootStore.currentPath.endsWith("/search"));
+    setScrolled(false);
   }, [rootStore.currentPath]);
 
   if(!mediaProperty) { return null; }

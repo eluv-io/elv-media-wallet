@@ -89,7 +89,8 @@ export const PageBackground = observer(({
             hideControls
             playerOptions={{
               loop: EluvioPlayerParameters.loop.ON,
-              showLoader: EluvioPlayerParameters.showLoader.OFF
+              showLoader: EluvioPlayerParameters.showLoader.OFF,
+              backgroundColor: "transparent"
             }}
             className={[S("page-background__video"), videoClassName].join(" ")}
           />

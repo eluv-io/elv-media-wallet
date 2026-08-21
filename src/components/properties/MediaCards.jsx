@@ -988,6 +988,7 @@ const MediaCardVertical = observer(({
           alt={display.thumbnail_alt_text || display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
+          loaderAspectRatio={aspectRatio}
           showWithoutSource
           className={S("media-card-vertical__image", "styled-card__image")}
         />
