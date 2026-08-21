@@ -187,7 +187,7 @@ export const MediaPropertiesBrowser = observer(() => {
           filteredPropertyLists.map(({title, featured, properties}, index) =>
             <div key={`list-${index}`} className={S("row", featured ? "featured" : "")}>
               {
-                !title ? null :
+                !title || featured ? null :
                   <div className={S("row__title")}>{title}</div>
               }
               <Carousel
