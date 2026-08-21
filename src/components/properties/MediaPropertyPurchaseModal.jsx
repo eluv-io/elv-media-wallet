@@ -170,6 +170,7 @@ const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, A
           !item.imageUrl ? null :
             <LoaderImage
               loaderAspectRatio={1}
+              preferHashRatio
               src={item.imageUrl}
               hash={item.imageHash}
               width={600}
@@ -949,7 +950,11 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   if(!loaded || (purchaseItems || []).length === 0) {
     // Not loaded or no items
     key = 0;
-    content = <Loader className={S("loader")}/>;
+    content = (
+      <div className={S("loader-container")}>
+        <Loader />
+      </div>
+    );
   } else if((selectedItemId && !selectedItem.free)  || confirmationId) {
     // Purchased/claimed
     if(confirmationId) {

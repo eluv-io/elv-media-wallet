@@ -3,7 +3,7 @@ import HeaderStyles from "@/assets/stylesheets/media_properties/property-header.
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useHistory} from "react-router-dom";
-import {rootStore, mediaPropertyStore, notificationStore} from "@/stores";
+import {rootStore, mediaPropertyStore} from "@/stores";
 import ImageIcon from "@/components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
@@ -11,22 +11,18 @@ import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch
 import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 import {Linkish} from "@/components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
-import {Button} from "@/components/properties/Common";
+import {Button, DefaultProfileImage, RenderAction} from "@/components/properties/Common";
 import ProfileMenu from "@/components/header/ProfileMenu";
-import {NotificationsMenu} from "@/components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "@/utils/Utils";
 import {LogInAuth0, LogInOpenId} from "@/components/login";
 
-import HomeIcon from "@/assets/icons/home.svg";
 import SearchIcon from "@/assets/icons/search.svg";
 import LeftArrowIcon from "@/assets/icons/left-arrow.svg";
 import XIcon from "@/assets/icons/x.svg";
 import MenuIcon from "@/assets/icons/menu.svg";
-import NotificationsIcon from "@/assets/icons/header/Notification Icon.svg";
 import SelectIcon from "@/assets/icons/select.svg";
 import LanguageIcon from "@/assets/icons/header/language.svg";
 import AISparkleIcon from "@/assets/icons/ai-sparkle1.svg";
-
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 
@@ -437,7 +433,7 @@ const SearchBar = observer(({autoFocus}) => {
 
     const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === text?.toLowerCase());
 
-    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1) {
+    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1 && matchingResults[0].mediaItem?.type === "media") {
       const {id, category} = matchingResults[0];
       const type = category === "collection" ? "c" : category === "list" ? "l" : "m";
 
@@ -448,7 +444,6 @@ const SearchBar = observer(({autoFocus}) => {
 
     searchRef?.current.blur();
   };
-
 
   let autocompleteOptions = queryOptions;
   if(mediaPropertyStore.searchMode === "clip") {
@@ -604,8 +599,7 @@ const LanguageMenu = observer(() => {
   );
 });
 
-const HeaderLinks = observer(({discoverDisabled}) => {
-  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
+const HeaderButtons = observer(({basePath, searchDisabled, showSearchBar, setShowSearchBar}) => {
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
 
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
@@ -634,14 +628,19 @@ const HeaderLinks = observer(({discoverDisabled}) => {
 
     return (
       <>
-        { customButtons }
+        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
+        {customButtons}
         {
-          discoverDisabled ? null :
-            <Linkish to="/" className={S("button")}>
-              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
+          searchDisabled || showSearchBar || rootStore.currentPath?.endsWith("/search") ? null :
+            <Linkish to={UrlJoin(basePath, "search")} onClick={() => setShowSearchBar?.(true)} className={S("button")}>
+              <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </Linkish>
         }
         <LanguageMenu/>
+        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+          <ImageIcon icon={MenuIcon} label="Show Settings Menu" className={S("button__icon")}/>
+          <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")}/>
+        </button>
         <Button
           onClick={async () => {
             const useOpenId = !!(mediaProperty?.metadata?.login?.settings?.use_openid && mediaProperty?.metadata?.login?.settings?.openid_endpoint);
@@ -657,32 +656,28 @@ const HeaderLinks = observer(({discoverDisabled}) => {
           }}
           className={S("sign-in")}
         >
-          { rootStore.l10n.login.sign_in }
+          {rootStore.l10n.login.sign_in}
         </Button>
       </>
     );
   } else {
     return (
       <>
-        { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
-        { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
-        { customButtons }
-        {
-          discoverDisabled ? null :
-            <Linkish to="/" className={S("button")}>
-              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
-            </Linkish>
-        }
-        <LanguageMenu />
-        <button
-          className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
-          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
-        >
-          <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
-          <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
-        </button>
+        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
+        {customButtons}
+        <LanguageMenu/>
         <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
-          <ImageIcon icon={MenuIcon} label="Show Profile Menu" className={S("button__icon")} />
+          <ImageIcon
+            icon={
+              DefaultProfileImage({
+                address: rootStore.userInfo.address,
+                email: rootStore.userInfo.email,
+                name: rootStore.userInfo.name
+              })
+            }
+            label="Show Profile Menu"
+            className={S("button__profile-icon")}
+          />
           <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
         </button>
       </>
@@ -829,6 +824,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
   if(showSearchBar) {
     return (
       <div
+        autoFocus
         key="header-search"
         className={
           S(
@@ -869,15 +865,57 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
             </Linkish>
         }
       </div>
-      <div className={S("links")}>
+      <div className={S("buttons")}>
         {
           searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>
               <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </button>
         }
-        <HeaderLinks discoverDisabled={discoverDisabled}/>
+        <HeaderButtons
+          basePath={basePath}
+          searchDisabled
+        />
       </div>
+    </div>
+  );
+});
+
+const HeaderLinks = observer(({mediaProperty}) => {
+  const headerLinks = (mediaProperty.metadata?.header_links || [])
+    .filter(link => mediaPropertyStore.ActionVisible({
+      visibility: link.visibility,
+      behavior: link.behavior,
+      permissions: link.permissions
+    }));
+
+  return (
+    <div className={S("header-links")}>
+      {
+        headerLinks.map(link =>
+          <RenderAction
+            key={link.id}
+            action={link}
+            Component={params =>
+              <Linkish
+                {...params}
+                style={
+                  !CSS.supports("color", link.text_color) ? {} :
+                    {"--text-color": link.text_color}
+                }
+                onClick={() => {
+                  params?.onClick?.();
+                  Hide();
+                }}
+                className={S("header-links__link")}
+              >
+                <ImageIcon className={S("header-links__link-icon")} icon={link.icon?.url || ""} label={link.text} />
+                {link.text}
+              </Linkish>
+            }
+          />
+        )
+      }
     </div>
   );
 });
@@ -885,6 +923,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
 let lastPageHeight = document.body.scrollHeight;
 const MediaPropertyHeader = observer(() => {
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const [showSearchBar, setShowSearchBar] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -911,11 +950,17 @@ const MediaPropertyHeader = observer(() => {
     return () => document.removeEventListener("scroll", ScrollFade);
   }, []);
 
+  useEffect(() => {
+    setShowSearchBar(rootStore.currentPath.endsWith("/search"));
+  }, [rootStore.currentPath]);
+
   if(!mediaProperty) { return null; }
 
   const discoverDisabled = rootStore.isCustomDomain || mediaProperty?.metadata?.domain?.hide_home_button;
-  const searchDisabled = mediaProperty.metadata.search?.disabled ||
-    (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated);
+  const searchDisabled = (
+    mediaProperty.metadata.search?.disabled ||
+    (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated)
+  );
 
   const logo = SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300});
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
@@ -965,12 +1010,17 @@ const MediaPropertyHeader = observer(() => {
         <PropertySelector logo={logo} basePath={basePath} />
       </div>
       {
-        searchDisabled ?
-          <div className={S("search-container--placeholder")} /> :
-          <SearchBar/>
+        searchDisabled || !showSearchBar ?
+          <HeaderLinks mediaProperty={mediaProperty} /> :
+          <SearchBar autoFocus />
       }
-      <div className={S("links")}>
-        <HeaderLinks discoverDisabled={discoverDisabled} />
+      <div className={S("buttons")}>
+        <HeaderButtons
+          basePath={basePath}
+          showSearchBar={showSearchBar}
+          setShowSearchBar={setShowSearchBar}
+          searchDisabled={searchDisabled}
+        />
       </div>
     </div>
   );

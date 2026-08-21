@@ -19,6 +19,7 @@ header:
   my_items: My Items
   details: Wallet Details
   preferences: Preferences
+  home: Home
 
 login:
   sign_in: Sign In
@@ -88,6 +89,7 @@ navigation:
   wallet_details: Wallet Details
   preferences: Preferences
   collectibles: Collectibles
+  home: Home
 
 actions:
   confirm: Confirm

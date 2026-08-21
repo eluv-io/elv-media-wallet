@@ -126,6 +126,7 @@ class RootStore {
   signingOut = false;
   externalWalletUser = false;
   disableCloseEvent = false;
+  userInfo = {};
   darkMode = !searchParams.has("lt");
 
   loginCustomization = {};
@@ -307,7 +308,7 @@ class RootStore {
       if(window.location.pathname !== this.currentPath) {
         runInAction(() => this.currentPath = window.location.pathname);
       }
-    }, 1000);
+    }, 500);
 
     // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
     const SetVH = () => {
@@ -1082,6 +1083,8 @@ class RootStore {
       this.RemoveLocalStorage("signed-out");
 
       this.notificationStore.InitializeNotifications(true);
+
+      this.userInfo = this.walletClient.UserInfo();
 
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
@@ -2596,6 +2599,7 @@ class RootStore {
     this.RemoveLocalStorage(this.AuthStorageKey());
 
     this.authInfo = undefined;
+    this.userInfo = {};
   }
 
   SetAuthInfoFromAuthorizationParam = flow(function * ({

@@ -76,7 +76,7 @@
 }
 
 
-.links {
+.buttons {
   align-items: center;
   display: flex;
   gap: 15px;
@@ -107,6 +107,10 @@
   transition: background-color 0.25s ease, border 0.25s ease;
   width: 35px;
 
+  * {
+    transition: all 0.15s ease;
+  }
+
   &--custom {
     background: var(--property-button-background);
     color: var(--property-button-text);
@@ -126,7 +130,6 @@
   &__icon-close {
     height: 50%;
     position: absolute;
-    transition: opacity 0.1s ease;
     width: 50%;
   }
 
@@ -135,8 +138,15 @@
     stroke-width: 3px;
   }
 
+  &__profile-icon {
+    border-radius: 100%;
+    inset: 0;
+    position: absolute;
+  }
+
   &--active {
-    .button__icon {
+    .button__icon,
+    .button__profile-icon {
       opacity: 0;
     }
 
@@ -176,6 +186,7 @@
 
 .search-container {
   align-items: center;
+  animation: var(--animation-fade-in) 0.5s ease;
   display: flex;
   flex: 1 1 0;
   gap: 20px;
@@ -617,7 +628,35 @@
     min-width: unset;
   }
 
-  .links {
+  .buttons {
     gap: 5px;
+  }
+}
+
+.header-links {
+  flex-grow: 1;
+  gap: 20px;
+  z-index: 1;
+
+  &,
+  &__link {
+    align-items: center;
+    display: flex;
+  }
+
+  &__link {
+    color: var(--text-color, var(--property-text-primary));
+    font-weight: 700;
+    gap: 10px;
+
+    &:hover {
+      color: var(--text-color, var(--property-text-primary));
+    }
+  }
+
+  &__link-icon {
+    height: 35px;
+    object-fit: contain;
+    width: 35px;
   }
 }

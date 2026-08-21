@@ -1290,6 +1290,31 @@ class MediaPropertyStore {
     };
   }
 
+  ActionVisible({permissions, behavior, visibility}) {
+    if(behavior === "sign_in" && this.rootStore.loggedIn) {
+      return false;
+    }
+
+    const hasPermissions = !!permissions?.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.authorized
+    );
+
+    switch(visibility) {
+      case "always":
+        return true;
+      case "authorized":
+        return hasPermissions;
+      case "authenticated":
+        return this.rootStore.loggedIn;
+      case "unauthorized":
+        return this.rootStore.loggedIn && !hasPermissions;
+      case "unauthenticated":
+        return !this.rootStore.loggedIn;
+      case "unauthenticated_or_unauthorized":
+        return !this.rootStore.loggedIn || !hasPermissions;
+    }
+  }
+
   CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, search=false, searchLevel="primary"}) {
     const property = this.MediaProperty({
       mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId

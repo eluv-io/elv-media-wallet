@@ -8,8 +8,8 @@ import {SetImageUrlDimensions} from "@/utils/Utils";
 import {useHistory} from "react-router-dom";
 import {Modal as MantineModal} from "@mantine/core";
 import {
-  CreateMediaPropertyPurchaseParams,
-  MediaPropertyPurchaseParams
+  CreateMediaPropertyPurchaseParams, MediaPropertyBasePath, MediaPropertyLink,
+  MediaPropertyPurchaseParams, PurchaseParamsToItems
 } from "@/utils/MediaPropertyUtils";
 import ImageIcon from "@/components/common/ImageIcon";
 import ResponsiveEllipsis from "@/components/common/ResponsiveEllipsis";
@@ -22,6 +22,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
 import {MediaPropertyPurchaseGatePage} from "@/components/properties/MediaPropertySection";
 import {LoginGate} from "@/components/common/LoginGate";
 import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "@/utils/Thumbhash";
+import Hash from "@/utils/Hash.js";
 
 import LeftArrow from "@/assets/icons/left-arrow.svg";
 import RightArrow from "@/assets/icons/right-arrow.svg";
@@ -197,6 +198,7 @@ export const LoaderImage = observer(({
   loaderHeight,
   loaderWidth,
   loaderAspectRatio,
+  preferHashRatio,
   lazy=true,
   showWithoutSource=false,
   hideLoader=false,
@@ -209,7 +211,12 @@ export const LoaderImage = observer(({
   const [showLoader, setShowLoader] = useState(false);
   const [useAlternateSrc, setUseAlternateSrc] = useState(false);
   hash = hash && decodeThumbHash(hash);
-  loaderAspectRatio = loaderAspectRatio || (hash && thumbHashToApproximateAspectRatio(hash));
+
+  if(preferHashRatio) {
+    loaderAspectRatio = (hash && thumbHashToApproximateAspectRatio(hash)) || loaderAspectRatio;
+  } else {
+    loaderAspectRatio = loaderAspectRatio || (hash && thumbHashToApproximateAspectRatio(hash));
+  }
 
   useEffect(() => {
     setLoaded(false);
@@ -916,3 +923,136 @@ export const SplashScreen = observer(() => {
     </div>
   );
 });
+
+export const RenderAction = observer(({
+  sectionId,
+  sectionItemId,
+  sectionItem,
+  action,
+  Component
+}) => {
+  let buttonParams = {};
+
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  switch(action.behavior) {
+    case "sign_in":
+      buttonParams.onClick = () => rootStore.ShowLogin();
+      break;
+
+    case "video":
+      buttonParams.onClick = () => setShowVideoModal(true);
+      break;
+
+    case "page_link":
+      buttonParams.to = MediaPropertyBasePath({...rootStore.routeParams, pageSlugOrId: action.page_id});
+      break;
+
+    case "show_purchase":
+      const purchaseParams = CreateMediaPropertyPurchaseParams({
+        id: action.id,
+        sectionSlugOrId: sectionId,
+        sectionItemId,
+        actionId: action.id,
+        encode: false
+      });
+
+      if(
+        // Purchase action but can't purchase
+        PurchaseParamsToItems(
+          purchaseParams,
+          sectionItem?.permissions?.secondaryPurchaseOption
+        ).length === 0
+      ) {
+        return null;
+      }
+
+      const params = new URLSearchParams(location.search);
+      params.set("p", mediaPropertyStore.client.utils.B58(JSON.stringify(purchaseParams)));
+      buttonParams.to = location.pathname + "?" + params.toString();
+      break;
+
+    case "media_link":
+      const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: action.media_id});
+
+      if(mediaItem) {
+        buttonParams.to = MediaPropertyLink({
+          match: {
+            params: rootStore.routeParams,
+            url: rootStore.currentPath
+          },
+          mediaItem
+        }).linkPath;
+      }
+      break;
+
+    case "link":
+      buttonParams = {
+        href: action.url,
+        rel: "noopener",
+        target: "_blank"
+      };
+      break;
+  }
+
+  return (
+    <>
+      {
+        !showVideoModal ? null :
+          <Modal
+            withCloseButton
+            opened
+            centered
+            noBackground
+            onClose={() => setShowVideoModal(false)}
+            bodyClassName={S("action-video-container")}
+          >
+            <Video
+              link={action.video}
+              playerOptions={{showLoader: false}}
+              className={S("action-video")}
+            />
+          </Modal>
+      }
+      <Component
+        {...buttonParams}
+      />
+    </>
+  );
+});
+
+const HSLColor = (str="", s, l) => {
+  const hue = Hash(str).reduce((a, v) => a + v, 0) % 360;
+
+  return `hsl(${hue}, ${s}%, ${l}%)`;
+};
+
+const canvas = document.createElement("canvas");
+let profileImageUrls = {};
+export const DefaultProfileImage = ({name, email, address}={}) => {
+  name = name || email || "";
+
+  if(!profileImageUrls[address]) {
+    const context = canvas.getContext("2d");
+
+    canvas.width = 200;
+    canvas.height = 200;
+
+    const gradient = context.createLinearGradient(0, 0, context.canvas.width, 0);
+    gradient.addColorStop(0, HSLColor(address, 100, 30));
+    gradient.addColorStop(1, HSLColor(address, 100, 20));
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = "400 100px Helvetica";
+    context.fillStyle = "#FFFFFF";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(name.toUpperCase().charAt(0), canvas.width / 2, canvas.height / 2 + 5);
+
+    profileImageUrls[name] = canvas.toDataURL("image/png");
+  }
+
+  return profileImageUrls[name];
+};

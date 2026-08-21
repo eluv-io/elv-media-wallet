@@ -12,7 +12,8 @@ import {
   Carousel,
   PageBackground,
   PageContainer,
-  PageHeader
+  PageHeader,
+  RenderAction
 } from "@/components/properties/Common";
 
 import RightArrow from "@/assets/icons/right-arrow.svg";
@@ -21,12 +22,8 @@ import {LoginGate} from "@/components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
   MediaItemImageUrl,
-  MediaPropertyBasePath,
-  MediaPropertyLink,
-  PurchaseParamsToItems
+  MediaPropertyBasePath
 } from "@/utils/MediaPropertyUtils";
-import Modal from "@/components/common/Modal";
-import Video from "@/components/properties/Video";
 import Filters, {AttributeFilter} from "@/components/properties/Filters";
 import {FormatPriceString} from "@/components/common/UIComponents";
 import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
@@ -100,114 +97,9 @@ const SectionContent = async ({match, section, mediaListId, activeFilters}) => {
   return content;
 };
 
-const ActionVisible = ({permissions, behavior, visibility}) => {
-  if(behavior === "sign_in" && rootStore.loggedIn) {
-    return false;
-  }
-
-  const hasPermissions = !!permissions?.find(permissionItemId =>
-    mediaPropertyStore.permissionItems[permissionItemId]?.authorized
-  );
-
-  switch(visibility) {
-    case "always":
-      return true;
-    case "authorized":
-      return hasPermissions;
-    case "authenticated":
-      return rootStore.loggedIn;
-    case "unauthorized":
-      return rootStore.loggedIn && !hasPermissions;
-    case "unauthenticated":
-      return !rootStore.loggedIn;
-    case "unauthenticated_or_unauthorized":
-      return !rootStore.loggedIn || !hasPermissions;
-  }
-};
-
-const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
-  const match = useRouteMatch();
-  let buttonParams = {};
-
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
-  switch(action.behavior) {
-    case "sign_in":
-      buttonParams.onClick = () => rootStore.ShowLogin();
-      break;
-
-    case "video":
-      buttonParams.onClick = () => setShowVideoModal(true);
-      break;
-
-    case "page_link":
-      buttonParams.to = MediaPropertyBasePath({...match.params, pageSlugOrId: action.page_id});
-      break;
-
-    case "show_purchase":
-      const purchaseParams = CreateMediaPropertyPurchaseParams({
-        id: action.id,
-        sectionSlugOrId: sectionId,
-        sectionItemId,
-        actionId: action.id,
-        encode: false
-      });
-
-      if(
-        // Purchase action but can't purchase
-        PurchaseParamsToItems(
-          purchaseParams,
-          sectionItem?.permissions?.secondaryPurchaseOption
-        ).length === 0
-      ) {
-        return null;
-      }
-
-      const params = new URLSearchParams(location.search);
-      params.set("p", mediaPropertyStore.client.utils.B58(JSON.stringify(purchaseParams)));
-      buttonParams.to = location.pathname + "?" + params.toString();
-      break;
-
-    case "media_link":
-      const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: action.media_id});
-
-      if(mediaItem) {
-        buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
-      }
-      break;
-
-    case "link":
-      buttonParams = {
-        href: action.url,
-        rel: "noopener",
-        target: "_blank"
-      };
-      break;
-  }
-
-  return (
-    <>
-      {
-        !showVideoModal ? null :
-          <Modal className={[S("action__modal"), "modal--no-scroll"].join(" ")} Toggle={() => setShowVideoModal(false)}>
-            <Video link={action.video} />
-          </Modal>
-      }
-      <Button
-        {...buttonParams}
-        icon={action.button.icon?.url}
-        className={S("action", action.button_style ? `action--${action.button_style}` : "")}
-        styles={action.button}
-      >
-        { action.button.text }
-      </Button>
-    </>
-  );
-});
-
 const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
   actions = (actions || [])
-    .filter(action => ActionVisible({
+    .filter(action => mediaPropertyStore.ActionVisible({
       visibility: action.visibility,
       behavior: action.behavior,
       permissions: action.permissions
@@ -219,12 +111,22 @@ const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
     <div className={S("actions")}>
       {
         actions.map(action =>
-          <Action
+          <RenderAction
             key={action.id}
             action={action}
             sectionId={sectionId}
             sectionItemId={sectionItemId}
             sectionItem={sectionItem}
+            Component={params =>
+              <Button
+                {...params}
+                icon={action.button.icon?.url}
+                className={S("action", action.button_style ? `action--${action.button_style}` : "")}
+                styles={action.button}
+              >
+                { action.button.text }
+              </Button>
+            }
           />
         )
       }

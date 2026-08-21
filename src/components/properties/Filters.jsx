@@ -251,6 +251,9 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
   const secondaryFilterOptions = FormatFilterOptions({match, type: "secondary", filterSettings, activeFilters});
 
   useEffect(() => {
+    // Already set
+    if(activeFilters?.attributes?.[primaryFilterOptions.attributeKey]) { return; }
+
     // Set initial primary filter value
     if(
       primaryFilterOptions?.filterOptions?.length > 0 &&
@@ -267,6 +270,7 @@ const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, Set
         });
       }}
   }, []);
+
 
   useEffect(() => {
     if(primaryOnly) { return; }

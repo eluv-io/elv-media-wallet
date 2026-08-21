@@ -22,7 +22,7 @@ import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
-const MediaItem = observer(({mediaItemId, index}) => {
+const MediaItem = observer(({mediaItemId, index, navContext}) => {
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItemId});
@@ -33,7 +33,7 @@ const MediaItem = observer(({mediaItemId, index}) => {
 
   if(permissions.hide) { return null; }
 
-  const linkInfo = MediaPropertyLink({match, mediaItem});
+  const linkInfo = MediaPropertyLink({match, mediaItem, navContext});
   const imageInfo = MediaItemImageUrl({
     mediaItem,
     display: mediaItem,
@@ -91,7 +91,7 @@ const MediaItem = observer(({mediaItemId, index}) => {
               return false;
             }}
             description={mediaItem.description}
-            maxLines={2}
+            maxLines={3}
             className={S("media-list-item__description")}
             indicatorClassName={S("media-list-item__description-expand")}
           />
@@ -104,6 +104,7 @@ const MediaDetailsModal = observer(({
   display,
   url,
   linkPath,
+  navContext,
   onClick,
   imageUrl,
   livePreviewUrl,
@@ -275,6 +276,7 @@ const MediaDetailsModal = observer(({
                           key={mediaItemId}
                           index={index}
                           mediaItemId={mediaItemId}
+                          navContext={navContext}
                         />
                       )
                     }
@@ -1251,6 +1253,7 @@ const MediaCard = observer(({
     linkPath = linkInfo?.linkPath;
     url = linkInfo?.url;
     authorized = linkInfo?.authorized;
+    navContext = navContext || linkInfo.navContext;
 
     // For collections and lists, show details modal on click
     if(["collection", "list"].includes(linkInfo.mediaType)) {
@@ -1311,6 +1314,7 @@ const MediaCard = observer(({
     progress,
     style,
     mediaType,
+    navContext,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?

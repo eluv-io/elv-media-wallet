@@ -76,7 +76,6 @@
   &__children {
     max-width: 100%;
     padding: 15px;
-    width: 100%;
   }
 
   &__top-header {
@@ -120,6 +119,7 @@
       align-items: center;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       max-width: unset;
       min-height: calc(100 * var(--vh));
     }
@@ -1042,5 +1042,19 @@
     position: absolute;
     user-select: none;
     z-index: 1;
+  }
+}
+
+.action-video {
+  animation: var(--animation-fade-in) 1s ease;
+  max-height: 90vh;
+
+  @media screen and (width > 850px) {
+    max-width: 75vw;
+    width: 75vw;
+  }
+
+  @media screen and (width <= 850px) {
+    width: 95vw;
   }
 }

@@ -1,7 +1,15 @@
 import React from "react";
 import SVG from "react-inlinesvg";
 
-const ImageIcon = ({icon, alternateIcon, title, label, useLoadingIndicator=false, className, ...props}) => {
+const ImageIcon = ({
+  icon,
+  alternateIcon,
+  title,
+  label,
+  useLoadingIndicator=false,
+  className,
+  ...props
+}) => {
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 

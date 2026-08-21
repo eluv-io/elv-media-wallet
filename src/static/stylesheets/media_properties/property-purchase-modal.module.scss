@@ -1,7 +1,8 @@
-.loader {
-  height: 200px;
-  max-width: 100%;
-  width: 100%;
+.loader-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 300px;
 }
 
 .form {
@@ -175,10 +176,6 @@
   justify-content: flex-end;
   min-height: 175px;
   padding: 30px 0 10px;
-
-  &__loader {
-    height: 150px;
-  }
 
   &__message {
     font-size: 1.5em;

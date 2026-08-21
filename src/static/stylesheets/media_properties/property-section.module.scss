@@ -573,14 +573,6 @@
       border-radius: 0;
       clip-path: polygon(0 0, 0 100%, 94% 100%, 100% 80%, 100% 0);
     }
-
-    &__modal {
-      background: red;
-
-      &:global(.modal) {
-        overflow-y: visible;
-      }
-    }
   }
 
   @media screen and (width <= 800px) {

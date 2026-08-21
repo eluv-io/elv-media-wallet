@@ -22,7 +22,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
   const query = new URLSearchParams(window.location.search).get("q") || mediaPropertyStore.searchOptions.query;
 
   useEffect(() => {
-    mediaStore.ClearSearchResults();
+    //mediaStore.ClearSearchResults();
     mediaPropertyStore.SearchMedia({...match.params, query})
       .then(results => mediaStore.SetSearchResults({query, mode: "default", ...results}));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
@@ -35,6 +35,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
     <>
       <div className={S("search__filters")}>
         <Filters
+          preservationKey="search"
           centered
           filterSettings={mediaProperty.metadata.search}
           activeFilters={mediaPropertyStore.searchOptions}

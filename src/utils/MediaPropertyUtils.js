@@ -213,9 +213,11 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
     if((mediaItem?.type || sectionItem?.media_type) === "collection") {
       //linkPath = UrlJoin(linkPath, "c", mediaId);
+      linkPath = undefined;
       mediaType = "collection";
     } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
       //linkPath = UrlJoin(linkPath, "l", mediaId);
+      linkPath = undefined;
       mediaType = "list";
     } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
       mediaType = "media";
@@ -309,7 +311,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     url,
     purchaseItems: purchaseItems || [],
     authorized: permissions?.authorized,
-    mediaType
+    mediaType,
+    navContext
   };
 };
 
