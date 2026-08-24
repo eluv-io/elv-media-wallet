@@ -1,3 +1,4 @@
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
 import MediaStyles from "@/assets/stylesheets/media_properties/property-media.module.scss";
 
 import React, {useEffect, useState, useRef} from "react";
@@ -30,14 +31,20 @@ import VerticalIcon from "@/assets/icons/media/vertical.svg";
 import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
 import XIcon from "@/assets/icons/x.svg";
 
-const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaStyles[c] || "").join(" ");
 
 /* Video */
 
 const EndScreen = observer(({mediaItem, nextItem}) => {
   const match = useRouteMatch();
-  const [countdown, setCountdown] = useState(5.5);
+  const [countdown, setCountdown] = useState(5);
   const [redirect, setRedirect] = useState(false);
+  const navContext = new URLSearchParams(location.search).get("ctx");
+
+  const cardTheme = mediaPropertyStore.CardTheme({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    sectionSlugOrId: match.params.sectionSlugOrId || navContext
+  })?.cardTheme;
 
   useEffect(() => {
     const transitionAt = Date.now() + 5.5 * 1000;
@@ -56,7 +63,6 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
   }, []);
 
   if(nextItem && redirect) {
-    const navContext = new URLSearchParams(location.search).get("ctx");
     const linkPath = MediaPropertyLink({
       match,
       sectionItem: nextItem,
@@ -69,7 +75,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
 
   const display = nextItem?.mediaItem || nextItem?.display;
   return (
-    <div className={S("bumper", "bumper--next")}>
+    <div style={{...(cardTheme?.css || {})}} className={S("bumper", "bumper--next")}>
       <LoaderImage
         src={mediaItem.thumbnail_image_landscape?.url}
         hash={mediaItem.thumbnail_image_landscape_hash}
@@ -84,16 +90,23 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
               Up Next in {countdown + 1}
             </div>
             <div className={S("next__card")}>
-              <LoaderImage
-                src={display.thumbnail_image_landscape?.url}
-                hash={display.thumbnail_image_landscape_hash}
-                alt={display.title}
-                width={600}
-                className={S("next__card-thumbnail")}
-              />
+              <div
+                onClick={() => setRedirect(true)}
+                className={S("styled-card", "styled-card--no-transition", "styled-card--landscape", "next__card-image")}
+              >
+                <div className={S("styled-card__image-container")}>
+                  <LoaderImage
+                    src={display.thumbnail_image_landscape?.url}
+                    hash={display.thumbnail_image_landscape_hash}
+                    alt={display.title}
+                    width={600}
+                    className={S("styled-card__image")}
+                  />
+                </div>
+              </div>
               <div className={S("next__card-content")}>
                 <div className={S("next__card-title")}>
-                  { display.title }
+                  {display.title}
                 </div>
                 {
                   display.subtitle ? null :
@@ -125,9 +138,9 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
 
 
 const MediaVideo = observer(({
-  primary,
-  mediaItem,
-  playFullVideo,
+                               primary,
+                               mediaItem,
+                               playFullVideo,
   playerProfile,
   display,
   videoRef,

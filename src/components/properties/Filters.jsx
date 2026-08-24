@@ -1,3 +1,4 @@
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
 import CardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import React, {useEffect, useState} from "react";
@@ -6,7 +7,7 @@ import {mediaPropertyStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
 import {Carousel, LoaderImage} from "@/components/properties/Common";
 
-const S = (...classes) => classes.map(c => CardStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || CardStyles[c] || "").join(" ");
 
 const AttributeFilterOption = observer(({
   value,

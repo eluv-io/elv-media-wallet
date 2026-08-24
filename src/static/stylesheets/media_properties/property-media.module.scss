@@ -1320,6 +1320,8 @@
 }
 
 .next {
+  --max-card-width: 240px;
+
   animation: var(--animation-fadein) 1.5s ease;
   bottom: 20px;
   color: var(--property-text-primary);
@@ -1339,13 +1341,6 @@
     gap: 20px;
     min-width: 500px;
     user-select: none;
-  }
-
-  &__card-thumbnail {
-    border: 1px solid white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px black;
-    width: 240px;
   }
 
   &__card-title {
@@ -1381,12 +1376,21 @@
   }
 
   @media screen and (width <= 1250px) {
+    --max-card-width: 150px;
+
+    bottom: 0;
+    height: max-content;
+    right: 0;
+    width: 500px;
+
     &__card {
       min-width: 350px;
     }
 
-    &__card-thumbnail {
-      width: 150px;
+    &__card {
+      max-width: 100%;
+      min-width: unset;
+      width: 100%;
     }
 
     &__card-title {
@@ -1398,24 +1402,12 @@
     }
 
     &__action {
+      font-size: 14px;
       height: 35px;
     }
   }
 
   @media screen and (width <= 650px) {
-    bottom: 0;
-    height: max-content;
-    right: 0;
     width: 100%;
-
-    &__card {
-      max-width: 100%;
-      min-width: unset;
-      width: 100%;
-    }
-
-    &__action {
-      font-size: 14px;
-    }
   }
 }

@@ -1,5 +1,5 @@
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
 import SidebarStyles from "@/assets/stylesheets/media_properties/media-sidebar.module.scss";
-import CardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
@@ -29,7 +29,7 @@ import XIcon from "@/assets/icons/x.svg";
 import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
 import SearchIcon from "@/assets/icons/search.svg";
 
-const S = (...classes) => classes.map(c => SidebarStyles[c] || CardStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || SidebarStyles[c] || "").join(" ");
 
 const Item = observer(({
   imageUrl,
@@ -308,7 +308,7 @@ const MediaSidebar = observer(({
     );
   }
 
-  const cardTheme = mediaPropertyStore.CardTheme({...match.params});
+  const cardTheme = mediaPropertyStore.CardTheme({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
 
   return (
     <div
@@ -392,79 +392,95 @@ const MediaSidebar = observer(({
       </div>
       <div ref={setContentElement} className={S("content")}>
         {
-          tab?.groups?.map(group =>
-            <div key={`group-${group.id}`} className={S("content__section")}>
-              {
-                !group.title ? null :
-                  <div className={[S("content__title"), "_title"].join(" ")}>
-                    { group.title }
-                  </div>
-              }
-              {group.content.map((item, index) => {
-                let {imageUrl, imageHash} = MediaItemImageUrl({
-                  mediaItem: item.mediaItem,
-                  display: item.display
-                });
+          tab?.groups?.map(group => {
+            let groupTheme;
+            if(group.sectionSlugOrId) {
+              groupTheme = mediaPropertyStore.CardTheme({
+                mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+                sectionSlugOrId: group.sectionSlugOrId
+              })?.cardTheme;
+            }
 
-                let additionalViews = item?.additional_views || [];
-                if(
-                  (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
-                  item.mediaItem?.id !== mediaItem.id
-                ) {
-                  // Hide additional views if item is upcoming and not the active item
-                  additionalViews = [];
+            return (
+              <div
+                key={`group-${group.id}`}
+                style={{
+                  ...(groupTheme?.css || {})
+                }}
+                className={S("content__section")}
+              >
+                {
+                  !group.title ? null :
+                    <div className={[S("content__title"), "_title"].join(" ")}>
+                      {group.title}
+                    </div>
                 }
+                {group.content.map((item, index) => {
+                  let {imageUrl, imageHash} = MediaItemImageUrl({
+                    mediaItem: item.mediaItem,
+                    display: item.display
+                  });
 
-                return (
-                  <>
-                    <Item
-                      noBorder={index === 0}
-                      imageUrl={imageUrl}
-                      imageHash={imageHash}
-                      title={item.display.sidebar_title || item.display.title}
-                      subtitle={item.display.subtitle}
-                      scheduleInfo={item.scheduleInfo}
-                      key={`item-${item.id}`}
-                      contentItem={{type: "media-item", id: item.mediaItem.id}}
-                      primaryMediaId={mediaItem.id}
-                      noActions={!item?.isMultiviewable}
-                      streamLimit={streamLimit}
-                      variants={cardTheme.variants}
-                    />
-                    {
-                      additionalViews.length === 0 ? null :
-                        <div className={S("content__views-container")}>
-                          {
-                            additionalViews.map((view, index) =>
-                              <Item
-                                imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
-                                hash={view.image_url}
-                                title={view.label}
-                                key={`item-${item.id}-${index}`}
-                                scheduleInfo={item.scheduleInfo}
-                                contentItem={{
-                                  ...view,
-                                  type: "additional-view",
-                                  id: `${item.id}-${index}`,
-                                  mediaItemId: item.id,
-                                  playerProfile: item.player_profile,
-                                  index,
-                                  label: `${item.display.title} - ${view.label}`
-                                }}
-                                wrapTitle
-                                primaryMediaId={mediaItem.id}
-                                streamLimit={streamLimit}
-                                variants={cardTheme.variants}
-                              />
-                            )
-                          }
-                        </div>
-                    }
-                  </>
-                );
-              })}
-            </div>
-          )
+                  let additionalViews = item?.additional_views || [];
+                  if(
+                    (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                    item.mediaItem?.id !== mediaItem.id
+                  ) {
+                    // Hide additional views if item is upcoming and not the active item
+                    additionalViews = [];
+                  }
+
+                  return (
+                    <>
+                      <Item
+                        noBorder={index === 0}
+                        imageUrl={imageUrl}
+                        imageHash={imageHash}
+                        title={item.display.sidebar_title || item.display.title}
+                        subtitle={item.display.subtitle}
+                        scheduleInfo={item.scheduleInfo}
+                        key={`item-${item.id}`}
+                        contentItem={{type: "media-item", id: item.mediaItem.id}}
+                        primaryMediaId={mediaItem.id}
+                        noActions={!item?.isMultiviewable}
+                        streamLimit={streamLimit}
+                        variants={groupTheme?.variants || cardTheme?.variants}
+                      />
+                      {
+                        additionalViews.length === 0 ? null :
+                          <div className={S("content__views-container")}>
+                            {
+                              additionalViews.map((view, index) =>
+                                <Item
+                                  imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                  hash={view.image_url}
+                                  title={view.label}
+                                  key={`item-${item.id}-${index}`}
+                                  scheduleInfo={item.scheduleInfo}
+                                  contentItem={{
+                                    ...view,
+                                    type: "additional-view",
+                                    id: `${item.id}-${index}`,
+                                    mediaItemId: item.id,
+                                    playerProfile: item.player_profile,
+                                    index,
+                                    label: `${item.display.title} - ${view.label}`
+                                  }}
+                                  wrapTitle
+                                  primaryMediaId={mediaItem.id}
+                                  streamLimit={streamLimit}
+                                  variants={groupTheme?.variants || cardTheme?.variants}
+                                />
+                              )
+                            }
+                          </div>
+                      }
+                    </>
+                  );
+                })}
+              </div>
+            );
+          })
         }
       </div>
     </div>
@@ -505,7 +521,7 @@ export const MultiviewSelectionModal = observer(({
     return null;
   }
 
-  const cardTheme = mediaPropertyStore.CardTheme({...match.params});
+  const cardTheme = mediaPropertyStore.CardTheme({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
 
   return (
     <Modal
@@ -552,9 +568,23 @@ export const MultiviewSelectionModal = observer(({
       }
       <div style={{...(cardTheme?.css || {})}} className={S("multiview-selection-modal__items")}>
         {
-          tab?.groups.map(group =>
-            !group.content.find(item => item?.isMultiviewable) ? null :
-              <div key={`group-${group.id}`} className={S("content__section")}>
+          tab?.groups.map(group => {
+            let groupTheme;
+            if(group.sectionSlugOrId) {
+              groupTheme = mediaPropertyStore.CardTheme({
+                mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+                sectionSlugOrId: group.sectionSlugOrId
+              })?.cardTheme;
+            }
+
+            return !group.content.find(item => item?.isMultiviewable) ? null :
+              <div
+                key={`group-${group.id}`}
+                style={{
+                  ...(groupTheme?.css || {})
+                }}
+                className={S("content__section")}
+              >
                 {
                   !group.title ? null :
                     <div className={[S("content__title"), "_title"].join(" ")}>
@@ -577,6 +607,15 @@ export const MultiviewSelectionModal = observer(({
                       additionalViews = [];
                     }
 
+                    let groupTheme;
+                    if(group.sectionSlugOrId) {
+                      groupTheme = mediaPropertyStore.CardTheme({
+                        ...match.params,
+                        sectionSlugOrId: group.sectionSlugOrId
+                      })?.cardTheme;
+                    }
+
+
                     return (
                       <>
                         <Item
@@ -594,7 +633,7 @@ export const MultiviewSelectionModal = observer(({
                           streamLimit={streamLimit}
                           displayedContent={selectedContent}
                           setDisplayedContent={setSelectedContent}
-                          variants={cardTheme?.variants}
+                          variants={groupTheme?.variants || cardTheme?.variants}
                         />
                         {
                           additionalViews.length === 0 ? null :
@@ -624,7 +663,7 @@ export const MultiviewSelectionModal = observer(({
                                     streamLimit={streamLimit}
                                     displayedContent={selectedContent}
                                     setDisplayedContent={setSelectedContent}
-                                    variants={cardTheme?.variants}
+                                    variants={groupTheme?.variants || cardTheme?.variants}
                                   />
                                 )
                               }
@@ -633,8 +672,8 @@ export const MultiviewSelectionModal = observer(({
                       </>
                     );
                   })}
-              </div>
-          )
+              </div>;
+          })
         }
       </div>
       <div className={S("multiview-selection-modal__actions")}>

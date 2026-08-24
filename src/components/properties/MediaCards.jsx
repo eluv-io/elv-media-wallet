@@ -1,3 +1,4 @@
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
 import MediaCardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
@@ -20,7 +21,7 @@ import PinIcon from "@/assets/icons/pin.svg";
 import CaretDownIcon from "@/assets/icons/down-caret.svg";
 import XIcon from "@/assets/icons/x.svg";
 
-const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyles[c] || "").join(" ");
 
 const MediaItem = observer(({mediaItemId, index, navContext}) => {
   const match = useRouteMatch();

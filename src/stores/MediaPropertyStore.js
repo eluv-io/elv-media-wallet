@@ -170,7 +170,7 @@ class MediaPropertyStore {
           ...tab,
           groups: (await Promise.all(
             tab.groups.map(async group => {
-              let content;
+              let content, groupSectionSlugOrId;
               if(group.type === "section") {
                 content = (await this.MediaPropertySectionContent({
                   mediaPropertySlugOrId,
@@ -179,6 +179,7 @@ class MediaPropertyStore {
                   filterOptions: {contentType: "media"}
                 }))
                   .filter(item => item?.mediaItem);
+                groupSectionSlugOrId = group.section_id || sectionSlugOrId;
               } else if(group.type === "automatic") {
                 const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
                 const media = Object.values(this.media)
@@ -235,6 +236,7 @@ class MediaPropertyStore {
 
               return {
                 ...group,
+                sectionSlugOrId: groupSectionSlugOrId,
                 content
               };
             }))
@@ -1418,7 +1420,7 @@ class MediaPropertyStore {
     }
 
     return {
-      theme: this.cardThemes[cardThemeId],
+      cardTheme: this.cardThemes[cardThemeId],
       hoverCardDisplay
     };
   }

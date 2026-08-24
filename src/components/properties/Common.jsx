@@ -1010,7 +1010,7 @@ export const RenderAction = observer(({
           >
             <Video
               link={action.video}
-              playerOptions={{showLoader: false}}
+              playerOptions={{showLoader: false, backgroundColor: "black"}}
               className={S("action-video")}
             />
           </Modal>
