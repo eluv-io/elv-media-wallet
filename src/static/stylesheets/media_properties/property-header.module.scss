@@ -1,6 +1,5 @@
 .header {
   align-items: center;
-  animation: var(--animation-fade-in) 0.25s ease;
   background: linear-gradient(180deg, rgb(0 0 0 / 70%) 0%, transparent);
   display: flex;
   gap: 50px;
@@ -658,5 +657,18 @@
     height: 35px;
     object-fit: contain;
     width: 35px;
+  }
+
+  @media screen and (width <= 1250px) {
+    gap: 30px;
+    margin-left: 20px;
+
+    &__link {
+      font-size: 12px;
+    }
+
+    &__link-icon {
+      display: none;
+    }
   }
 }

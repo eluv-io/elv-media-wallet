@@ -913,10 +913,6 @@ const HeaderLinks = observer(({mediaProperty}) => {
                   !CSS.supports("color", link.text_color) ? {} :
                     {"--text-color": link.text_color}
                 }
-                onClick={() => {
-                  params?.onClick?.();
-                  Hide();
-                }}
                 className={S("header-links__link")}
               >
                 <ImageIcon className={S("header-links__link-icon")} icon={link.icon?.url || ""} label={link.text} />

@@ -28,6 +28,7 @@ import FAQ from "@/components/properties/FAQ";
 import Subscription from "@/components/profile/Subscription";
 import CodeLoginTest from "@/components/login/CodeLoginTest";
 import {PurchaseGate} from "@/components/properties/Common";
+import MediaPropertyHeader from "@/components/properties/MediaPropertyHeader.jsx";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -507,6 +508,10 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
 
           return (
             <Route exact={typeof exact === "undefined" ? true : exact} path={path} key={`wallet-route-${path}`}>
+              {
+                !propertyRoute ? null :
+                  <MediaPropertyHeader />
+              }
               <ErrorBoundary>
                 <RouteWrapper routes={routes}>
                   { result }

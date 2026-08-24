@@ -994,6 +994,23 @@ export const RenderAction = observer(({
         target: "_blank"
       };
       break;
+
+    case "property_link":
+      const url = new URL(window.location.origin);
+      url.pathname = MediaPropertyBasePath({mediaPropertySlugOrId: action.property, pageSlugOrId: action.property_page});
+      buttonParams.href = url.toString();
+      break;
+
+    case "subproperty_link":
+      buttonParams.target = "";
+      buttonParams.href = MediaPropertyBasePath({
+        parentMediaPropertySlugOrId: rootStore.routeParams.mediaPropertySlugOrId,
+        parentPageSlugOrId: rootStore.routeParams.pageSlugOrId,
+        mediaPropertySlugOrId: action.subproperty,
+        pageSlugOrId: action.subproperty_page
+      });
+      break;
+
   }
 
   return (

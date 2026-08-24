@@ -5,7 +5,6 @@ import {mediaPropertyStore, rootStore} from "@/stores/index";
 import {Redirect, Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
 import RenderRoutes from "@/routes";
-import MediaPropertyHeader from "@/components/properties/MediaPropertyHeader";
 import {LoginGate} from "@/components/common/LoginGate";
 import MediaPropertyFooter from "@/components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "@/utils/Utils";
@@ -174,7 +173,6 @@ const PropertyWrapper = observer(({children}) => {
 export const PropertyRoutes = observer(({basePath}) => {
   return (
     <div className="page-container property-page">
-      <MediaPropertyHeader />
       <Switch>
         <RenderRoutes
           basePath={basePath}
@@ -189,7 +187,6 @@ export const PropertyRoutes = observer(({basePath}) => {
 export const BundledPropertyRoutes = observer(() => {
   return (
     <div className="page-container property-page">
-      <MediaPropertyHeader />
       <Switch>
         <RenderRoutes
           basePath="/"
