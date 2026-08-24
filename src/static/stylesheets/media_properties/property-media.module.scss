@@ -1209,3 +1209,213 @@
     width: 100%;
   }
 }
+
+.bumper {
+  align-items: center;
+  background-color: black;
+  display: flex;
+  height: 100%;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+
+  &__cover {
+    background-color: rgb(0 0 0 / 66%);
+    inset: 0;
+    position: absolute;
+  }
+
+  &__background {
+    animation: var(--animation-fadein) 1.5s ease;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    width: 100%;
+
+    &--cover {
+      object-fit: cover;
+    }
+  }
+
+  &__video {
+    background-color: transparent;
+    inset: 0;
+    position: absolute;
+
+    video {
+      background-color: transparent;
+      object-fit: contain;
+    }
+  }
+
+  &__controls {
+    align-items: center;
+    animation: var(--animation-fadein) 1s ease;
+    display: flex;
+    height: 100%;
+    inset: 0;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+  }
+
+  &__controls-background {
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+  }
+
+  &__button-container {
+    align-items: center;
+    cursor: initial;
+    display: flex;
+    height: max-content;
+    justify-content: center;
+    padding: 20px;
+    width: max-content;
+
+    &--volume {
+      bottom: 0;
+      position: absolute;
+      right: 0;
+    }
+  }
+
+  &__play-button {
+    background-color: white;
+    border-radius: 100%;
+    color: black;
+    filter: drop-shadow(0 0 10px black);
+    height: 60px;
+    padding: 15px;
+    width: 60px;
+    z-index: 1;
+
+    svg {
+      color: black;
+      fill: black;
+      height: 100%;
+      margin-left: 3px;
+      stroke: black;
+      width: 100%;
+    }
+  }
+
+  &__link {
+    align-items: center;
+    animation: var(--animation-fadein) 2s ease;
+    bottom: 20px;
+    font-weight: 600;
+    gap: 10px;
+    left: 30px;
+    padding: 5px 10px 5px 20px;
+    position: absolute;
+    z-index: 10;
+  }
+}
+
+.next {
+  animation: var(--animation-fadein) 1.5s ease;
+  bottom: 20px;
+  color: var(--property-text-primary);
+  padding: 20px;
+  position: absolute;
+  right: 20px;
+
+  &__timer {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 7px;
+  }
+
+  &__card {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+    min-width: 500px;
+    user-select: none;
+  }
+
+  &__card-thumbnail {
+    border: 1px solid white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px black;
+    width: 240px;
+  }
+
+  &__card-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  &__card-subtitle {
+    color: var(--property-text-faded);
+    font-size: 16px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  &__action {
+    border-radius: 5px;
+    flex-grow: 1;
+    font-weight: 600;
+    height: 40px;
+
+    &--cancel {
+      background: rgb(0 0 0 / 70%);
+    }
+
+    &--next {
+      background-color: white;
+      color: black;
+    }
+  }
+
+  @media screen and (width <= 1250px) {
+    &__card {
+      min-width: 350px;
+    }
+
+    &__card-thumbnail {
+      width: 150px;
+    }
+
+    &__card-title {
+      font-size: 16px;
+    }
+
+    &__card-subtitle {
+      font-size: 14px;
+    }
+
+    &__action {
+      height: 35px;
+    }
+  }
+
+  @media screen and (width <= 650px) {
+    bottom: 0;
+    height: max-content;
+    right: 0;
+    width: 100%;
+
+    &__card {
+      max-width: 100%;
+      min-width: unset;
+      width: 100%;
+    }
+
+    &__action {
+      font-size: 14px;
+    }
+  }
+}

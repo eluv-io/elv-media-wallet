@@ -147,6 +147,10 @@ const MediaPropertyFooter = observer(({withCustomBackgroundColor}) => {
     items.push({ type: "link", text: "Eluvio Privacy Policy", url: "https://eluv.io/privacy" });
   }
 
+  if(rootStore.showLogin) {
+    return null;
+  }
+
   return (
     <>
       <footer className={S("footer", withCustomBackgroundColor ? "footer--custom-background" : "")}>
