@@ -266,19 +266,7 @@ const MediaSidebar = observer(({
   const isLive = scheduleInfo?.isLiveContent && scheduleInfo?.started;
 
   useEffect(() => {
-    // Automatically switch to tab of current item
-    const initialTabIndex = mediaStore.sidebarContent?.tabs?.findIndex(tab =>
-      tab?.groups?.find(group =>
-        group?.content?.find(item =>
-          item.mediaItem?.id === match.params.mediaItemSlugOrId ||
-          item.mediaItem?.slug === match.params.mediaItemSlugOrId
-        )
-      )
-    );
-
-    if(initialTabIndex > 0) {
-      setTabIndex(initialTabIndex);
-    }
+    setTabIndex(mediaStore.sidebarContent?.initialTabIndex || 0);
   }, [mediaStore.sidebarContent, match.params.mediaItemSlugOrId]);
 
   useEffect(() => {

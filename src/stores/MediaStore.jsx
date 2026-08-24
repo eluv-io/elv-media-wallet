@@ -11,6 +11,7 @@ class MediaStore {
   selectedShowTagSidebar = false;
   showMultiviewSelectionModal = false;
   showVertical = false;
+  contentEnded = false;
 
   // Dont want to observe entire player
   players = {};
@@ -48,6 +49,7 @@ class MediaStore {
     this.showSidebar = true;
     this.selectedShowTagSidebar = false;
     this.showMultiviewSelectionModal = false;
+    this.contentEnded = false;
 
     // TODO: Remove
     this.client.ResetRegion();
@@ -75,6 +77,10 @@ class MediaStore {
 
   SetShowMultiviewSelectionModal(show) {
     this.showMultiviewSelectionModal = show;
+  }
+
+  SetContentEnded(ended) {
+    this.contentEnded = ended;
   }
 
   SetShowVertical(showVertical) {
