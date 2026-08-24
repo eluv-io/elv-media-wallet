@@ -1010,13 +1010,17 @@
   box-shadow: 0 0 15px black;
   display: flex;
   flex-direction: column;
-  height: 100%;
   inset: 0;
   justify-content: center;
   overflow: hidden;
-  position: absolute;
+  position: fixed;
+  transition: opacity 0.75s ease-in;
   width: 100%;
   z-index: 100;
+
+  &--hiding {
+    opacity: 0;
+  }
 
   &__image {
     display: flex;
@@ -1048,6 +1052,7 @@
   }
 
   &__progress {
+    animation: var(--animation-fade-in) 0.5s ease;
     background: #333;
     height: 5px;
     margin-top: 50px;

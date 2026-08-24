@@ -1,6 +1,6 @@
 import "./Styles.js";
 
-import React, {Suspense, useEffect} from "react";
+import React, {Suspense, useEffect, useState} from "react";
 import { createRoot } from "react-dom/client";
 import { observer} from "mobx-react";
 import {MantineProvider} from "@mantine/core";
@@ -152,12 +152,29 @@ const Routes = observer(() => {
 });
 
 const App = observer(() => {
+  const [showSplash, setShowSplash] = useState(rootStore.showSplash);
+  const [hidingSplash, setHidingSplash] = useState(false);
+
   useEffect(() => {
     const route = rootStore.routeChange;
     if(route) {
       rootStore.SetRouteChange(undefined);
     }
   }, [rootStore.routeChange]);
+
+  useEffect(() => {
+    if(rootStore.showSplash) {
+      setHidingSplash(false);
+      setShowSplash(true);
+    } else {
+      setHidingSplash(true);
+
+      setTimeout(() => {
+        setShowSplash(false);
+        setHidingSplash(false);
+      }, 750);
+    }
+  }, [rootStore.showSplash]);
 
   if(rootStore.routeChange) {
     return <Redirect to={rootStore.routeChange} />;
@@ -185,8 +202,8 @@ const App = observer(() => {
       <Routes />
       <DebugFooter />
       {
-        !rootStore.showSplash ? null :
-          <SplashScreen />
+        !showSplash ? null :
+          <SplashScreen hiding={hidingSplash} />
       }
     </div>
   );

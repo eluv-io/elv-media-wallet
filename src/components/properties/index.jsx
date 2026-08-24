@@ -106,8 +106,9 @@ const PropertyWrapper = observer(({children}) => {
           await rootStore.SignOut({reload: false});
         }
       } finally {
-        rootStore.SetShowSplash(false);
         setLoading(false);
+
+        setTimeout(() => rootStore.SetShowSplash(false), 1000);
       }
     })();
   }, [mediaPropertySlugOrId, rootStore.CurrentAddress()]);
@@ -116,7 +117,7 @@ const PropertyWrapper = observer(({children}) => {
     return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
   }
 
-  if(!rootStore.loaded || !itemLoaded || loading || rootStore.showSplash) {
+  if(!rootStore.loaded || !itemLoaded || loading) {
     return <PageLoader />;
   }
 

@@ -870,11 +870,11 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
   return children;
 });
 
-export const SplashScreen = observer(() => {
+export const SplashScreen = observer(({hiding}) => {
   const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
   const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
   const [styling, setStyling] = useState(undefined);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
   useEffect(() => {
     // Load and splash details, set init timing for minimum display duration
@@ -897,6 +897,10 @@ export const SplashScreen = observer(() => {
             mediaPropertySlugOrId
           });
 
+          if(!settings?.styling?.splash_screen_logo?.url) {
+            setLogoLoaded(true);
+          }
+
           setLastPropertySlugOrId(mediaPropertySlugOrId);
         });
     })();
@@ -908,47 +912,45 @@ export const SplashScreen = observer(() => {
     "splash_screen_background_mobile" : "splash_screen_background";
 
   return (
-    <div className={S("splash-container")}>
-      <div
-        style={{backgroundColor: styling.splash_screen_background_color || "#000000"}}
-        className={S("splash")}
-      >
-        {
-          !styling?.[key]?.url ? null :
-            <LoaderImage
-              alt="Splash Background"
-              src={styling[key].url}
-              hash={styling[`${key}_hash`]}
-              onLoad={() => setImageLoaded(true)}
-              width={rootStore.fullscreenImageWidth}
-              key={imageLoaded ? "loaded" : "unloaded"}
-              className={S("splash__image")}
-            />
-        }
-        <div className={S("splash__content-container")}>
-          <div
-            style={{
-              width: `${styling.splash_screen_logo_scale || 100}%`,
-            }}
-            className={S("splash__content")}
-          >
-            {
-              !styling?.splash_screen_logo?.url ? null :
-                <LoaderImage
-                  hideLoader
-                  width={rootStore.fullscreenImageWidth / 2}
-                  alt="Splash Logo"
-                  src={styling.splash_screen_logo.url}
-                  hash={styling.splash_screen_logo_hash}
-                  className={S("splash__logo")}
-                />
-            }
-            {
+    <div
+      style={{backgroundColor: styling.splash_screen_background_color || "#000000"}}
+      className={S("splash", hiding ? "splash--hiding" : "")}
+    >
+      {
+        !styling?.[key]?.url ? null :
+          <LoaderImage
+            alt="Splash Background"
+            src={styling[key].url}
+            hash={styling[`${key}_hash`]}
+            width={rootStore.fullscreenImageWidth}
+            className={S("splash__image")}
+          />
+      }
+      <div className={S("splash__content-container")}>
+        <div
+          style={{
+            width: `${styling.splash_screen_logo_scale || 100}%`,
+          }}
+          className={S("splash__content")}
+        >
+          {
+            !styling?.splash_screen_logo?.url ? null :
+              <LoaderImage
+                hideLoader
+                onLoad={() => setLogoLoaded(true)}
+                width={rootStore.fullscreenImageWidth / 2}
+                alt="Splash Logo"
+                src={styling.splash_screen_logo.url}
+                hash={styling.splash_screen_logo_hash}
+                className={S("splash__logo")}
+              />
+          }
+          {
+            !logoLoaded ? null :
               styling.splash_show_progress ?
                 <Progress color="white" transitionDuration={1000} value={mediaPropertyStore.loadingProgress} max={100} className={S("splash__progress")} /> :
                 <Loader color="White" className={S("splash__loader")}/>
-            }
-          </div>
+          }
         </div>
       </div>
     </div>
