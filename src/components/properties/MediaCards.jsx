@@ -295,7 +295,6 @@ let hoverCardOpenDelay = 1000;
 let hoverCloseDelay = 100;
 const MediaHoverCard = observer(({
   display,
-  mediaType,
   url,
   linkPath,
   onClick,
@@ -350,10 +349,6 @@ const MediaHoverCard = observer(({
 
     return () => document.removeEventListener("focusin", DetectUnfocus);
   }, [opened, hoverCardRef]);
-
-  if(!mediaType) {
-    return children;
-  }
 
   const overscale = 60;
   const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
@@ -1152,6 +1147,7 @@ const MediaCard = observer(({
   buttonText,
   navContext,
   variants=[],
+  hoverCardDisplay,
   size,
   fullBleed=false,
   lazy=true,
@@ -1353,14 +1349,18 @@ const MediaCard = observer(({
       break;
 
     default:
-      card = (
-        <MediaHoverCard
-          {...args}
-          ShowDetailsModal={() => setShowDetailsModal(true)}
-        >
-          <MediaCardVertical {...args}/>
-        </MediaHoverCard>
-      );
+      if(hoverCardDisplay === "all" || (hoverCardDisplay === "media" && mediaType === "media")) {
+        card = (
+          <MediaHoverCard
+            {...args}
+            ShowDetailsModal={() => setShowDetailsModal(true)}
+          >
+            <MediaCardVertical {...args}/>
+          </MediaHoverCard>
+        );
+      } else {
+        card = <MediaCardVertical {...args} />;
+      }
   }
 
   return (

@@ -436,6 +436,7 @@ export const MediaGrid = observer(({
   cardFormat="vertical",
   cardSize="medium",
   cardTheme,
+  hoverCardDisplay,
   defaultButtonText,
   wrapTitles=false,
   className="",
@@ -451,7 +452,11 @@ export const MediaGrid = observer(({
     cardSize
   });
 
-  cardTheme = cardTheme || mediaPropertyStore.CardTheme({...match.params});
+  if(!cardTheme && !hoverCardDisplay) {
+    const settings = mediaPropertyStore.CardTheme({...match.params});
+    cardTheme = cardTheme || settings.cardTheme;
+    hoverCardDisplay = hoverCardDisplay || settings.hoverCardDisplay;
+  }
 
   let style = {};
   if(columns > 1) {
@@ -487,6 +492,7 @@ export const MediaGrid = observer(({
               buttonText={item?.card_button_text || defaultButtonText}
               navContext={navContext}
               style={cardTheme?.css}
+              hoverCardDisplay={hoverCardDisplay}
               centered={
                 (MediaItemImageUrl({
                   mediaItem: item,
@@ -530,7 +536,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, cardTheme, navContext}) => {
+const SectionContentCarousel = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
   sectionContent = sectionContent.slice(0, 100);
 
   return (
@@ -557,6 +563,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, na
         <MediaCard
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
           key={`media-card-${item.id}`}
+          hoverCardDisplay={hoverCardDisplay}
           variants={cardTheme?.variants}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
@@ -822,7 +829,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
-  const cardTheme = mediaPropertyStore.CardTheme({
+  const {cardTheme, hoverCardDisplay} = mediaPropertyStore.CardTheme({
     ...match.params,
     sectionSlugOrId: sectionId || match.params.sectionSlugOrId
   });
@@ -979,6 +986,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <ContentComponent
               navContext={sectionId}
               cardTheme={cardTheme}
+              hoverCardDisplay={hoverCardDisplay}
               section={section}
               sectionContent={
                 displayLimit ?

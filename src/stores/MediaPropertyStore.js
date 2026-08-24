@@ -1335,7 +1335,7 @@ class MediaPropertyStore {
       mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId
     })?.metadata;
 
-    let cardThemeId;
+    let cardThemeId, hoverCardDisplay;
     if(search) {
       cardThemeId = property?.search?.[`${searchLevel}_filter_card_theme_id`];
     } else {
@@ -1346,6 +1346,14 @@ class MediaPropertyStore {
         this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.card_theme_id ||
         // Property
         property?.card_theme_id;
+
+      hoverCardDisplay =
+        // Section
+        this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.hover_card_display ||
+        // Page
+        this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.hover_card_display ||
+        // Property
+        property?.hover_card_display || "none";
     }
 
     if(!this.cardThemes[cardThemeId] || this.cardThemes[cardThemeId].mobile !== this.rootStore.mobile) {
@@ -1359,7 +1367,10 @@ class MediaPropertyStore {
       this.cardThemes[cardThemeId].mobile = this.rootStore.mobile;
     }
 
-    return this.cardThemes[cardThemeId];
+    return {
+      theme: this.cardThemes[cardThemeId],
+      hoverCardDisplay
+    };
   }
 
   LoadMediaPropertyHashes = flow(function * () {

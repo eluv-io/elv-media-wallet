@@ -23,7 +23,7 @@ const AttributeFilterOption = observer(({
   const [imageAspectRatio, setImageAspectRatio] = useState("");
 
   // TODO: Get card theme properly
-  const cardTheme = mediaPropertyStore.CardTheme({search: true, searchLevel: level});
+  const cardTheme = mediaPropertyStore.CardTheme({search: true, searchLevel: level}).theme;
 
   const Select = () => {
     let newFilters = {};
