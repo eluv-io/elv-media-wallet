@@ -6,7 +6,7 @@ import {mediaPropertyStore, rootStore} from "@/stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "@/utils/Utils";
 import {useHistory} from "react-router-dom";
-import {Modal as MantineModal} from "@mantine/core";
+import {Modal as MantineModal, Progress} from "@mantine/core";
 import {
   CreateMediaPropertyPurchaseParams, MediaPropertyBasePath, MediaPropertyLink,
   MediaPropertyPurchaseParams, PurchaseParamsToItems
@@ -258,12 +258,15 @@ export const LoaderImage = observer(({
           />
       }
       {
-        loaded || hideLoader ? null :
+        loaded ? null :
           hash ?
             <div
               {...props}
               className={[S("lazy-image__hash-container"), props.className].join(" ")}
-              style={{aspectRatio: loaderAspectRatio}}
+              style={{
+                aspectRatio: loaderAspectRatio,
+                opacity: hideLoader ? 0 : props?.style?.opacity || 1
+              }}
             >
               <div
                 style={{background: `center / cover url(${thumbHashToDataURL(hash)})`}}
@@ -276,7 +279,8 @@ export const LoaderImage = observer(({
                 ...(props.style || {}),
                 ...(loaderWidth ? {width: loaderWidth} : {}),
                 ...(loaderHeight ? {height: loaderHeight} : {}),
-                ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+                ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {}),
+                opacity: hideLoader ? 0 : props?.style?.opacity || 1
               }}
               key={props.key ? `${props.key}--placeholder` : undefined}
               className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
@@ -867,6 +871,92 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
 });
 
 export const SplashScreen = observer(() => {
+  const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+  const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
+  const [styling, setStyling] = useState(undefined);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load and splash details, set init timing for minimum display duration
+    (async () => {
+      const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+
+      if(lastPropertySlugOrId && lastPropertySlugOrId === mediaPropertySlugOrId) {
+        return;
+      }
+
+      delete window.initSplashRender;
+
+      setStyling(undefined);
+
+      rootStore.LoadPropertyCustomization(mediaPropertySlugOrId)
+        .then(settings => {
+          window.initSplashRender = Date.now();
+          setStyling({
+            ...(settings?.styling || {}),
+            mediaPropertySlugOrId
+          });
+
+          setLastPropertySlugOrId(mediaPropertySlugOrId);
+        });
+    })();
+  }, [rootStore.currentPath]);
+
+  if(!mediaPropertySlugOrId || !styling) { return null; }
+
+  const key = rootStore.mobile ?
+    "splash_screen_background_mobile" : "splash_screen_background";
+
+  return (
+    <div className={S("splash-container")}>
+      <div
+        style={{backgroundColor: styling.splash_screen_background_color || "#000000"}}
+        className={S("splash")}
+      >
+        {
+          !styling?.[key]?.url ? null :
+            <LoaderImage
+              alt="Splash Background"
+              src={styling[key].url}
+              hash={styling[`${key}_hash`]}
+              onLoad={() => setImageLoaded(true)}
+              width={rootStore.fullscreenImageWidth}
+              key={imageLoaded ? "loaded" : "unloaded"}
+              className={S("splash__image")}
+            />
+        }
+        <div className={S("splash__content-container")}>
+          <div
+            style={{
+              width: `${styling.splash_screen_logo_scale || 100}%`,
+            }}
+            className={S("splash__content")}
+          >
+            {
+              !styling?.splash_screen_logo?.url ? null :
+                <LoaderImage
+                  hideLoader
+                  width={rootStore.fullscreenImageWidth / 2}
+                  alt="Splash Logo"
+                  src={styling.splash_screen_logo.url}
+                  hash={styling.splash_screen_logo_hash}
+                  className={S("splash__logo")}
+                />
+            }
+            {
+              styling.splash_show_progress ?
+                <Progress color="white" transitionDuration={1000} value={mediaPropertyStore.loadingProgress} max={100} className={S("splash__progress")} /> :
+                <Loader color="White" className={S("splash__loader")}/>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+
+export const SplashScreen2 = observer(() => {
   const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
   const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
   const [styling, setStyling] = useState(undefined);

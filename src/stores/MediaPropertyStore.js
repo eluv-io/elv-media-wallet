@@ -41,6 +41,7 @@ class MediaPropertyStore {
   };
   tags = [];
   _ownedItems = {};
+  loadingProgress = 0;
 
   mediaPlayers = {};
 
@@ -1828,6 +1829,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    this.loadingProgress = 0;
     yield this.LoadMediaPropertyHashes();
 
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
@@ -1873,6 +1875,8 @@ class MediaPropertyStore {
             `/public/asset_metadata/localizations/${localizationKey}/info`
         });
 
+        this.loadingProgress = 30;
+
         if(sessionStorage.getItem("openid")) {
           metadata.login.settings = {
             ...metadata.login.settings,
@@ -1890,6 +1894,8 @@ class MediaPropertyStore {
           this.LoadMarketplace({marketplaceId: marketplace_id, localizationKey, force});
           this.LoadOwnedItems({marketplaceId: marketplace_id, localizationKey, force});
         });
+
+        this.loadingProgress = 60;
 
         if(!isPreview && metadata.permission_set_links) {
           // Load from links
@@ -1911,6 +1917,8 @@ class MediaPropertyStore {
             )
           );
         }
+
+        this.loadingProgress = 80;
 
         // Load Media Catalogs
         let mediaCatalogContent;
@@ -1934,6 +1942,8 @@ class MediaPropertyStore {
             )
           );
         }
+
+        this.loadingProgress = 98;
 
         this.tags = [...new Set([
           ...(this.tags || []),

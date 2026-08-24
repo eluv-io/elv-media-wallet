@@ -303,7 +303,7 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
-    if(navigation?.addEventListener) {
+    if(typeof navigation !== "undefined" && navigation?.addEventListener) {
       navigation.addEventListener("navigate", event =>
         runInAction(() => this.currentPath = new URL(event.destination.url).pathname)
       );
