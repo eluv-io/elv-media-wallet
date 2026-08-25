@@ -1238,7 +1238,7 @@
   }
 
   &__background {
-    animation: var(--animation-fadein) 1.5s ease;
+    animation: var(--animation-fade-in) 1.5s ease;
     height: 100%;
     object-fit: contain;
     object-position: center;
@@ -1262,7 +1262,7 @@
 
   &__controls {
     align-items: center;
-    animation: var(--animation-fadein) 1s ease;
+    animation: var(--animation-fade-in) 1s ease;
     display: flex;
     height: 100%;
     inset: 0;

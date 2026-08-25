@@ -179,7 +179,9 @@ class MediaPropertyStore {
                   mediaListSlugOrId: !group.section_id && mediaListSlugOrId,
                   filterOptions: {contentType: "media"}
                 }))
-                  .filter(item => item?.mediaItem);
+                  .map(item => item?.mediaItem)
+                  .filter(item => item);
+
                 groupSectionSlugOrId = group.section_id || sectionSlugOrId;
               } else if(group.type === "automatic") {
                 const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
