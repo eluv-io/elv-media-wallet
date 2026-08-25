@@ -65,13 +65,13 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
     return <Redirect to={linkPath} />;
   }
 
-  const display = nextItem?.mediaItem || nextItem?.display;
+  const display = nextItem?.mediaItem || nextItem?.display || {};
   return (
     <div className={S("bumper", "bumper--next")}>
       <LoaderImage
-        src={mediaItem.thumbnail_image_landscape?.url}
-        hash={mediaItem.thumbnail_image_landscape_hash}
-        alt={mediaItem.title}
+        src={mediaItem?.thumbnail_image_landscape?.url}
+        hash={mediaItem?.thumbnail_image_landscape_hash}
+        alt={mediaItem?.title}
         className={S("bumper__background", "bumper__background--cover")}
       />
       <div className={S("bumper__cover")} />
@@ -497,7 +497,7 @@ const MediaVideoWithSidebar = observer(({
                 playerProfile={item.playerProfile}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
-                primary
+                primary={index === 0}
                 onClose={
                   mediaInfo.length === 1 ? undefined :
                     () => {
@@ -515,6 +515,16 @@ const MediaVideoWithSidebar = observer(({
                 }}
               />
             )
+          }
+          {
+            mediaInfo.length > 1 || !mediaStore.contentEnded || !mediaStore.sidebarContent?.nextItem ? null :
+              <EndScreen
+                mediaItem={
+                  mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaInfo[0].id}) ||
+                  mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaInfo[0].mediaItemId})
+                }
+                nextItem={mediaStore.sidebarContent.nextItem}
+              />
           }
         </div>
       </div>
