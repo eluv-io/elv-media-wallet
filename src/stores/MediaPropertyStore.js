@@ -2503,6 +2503,8 @@ class MediaPropertyStore {
         this.rootStore.Log("Error loading media progress from session storage:", true);
         this.rootStore.Log(error);
       }
+
+      return;
     }
 
     yield this.LoadResource({
