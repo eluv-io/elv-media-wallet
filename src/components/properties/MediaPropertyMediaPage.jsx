@@ -473,7 +473,7 @@ const MediaVideoWithSidebar = observer(({
     .slice(0, streamLimit);
 
   let media;
-  if(mediaStore.multiviewMode === "pip" || mediaInfo.length === 1) {
+  if(mediaStore.multiviewMode === "pip") {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
@@ -481,7 +481,8 @@ const MediaVideoWithSidebar = observer(({
     );
   } else {
     media = (
-      <div className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
+      <div
+        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}>
         <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
@@ -496,6 +497,7 @@ const MediaVideoWithSidebar = observer(({
                 playerProfile={item.playerProfile}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
+                primary
                 onClose={
                   mediaInfo.length === 1 ? undefined :
                     () => {
