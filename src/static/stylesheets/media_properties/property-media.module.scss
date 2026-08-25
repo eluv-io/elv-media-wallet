@@ -421,15 +421,25 @@
     background-color: black;
     display: flex;
     height: 100%;
+    max-height: calc(var(--property-full-content-height) - 120px);
     max-width: 100%;
-    min-height: calc(var(--vh, 1vh) * 100 - 200px);
+    min-height: calc(var(--property-full-content-height) - 120px);
     position: relative;
     width: 100%;
 
     &--single {
       background-color: transparent;
       margin: 0;
+      min-height: unset;
       padding: 0;
+    }
+
+    &:not(&--fullscreen) {
+      max-height: calc(var(--property-full-content-height) - 120px);
+
+      * {
+        max-height: calc(var(--property-full-content-height) - 120px);
+      }
     }
   }
 

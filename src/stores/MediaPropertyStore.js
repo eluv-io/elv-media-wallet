@@ -2447,8 +2447,6 @@ class MediaPropertyStore {
   });
 
   SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
 
     if(!mediaPropertyId) { return; }
@@ -2472,6 +2470,14 @@ class MediaPropertyStore {
       return;
     }
 
+    if(!this.rootStore.loggedIn) {
+      this.rootStore.SetSessionStorage(
+        `media-progress-${mediaPropertyId}`,
+        JSON.stringify(this.mediaProgress[mediaPropertyId])
+      );
+      return;
+    }
+
     yield this.rootStore.walletClient.SetProfileMetadata({
       type: "app",
       mode: "private",
@@ -2482,17 +2488,27 @@ class MediaPropertyStore {
   });
 
   LoadMediaProgress = flow(function * ({mediaPropertySlugOrId}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
 
     if(!mediaPropertyId) { return; }
+
+    if(!this.rootStore.loggedIn) {
+      try {
+        const progress = this.rootStore.GetSessionStorageJSON(`media-progress-${mediaPropertyId}`);
+
+        if(progress) {
+          this.mediaProgress[mediaPropertyId] = progress;
+        }
+      } catch(error) {
+        this.rootStore.Log("Error loading media progress from session storage:", true);
+        this.rootStore.Log(error);
+      }
+    }
 
     yield this.LoadResource({
       key: "MediaProgress",
       id: mediaPropertyId,
       Load: async () => {
-
         if(!this.mediaProgress[mediaPropertyId]) {
           this.mediaProgress[mediaPropertyId] = {};
         }
@@ -2516,8 +2532,6 @@ class MediaPropertyStore {
   });
 
   GetMediaProgress({mediaPropertySlugOrId, mediaItemId}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || this.rootStore.currentPropertyId;
 
     if(!mediaPropertyId) { return; }
