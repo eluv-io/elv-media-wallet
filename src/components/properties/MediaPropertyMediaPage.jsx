@@ -121,9 +121,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
   );
 });
 
-
 const MediaVideo = observer(({
-  primary,
   mediaItem,
   playerProfile,
   display,
@@ -290,7 +288,12 @@ const MediaVideo = observer(({
       mediaItemId={mediaItem.id}
       saveProgress
       playoutParameters={playoutParameters}
-      endCallback={!primary ? undefined : () => mediaStore.SetContentEnded(true)}
+      endCallback={() => {
+        // Set content ended
+        if(mediaStore.displayedContent.length === 1) {
+          mediaStore.SetContentEnded(true);
+        }
+      }}
       contentInfo={{
         title: display.title,
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
@@ -354,7 +357,6 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
       playerProfile={primaryMedia.playerProfile}
       display={primaryMedia.display}
       showTitle={!!secondaryMedia}
-      primary
       settingsUpdateCallback={player => setMenuActive(player.controls.IsMenuVisible())}
       className={S("media-with-sidebar__video")}
     />
@@ -497,7 +499,6 @@ const MediaVideoWithSidebar = observer(({
                 playerProfile={item.playerProfile}
                 display={item.display || display}
                 showTitle={mediaStore.displayedContent.length > 1}
-                primary={index === 0}
                 onClose={
                   mediaInfo.length === 1 ? undefined :
                     () => {
