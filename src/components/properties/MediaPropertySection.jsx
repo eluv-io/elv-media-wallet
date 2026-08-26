@@ -457,7 +457,19 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
     <>
       {
         !hasTitle && !hasTags ? null :
-          <div className={[S("section-container", "container-section", `container-section--${section.display.justification || "left"}`), sectionClassName].join(" ")}>
+          <div
+            className={
+              [
+                S(
+                  "section-container",
+                  `section-container--padding-${section.display.padding || "md"}`,
+                  "container-section",
+                  `container-section--${section.display.justification || "left"}`
+                ),
+                sectionClassName
+              ].join(" ")
+            }
+          >
             <div className={S("section", `section--${section.display.justification || "left"}`)}>
               {
                 !section.display.title ? null :
@@ -955,6 +967,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       style={style}
       className={[S(
         "section-container",
+        `section-container--padding-${section.display.padding || "md"}`,
         `section-container--${section.display?.display_format || "grid"}`,
         `section-container--${section.display.justification || "left"}`,
         section.display.full_bleed ? "section-container--full-bleed" : ""
