@@ -65,6 +65,7 @@ const PropertyWrapper = observer(({children}) => {
 
   useEffect(() => {
     (async () => {
+      rootStore.SetShowSplash(true);
       setLoading(true);
 
       try {

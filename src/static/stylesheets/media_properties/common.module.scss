@@ -1006,15 +1006,16 @@
 
 .splash {
   align-items: center;
-  animation: var(--animation-fade-in) 0.5s ease;
+  background-color: black;
   box-shadow: 0 0 15px black;
   display: flex;
   flex-direction: column;
   inset: 0;
   justify-content: center;
+  min-height: calc(100 * var(--vh));
   overflow: hidden;
   position: fixed;
-  transition: opacity 0.75s ease-in;
+  transition: opacity var(--splash-animation-duration) ease-in;
   width: 100%;
   z-index: 100;
 
@@ -1022,7 +1023,9 @@
     opacity: 0;
   }
 
+  &__background,
   &__image {
+    animation: var(--animation-fade-in) var(--splash-animation-duration) ease-out;
     display: flex;
     height: 100%;
     inset: 0;

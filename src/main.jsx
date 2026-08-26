@@ -172,7 +172,7 @@ const App = observer(() => {
       setTimeout(() => {
         setShowSplash(false);
         setHidingSplash(false);
-      }, 750);
+      }, rootStore.splashDelay);
     }
   }, [rootStore.showSplash]);
 

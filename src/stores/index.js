@@ -121,6 +121,7 @@ class RootStore {
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
   showSplash = true;
+  splashDelay = 750;
 
   loggedIn = false;
   signingOut = false;
@@ -2736,9 +2737,9 @@ class RootStore {
   }
 
   async SetShowSplash(show) {
-    while(!show && window.initSplashRender + 3000 > Date.now()) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+    do {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } while(!show && window.initSplashRender + 3000 > Date.now() && this.mediaPropertyStore.loadingProgress < 100);
 
     this.showSplash = show;
     delete window.initSplashRender;
@@ -2931,7 +2932,12 @@ class RootStore {
         this.pageWidth = width;
         this.pageHeight = height;
 
-        this.fullscreenImageWidth = width > 3000 ? 3840 : width > 2000 ? 2560 : 1920;
+        this.fullscreenImageWidth = (
+          width > 3000 ? 3840 :
+            width > 2000 ? 2560 :
+              width > 1000 ? 1920 :
+                1000
+        );
       });
     }, 100);
   }

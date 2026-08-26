@@ -2073,6 +2073,8 @@ class MediaPropertyStore {
       }
     });
 
+    this.loadingProgress = 100;
+
     return force;
   });
 

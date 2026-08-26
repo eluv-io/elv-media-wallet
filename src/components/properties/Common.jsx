@@ -872,54 +872,67 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
 
 export const SplashScreen = observer(({hiding}) => {
   const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
-  const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
   const [styling, setStyling] = useState(undefined);
   const [logoLoaded, setLogoLoaded] = useState(false);
 
   useEffect(() => {
+    window.initSplashRender = Date.now();
+
     // Load and splash details, set init timing for minimum display duration
     (async () => {
       const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
 
-      if(lastPropertySlugOrId && lastPropertySlugOrId === mediaPropertySlugOrId) {
-        return;
-      }
-
-      delete window.initSplashRender;
-
       setStyling(undefined);
 
-      rootStore.LoadPropertyCustomization(mediaPropertySlugOrId)
-        .then(settings => {
-          window.initSplashRender = Date.now();
-          setStyling({
-            ...(settings?.styling || {}),
-            mediaPropertySlugOrId
-          });
+      const settings = await rootStore.LoadPropertyCustomization(mediaPropertySlugOrId);
 
-          if(!settings?.styling?.splash_screen_logo?.url) {
-            setLogoLoaded(true);
-          }
+      setStyling({
+        ...(settings?.styling || {}),
+        mediaPropertySlugOrId
+      });
 
-          setLastPropertySlugOrId(mediaPropertySlugOrId);
-        });
+      if(!settings?.styling?.splash_screen_logo?.url) {
+        setLogoLoaded(true);
+      }
     })();
   }, [rootStore.currentPath]);
 
-  if(!mediaPropertySlugOrId || !styling) { return null; }
+  useEffect(() => {
+    document.documentElement.classList.add("no-scroll");
+    document.body.classList.add("no-scroll");
+
+    return () => {
+      document.documentElement.classList.remove("no-scroll");
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  if(!mediaPropertySlugOrId || !styling) {
+    return <div className={S("splash")} />;
+  }
 
   const key = rootStore.mobile ?
     "splash_screen_background_mobile" : "splash_screen_background";
 
   return (
     <div
-      style={{backgroundColor: styling.splash_screen_background_color || "#000000"}}
+      style={{
+        "--splash-animation-duration": `${rootStore.splashDelay}ms`
+      }}
       className={S("splash", hiding ? "splash--hiding" : "")}
     >
       {
-        !styling?.[key]?.url ? null :
+        !styling?.[key]?.url ?
+          <div
+            style={{
+              backgroundColor: styling.splash_screen_background_color || "#000000",
+            }}
+            className={S("splash__background")}
+          />:
           <LoaderImage
             alt="Splash Background"
+            delay={0}
+            loaderDelay={0}
             src={styling[key].url}
             hash={styling[`${key}_hash`]}
             width={rootStore.fullscreenImageWidth}
@@ -937,6 +950,8 @@ export const SplashScreen = observer(({hiding}) => {
             !styling?.splash_screen_logo?.url ? null :
               <LoaderImage
                 hideLoader
+                delay={0}
+                loaderDelay={0}
                 onLoad={() => setLogoLoaded(true)}
                 width={rootStore.fullscreenImageWidth / 2}
                 alt="Splash Logo"
@@ -953,66 +968,6 @@ export const SplashScreen = observer(({hiding}) => {
           }
         </div>
       </div>
-    </div>
-  );
-});
-
-
-export const SplashScreen2 = observer(() => {
-  const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
-  const [lastPropertySlugOrId, setLastPropertySlugOrId] = useState(undefined);
-  const [styling, setStyling] = useState(undefined);
-
-  useEffect(() => {
-    // Load and splash details, set init timing for minimum display duration
-    (async () => {
-      const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
-
-      if(lastPropertySlugOrId && lastPropertySlugOrId === mediaPropertySlugOrId) {
-        return;
-      }
-
-      delete window.initSplashRender;
-
-      setStyling(undefined);
-
-      rootStore.LoadPropertyCustomization(mediaPropertySlugOrId)
-        .then(settings => {
-          window.initSplashRender = Date.now();
-          setStyling({
-            ...(settings?.styling || {}),
-            mediaPropertySlugOrId
-          });
-
-          setLastPropertySlugOrId(mediaPropertySlugOrId);
-        });
-    })();
-  }, [rootStore.currentPath]);
-
-  if(!mediaPropertySlugOrId) { return null; }
-
-  const key = rootStore.mobile ?
-    "splash_screen_background_mobile" : "splash_screen_background";
-
-  return (
-    <div className={S("splash")}>
-      {
-        !styling?.[key] ? null :
-          <LoaderImage
-            src={styling[key].url}
-            hash={styling[`${key}_hash`]}
-            className={S("splash__image")}
-          />
-      }
-      <div className={S("splash__loader")}>
-        <Loader/>
-      </div>
-      {
-        !rootStore.isLocal && !window.location.origin.includes("preview") ? null :
-          <div className={S("splash__preview")}>
-            PREVIEW
-          </div>
-      }
     </div>
   );
 });
