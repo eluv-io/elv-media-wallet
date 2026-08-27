@@ -47,7 +47,11 @@ export default defineConfig(() => {
     plugins,
     server: {
       port: 8090,
-      host: true
+      host: true,
+      https: {
+        maxSessionMemory: 2000,
+        peerMaxConcurrentStreams: 500
+      }
     },
     resolve: {
       // Synchronize with jsonconfig.json

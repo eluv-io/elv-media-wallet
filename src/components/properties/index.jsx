@@ -10,7 +10,6 @@ import MediaPropertyFooter from "@/components/properties/MediaPropertyFooter";
 import {SetHTMLMetaTags} from "@/utils/Utils";
 import PreviewPasswordGate from "@/components/login/PreviewPasswordGate";
 import MediaPropertyPurchaseModal from "@/components/properties/MediaPropertyPurchaseModal";
-import {PageLoader} from "@/components/common/Loaders";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -65,7 +64,6 @@ const PropertyWrapper = observer(({children}) => {
 
   useEffect(() => {
     (async () => {
-      rootStore.SetShowSplash(true);
       setLoading(true);
 
       try {
@@ -119,7 +117,7 @@ const PropertyWrapper = observer(({children}) => {
   }
 
   if(!rootStore.loaded || !itemLoaded || loading) {
-    return <PageLoader />;
+    return null;
   }
 
   if(redirect) {

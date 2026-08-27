@@ -21,10 +21,10 @@ const AttributeFilterOption = observer(({
   activeFilters,
   SetActiveFilters,
 }) => {
+  const [imageLoaded, setImageLoaded] = useState(variant !== "image");
   const [imageAspectRatio, setImageAspectRatio] = useState("");
 
-  // TODO: Get card theme properly
-  const cardTheme = mediaPropertyStore.CardTheme({search: true, searchLevel: level}).theme;
+  const cardTheme = mediaPropertyStore.CardTheme({search: true, searchLevel: level}).cardTheme;
 
   const Select = () => {
     let newFilters = {};
@@ -93,6 +93,7 @@ const AttributeFilterOption = observer(({
       className={
         S(...[
           "attribute-filter__option",
+          imageLoaded ? "attribute-filter__option--loaded" : "attribute-filter__option--loading",
           "attribute-filter__option--image",
           selected ? "attribute-filter__option--active" : "",
           "styled-card",
@@ -105,14 +106,19 @@ const AttributeFilterOption = observer(({
     >
       <div className={S("styled-card__image-container", "attribute-filter__option-image-container")}>
         <LoaderImage
+          hideLoader
           src={image?.url}
           hash={imageHash}
+          loaderAspectRatio={1}
+          preferHashRatio
           loaderHeight={level === "primary" ? 150 : 120}
           alt={value || "All"}
           title={value || "All"}
           lazy={false}
           width={300}
           onLoad={event => {
+            setTimeout(() => setImageLoaded(true), 250);
+
             if(!event?.target?.naturalWidth || !event?.target?.naturalHeight) { return; }
 
             const ratio = event.target.naturalWidth / event.target.naturalHeight;

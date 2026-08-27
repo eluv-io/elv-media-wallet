@@ -1,7 +1,7 @@
 .sidebar {
   --max-card-width: 140px;
 
-  animation: var(--animation-fade-in) 0.25s ease;
+  animation: var(--animation-fade-in) 0.5s ease;
   background: linear-gradient(0deg, rgb(25 25 25 / 60%) 0%, rgb(25 25 25 / 60%) 100%), linear-gradient(0deg, rgb(0 0 0 / 20%) 0%, rgb(0 0 0 / 20%) 100%), radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
   display: flex;
   flex-direction: column;

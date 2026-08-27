@@ -26,7 +26,7 @@ import PipVideoIcon from "@/assets/icons/pip.svg";
 import MultiviewIcon from "@/assets/icons/media/multiview.svg";
 import EyeIcon from "@/assets/icons/eye.svg";
 import XIcon from "@/assets/icons/x.svg";
-import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
 import SearchIcon from "@/assets/icons/search.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || SidebarStyles[c] || "").join(" ");

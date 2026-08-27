@@ -28,7 +28,8 @@ import MultiviewIcon from "@/assets/icons/media/multiview.svg";
 import DownloadIcon from "@/assets/icons/download.svg";
 import PlayIcon from "@/assets/icons/media/play.svg";
 import VerticalIcon from "@/assets/icons/media/vertical.svg";
-import AIDescriptionIcon from "@/assets/icons/ai-description.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
+
 import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaStyles[c] || "").join(" ");
@@ -346,7 +347,8 @@ const MediaVideo = observer(({
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"],
         loadChapters: EluvioPlayerParameters.loadChapters.ON,
-        loadPoseOverlay: EluvioPlayerParameters.loadPoseOverlay.ON
+        loadPoseOverlay: EluvioPlayerParameters.loadPoseOverlay.ON,
+        showLoader: EluvioPlayerParameters.showLoader.OFF
       }}
       posterImage={
         SetImageUrlDimensions({

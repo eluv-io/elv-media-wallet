@@ -17,8 +17,8 @@ import {Popover, Select} from "@mantine/core";
 import ImageIcon from "@/components/common/ImageIcon";
 
 import ArrowRightIcon from "@/assets/icons/arrow-right.svg";
-import PinIcon from "@/assets/icons/pin.svg";
 import CaretDownIcon from "@/assets/icons/down-caret.svg";
+import PlayIcon from "@/assets/icons/media/play.svg";
 import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyles[c] || "").join(" ");
@@ -213,21 +213,12 @@ const MediaDetailsModal = observer(({
                           onClick?.();
                         }
                     }
-                    className={S("details-modal__action")}
+                    className={S("details-modal__button")}
                   >
-                    <ImageIcon icon={ArrowRightIcon}/>
+                    <ImageIcon icon={PlayIcon}/>
+                    { progress > 0 ? "Resume" : "Play" }
                   </Linkish>
               }
-              <Linkish
-                title="Add to My List"
-                onClick={event => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
-                className={S("details-modal__action")}
-              >
-                <ImageIcon icon={PinIcon} />
-              </Linkish>
             </div>
           </div>
         </div>
@@ -460,16 +451,6 @@ const MediaHoverCard = observer(({
                 className={S("hover-card__action")}
               >
                 <ImageIcon icon={ArrowRightIcon}/>
-              </Linkish>
-              <Linkish
-                title="Add to My List"
-                onClick={event => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
-                className={S("hover-card__action")}
-              >
-                <ImageIcon icon={PinIcon} />
               </Linkish>
               <div className={S("hover-card__separator")} />
               <Linkish

@@ -226,6 +226,7 @@ const AdvancedSearch = observer(() => {
         Filter
       </Linkish>
       <Drawer
+        lockScroll={false}
         position="right"
         opened={show}
         onClose={() => setShow(false)}
@@ -673,7 +674,12 @@ const HeaderButtons = observer(({basePath, searchDisabled, showSearchBar, setSho
   } else {
     return (
       <>
-        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
+        {
+          searchDisabled || showSearchBar || rootStore.currentPath?.endsWith("/search") ? null :
+            <Linkish to={UrlJoin(basePath, "search")} onClick={() => setShowSearchBar?.(true)} className={S("button")}>
+              <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
+            </Linkish>
+        }
         {customButtons}
         <LanguageMenu/>
         <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
@@ -690,6 +696,7 @@ const HeaderButtons = observer(({basePath, searchDisabled, showSearchBar, setSho
           />
           <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
         </button>
+        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
       </>
     );
   }
@@ -979,7 +986,7 @@ const MediaPropertyHeader = observer(() => {
     });
   }
 
-  if(rootStore.pageWidth < 800) {
+  if(rootStore.pageWidth < 850) {
     return (
       <MediaPropertyMobileHeader
         scrolled={scrolled}
