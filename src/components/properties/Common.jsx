@@ -596,7 +596,9 @@ export const Carousel = observer(({
   initialImageDimensions,
   paginate=false,
   className="",
-  arrowClassName=""
+  arrowClassName="",
+  leftArrowClassName="",
+  rightArrowClassName=""
 }) => {
   const [swiper, setSwiper] = useState(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -662,13 +664,13 @@ export const Carousel = observer(({
     >
       <button
         disabled={firstSlideVisible}
-        style={{height: (imageDimensions?.height + 10) || "100%"}}
+        style={{height: (imageDimensions?.height) || "100%"}}
         onClick={event => {
           event.stopPropagation();
           swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage));
           SetSlideVisibility();
         }}
-        className={[S("carousel__arrow", "carousel__arrow--previous"), arrowClassName].join(" ")}
+        className={[S("carousel__arrow", "carousel__arrow--previous"), arrowClassName, leftArrowClassName].join(" ")}
       >
         <ImageIcon label="Previous Page" icon={LeftArrow} />
       </button>
@@ -698,13 +700,13 @@ export const Carousel = observer(({
       }
       <button
         disabled={lastSlideVisible || content.length === 1}
-        style={{height: (imageDimensions?.height + 10) || "100%"}}
+        style={{height: (imageDimensions?.height) || "100%"}}
         onClick={event => {
           event.stopPropagation();
           SetSlideVisibility();
           swiper?.slideTo(Math.min(content.length - 1, swiper.activeIndex + slidesPerPage));
         }}
-        className={[S("carousel__arrow", "carousel__arrow--next"), arrowClassName].join(" ")}
+        className={[S("carousel__arrow", "carousel__arrow--next"), arrowClassName, rightArrowClassName].join(" ")}
       >
         <ImageIcon label="Next Page" icon={RightArrow} />
       </button>

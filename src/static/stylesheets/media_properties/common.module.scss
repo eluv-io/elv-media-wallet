@@ -689,14 +689,6 @@
   max-width: 100%;
   position: relative;
 
-  &:hover {
-    .carousel__arrow {
-      &:not(:disabled) {
-        opacity: 1;
-      }
-    }
-  }
-
   &__slide {
     height: auto;
     width: max-content;
@@ -707,25 +699,27 @@
   }
 
   &__arrow {
+    background: rgb(0 0 0 / 70%);
+    background: linear-gradient(transparent, rgb(0 0 0 / 70%), transparent);
     display: block;
     font-size: 1.5em;
     font-weight: 400;
     height: 100%;
     opacity: 0;
-    padding: 0 25px;
+    padding: 0 10px;
     position: absolute;
     top: 0;
     transition: opacity 0.25s ease-out;
     width: max-content;
     z-index: 1;
 
-    &:disabled {
-      opacity: 0;
-      pointer-events: none;
+    &:hover {
+      &:not(:disabled) {
+        opacity: 1;
+      }
     }
 
     svg {
-      background: rgb(0 0 0 / 30%);
       border-radius: 100%;
       filter: drop-shadow(1px 1px 5px black);
       height: 50px;
@@ -741,9 +735,7 @@
     }
 
     &--previous {
-      left: 0;
-      padding-left: 5px;
-      padding-right: 20px;
+      left: calc(-1 * var(--property-page-padding));
 
       svg {
         padding-left: 7px;
@@ -751,8 +743,6 @@
     }
 
     &--next {
-      padding-left: 20px;
-      padding-right: 5px;
       right: 0;
 
       svg {

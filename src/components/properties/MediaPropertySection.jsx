@@ -548,6 +548,8 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, ho
         `section__content--${section.display.justification || "left"}`
       )}
       arrowClassName={S("section__carousel-arrow")}
+      leftArrowClassName={S("section__carousel-arrow--previous")}
+      rightArrowClassName={S("section__carousel-arrow--next")}
       slidesPerPage={({imageDimensions, swiper}) =>
         // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
         section.display.aspect_ratio && section.display.aspect_ratio !== "Mixed" ?
@@ -874,7 +876,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   const style = SectionBackgroundStyle(section);
 
-  //console.log("Render")
   return (
     <div
       data-section-id={sectionId}

@@ -66,6 +66,18 @@
     width: 100%;
   }
 
+  &--logo {
+    .section__carousel-arrow--previous {
+      left: 0;
+    }
+  }
+
+  &:not(.section-container--logo) {
+    :global(.swiper) {
+      overflow: visible;
+    }
+  }
+
   @media screen and (width > 850px) {
     // For carousels with logo section, we need to limit width and prevent
     // overflow for correct navigation arrow positioning, but add padding
@@ -94,12 +106,6 @@
       .section__carousel-arrow {
         top: 20px;
       }
-    }
-  }
-
-  &:not(.section-container--logo) {
-    :global(.swiper) {
-      overflow: visible;
     }
   }
 

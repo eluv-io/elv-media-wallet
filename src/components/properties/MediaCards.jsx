@@ -283,8 +283,6 @@ const MediaDetailsModal = observer(({
 
 
 let hoverCardTimeout;
-let hoverCardOpenDelay = 1000;
-let hoverCloseDelay = 100;
 const MediaHoverCard = observer(({
   display,
   url,
@@ -299,7 +297,9 @@ const MediaHoverCard = observer(({
   progress,
   children,
   style,
-  ShowDetailsModal
+  ShowDetailsModal,
+  openDelay=1000,
+  closeDelay=100
 }) => {
   const [closeTimeout, setCloseTimeout] = useState(undefined);
   const [opened, setOpened] = useState(false);
@@ -307,7 +307,7 @@ const MediaHoverCard = observer(({
   const [hoverCardRef, setHoverCardRef] = useState(undefined);
   const [dimensions, setDimensions] = useState({});
 
-  const Focus = (duration=hoverCardOpenDelay) => {
+  const Focus = (duration=openDelay) => {
     clearTimeout(hoverCardTimeout);
     clearTimeout(closeTimeout);
     hoverCardTimeout = setTimeout(() => setOpened(true), duration);
@@ -315,7 +315,7 @@ const MediaHoverCard = observer(({
     setDimensions(targetRef?.getBoundingClientRect());
   };
 
-  const Blur = (duration=hoverCloseDelay) => {
+  const Blur = (duration=closeDelay) => {
     clearTimeout(hoverCardTimeout);
     clearTimeout(closeTimeout);
     setCloseTimeout(setTimeout(() => setOpened(false), duration));
@@ -333,7 +333,7 @@ const MediaHoverCard = observer(({
 
     const DetectUnfocus = event => {
       if(!hoverCardRef.contains(event.target)) {
-        Blur(hoverCloseDelay);
+        Blur(closeDelay);
       }
     };
 
@@ -385,8 +385,8 @@ const MediaHoverCard = observer(({
       <Popover.Target>
         <div
           ref={setTargetRef}
-          onMouseEnter={() => Focus(hoverCardOpenDelay)}
-          onFocus={() => Focus(hoverCardOpenDelay)}
+          onMouseEnter={() => Focus(openDelay)}
+          onFocus={() => Focus(openDelay)}
           onBlur={() => clearTimeout(hoverCardTimeout)}
           onMouseLeave={() => clearTimeout(hoverCardTimeout)}
           className={S("hover-card-target", opened ? "hover-card-target--delay-transition" : "")}
@@ -404,7 +404,7 @@ const MediaHoverCard = observer(({
           href={url}
           onClick={onClick}
           onMouseEnter={() => clearTimeout(closeTimeout)}
-          onMouseLeave={() => Blur(0)}
+          onMouseLeave={() => Blur(closeDelay)}
           className={S("styled-card", `styled-card--${aspectRatio}`, "styled-card--active", "hover-card")}
         >
           <div className={S("styled-card__image-container", "hover-card__image-container")}>
@@ -931,6 +931,7 @@ const MediaCardVertical = observer(({
   authorized,
   onClick,
   style,
+  noTransition=false,
   className=""
 }) => {
   let textScale = (aspectRatio) === "landscape" ? 1 : 0.9;
@@ -951,6 +952,7 @@ const MediaCardVertical = observer(({
           "media-card-vertical",
           "styled-card",
           `styled-card--${aspectRatio}`,
+          noTransition ? "styled-card--no-transition" : "",
           `media-card-vertical--${aspectRatio}`,
           `media-card-vertical--${textJustification || "left"}`,
           `media-card-vertical--text-${textDisplay || "left"}`,
@@ -1245,9 +1247,10 @@ const MediaCard = observer(({
         card = (
           <MediaHoverCard
             {...args}
+            openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
           >
-            <MediaCardVertical {...args}/>
+            <MediaCardVertical {...args} noTransition />
           </MediaHoverCard>
         );
       } else {
