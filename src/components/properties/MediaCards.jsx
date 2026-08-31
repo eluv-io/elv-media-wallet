@@ -1185,7 +1185,7 @@ const MediaCard = observer(({
         price = `${minPrice} - ${maxPrice}`;
       }
     }
-  } else if(!rootStore.loggedIn) {
+  } else if(!rootStore.loggedIn && permissions.purchasable) {
     // Disabled but not logged in - prompt login
     disabled = false;
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";

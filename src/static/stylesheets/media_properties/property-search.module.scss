@@ -1,14 +1,12 @@
 .search {
   background-color: var(--property-background);
-
-  &.search {
-    padding-inline: 75px;
-  }
+  padding-inline: 0;
 
   &__content {
     animation: var(--animation-fade-in) 0.25s ease;;
     display: grid;
     gap: 50px;
+    padding-inline: var(--property-page-padding);
   }
 
   &__results {
@@ -17,6 +15,7 @@
 
   &__filters {
     margin-bottom: 50px;
+    padding-left: var(--property-page-padding);
   }
 
   &__loader {

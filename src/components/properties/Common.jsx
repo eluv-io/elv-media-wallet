@@ -598,7 +598,7 @@ export const Carousel = observer(({
   className="",
   arrowClassName="",
   leftArrowClassName="",
-  rightArrowClassName=""
+  rightArrowClassName="",
 }) => {
   const [swiper, setSwiper] = useState(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -633,7 +633,7 @@ export const Carousel = observer(({
 
   let slidesPerPage = 1;
   try {
-    slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
+    slidesPerPage = Math.min(5, Math.max(1, (swiper?.slidesPerViewDynamic() - 2 || 1)));
   // eslint-disable-next-line no-unused-vars
   } catch(error) {}
 

@@ -1018,6 +1018,12 @@ export const SetHTMLMetaTags = ({metaTags={}}={metaTags: {}}) => {
 
 export const ConvertColor = ({hex, rgb, alpha}) => {
   if(hex) {
+    if(hex.length === 4) {
+      // Handle 3 digit hex codes, e.g. #FFF
+      const [,r, g, b] = hex.split("");
+      hex = `#${r}${r}${g}${g}${b}${b}`;
+    }
+
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
       r: parseInt(result[1], 16),
