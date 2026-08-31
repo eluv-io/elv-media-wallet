@@ -28,7 +28,7 @@
 
 .loader::before {
   animation: l1 1.5s linear infinite;
-  background: conic-gradient(transparent 35%, rgb(var(--loader-color), 50%), rgb(var(--loader-color), 100%) 85%);
+  background: conic-gradient(transparent 35%, rgb(var(--loader-color-rgb), 50%), rgb(var(--loader-color-rgb), 100%) 85%);
   content: "";
   inset: 0;
   position: absolute;

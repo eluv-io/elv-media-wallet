@@ -910,6 +910,8 @@ const MediaCardBanner = observer(({
 });
 
 const MediaCardVertical = observer(({
+  mediaItemId,
+  sectionItemId,
   display,
   imageContainerRef,
   imageUrl,
@@ -921,9 +923,10 @@ const MediaCardVertical = observer(({
   aspectRatio,
   linkPath="",
   url,
+  disabled,
   size,
-  lazy = true,
-  wrapTitle = false,
+  lazy=true,
+  wrapTitle=false,
   progress,
   authorized,
   onClick,
@@ -939,6 +942,8 @@ const MediaCardVertical = observer(({
       to={linkPath}
       href={url}
       onClick={onClick}
+      data-section-item-id={sectionItemId}
+      data-media-item-id={mediaItemId}
       style={{...(style || {})}}
       className={[
         S(
@@ -981,7 +986,7 @@ const MediaCardVertical = observer(({
               </div>
         }
         {
-          authorized || !rootStore.loggedIn ? null :
+          authorized || !rootStore.loggedIn || disabled ? null :
             <div className={S("media-card__unauthorized-indicator")}>
               { rootStore.l10n.actions.purchase.view_purchase_options }
             </div>
@@ -1002,26 +1007,19 @@ const MediaCardVertical = observer(({
         textDisplay === "none" ? null :
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-              <div className={S("media-card-vertical__headers")}>
+              <div className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__headers")].join(" ")}>
                 { display.headers?.join?.("     ") }
               </div>
             }
             {
               !display.title ? null :
-                wrapTitle ?
-                  <ExpandableDescription
-                    expandable={false}
-                    description={display.title}
-                    maxLines={3}
-                    className={[S("media-card-vertical__title--wrap"), "_title"].join(" ")}
-                  /> :
-                  <h3 title={display.title} className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
-                    { display.title }
-                  </h3>
+                <h3 title={display.title} className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__title"), "_title"].join(" ")}>
+                  { display.title }
+                </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={S("media-card-vertical__subtitle")}>
+                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__subtitle")].join(" ")}>
                   { display.subtitle }
                 </ScaledText>
             }
@@ -1030,92 +1028,6 @@ const MediaCardVertical = observer(({
     </Linkish>
   );
 });
-
-const MediaCardHorizontal = observer(({
-  display,
-  imageContainerRef,
-  imageUrl,
-  livePreviewUrl,
-  scheduleInfo,
-  textDisplay,
-  aspectRatio,
-  linkPath="",
-  url,
-  lazy=true,
-  onClick,
-  className=""
-}) => {
-  return (
-    <Linkish
-      aria-label={display.title}
-      to={linkPath}
-      href={url}
-      onClick={onClick}
-      className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio}`), className].join(" ")}
-    >
-      <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
-        { !imageUrl ? null :
-          <LoaderImage
-            lazy={lazy}
-            src={livePreviewUrl || imageUrl}
-            alternateSrc={livePreviewUrl ? imageUrl : undefined}
-            alt={display.thumbnail_alt_text || display.title}
-            width={600}
-            className={S("media-card-horizontal__image")}
-          />
-        }
-        {
-          // Schedule indicator
-          !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
-            scheduleInfo.currentlyLive ?
-              <div className={S("media-card-horizontal__indicator", "media-card-horizontal__live-indicator")}>
-                { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
-              </div> :
-              <div className={S("media-card-horizontal__indicator", "media-card-horizontal__upcoming-indicator")}>
-                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
-                <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
-              </div>
-        }
-      </div>
-      {
-        // Text
-        textDisplay === "none" ? null :
-          <div className={S("media-card-horizontal__text")}>
-            { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-              <div className={S("media-card-horizontal__headers")}>
-                { display.headers?.map((header, index) =>
-                  <div className={S("media-card-horizontal__header")} key={`header-${index}`}>
-                    <div className={S("media-card-horizontal__headers")}>
-                      {header}
-                    </div>
-                  </div>
-                )}
-              </div>
-            }
-            {
-              !display.title ? null :
-                <h3 className={[S("media-card-horizontal__title"), "_title"].join(" ")}>
-                  { display.title }
-                </h3>
-            }
-            {
-              !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <div className={S("media-card-horizontal__subtitle")}>
-                  { display.subtitle }
-                </div>
-            }
-            <Description
-              description={display.description}
-              maxLines={textDisplay === "all" ? 2 : 4}
-              onClick={event => event.stopImmediatePropagation()}
-              className={S("media-card-horizontal__description")}
-            />
-          </div>
-      }
-    </Linkish>
-  );
-});
-
 
 const MediaCard = observer(({
   disabled,
@@ -1271,6 +1183,8 @@ const MediaCard = observer(({
 
   let args = {
     ...props,
+    sectionItemId: sectionItem?.id,
+    mediaItemId: cardMediaItem?.id,
     display,
     price,
     imageUrl,
@@ -1314,10 +1228,6 @@ const MediaCard = observer(({
 
   let card;
   switch(format) {
-    case "horizontal":
-      card = <MediaCardHorizontal {...args} />;
-      break;
-
     case "button_vertical":
       card = <ButtonCard orientation="vertical" {...args} />;
       break;

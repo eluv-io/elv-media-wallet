@@ -19,7 +19,6 @@ import UserGifts from "@/components/user/UserGifts";
 import MediaPropertyPage from "@/components/properties/MediaPropertyPage";
 import MediaPropertySectionPage from "@/components/properties/MediaPropertySection";
 import MediaPropertyMediaPage from "@/components/properties/MediaPropertyMediaPage";
-import MediaPropertyCollectionPage from "@/components/properties/MediaPropertyCollectionPage";
 import MediaPropertySearchPage from "@/components/properties/MediaPropertySearchPage";
 import ItemDetailsPage from "@/components/properties/ItemDetailsPage";
 import RedeemableOfferModal from "@/components/properties/RedeemableOfferModal";
@@ -94,8 +93,6 @@ const UserRoutes = () => {
 const PropertyMediaRoutes = (basePath="") => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
   return [
-    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
-    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
     { path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
     { path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
     { path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage, backPath: "l/:mediaListSlugOrId" },

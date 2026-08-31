@@ -1,10 +1,14 @@
 .property {
   background-color: var(--property-background);
   min-height: var(--property-full-page-height);
+  padding-top: var(--property-header-height);
 }
 
 .page {
   background-color: var(--property-background);
+
+  // Pull the page up under the header
+  margin-top: calc(-1 * var(--property-header-height));
   padding-bottom: 0;
   padding-top: 0;
 

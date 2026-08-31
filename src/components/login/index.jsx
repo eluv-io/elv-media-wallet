@@ -8,7 +8,7 @@ import Modal from "@/components/common/Modal";
 import Confirm from "@/components/common/Confirm";
 import {LocalizeString} from "@/components/common/UIComponents";
 import {RichText} from "@/components/properties/Common";
-import {SetImageUrlDimensions} from "@/utils/Utils";
+import {ConvertColor, SetImageUrlDimensions} from "@/utils/Utils";
 
 import MetamaskIcon from "@/assets/icons/metamask fox.png";
 import EluvioE from "@/assets/images/ELUV.IO-E-Icon.png";
@@ -73,6 +73,8 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
     }
     if(CSS.supports("color", option.text_color)) {
       styles[`${prefix}--color`] = option.text_color;
+      const {r, g, b} = ConvertColor({hex: option.text_color});
+      styles[`${prefix}--color-rgb`] = `${r}, ${g}, ${b}`;
     }
     if(CSS.supports("color", option.border_color)) {
       styles[`${prefix}--border-color`] = option.border_color;

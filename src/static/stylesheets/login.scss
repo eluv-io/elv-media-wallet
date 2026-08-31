@@ -87,10 +87,12 @@
   --login-box--border-radius: 4px;
   --login-action-primary--background: #2d61e4;
   --login-action-primary--color: #FFF;
+  --login-action-primary--color-rgb: 255, 255, 255;
   --login-action-primary--border-color: #2d61e4;
   --login-action-primary--border-radius: 4px;
   --login-action-secondary--background: #000;
   --login-action-secondary--color: #FFF;
+  --login-action-secondary--color-rgb: 255, 255, 255;
   --login-action-secondary--border-color: #444;
   --login-action-secondary--border-radius: 4px;
   --login-input--background: #090909;
@@ -301,6 +303,8 @@
 
       * {
         color: var(--login-action-primary--color);
+
+        --loader-color-rgb: var(--login-action-primary--color-rgb);
       }
     }
 
@@ -314,6 +318,8 @@
 
       * {
         color: var(--login-action-secondary--color);
+
+        --loader-color-rgb: var(--login-action-secondary--color-rgb);
       }
     }
 
@@ -460,6 +466,10 @@
     a {
       color: var(--login-text-link--color);
     }
+
+    p {
+      font-size: 12px!important;
+    }
   }
 
   &__terms {
@@ -590,6 +600,8 @@
 
       * {
         color: #121212;
+
+        --loader-color-rgb: 50, 50, 50;
       }
     }
 
@@ -599,6 +611,8 @@
 
       * {
         color: #FFF;
+
+        --loader-color-rgb: 255, 255, 255;
       }
     }
   }
