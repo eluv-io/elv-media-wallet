@@ -286,6 +286,8 @@ let hoverCardTimeout;
 const MediaHoverCard = observer(({
   display,
   url,
+  authorized,
+  disabled,
   linkPath,
   onClick,
   imageUrl,
@@ -297,6 +299,7 @@ const MediaHoverCard = observer(({
   progress,
   children,
   style,
+  sideBuffer=0,
   ShowDetailsModal,
   openDelay=1000,
   closeDelay=100
@@ -342,18 +345,17 @@ const MediaHoverCard = observer(({
     return () => document.removeEventListener("focusin", DetectUnfocus);
   }, [opened, hoverCardRef]);
 
-  const overscale = 60;
-  const arrowBuffer = 35;
+  const overscale = 100;
   const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
   const extensionY = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
   let extensionX = extensionY;
 
-  if(dimensions.x - (overscale / 2) < arrowBuffer) {
+  if(dimensions.x - (overscale / 2) < sideBuffer) {
     // Offscreen left
-    extensionX = -1 * (dimensions.x - 5) + arrowBuffer;
-  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > arrowBuffer) {
+    extensionX = -1 * (dimensions.x - 5) + sideBuffer;
+  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > sideBuffer) {
     // Offscreen right
-    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width + arrowBuffer);
+    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width + sideBuffer);
   }
 
   style = {...(style || {})};
@@ -379,8 +381,8 @@ const MediaHoverCard = observer(({
       offset={{mainAxis: extensionX, crossAxis: extensionY}}
       transitionProps={{
         transition: "pop",
-        duration: 500,
-        exitDuration: 250
+        duration: 200,
+        exitDuration: 100
       }}
     >
       <Popover.Target>
@@ -438,6 +440,12 @@ const MediaHoverCard = observer(({
                     style={{width: `${progress * 100}%`}}
                     className={S("styled-card__progress-indicator")}
                   />
+                </div>
+            }
+            {
+              authorized || !rootStore.loggedIn || disabled ? null :
+                <div className={S("media-card__unauthorized-indicator")}>
+                  { rootStore.l10n.actions.purchase.view_purchase_options }
                 </div>
             }
           </div>
@@ -1045,6 +1053,7 @@ const MediaCard = observer(({
   navContext,
   variants=[],
   hoverCardDisplay,
+  hoverCardSideBuffer=0,
   size,
   fullBleed=false,
   lazy=true,
@@ -1248,7 +1257,8 @@ const MediaCard = observer(({
         card = (
           <MediaHoverCard
             {...args}
-            openDelay={50}
+            sideBuffer={hoverCardSideBuffer}
+            openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
           >
             <MediaCardVertical {...args} noTransition />

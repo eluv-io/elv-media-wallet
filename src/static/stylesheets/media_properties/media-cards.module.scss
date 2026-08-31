@@ -643,11 +643,20 @@
   overflow: hidden;
   padding: 0;
   z-index: 100!important;
+
+  .media-card__unauthorized-indicator {
+    opacity: 1;
+  }
 }
 
 .hover-card-target {
   // Delay transition return animation so it is not visible as the card pops up
   position: relative;
+
+  // Disable unauth indicator - will be displayed on hover card
+  .media-card__unauthorized-indicator {
+    display: none;
+  }
 
   &--delay-transition {
     * {

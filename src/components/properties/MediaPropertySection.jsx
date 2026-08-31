@@ -566,6 +566,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, ho
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
           key={`media-card-${item.id}`}
           hoverCardDisplay={hoverCardDisplay}
+          hoverCardSideBuffer={35}
           variants={cardTheme?.variants}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
@@ -583,7 +584,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, ho
   );
 });
 
-const SectionContentGrid = observer(({section, sectionContent, cardTheme, navContext}) => {
+const SectionContentGrid = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
 
   return (
@@ -598,6 +599,7 @@ const SectionContentGrid = observer(({section, sectionContent, cardTheme, navCon
       wrapTitles={section.display.wrap_titles}
       defaultButtonText={section.display.card_default_button_text}
       cardStyle={section.display.card_style}
+      hoverCardDisplay={hoverCardDisplay}
       navContext={navContext}
       cardFormat={section.display.card_style}
       cardSize={section.display.card_size}
