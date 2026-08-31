@@ -343,16 +343,17 @@ const MediaHoverCard = observer(({
   }, [opened, hoverCardRef]);
 
   const overscale = 60;
+  const arrowBuffer = 35;
   const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
   const extensionY = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
   let extensionX = extensionY;
 
-  if(dimensions.x - (overscale / 2) < 0) {
+  if(dimensions.x - (overscale / 2) < arrowBuffer) {
     // Offscreen left
-    extensionX = -1 * (dimensions.x - 5);
-  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > 0) {
+    extensionX = -1 * (dimensions.x - 5) + arrowBuffer;
+  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > arrowBuffer) {
     // Offscreen right
-    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width);
+    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width + arrowBuffer);
   }
 
   style = {...(style || {})};
@@ -378,7 +379,7 @@ const MediaHoverCard = observer(({
       offset={{mainAxis: extensionX, crossAxis: extensionY}}
       transitionProps={{
         transition: "pop",
-        duration: 500,
+        duration: 1000,
         exitDuration: 250
       }}
     >
@@ -1247,7 +1248,7 @@ const MediaCard = observer(({
         card = (
           <MediaHoverCard
             {...args}
-            openDelay={400}
+            openDelay={50}
             ShowDetailsModal={() => setShowDetailsModal(true)}
           >
             <MediaCardVertical {...args} noTransition />
