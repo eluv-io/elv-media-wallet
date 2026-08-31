@@ -379,7 +379,7 @@ const MediaHoverCard = observer(({
       offset={{mainAxis: extensionX, crossAxis: extensionY}}
       transitionProps={{
         transition: "pop",
-        duration: 1000,
+        duration: 500,
         exitDuration: 250
       }}
     >
