@@ -1128,7 +1128,7 @@ const MediaCard = observer(({
 
   if(format === "banner") {
     imageUrl =
-      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile_hash) ||
+      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile?.url) ||
       sectionItem?.banner_image?.url ||
       imageUrl;
 
@@ -1253,7 +1253,7 @@ const MediaCard = observer(({
       break;
 
     default:
-      if(hoverCardDisplay === "all" || (hoverCardDisplay === "media" && mediaType === "media")) {
+      if(!rootStore.mobile && (hoverCardDisplay === "all" || (hoverCardDisplay === "media" && mediaType === "media"))) {
         card = (
           <MediaHoverCard
             {...args}
