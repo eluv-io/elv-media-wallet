@@ -843,7 +843,7 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
       url.searchParams.delete("confirmationId");
       history.replace(url.pathname + url.search);
     }
-  }, [permissions]);
+  }, [permissions.authorized, permissions.purchaseGate, permissions.permissionItemIds?.toString()]);
 
   if(!permissions.authorized && permissions.purchaseGate) {
     if(permissions.purchasable && purchasePageSettings?.enabled) {
