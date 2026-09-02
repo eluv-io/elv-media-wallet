@@ -137,7 +137,6 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
   );
 });
 
-
 const MediaVideo = observer(({
   mediaItem,
   playFullVideo,
