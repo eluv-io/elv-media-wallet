@@ -56,7 +56,7 @@
     margin-top: 30px;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     height: max-content;
     min-height: unset;
 
@@ -321,7 +321,7 @@
       }
     }
 
-    @media screen and (width <= 800px) {
+    @media screen and (width <= 850px) {
       .media__error-content-icons {
         display: none;
       }

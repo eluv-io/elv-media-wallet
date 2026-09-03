@@ -127,7 +127,7 @@
     }
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__header {
       font-size: 16px;
     }
@@ -186,7 +186,7 @@
     margin: 20px 0;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__header {
       background-color: var(--notifications-background);
       padding: 10px;

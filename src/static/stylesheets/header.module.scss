@@ -193,7 +193,7 @@
   text-transform: uppercase;
   width: 100px;
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     font-size: 0.9em;
     height: 36px;
   }
@@ -218,7 +218,7 @@
     z-index: 1;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     gap: 10px;
   }
 }
@@ -286,7 +286,7 @@
     }
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__input,
     &__option {
       font-size: 0.8em;
@@ -315,7 +315,7 @@
 
  */
 
-@media screen and (width <= 800px) {
+@media screen and (width <= 850px) {
   .header {
     padding: 20px;
   }
@@ -386,7 +386,7 @@
     width: 20px;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     border-bottom: 0;
     bottom: 0;
     padding: 20px 60px 20px 20px;

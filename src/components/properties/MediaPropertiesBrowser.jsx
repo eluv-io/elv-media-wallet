@@ -66,7 +66,7 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
   const visible = useIsVisible(ref?.current);
 
   const showVideo = visible && (hovering || (rootStore.mobile && active));
-  
+
   return (
     <Linkish
       {...linkParams}
@@ -164,7 +164,9 @@ export const MediaPropertiesBrowser = observer(() => {
   let filteredProperties = mediaProperties
     .filter(mediaProperty =>
       !rootStore.discoverFilter ||
-      mediaProperty.propertyId !== rootStore.discoverFilter
+      mediaProperty.propertyId === rootStore.discoverFilter ||
+      mediaProperty.name?.toLowerCase().includes(rootStore.discoverFilter.toLowerCase()) ||
+      mediaProperty.title?.toLowerCase().includes(rootStore.discoverFilter.toLowerCase())
     );
 
   const filteredPropertyLists = featuredPropertyLists

@@ -97,7 +97,7 @@ const SectionContent = async ({match, section, mediaListId, activeFilters}) => {
   return content;
 };
 
-const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
+const Actions = observer(({sectionId, sectionItemId, sectionItem, actions, className=""}) => {
   actions = (actions || [])
     .filter(action => mediaPropertyStore.ActionVisible({
       visibility: action.visibility,
@@ -108,7 +108,7 @@ const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
   if(actions.length === 0) { return null; }
 
   return (
-    <div className={S("actions")}>
+    <div className={[S("actions"), className].join(" ")}>
       {
         actions.map(action =>
           <RenderAction
@@ -269,6 +269,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
   return (
     <div
       style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight}}
+      data-section-id={section.id}
       className={S("hero-section")}
     >
       <PageBackground
@@ -288,7 +289,13 @@ export const MediaPropertyHeroSection = observer(({section}) => {
             }}
             style={activeIndex === index ? {} : {position: "absolute", opacity: 0, userSelect: "none"}}
             key={`content-${heroItem.id}`}
-            className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
+            className={
+              S(
+                "hero-section__content",
+                `hero-section__content--${heroItem.display?.position?.toLowerCase() || "left"}`,
+                activeIndex === index ? "hero-section__content--active" : ""
+              )
+            }
           >
             {
               heroItems.length < 2 ? null :
@@ -310,6 +317,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
                 sectionId={section.id}
                 sectionItemId={heroItem.id}
                 sectionItem={heroItem}
+                className={S("hero-section__actions")}
               />
             </PageHeader>
             {

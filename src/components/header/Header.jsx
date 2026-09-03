@@ -44,7 +44,7 @@ const Home = observer(() => {
 
 const SearchBar = observer(() => {
   const [filter, setFilter] = useState(rootStore.discoverFilter);
-  const [debouncedFilter] = useDebouncedValue(filter, 300);
+  const [debouncedFilter] = useDebouncedValue(filter, 600);
   const [mediaProperties, setMediaProperties] = useState(undefined);
   const [featuredPropertyLists, setFeaturedPropertyLists] = useState(undefined);
 

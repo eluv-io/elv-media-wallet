@@ -1390,7 +1390,7 @@ class MediaPropertyStore {
       mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId
     })?.metadata;
 
-    let cardThemeId, hoverCardDisplay;
+    let cardThemeId, hoverCardDisplay, hoverCardAspectRatio;
     if(search) {
       cardThemeId = property?.search?.[`${searchLevel}_filter_card_theme_id`];
     } else {
@@ -1409,6 +1409,8 @@ class MediaPropertyStore {
         this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.hover_card_display ||
         // Property
         property?.hover_card_display || "none";
+
+      hoverCardAspectRatio = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.hover_card_aspect_ratio;
     }
 
     if(!this.cardThemes[cardThemeId] || this.cardThemes[cardThemeId].mobile !== this.rootStore.mobile) {
@@ -1424,7 +1426,10 @@ class MediaPropertyStore {
 
     return {
       cardTheme: this.cardThemes[cardThemeId],
-      hoverCardDisplay
+      hoverCardDisplay: {
+        display: hoverCardDisplay,
+        aspectRatio: hoverCardAspectRatio
+      }
     };
   }
 

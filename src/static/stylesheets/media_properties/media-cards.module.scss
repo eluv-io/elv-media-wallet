@@ -787,6 +787,13 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  &--square,
+  &--portrait {
+    .details-modal__top {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
   &__top-content {
     padding-right: 30px;
   }

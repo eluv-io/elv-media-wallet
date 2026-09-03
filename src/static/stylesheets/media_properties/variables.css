@@ -57,7 +57,7 @@
     --property-page-padding: 35px;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     --property-header-height: 60px;
     --property-page-padding: 15px;
     --property-section-card-width-small: 250px;

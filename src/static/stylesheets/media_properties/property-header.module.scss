@@ -176,7 +176,7 @@
   text-transform: uppercase;
   width: max-content;
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     min-height: 36px;
   }
 }
@@ -200,7 +200,7 @@
     z-index: 1;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     gap: 10px;
   }
 }
@@ -332,7 +332,7 @@
     }
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__input,
     &__option {
       font-size: 0.8em;

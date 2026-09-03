@@ -295,6 +295,7 @@ const MediaHoverCard = observer(({
   livePreviewUrl,
   lazy,
   aspectRatio,
+  imageAspectRatio,
   scheduleInfo,
   progress,
   children,
@@ -347,8 +348,8 @@ const MediaHoverCard = observer(({
 
   const overscale = 100;
   const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
-  const extensionY = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
-  let extensionX = extensionY;
+  let extensionX = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
+  let extensionY = aspectRatio === imageAspectRatio ? extensionX : extensionX / 3;
 
   if(dimensions.x - (overscale / 2) < sideBuffer) {
     // Offscreen left
@@ -408,13 +409,14 @@ const MediaHoverCard = observer(({
           onClick={onClick}
           onMouseEnter={() => clearTimeout(closeTimeout)}
           onMouseLeave={() => Blur(closeDelay)}
-          className={S("styled-card", `styled-card--${aspectRatio}`, "styled-card--active", "hover-card")}
+          className={S("styled-card", `styled-card--${imageAspectRatio}`, "styled-card--active", "hover-card")}
         >
           <div className={S("styled-card__image-container", "hover-card__image-container")}>
             <LoaderImage
               lazy={lazy}
               src={livePreviewUrl || imageUrl}
               hash={imageHash}
+              hideLoader={!imageHash}
               alternateSrc={livePreviewUrl ? imageUrl : undefined}
               alt={display.thumbnail_alt_text || display.title}
               width={600}
@@ -1253,10 +1255,23 @@ const MediaCard = observer(({
       break;
 
     default:
-      if(!rootStore.mobile && (hoverCardDisplay === "all" || (hoverCardDisplay === "media" && mediaType === "media"))) {
+      if(!rootStore.mobile && (hoverCardDisplay?.display === "all" || (hoverCardDisplay?.display === "media" && mediaType === "media"))) {
+        let hoverCardImageProps = {};
+
+        if(hoverCardDisplay?.aspectRatio) {
+          hoverCardImageProps = MediaItemImageUrl({
+            mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
+            display,
+            aspectRatio: hoverCardDisplay.aspectRatio,
+            width: 600
+          });
+        }
+
         card = (
           <MediaHoverCard
             {...args}
+            {...hoverCardImageProps}
+            imageAspectRatio={hoverCardDisplay.aspectRatio || imageAspectRatio}
             sideBuffer={hoverCardSideBuffer}
             openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
