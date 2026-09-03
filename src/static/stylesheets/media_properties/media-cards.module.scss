@@ -736,9 +736,14 @@
     margin: 5px 0;
   }
 
+  &__headers,
   &__subtitle {
     color: var(--property-text-faded);
     font-size: 12px;
+  }
+
+  &__headers {
+    white-space: pre-wrap;
   }
 
   &__description {
@@ -749,10 +754,6 @@
       color: var(--property-text-faded);
       font-size: 14px;
     }
-  }
-
-  &__headers {
-    color: var(--property-text-faded);
   }
 }
 
@@ -899,6 +900,7 @@
 
   &__headers {
     color: var(--property-text-faded);
+    white-space: pre-wrap;
   }
 
   &__close-header {
@@ -1026,6 +1028,10 @@
   &__headers {
     color: var(--property-text-faded);
     font-size: 14px;
+  }
+
+  &__headers {
+    white-space: pre-wrap;
   }
 
   &__description {

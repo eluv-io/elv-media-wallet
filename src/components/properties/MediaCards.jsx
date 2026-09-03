@@ -23,6 +23,8 @@ import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyles[c] || "").join(" ");
 
+const HEADER_SEPARATOR = "  ";
+
 const MediaItem = observer(({mediaItemId, index, navContext}) => {
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
@@ -66,7 +68,7 @@ const MediaItem = observer(({mediaItemId, index, navContext}) => {
           {
             (mediaItem.headers || []).length === 0 ? null :
               <div className={S("media-list-item__headers")}>
-                {mediaItem.headers?.join?.("     ")}
+                {mediaItem.headers?.join?.(HEADER_SEPARATOR)}
               </div>
           }
           {
@@ -111,6 +113,7 @@ const MediaDetailsModal = observer(({
   livePreviewUrl,
   lazy,
   aspectRatio,
+  imageAspectRatio,
   scheduleInfo,
   progress,
   style,
@@ -135,7 +138,7 @@ const MediaDetailsModal = observer(({
     >
       <div
         style={{...(style || {})}}
-        className={S("details-modal", `details-modal--${aspectRatio}`)}
+        className={S("details-modal", `details-modal--${imageAspectRatio || aspectRatio}`)}
       >
         <div className={S("details-modal__close-header")}>
           <Linkish title="Close" onClick={Close} aria-label="Close Details" className={S("details-modal__close")}>
@@ -143,7 +146,7 @@ const MediaDetailsModal = observer(({
           </Linkish>
         </div>
         <div className={S("details-modal__top")}>
-          <div className={S("styled-card", "styled-card--active", `styled-card--${aspectRatio}`, "details-modal__card")}>
+          <div className={S("styled-card", "styled-card--active", `styled-card--${imageAspectRatio || aspectRatio}`, "details-modal__card")}>
             <div className={S("styled-card__image-container", "details-modal__image-container")}>
               <LoaderImage
                 lazy={lazy}
@@ -182,7 +185,7 @@ const MediaDetailsModal = observer(({
               {
                 (display.headers || []).length === 0 ? null :
                   <div className={S("details-modal__headers")}>
-                    {display.headers?.join?.("     ")}
+                    {display.headers?.join?.(HEADER_SEPARATOR)}
                   </div>
               }
               {
@@ -481,7 +484,7 @@ const MediaHoverCard = observer(({
               {
                 (display.headers || []).length === 0 ? null :
                   <div className={S("hover-card__headers")}>
-                    {display.headers?.join?.("     ")}
+                    {display.headers?.join?.(HEADER_SEPARATOR)}
                   </div>
               }
               {
@@ -581,7 +584,7 @@ export const MediaCardWithButtonVertical = observer(({
       <div className={S("media-card-button-vertical__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
           <div className={S("media-card-button-vertical__headers")}>
-            { display.headers?.join?.("     ") }
+            { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
@@ -698,7 +701,7 @@ const MediaCardWithButtonHorizontal = observer(({
       <div className={S("media-card-button-horizontal__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
           <div className={S("media-card-button-horizontal__headers")}>
-            { display.headers?.join?.("     ") }
+            { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
@@ -1021,7 +1024,7 @@ const MediaCardVertical = observer(({
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
               <div className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__headers")].join(" ")}>
-                { display.headers?.join?.("     ") }
+                { display.headers?.join?.(HEADER_SEPARATOR) }
               </div>
             }
             {
@@ -1240,7 +1243,7 @@ const MediaCard = observer(({
     delete args.progress;
   }
 
-  let card;
+  let card, hoverCardImageProps;
   switch(format) {
     case "button_vertical":
       card = <ButtonCard orientation="vertical" {...args} />;
@@ -1256,8 +1259,6 @@ const MediaCard = observer(({
 
     default:
       if(!rootStore.mobile && (hoverCardDisplay?.display === "all" || (hoverCardDisplay?.display === "media" && mediaType === "media"))) {
-        let hoverCardImageProps = {};
-
         if(hoverCardDisplay?.aspectRatio) {
           hoverCardImageProps = MediaItemImageUrl({
             mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
@@ -1270,8 +1271,8 @@ const MediaCard = observer(({
         card = (
           <MediaHoverCard
             {...args}
-            {...hoverCardImageProps}
-            imageAspectRatio={hoverCardDisplay.aspectRatio || imageAspectRatio}
+            {...(hoverCardImageProps || {})}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || imageAspectRatio}
             sideBuffer={hoverCardSideBuffer}
             openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
@@ -1291,6 +1292,8 @@ const MediaCard = observer(({
         !showDetailsModal ? null :
           <MediaDetailsModal
             {...args}
+            {...(hoverCardImageProps || {})}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || imageAspectRatio}
             onClick={undefined}
             Close={() => setShowDetailsModal(false)}
           />
