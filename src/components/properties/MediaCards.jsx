@@ -23,7 +23,7 @@ import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyles[c] || "").join(" ");
 
-const HEADER_SEPARATOR = "  ";
+const HEADER_SEPARATOR = " · ";
 
 const MediaItem = observer(({mediaItemId, index, navContext}) => {
   const match = useRouteMatch();
@@ -1272,7 +1272,7 @@ const MediaCard = observer(({
           <MediaHoverCard
             {...args}
             {...(hoverCardImageProps || {})}
-            imageAspectRatio={hoverCardDisplay?.aspectRatio || imageAspectRatio}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || aspectRatio}
             sideBuffer={hoverCardSideBuffer}
             openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
@@ -1293,7 +1293,7 @@ const MediaCard = observer(({
           <MediaDetailsModal
             {...args}
             {...(hoverCardImageProps || {})}
-            imageAspectRatio={hoverCardDisplay?.aspectRatio || imageAspectRatio}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || aspectRatio}
             onClick={undefined}
             Close={() => setShowDetailsModal(false)}
           />
