@@ -1023,19 +1023,19 @@ const MediaCardVertical = observer(({
         textDisplay === "none" ? null :
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-              <div className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__headers")].join(" ")}>
+              <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__headers")].join(" ")}>
                 { display.headers?.join?.(HEADER_SEPARATOR) }
               </div>
             }
             {
               !display.title ? null :
-                <h3 title={display.title} className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__title"), "_title"].join(" ")}>
+                <h3 title={display.title} className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__title"), "_title"].join(" ")}>
                   { display.title }
                 </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={[!wrapTitle ? "ellipsis" : "", S("media-card-vertical__subtitle")].join(" ")}>
+                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__subtitle")].join(" ")}>
                   { display.subtitle }
                 </ScaledText>
             }

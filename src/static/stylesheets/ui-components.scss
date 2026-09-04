@@ -6,6 +6,12 @@
   white-space: nowrap!important;
 }
 
+.ellipsis-pre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre!important;
+}
+
 .page-controls {
   align-items: center;
   display: flex;
