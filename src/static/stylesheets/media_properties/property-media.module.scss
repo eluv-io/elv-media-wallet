@@ -1013,6 +1013,7 @@
     justify-content: space-between;
     min-height: 50px;
     position: relative;
+    white-space: pre-wrap;
   }
 
   &__title--left,
@@ -1043,20 +1044,19 @@
 
   &__subtitle {
     color: var(--property-text-faded);
-    font-size: 1em;
+    font-size: 14px;
     font-weight: 600;
+    white-space: pre-wrap;
   }
 
   &__headers {
     align-items: center;
+    color: var(--property-text-faded);
     display: flex;
-    font-size: 1em;
+    font-size: 14px;
     font-weight: 600;
     gap: 20px;
-
-    * {
-      color: var(--property-text-faded);
-    }
+    white-space: pre-wrap;
   }
 
   &__description-container {

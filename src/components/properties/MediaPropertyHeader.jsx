@@ -384,16 +384,16 @@ const SearchBar = observer(({autoFocus}) => {
       return;
     }
 
-    // No results or ambiguous match - Go to search page
-    const params = new URLSearchParams();
-    params.set("q", query);
+    const url = new URL(window.location.href);
 
+    url.searchParams.set("q", query);
     if(mediaPropertyStore.searchMode === "clip") {
-      params.set("m", "clip");
+      url.searchParams.set("m", "clip");
     }
 
+    window.history.pushState(null, "", url.toString());
+
     mediaPropertyStore.SetSearchOption({field: "query", value: query});
-    history.push(UrlJoin(basePath, "search", "?" + params.toString()));
   };
 
   useEffect(() => {
@@ -429,7 +429,7 @@ const SearchBar = observer(({autoFocus}) => {
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
   const Select = (text, force) => {
     if(mediaPropertyStore.searchOptions.query !== query) {
-      mediaPropertyStore.ClearSearchOptions();
+      //mediaPropertyStore.ClearSearchOptions();
     }
 
     const matchingResults = searchResults

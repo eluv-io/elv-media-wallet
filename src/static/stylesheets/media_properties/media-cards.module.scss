@@ -543,24 +543,29 @@
   }
 
   &__option {
-    transition: opacity 0.25s ease;
-
     &--loading {
       opacity: 0;
     }
 
+    &--image {
+      .attribute-filter__attribute-title {
+        font-weight: 600;
+        opacity: 0;
+      }
+    }
+
     &:hover,
     &:focus-visible,
+    &--active,
     &.styled-card--active,
     &.styled-card--mobile-active {
       .attribute-filter__attribute-title {
         opacity: 1;
       }
-    }
 
-    &--image {
-      .attribute-filter__attribute-title {
-        opacity: 0;
+      &.attribute-filter__option--image {
+        // Keep selected item scaled up
+        --scale: 1.05;
       }
     }
 
@@ -608,7 +613,7 @@
       }
 
       &.attribute-filter__option--active {
-        font-weight: 800;
+        text-shadow: 1px 0 0 var(--property-text-faded);
       }
     }
   }

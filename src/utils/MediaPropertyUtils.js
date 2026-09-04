@@ -256,6 +256,16 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       linkPath = MediaPropertyBasePath({...match.params, pageSlugOrId});
       navContext = undefined;
     }
+  } else if(sectionItem?.type === "search_page_link") {
+    linkPath = UrlJoin(linkPath, "/search");
+
+    if(sectionItem.primary_filter) {
+      params.set("pf", sectionItem.primary_filter);
+    }
+
+    if(sectionItem.secondary_filter) {
+      params.set("sf", sectionItem.secondary_filter);
+    }
   } else if(sectionItem?.type === "property_link") {
     linkPath = MediaPropertyBasePath({
       mediaPropertySlugOrId: mediaPropertyStore.MediaPropertyIdToSlug(sectionItem.property_id) || sectionItem.property_id,

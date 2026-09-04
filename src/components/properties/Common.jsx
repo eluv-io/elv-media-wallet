@@ -213,6 +213,16 @@ export const LoaderImage = observer(({
   const [useAlternateSrc, setUseAlternateSrc] = useState(false);
   hash = hash && decodeThumbHash(hash);
 
+  if(useAlternateSrc && !alternateSrc) {
+    try {
+      // If loading failed and no alternate src provided, try removing width param
+      alternateSrc = new URL(src);
+      alternateSrc.searchParams.delete("width");
+      alternateSrc = alternateSrc.toString();
+    // eslint-disable-next-line no-unused-vars
+    } catch(error) {}
+  }
+
   if(preferHashRatio) {
     loaderAspectRatio = (hash && thumbHashToApproximateAspectRatio(hash)) || loaderAspectRatio;
   } else {
@@ -235,7 +245,7 @@ export const LoaderImage = observer(({
   }
 
   if(loaded) {
-    return <img src={(useAlternateSrc && src) || src} {...props} />;
+    return <img src={(useAlternateSrc && alternateSrc) || src} {...props} />;
   }
 
   return (
@@ -252,9 +262,7 @@ export const LoaderImage = observer(({
               onLoad?.(event);
               setTimeout(() => setLoaded(true), delay);
             }}
-            onError={() => {
-              setUseAlternateSrc(true);
-            }}
+            onError={() => setUseAlternateSrc(true)}
           />
       }
       {

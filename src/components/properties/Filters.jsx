@@ -135,7 +135,7 @@ const AttributeFilterOption = observer(({
         />
       </div>
       <div className={S("attribute-filter__attribute-title")}>
-        {value}
+        {value || "All"}
       </div>
     </button>
   );
@@ -252,52 +252,87 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
   };
 };
 
-const Filters = observer(({filterSettings={}, activeFilters={}, primaryOnly, SetActiveFilters, centered=false, className=""}) => {
+let onChangeTimeout;
+const Filters = observer(({
+  filterSettings={},
+  activeFilters={},
+  initialPrimaryFilter="",
+  initialSecondaryFilter="",
+  primaryOnly,
+  SetActiveFilters,
+  centered=false,
+  onChange,
+  className=""
+}) => {
   const match = useRouteMatch();
   const primaryFilterOptions = FormatFilterOptions({match, type: "primary", filterSettings, activeFilters});
   const secondaryFilterOptions = FormatFilterOptions({match, type: "secondary", filterSettings, activeFilters});
 
+  const primaryFilterValue = primaryFilterOptions.attributeKey === "__media-type" ?
+    activeFilters.mediaType : activeFilters.attributes?.[primaryFilterOptions.attributeKey];
+
+  const secondaryFilterValue = secondaryFilterOptions.attributeKey === "__media-type" ?
+    activeFilters.mediaType : activeFilters.attributes?.[secondaryFilterOptions.attributeKey];
+
+  useEffect(() => {
+    clearTimeout(onChangeTimeout);
+
+    onChangeTimeout = setTimeout(() => onChange?.({primaryFilterValue, secondaryFilterValue}), 250);
+  }, [primaryFilterValue, secondaryFilterValue]);
+
   useEffect(() => {
     // Already set
-    if(activeFilters?.attributes?.[primaryFilterOptions.attributeKey]) { return; }
+    if(!initialPrimaryFilter && activeFilters?.attributes?.[primaryFilterOptions.attributeKey]) { return; }
 
     // Set initial primary filter value
     if(
-      primaryFilterOptions?.filterOptions?.length > 0 &&
-      !primaryFilterOptions.filterOptions.find(option => !option.value)
+      initialPrimaryFilter ||
+      (
+        primaryFilterOptions?.filterOptions?.length > 0 &&
+        !primaryFilterOptions.filterOptions.find(option => !option.value)
+      )
     ) {
       if(primaryFilterOptions.attributeKey === "__media-type") {
-        SetActiveFilters({mediaType: primaryFilterOptions.filterOptions[0].value});
+        SetActiveFilters({mediaType: initialPrimaryFilter || primaryFilterOptions.filterOptions[0].value});
       } else {
         SetActiveFilters({
           attributes: {
             ...activeFilters.attributes,
-            [primaryFilterOptions.attributeKey]: primaryFilterOptions.filterOptions[0].value
+            [primaryFilterOptions.attributeKey]: initialPrimaryFilter || primaryFilterOptions.filterOptions[0].value
           }
         });
       }}
   }, []);
-
 
   useEffect(() => {
     if(primaryOnly) { return; }
 
     // Set initial secondary filter value
     if(
-      secondaryFilterOptions?.filterOptions?.length > 0 &&
-      !secondaryFilterOptions.filterOptions.find(option => !option.value)
+      initialSecondaryFilter ||
+      (
+        secondaryFilterOptions?.filterOptions?.length > 0 &&
+        !secondaryFilterOptions.filterOptions.find(option => !option.value)
+      )
     ) {
       if(secondaryFilterOptions.attributeKey === "__media-type") {
-        SetActiveFilters({mediaType: secondaryFilterOptions.filterOptions[0].value});
+        SetActiveFilters({mediaType: initialSecondaryFilter || secondaryFilterOptions.filterOptions[0].value});
       } else {
         SetActiveFilters({
           attributes: {
             ...mediaPropertyStore.searchOptions.attributes,
-            [secondaryFilterOptions.attributeKey]: secondaryFilterOptions.filterOptions[0].value
+            [secondaryFilterOptions.attributeKey]: initialSecondaryFilter || secondaryFilterOptions.filterOptions[0].value
           }
         });
       }}
   }, [primaryFilterOptions.value]);
+
+  useEffect(() => {
+    onChange?.({
+      primary: activeFilters[primaryFilterOptions.attributeKey],
+      secondary: activeFilters[primaryFilterOptions.attributeKey]
+    });
+  }, [activeFilters[primaryFilterOptions.attributeKey], activeFilters[secondaryFilterOptions.attributeKey]]);
 
   return (
     <>

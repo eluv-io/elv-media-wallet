@@ -31,6 +31,8 @@ const MediaPropertyDefaultSearchPage = observer(() => {
     return <PageLoader containerClassName={S("search__loader")} />;
   }
 
+  const urlParams = new URLSearchParams(window.location.search);
+
   return (
     <>
       <div className={S("search__filters")}>
@@ -39,6 +41,21 @@ const MediaPropertyDefaultSearchPage = observer(() => {
           centered
           filterSettings={mediaProperty.metadata.search}
           activeFilters={mediaPropertyStore.searchOptions}
+          initialPrimaryFilter={urlParams.get("pf") || ""}
+          initialSecondaryFilter={urlParams.get("sf") || ""}
+          onChange={({primaryFilterValue, secondaryFilterValue}) => {
+            const url = new URL(window.location.href);
+
+            primaryFilterValue ?
+              url.searchParams.set("pf", primaryFilterValue) :
+              url.searchParams.delete("pf");
+
+            secondaryFilterValue ?
+              url.searchParams.set("sf", secondaryFilterValue) :
+              url.searchParams.delete("sf");
+
+            window.history.replaceState(null, "", url.toString());
+          }}
           SetActiveFilters={filters => {
             Object.keys(filters).forEach(field =>
               mediaPropertyStore.SetSearchOption({field, value: filters[field]})
