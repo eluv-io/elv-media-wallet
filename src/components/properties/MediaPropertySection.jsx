@@ -56,6 +56,10 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
     )
   );
 
+  if(rootStore.pageWidth < 500) {
+    return 1;
+  }
+
   if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
     return Math.round(pageWidth / cardWidth);
   } else {
