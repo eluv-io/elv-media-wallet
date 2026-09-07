@@ -488,6 +488,7 @@ export const MediaGrid = observer(({
 
   const remainder = content.length % columns;
   let gridTemplateAreas = "";
+  let gridTemplateColumns = "1fr ".repeat(columns);
   for(let row = 0; row < Math.ceil(content.length / columns); row++) {
     const startIndex = (row) * columns;
 
@@ -505,9 +506,10 @@ export const MediaGrid = observer(({
         numDots = (numColumns - columnsPerCard * remainder) / 2;
       }
 
+      gridTemplateColumns = "1fr ".repeat(numColumns);
       if(startIndex + columns < content.length) {
         // Not last row, fill up
-        gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")}'`
+        gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")}'`;
       } else {
         // Last row
         const startDots = ". ".repeat(Math.floor(numDots));
@@ -516,7 +518,7 @@ export const MediaGrid = observer(({
       }
     } else if(justification === "left" || startIndex + columns <= content.length) {
       // Not the last row, left justified, or fully filled
-       gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`
+       gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`;
     } else if(justification === "right") {
       const remainder = content.length - startIndex;
       const emptySpots = columns - remainder;
@@ -529,6 +531,7 @@ export const MediaGrid = observer(({
   return (
     <div
       style={{
+        gridTemplateColumns,
         gridTemplateAreas
       }}
       className={[S(
@@ -544,6 +547,7 @@ export const MediaGrid = observer(({
         content.map((item, index) =>
           ContentComponent ?
             <ContentComponent
+              key={`section-item-${item?.id || index}`}
               item={item}
               style={{
                 gridArea: `card-${index}`

@@ -396,6 +396,7 @@ const MediaHoverCard = observer(({
           onFocus={() => Focus(openDelay)}
           onBlur={() => clearTimeout(hoverCardTimeout)}
           onMouseLeave={() => clearTimeout(hoverCardTimeout)}
+          style={style}
           className={S("hover-card-target", opened ? "hover-card-target--delay-transition" : "")}
         >
           { children }
@@ -1276,7 +1277,7 @@ const MediaCard = observer(({
           <MediaHoverCard
             {...args}
             {...(hoverCardImageProps || {})}
-            imageAspectRatio={hoverCardDisplay?.aspectRatio || aspectRatio}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || args.aspectRatio}
             sideBuffer={hoverCardSideBuffer}
             openDelay={400}
             ShowDetailsModal={() => setShowDetailsModal(true)}
