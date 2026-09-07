@@ -541,10 +541,12 @@ export const MediaCardWithButtonVertical = observer(({
   onClick,
   className="",
   setShowModal,
+  style={},
   isModal
 }) => {
   return (
     <div
+      style={style}
       className={[
         S(
           "media-card-button-vertical",
@@ -658,10 +660,12 @@ const MediaCardWithButtonHorizontal = observer(({
   buttonText,
   onClick,
   className="",
-  setShowModal
+  setShowModal,
+  style={}
 }) => {
   return (
     <div
+      style={style}
       className={[
         S(
           "media-card-button-horizontal",

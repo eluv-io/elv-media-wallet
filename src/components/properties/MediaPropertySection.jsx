@@ -52,6 +52,10 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
     )
   );
 
+  if(rootStore.pageWidth < 500) {
+    return 1;
+  }
+
   if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
     return Math.round(pageWidth / cardWidth);
   } else {
@@ -202,17 +206,18 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
             <div className={S("purchase-gate-page__content")}>
               <MediaGrid
                 wrapTitles
-                isFormattedContent
                 aspectRatio="Square"
                 cardFormat="button_vertical"
                 justification={settings.position?.toLowerCase() || "left"}
-                content={purchasableItems.map(item =>
+                content={purchasableItems}
+                ContentComponent={({item, ...props}) =>
                   <ButtonCard
+                    {...props}
+                    {...item}
                     orientation="vertical"
                     key={item.id}
-                    {...item}
                   />
-                )}
+                }
               />
             </div>
         }
@@ -447,8 +452,8 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
 
 export const MediaGrid = observer(({
   content,
+  ContentComponent,
   isSectionContent=false,
-  isFormattedContent=false,
   aspectRatio,
   textDisplay="all",
   justification="left",
@@ -478,14 +483,54 @@ export const MediaGrid = observer(({
     hoverCardDisplay = hoverCardDisplay || settings.hoverCardDisplay;
   }
 
-  let style = {};
-  if(columns > 1) {
-    style.gridTemplateColumns = `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`;
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  const lcm = (a, b) =>  a / gcd(a, b) * b;
+
+  const remainder = content.length % columns;
+  let gridTemplateAreas = "";
+  for(let row = 0; row < Math.ceil(content.length / columns); row++) {
+    const startIndex = (row) * columns;
+
+    if(justification === "center" && remainder !== 0) {
+      const remainder = content.length % columns;
+      // Get LCM of remainder, try to get an equal number of empty slots on either side
+      let numColumns = lcm(columns, remainder);
+      let columnsPerCard = numColumns / columns;
+      let numDots = (numColumns - columnsPerCard * remainder) / 2;
+
+      if(parseInt(numDots) !== numDots) {
+        // Unequal empty per side, adjust
+        numColumns *= 2;
+        columnsPerCard = numColumns / columns;
+        numDots = (numColumns - columnsPerCard * remainder) / 2;
+      }
+
+      if(startIndex + columns < content.length) {
+        // Not last row, fill up
+        gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")}'`
+      } else {
+        // Last row
+        const startDots = ". ".repeat(Math.floor(numDots));
+        const endDots = ". ".repeat(Math.ceil(numDots));
+        gridTemplateAreas += `'${startDots} ${[...new Array(remainder)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")} ${endDots}'`;
+      }
+    } else if(justification === "left" || startIndex + columns <= content.length) {
+      // Not the last row, left justified, or fully filled
+       gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`
+    } else if(justification === "right") {
+      const remainder = content.length - startIndex;
+      const emptySpots = columns - remainder;
+
+      // Right just - fill left spots with empty cells
+      gridTemplateAreas += `'${". ".repeat(emptySpots)} ${[...new Array(remainder)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`;
+    }
   }
 
   return (
     <div
-      style={style}
+      style={{
+        gridTemplateAreas
+      }}
       className={[S(
         "section__content",
         "section__content--grid",
@@ -496,8 +541,14 @@ export const MediaGrid = observer(({
       ), className].join(" ")}
     >
       {
-        isFormattedContent ? content :
-          content.map(item =>
+        content.map((item, index) =>
+          ContentComponent ?
+            <ContentComponent
+              item={item}
+              style={{
+                gridArea: `card-${index}`
+              }}
+            /> :
             <MediaCard
               size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
               format={cardFormat || "vertical"}
@@ -511,7 +562,10 @@ export const MediaGrid = observer(({
               wrapTitle={wrapTitles}
               buttonText={item?.card_button_text || defaultButtonText}
               navContext={navContext}
-              style={cardTheme?.css}
+              style={{
+                gridArea: `card-${index}`,
+                ...(cardTheme?.css || {})
+              }}
               hoverCardDisplay={hoverCardDisplay}
               centered={
                 (MediaItemImageUrl({
@@ -521,7 +575,7 @@ export const MediaGrid = observer(({
                 }))?.imageAspectRatio !== "landscape"
               }
             />
-          )
+        )
       }
     </div>
   );
