@@ -30,6 +30,8 @@ import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
+const HEADER_SEPARATOR = " · ";
+
 /* Video */
 
 const EndScreen = observer(({mediaItem, nextItem}) => {
@@ -211,9 +213,7 @@ const MediaVideo = observer(({
         {
           (display.headers || []).length === 0 ? null :
             <div className={S("media__error-headers")}>
-              {display.headers?.map?.((header, index) =>
-                <div key={`header-${index}`} className={S("media__error-header")}>{header}</div>
-              )}
+              {display.headers?.join?.(HEADER_SEPARATOR)}
             </div>
         }
         <div className={S("media__error-title")}>
@@ -1106,9 +1106,7 @@ const MediaPropertyMediaPage = observer(() => {
                 {
                   (display.headers || []).length === 0 ? null :
                     <div className={S("media-text__headers")}>
-                      {display.headers?.map?.((header, index) =>
-                        <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
-                      )}
+                      {display.headers?.join?.(HEADER_SEPARATOR)}
                     </div>
                 }
                 {
