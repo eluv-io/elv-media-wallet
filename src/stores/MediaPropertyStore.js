@@ -1569,6 +1569,8 @@ class MediaPropertyStore {
           "tenants/*/media_properties/*/main_page_logo_scale",
           "tenants/*/media_properties/*/main_page_card_video",
           "tenants/*/media_properties/*/main_page_card_video_info",
+          "tenants/*/media_properties/*/main_page_inaccessible",
+          "tenants/*/media_properties/*/main_page_inaccessible_message",
           "tenants/*/media_properties/*/show_on_main_page",
           "tenants/*/media_properties/*/main_page_url",
           "tenants/*/media_properties/*/parent_property"

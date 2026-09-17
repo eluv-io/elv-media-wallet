@@ -313,6 +313,7 @@ const MediaHoverCard = observer(({
   const [targetRef, setTargetRef] = useState(undefined);
   const [hoverCardRef, setHoverCardRef] = useState(undefined);
   const [dimensions, setDimensions] = useState({});
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   const Focus = (duration=openDelay) => {
     clearTimeout(hoverCardTimeout);
@@ -332,6 +333,10 @@ const MediaHoverCard = observer(({
     if(!targetRef) { return; }
 
     setDimensions(targetRef.getBoundingClientRect());
+
+    if(!opened) {
+      setVideoLoaded(false);
+    }
   }, [opened]);
 
   // Close on unfocus
@@ -427,6 +432,25 @@ const MediaHoverCard = observer(({
               showWithoutSource
               className={S("styled-card__image", "hover-card__image")}
             />
+            {
+              !display?.preview_video ? null :
+                <Video
+                  link={display.preview_video}
+                  linkInfo={display.preview_video_info}
+                  mute
+                  hideControls
+                  autoAspectRatio={false}
+                  playerOptions={{
+                    backgroundColor: "transparent",
+                    showLoader: false,
+                    loop: true,
+                    autoplay: true,
+                    capLevelToPlayerSize: true
+                  }}
+                  readyCallback={() => setVideoLoaded(true)}
+                  className={S("styled-card__image", "styled-card__video", videoLoaded ? "styled-card__video--loaded" : "")}
+                />
+            }
             {
               // Schedule indicator
               !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :

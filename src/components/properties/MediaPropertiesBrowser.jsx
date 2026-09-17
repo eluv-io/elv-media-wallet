@@ -64,8 +64,13 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
   const [hovering, setHovering] = useState(false);
   const ref = useRef(undefined);
   const visible = useIsVisible(ref?.current);
+  const inaccessible = mediaProperty.main_page_inaccessible;
 
   const showVideo = visible && (hovering || (rootStore.mobile && active));
+
+  if(inaccessible) {
+    linkParams = {};
+  }
 
   return (
     <Linkish
@@ -78,6 +83,7 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
       className={
         S(
           "discover-card",
+          inaccessible ? "discover-card--inaccessible" : "",
           featured ? "discover-card--featured" : "discover-card--standard",
           rootStore.mobile ? "discover-card--active" : ""
         )
@@ -105,6 +111,12 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
             </div>
         }
       </div>
+      {
+        !inaccessible || !mediaProperty.main_page_inaccessible_message ? null :
+          <div className={S("discover-card__inaccessible-message")}>
+            {mediaProperty.main_page_inaccessible_message}
+          </div>
+      }
       {
         !featured ? null :
           <div className={S("discover-card__content")}>

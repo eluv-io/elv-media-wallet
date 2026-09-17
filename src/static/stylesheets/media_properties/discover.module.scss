@@ -57,10 +57,38 @@
 
   &--featured {
     height: 600px;
+
+    .discover-card__inaccessible-message {
+      font-size: 32px;
+      padding-bottom: 75px;
+    }
   }
 
   &--standard {
     filter: brightness(var(--brightness--inactive));
+  }
+
+  &--inaccessible {
+    cursor: default;
+  }
+
+  &__inaccessible-message {
+    align-items: center;
+    background: rgb(0 0 0 / 50%);
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    font-size: 20px;
+    font-weight: 700;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    padding-inline: 20px;
+    position: absolute;
+    text-align: center;
+    text-shadow: 2px 2px 2px rgb(0 0 0 / 50%);
+    white-space: pre-wrap;
+    z-index: 10;
   }
 
   * {
@@ -212,9 +240,17 @@
       filter: brightness(var(--brightness--active));
     }
 
-    .discover-card__button-container {
-      height: 100px;
-      padding: 5px 0 20px;
+    &:not(.discover-card--inaccessible) {
+      .discover-card__button-container {
+        height: 100px;
+        padding: 15px 0 20px;
+      }
+    }
+
+    &.discover-card--inaccessible {
+      .discover-card__inaccessible-message {
+        opacity: 1;
+      }
     }
   }
 
