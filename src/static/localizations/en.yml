@@ -184,6 +184,7 @@ profile:
     auto_renewing: auto-renewing
     renew_note: Your subscription will automatically renew on this date, unless cancelled in advance.
     cancelled_on: Cancelled On
+    expired: Expired
     optional_end_date: Optional End Date
     cancel: Cancel Subscription
     cancel_confirm: Confirm Cancellation
