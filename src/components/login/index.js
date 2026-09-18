@@ -58,8 +58,6 @@ const params = {
   oryFlow: searchParams.get("flow")
 };
 
-console.log(JSON.stringify(params, null, 2));
-
 window.params = params;
 
 const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) => {

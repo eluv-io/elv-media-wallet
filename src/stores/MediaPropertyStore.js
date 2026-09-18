@@ -118,7 +118,8 @@ class MediaPropertyStore {
                   mediaListSlugOrId: !group.section_id && mediaListSlugOrId,
                   filterOptions: {contentType: "media"}
                 }))
-                  .filter(item => item?.mediaItem);
+                  .map(item => item?.mediaItem)
+                  .filter(item => item);
               } else if(group.type === "automatic") {
                 const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
                 const media = Object.values(this.media)
@@ -192,10 +193,60 @@ class MediaPropertyStore {
       )
     );
 
+    // Automatically switch to tab of current item
+    let initialTabIndex, initialGroupIndex, initialItemIndex, nextItem, previousItem;
+    for(let t = 0; t < tabs?.length || 0; t++) {
+      const tab = tabs[t];
+      for(let g = 0; g < tab?.groups?.length || 0; g++) {
+        const group = tab?.groups?.[g];
+        for(let i = 0; i < group?.content?.length || 0; i++) {
+          const item = group?.content?.[i];
+
+          if(
+            item?.mediaItem?.id === mediaItemSlugOrId ||
+            item?.mediaItem?.slug === mediaItemSlugOrId
+          ) {
+            initialTabIndex = t;
+            initialGroupIndex = g;
+            initialItemIndex = i;
+
+            // Find next/previous item within group
+            if(tab.sequential || group.sequential) {
+              if(i > 0) {
+                previousItem = group.content[i - 1];
+              }
+
+              if(i < group.content.length - 1) {
+                nextItem = group.content[i + 1];
+              }
+            }
+
+            // Find next/prvious item within tab
+            if(tab.sequential && (!nextItem || !previousItem)) {
+              if(!previousItem && g > 0) {
+                const previousGroup = tab.groups[g - 1];
+                previousItem = previousGroup.content.slice(-1)[0];
+              }
+
+              if(!nextItem && g < tab.groups.length -1) {
+                const nextGroup = tab.groups[g + 1];
+                nextItem = nextGroup.content[0];
+              }
+            }
+          }
+        }
+      }
+    }
+
     return {
       tabs,
       nextLiveAt,
       anyMultiview,
+      initialTabIndex,
+      initialGroupIndex,
+      initialItemIndex,
+      nextItem,
+      previousItem
     };
   });
 
@@ -2165,8 +2216,6 @@ class MediaPropertyStore {
   });
 
   SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
 
     if(!mediaPropertyId) { return; }
@@ -2190,6 +2239,14 @@ class MediaPropertyStore {
       return;
     }
 
+    if(!this.rootStore.loggedIn) {
+      this.rootStore.SetSessionStorage(
+        `media-progress-${mediaPropertyId}`,
+        JSON.stringify(this.mediaProgress[mediaPropertyId])
+      );
+      return;
+    }
+
     yield this.rootStore.walletClient.SetProfileMetadata({
       type: "app",
       mode: "private",
@@ -2200,17 +2257,29 @@ class MediaPropertyStore {
   });
 
   LoadMediaProgress = flow(function * ({mediaPropertySlugOrId}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
 
     if(!mediaPropertyId) { return; }
+
+    if(!this.rootStore.loggedIn) {
+      try {
+        const progress = this.rootStore.GetSessionStorageJSON(`media-progress-${mediaPropertyId}`);
+
+        if(progress) {
+          this.mediaProgress[mediaPropertyId] = progress;
+        }
+      } catch(error) {
+        this.rootStore.Log("Error loading media progress from session storage:", true);
+        this.rootStore.Log(error);
+      }
+
+      return;
+    }
 
     yield this.LoadResource({
       key: "MediaProgress",
       id: mediaPropertyId,
       Load: async () => {
-
         if(!this.mediaProgress[mediaPropertyId]) {
           this.mediaProgress[mediaPropertyId] = {};
         }
@@ -2233,8 +2302,6 @@ class MediaPropertyStore {
   });
 
   GetMediaProgress({mediaPropertySlugOrId, mediaItemId}) {
-    if(!this.rootStore.loggedIn) { return; }
-
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || this.rootStore.currentPropertyId;
 
     if(!mediaPropertyId) { return; }

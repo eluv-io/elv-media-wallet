@@ -9,7 +9,7 @@ import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
-  MediaItemScheduleInfo
+  MediaItemScheduleInfo, MediaPropertyLink
 } from "../../utils/MediaPropertyUtils";
 import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
@@ -30,7 +30,98 @@ import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
+const HEADER_SEPARATOR = " · ";
+
 /* Video */
+
+const EndScreen = observer(({mediaItem, nextItem}) => {
+  const match = useRouteMatch();
+  const [countdown, setCountdown] = useState(5.5);
+  const [redirect, setRedirect] = useState(false);
+
+  useEffect(() => {
+    const transitionAt = Date.now() + 5.5 * 1000;
+
+    const interval = setInterval(() => {
+      const countdown = Math.floor((transitionAt - Date.now()) / 1000);
+
+      if(countdown < 0) {
+        setRedirect(true);
+      }
+
+      setCountdown(Math.max(0, countdown));
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if(nextItem && redirect) {
+    const navContext = new URLSearchParams(location.search).get("ctx");
+    const linkPath = MediaPropertyLink({
+      match,
+      sectionItem: nextItem,
+      mediaItem: nextItem?.mediaItem,
+      navContext
+    })?.linkPath || "";
+
+    return <Redirect to={linkPath} />;
+  }
+
+  const display = nextItem?.mediaItem || nextItem?.display || {};
+  return (
+    <div className={S("bumper", "bumper--next")}>
+      <LoaderImage
+        src={mediaItem?.thumbnail_image_landscape?.url}
+        hash={mediaItem?.thumbnail_image_landscape_hash}
+        alt={mediaItem?.title}
+        className={S("bumper__background", "bumper__background--cover")}
+      />
+      <div className={S("bumper__cover")} />
+      {
+        !display ? null :
+          <div className={S("next")}>
+            <div className={S("next__timer")}>
+              Up Next in {countdown + 1}
+            </div>
+            <div className={S("next__card")}>
+              <LoaderImage
+                src={display.thumbnail_image_landscape?.url}
+                hash={display.thumbnail_image_landscape_hash}
+                alt={display.title}
+                width={600}
+                className={S("next__card-thumbnail")}
+              />
+              <div className={S("next__card-content")}>
+                <div className={S("next__card-title")}>
+                  { display.title }
+                </div>
+                {
+                  display.subtitle ? null :
+                    <div className={S("next__card-subtitle")}>
+                      {display.subtitle}
+                    </div>
+                }
+              </div>
+            </div>
+            <div className={S("next__actions")}>
+              <button
+                onClick={() => mediaStore.SetContentEnded(false)}
+                className={S("next__action", "next__action--cancel", "opacity-hover")}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setRedirect(true)}
+                className={S("next__action", "next__action--next", "opacity-hover")}
+              >
+                Play Now
+              </button>
+            </div>
+          </div>
+      }
+    </div>
+  );
+});
 
 const MediaVideo = observer(({
   mediaItem,
@@ -122,9 +213,7 @@ const MediaVideo = observer(({
         {
           (display.headers || []).length === 0 ? null :
             <div className={S("media__error-headers")}>
-              {display.headers?.map?.((header, index) =>
-                <div key={`header-${index}`} className={S("media__error-header")}>{header}</div>
-              )}
+              {display.headers?.join?.(HEADER_SEPARATOR)}
             </div>
         }
         <div className={S("media__error-title")}>
@@ -199,6 +288,12 @@ const MediaVideo = observer(({
       mediaItemId={mediaItem.id}
       saveProgress
       playoutParameters={playoutParameters}
+      endCallback={() => {
+        // Set content ended
+        if(mediaStore.displayedContent.length === 1) {
+          mediaStore.SetContentEnded(true);
+        }
+      }}
       contentInfo={{
         title: display.title,
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
@@ -268,7 +363,18 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
   );
 
   if(!secondaryMedia) {
-    return primaryVideo;
+    return (
+      <>
+        {primaryVideo}
+        {
+          !mediaStore.contentEnded || !mediaStore.sidebarContent?.nextItem ? null :
+            <EndScreen
+              mediaItem={primaryMedia.mediaItem}
+              nextItem={mediaStore.sidebarContent.nextItem}
+            />
+        }
+      </>
+    );
   }
 
   const secondaryVideo = (
@@ -369,7 +475,7 @@ const MediaVideoWithSidebar = observer(({
     .slice(0, streamLimit);
 
   let media;
-  if(mediaStore.multiviewMode === "pip" || mediaInfo.length === 1) {
+  if(mediaStore.multiviewMode === "pip") {
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
@@ -377,7 +483,8 @@ const MediaVideoWithSidebar = observer(({
     );
   } else {
     media = (
-      <div className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length === 0 ? "media-with-sidebar__media-grid-container--single" : "")}>
+      <div
+        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}>
         <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
@@ -409,6 +516,16 @@ const MediaVideoWithSidebar = observer(({
                 }}
               />
             )
+          }
+          {
+            mediaInfo.length > 1 || !mediaStore.contentEnded || !mediaStore.sidebarContent?.nextItem ? null :
+              <EndScreen
+                mediaItem={
+                  mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaInfo[0].id}) ||
+                  mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaInfo[0].mediaItemId})
+                }
+                nextItem={mediaStore.sidebarContent.nextItem}
+              />
           }
         </div>
       </div>
@@ -989,9 +1106,7 @@ const MediaPropertyMediaPage = observer(() => {
                 {
                   (display.headers || []).length === 0 ? null :
                     <div className={S("media-text__headers")}>
-                      {display.headers?.map?.((header, index) =>
-                        <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
-                      )}
+                      {display.headers?.join?.(HEADER_SEPARATOR)}
                     </div>
                 }
                 {

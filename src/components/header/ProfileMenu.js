@@ -2,7 +2,7 @@ import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
 
 import React from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {ButtonWithLoader, Linkish} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
@@ -18,10 +18,11 @@ import MarketplaceIcon from "Assets/icons/marketplace.svg";
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
 const ProfileMenu = observer(({Hide}) => {
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
   const userInfo = rootStore.walletClient.UserInfo();
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
 
-  const discoverDisabled = rootStore.isCustomDomain;
+  const discoverDisabled = rootStore.isCustomDomain || mediaProperty?.metadata?.domain?.hide_home_button;
 
   let basePath = "/";
   if(rootStore.routeParams.mediaPropertySlugOrId) {

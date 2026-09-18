@@ -23,6 +23,7 @@ const Video = forwardRef(function VideoComponent({
   callback,
   readyCallback,
   errorCallback,
+  endCallback,
   settingsUpdateCallback,
   hideControls,
   showTitle,
@@ -175,6 +176,10 @@ const Video = forwardRef(function VideoComponent({
 
       if(callback) {
         callback(player);
+      }
+
+      if(endCallback) {
+        player.controls.RegisterVideoEventListener("ended", () => endCallback());
       }
 
       player.controls.RegisterVideoEventListener("volumechange", () => setSettingsUpdateKey(Math.random()));
