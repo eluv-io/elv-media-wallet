@@ -200,7 +200,8 @@ class CheckoutStore {
         path: UrlJoin("as", "subs", "list"),
         method: "POST",
         body: {
-          tenant: tenantId
+          tenant: tenantId,
+          include_expired: true
         },
         headers: {
           Authorization: `Bearer ${this.rootStore.authToken}`

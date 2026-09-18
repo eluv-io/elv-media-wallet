@@ -158,24 +158,29 @@ const Subscriptions = observer(({basePath}) => {
                   <div className="subscription__name">{subscription.item.name}</div>
                   <div className="subscription__subtitle">{subscription.item.subtitle1}</div>
                   {
-                    subscription.canceled_at ?
+                    subscription.status === "expired" ?
+                      <div className="subscription__next-payment">
+                        {rootStore.l10n.profile.subscriptions.expired}:&nbsp;
+                        {new Date(subscription.next_payment_date).toLocaleDateString(undefined, {timeZone: "UTC"})}
+                      </div> :
+                    subscription.status === "canceled" ?
                       <>
                         <div className="subscription__next-payment">
                           {rootStore.l10n.profile.subscriptions.cancelled_on}:&nbsp;
-                          {new Date(subscription.canceled_at).toLocaleDateString()}
+                          {new Date(subscription.canceled_at).toLocaleDateString(undefined, {timeZone: "UTC"})}
                         </div>
                         <div className="subscription__next-payment">
                           {rootStore.l10n.profile.subscriptions.paid_to}:&nbsp;
-                          {new Date(subscription.paid_to).toLocaleDateString()}
+                          {new Date(subscription.paid_to).toLocaleDateString(undefined, {timeZone: "UTC"})}
                         </div>
                       </> :
                       <div className="subscription__next-payment">
                         {rootStore.l10n.profile.subscriptions.next_payment_date}:&nbsp;
-                        {new Date(subscription.next_payment_date).toLocaleDateString()}
+                        {new Date(subscription.next_payment_date).toLocaleDateString(undefined, {timeZone: "UTC"})}
                       </div>
                   }
                   {
-                    subscription.canceled_at ? null :
+                    subscription.status === "canceled" || subscription.status === "expired" ? null :
                       <Linkish
                         to={UrlJoin(basePath, "users", "me", "details", "subscriptions", subscription.sub_id)}
                         className="action subscription__action"

@@ -15,7 +15,7 @@ import Confirm from "Components/common/Confirm";
 const S = (...classes) => classes.map(c => SubscriptionStyles[c] || "").join(" ");
 
 const FormatDate = date => new Date(date)
-  .toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric"});
+  .toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric", timeZone: "UTC"});
 
 const SubscriptionCancel = observer(({subscription, Close}) => {
   const [cancelling, setCancelling] = useState(false);
@@ -116,7 +116,8 @@ const Subscription = observer(() => {
     return <SubscriptionCancel subscription={subscription} Close={() => setCancelling(false)} />;
   }
 
-  const cancelled = subscription.canceled_at;
+  const expired = subscription.status === "expired";
+  const cancelled = subscription.status === "canceled";
 
   return (
     <div className={S("subscription-container")}>
@@ -138,6 +139,11 @@ const Subscription = observer(() => {
           <div className={S("subscription__name")}>{subscription.item.name}</div>
           <div className={S("subscription__subtitle")}>{subscription.item.subtitle1}</div>
           {
+            expired ?
+              <div className={S("subscription__next-payment")}>
+                {rootStore.l10n.profile.subscriptions.expired}:&nbsp;
+                {FormatDate(subscription.next_payment_date)}
+              </div> :
             cancelled ?
               <div className={S("subscription__next-payment")}>
                 {rootStore.l10n.profile.subscriptions.cancelled_on}:&nbsp;
@@ -149,7 +155,7 @@ const Subscription = observer(() => {
               </div>
           }
           {
-            cancelled ? null :
+            cancelled || expired ? null :
               <Linkish
                 onClick={() => checkoutStore.UpdateSubscriptionPayment({subscriptionId})}
                 className={S("subscription__action")}
@@ -183,10 +189,10 @@ const Subscription = observer(() => {
             {rootStore.l10n.profile.subscriptions.paid_to}
           </label>
           <div className={S("info__item-value")}>
-            {FormatDate(subscription.next_payment_date)}{!subscription.canceled_at ? ` (${rootStore.l10n.profile.subscriptions.auto_renewing})` : null}
+            {FormatDate(subscription.next_payment_date)}{!cancelled && !expired ? ` (${rootStore.l10n.profile.subscriptions.auto_renewing})` : null}
           </div>
           {
-            subscription.canceled_at ? null :
+            cancelled || expired ? null :
               <div className={S("info__item-note")}>
                 {rootStore.l10n.profile.subscriptions.renew_note}
               </div>
@@ -194,7 +200,7 @@ const Subscription = observer(() => {
         </div>
       </div>
       {
-        cancelled ? null :
+        cancelled || expired ? null :
           <div className={S("cancel-section")}>
             <Linkish
               onClick={() => setCancelling(true)}
