@@ -238,17 +238,11 @@
     font-size: 14px;
     gap: 1.3em;
     margin-bottom: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: pre-wrap;
   }
 
   &__title,
   &__subtitle {
-    overflow: hidden;
     position: relative;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     width: 100%;
   }
 
@@ -397,18 +391,12 @@
     font-size: 14px;
     gap: 1.3em;
     margin-bottom: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: pre-wrap;
   }
 
   &__title,
   &__subtitle {
     max-width: 100%;
-    overflow: hidden;
     position: relative;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     width: 100%;
   }
 
