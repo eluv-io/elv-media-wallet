@@ -70,6 +70,16 @@
 
   &--inaccessible {
     cursor: default;
+
+    .discover-card__button-container {
+      cursor: default!important;
+    }
+
+    .discover-card__button {
+      background-color: #5f5f5f!important;
+      color: #b2b2b2;
+      cursor: default;
+    }
   }
 
   &__inaccessible-message {
@@ -190,8 +200,8 @@
     align-items: flex-start;
     display: flex;
     font-size: 16px;
-    max-height: 100px;
-    min-height: 100px;
+    max-height: 110px;
+    min-height: 110px;
   }
 
   &__button-container {
@@ -209,11 +219,14 @@
     color: black;
     display: flex;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 600;
     height: 45px;
     justify-content: center;
     transition-delay: 0s!important;
-    width: 100px;
+    min-width: 100px;
+    width: max-content;
+    padding-inline: 10px;
+
 
     &:hover,
     &:focus-visible {
@@ -240,11 +253,9 @@
       filter: brightness(var(--brightness--active));
     }
 
-    &:not(.discover-card--inaccessible) {
-      .discover-card__button-container {
-        height: 100px;
-        padding: 15px 0 20px;
-      }
+    .discover-card__button-container {
+      height: 100px;
+      padding: 15px 0 20px;
     }
 
     &.discover-card--inaccessible {

@@ -140,7 +140,11 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
             </div>
             <button onClick={() => {}} className={S("discover-card__button-container")}>
               <div className={S("discover-card__button")}>
-                Launch
+                {
+                  inaccessible ?
+                    mediaProperty.main_page_inaccessible_message || "Coming Soon" :
+                    mediaProperty.button_text || "Launch"
+                }
               </div>
             </button>
           </div>
