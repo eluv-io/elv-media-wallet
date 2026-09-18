@@ -562,6 +562,7 @@ export const MediaCardWithButtonVertical = observer(({
   url,
   size,
   lazy=true,
+  wrapTitle,
   buttonText,
   onClick,
   className="",
@@ -610,19 +611,19 @@ export const MediaCardWithButtonVertical = observer(({
       </div>
       <div className={S("media-card-button-vertical__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-          <div className={S("media-card-button-vertical__headers")}>
+          <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__headers")].join(" ")}>
             { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
           !display.title ? null :
-            <h3 className={[S("media-card-button-vertical__title"), "_title"].join(" ")}>
+            <h3 className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__title"), "_title"].join(" ")}>
               { display.title }
             </h3>
         }
         {
           !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-            <div className={S("media-card-button-vertical__subtitle")}>
+            <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__subtitle")].join(" ")}>
               { display.subtitle }
             </div>
         }
@@ -682,6 +683,7 @@ const MediaCardWithButtonHorizontal = observer(({
   url,
   size,
   lazy=true,
+  wrapTitle,
   buttonText,
   onClick,
   className="",
@@ -729,19 +731,19 @@ const MediaCardWithButtonHorizontal = observer(({
       </div>
       <div className={S("media-card-button-horizontal__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-          <div className={S("media-card-button-horizontal__headers")}>
+          <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__headers")].join(" ")}>
             { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
           !display.title ? null :
-            <h3 className={[S("media-card-button-horizontal__title"), "_title"].join(" ")}>
+            <h3 className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__title"), "_title"].join(" ")}>
               { display.title }
             </h3>
         }
         {
           !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-            <div className={S("media-card-button-horizontal__subtitle")}>
+            <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__subtitle")].join(" ")}>
               { display.subtitle }
             </div>
         }

@@ -157,26 +157,25 @@ const DiscountInput = observer(({item, Update}) => {
   );
 });
 
-const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, Actions}) => {
-  const hasDetails = item.subtitle || item.description;
-  const [showDetails, setShowDetails] = useState(false);
+const Item = observer(({item, children, hideInfo, hidePrice, showDescription, discountCodeInfo, Actions}) => {
+  const hasDetails = !showDescription && (item.subtitle || item.description);
+  const [showDetails, setShowDetails] = useState(showDescription);
 
   const {currency, discountedPrice} = DiscountedPrice({item, discountCode: discountCodeInfo});
 
   return (
     <div className={S("item-container")}>
-
-        {
-          !item.imageUrl ? null :
-            <LoaderImage
-              loaderAspectRatio={1}
-              preferHashRatio
-              src={item.imageUrl}
-              hash={item.imageHash}
-              width={600}
-              className={S("item-image")}
-            />
-        }
+      {
+        !item.imageUrl ? null :
+          <LoaderImage
+            loaderAspectRatio={1}
+            preferHashRatio
+            src={item.imageUrl}
+            hash={item.imageHash}
+            width={600}
+            className={S("item-image")}
+          />
+      }
       <div className={S("item")}>
         {
           hideInfo ? null :
@@ -258,6 +257,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
             <Item
               key={`item-${item?.id}`}
               item={item}
+              showDescription={items?.length === 1}
               hidePrice={item.showSecondary && secondaryPurchaseOption !== "show"}
               Actions={({item, discountCode, discountedPrice, currency}) => {
                 return (
@@ -585,7 +585,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   return (
-    <Item discountCodeInfo={discountCodeInfo} item={item}>
+    <Item showDescription discountCodeInfo={discountCodeInfo} item={item}>
       <div key={`actions-${page}`} className={S("payment")}>
         { options }
         {

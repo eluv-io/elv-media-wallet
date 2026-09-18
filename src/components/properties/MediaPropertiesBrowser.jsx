@@ -112,7 +112,7 @@ const DiscoverCard = observer(({mediaProperty, linkParams, featured, active}) =>
         }
       </div>
       {
-        !inaccessible || !mediaProperty.main_page_inaccessible_message ? null :
+        featured || !inaccessible || !mediaProperty.main_page_inaccessible_message ? null :
           <div className={S("discover-card__inaccessible-message")}>
             {mediaProperty.main_page_inaccessible_message}
           </div>
