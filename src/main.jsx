@@ -1,5 +1,6 @@
 import "./Styles.js";
 
+import "@/utils/TranslateCrashGuard.js";
 import React, {Suspense, useEffect, useState} from "react";
 import { createRoot } from "react-dom/client";
 import { observer} from "mobx-react";
