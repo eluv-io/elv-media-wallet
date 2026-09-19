@@ -719,6 +719,8 @@
   }
 
   @media screen and (width <= 1000px) and (orientation: portrait) {
+    --max-media-area-height: calc(var(--property-full-content-height) - 120px);
+
     min-height: unset;
 
     &__media-grid {
@@ -731,7 +733,7 @@
 
         & > div,
         .media > div {
-          max-height: calc(var(--property-full-content-height) / 2);
+          max-height: calc(var(--max-media-area-height) / 2);
         }
       }
 
@@ -741,8 +743,8 @@
 
         & > div,
         .media > div {
-          height: calc(var(--property-full-content-height) / 3);
-          max-height: calc(var(--property-full-content-height) / 3);
+          height: calc(var(--max-media-area-height) / 3);
+          max-height: calc(var(--max-media-area-height) / 3);
         }
       }
 
@@ -752,8 +754,8 @@
 
         & > div,
         .media > div {
-          height: calc(var(--property-full-content-height) / 4);
-          max-height: calc(var(--property-full-content-height) / 4);
+          height: calc(var(--max-media-area-height) / 4);
+          max-height: calc(var(--max-media-area-height) / 4);
         }
       }
 
@@ -771,7 +773,7 @@
       &--6 {
         & > div,
         .media > div {
-          max-height: calc(var(--property-full-content-height) / 3);
+          max-height: calc(var(--max-media-area-height) / 3);
         }
       }
 
@@ -779,7 +781,7 @@
       &--8 {
         & > div,
         .media > div {
-          max-height: calc(var(--property-full-content-height) / 4);
+          max-height: calc(var(--max-media-area-height) / 4);
         }
       }
 

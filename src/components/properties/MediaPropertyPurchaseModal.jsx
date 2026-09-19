@@ -915,13 +915,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
 
       setPurchaseItems(formattedPurchaseItems);
       setLoaded(true);
-
-      const secondaryOnly = !isListing && !formattedPurchaseItems?.find(item => item.showPrimary);
-
-      setHeader(
-        rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]
-      );
-
+      setHeader(rootStore.l10n.media_properties.purchase.purchase_now);
     });
   }, [items]);
 
