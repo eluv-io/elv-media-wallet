@@ -249,9 +249,11 @@ export const CurrencySymbol = (currency, native=false) => {
 
 const FormatPriceWithSymbol = (price, currency) => {
   const sign = price.isNegative() ? "-" : "";
+  const currencyCode = currency?.toUpperCase();
+  const digits = typeof Currencies[currencyCode]?.decimal_digits === "number" ? Currencies[currencyCode].decimal_digits : 2;
   const amount = new Intl.NumberFormat(
     rootStore.preferredLocale,
-    {minimumFractionDigits: 2, maximumFractionDigits: 2}
+    {minimumFractionDigits: digits, maximumFractionDigits: digits}
   ).format(Math.abs(price.toDecimal()));
 
   return `${sign}${CurrencySymbol(currency)}${amount}`;
