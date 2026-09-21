@@ -624,7 +624,7 @@ export const UserTransferTable = observer(({
           entries.map(transfer => ({
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
-              FormatPriceString(transfer.amount + transfer.fee),
+              FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}),
               Ago(transfer.created * 1000),
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
@@ -655,9 +655,9 @@ export const UserTransferTable = observer(({
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString(transfer.amount + transfer.fee),
-            FormatPriceString(transfer.amount),
-            FormatPriceString(transfer.fee),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.fee}),
             Ago(transfer.created * 1000)
           ])
         }
@@ -689,8 +689,8 @@ export const UserTransferTable = observer(({
         entries={
           entries.map(transfer => [
             transfer.name,
-            FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
-            FormatPriceString(transfer.amount, {vertical: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}, {vertical: true}),
             Ago(transfer.created * 1000),
             MiddleEllipsis(transfer.buyer, 14),
             transfer.processor,
@@ -724,7 +724,7 @@ export const UserTransferTable = observer(({
       entries={
         entries.map(transfer => [
           transfer.name,
-          FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
+          FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true}),
           Ago(transfer.created * 1000),
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
