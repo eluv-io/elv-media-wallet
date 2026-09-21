@@ -624,7 +624,7 @@ export const UserTransferTable = observer(({
           entries.map(transfer => ({
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
-              FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}),
+              FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}, {useSymbol: true}),
               Ago(transfer.created * 1000),
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
@@ -655,9 +655,9 @@ export const UserTransferTable = observer(({
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}),
-            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}),
-            FormatPriceString({[transfer.currency || "USD"]: transfer.fee}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.fee}, {useSymbol: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}, {useSymbol: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.fee}, {useSymbol: true}),
             Ago(transfer.created * 1000)
           ])
         }
@@ -689,8 +689,8 @@ export const UserTransferTable = observer(({
         entries={
           entries.map(transfer => [
             transfer.name,
-            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true}),
-            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}, {vertical: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true, useSymbol: true}),
+            FormatPriceString({[transfer.currency || "USD"]: transfer.amount}, {vertical: true, useSymbol: true}),
             Ago(transfer.created * 1000),
             MiddleEllipsis(transfer.buyer, 14),
             transfer.processor,
@@ -724,7 +724,7 @@ export const UserTransferTable = observer(({
       entries={
         entries.map(transfer => [
           transfer.name,
-          FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true}),
+          FormatPriceString({[transfer.currency || "USD"]: transfer.amount + transfer.royalty}, {vertical: true, useSymbol: true}),
           Ago(transfer.created * 1000),
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,

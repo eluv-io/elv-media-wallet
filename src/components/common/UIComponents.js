@@ -241,6 +241,22 @@ export const ParseMoney = (amount, currency) => {
   return amount;
 };
 
+export const CurrencySymbol = (currency, native=false) => {
+  currency = currency?.toUpperCase();
+
+  return (native ? Currencies[currency]?.symbol_native : Currencies[currency]?.symbol) || currency || "";
+};
+
+const FormatPriceWithSymbol = (price, currency) => {
+  const sign = price.isNegative() ? "-" : "";
+  const amount = new Intl.NumberFormat(
+    rootStore.preferredLocale,
+    {minimumFractionDigits: 2, maximumFractionDigits: 2}
+  ).format(Math.abs(price.toDecimal()));
+
+  return `${sign}${CurrencySymbol(currency)}${amount}`;
+};
+
 export const ConvertCurrency = (amount, originalCurrency, targetCurrency, rounder="floor") => {
   const rate = originalCurrency === "USD" ?
     checkoutStore.exchangeRates[targetCurrency].rate :
@@ -288,6 +304,7 @@ export const FormatPriceString = (
     stringOnly: false,
     numberOnly: false,
     noConversion: false,
+    useSymbol: false,
     className: ""
   }
 ) => {
@@ -308,7 +325,9 @@ export const FormatPriceString = (
     return price.toDecimal();
   }
 
-  let formattedPrice = new Intl.NumberFormat(rootStore.preferredLocale, { style: "currency", currency}).format(price.toString());
+  let formattedPrice = options.useSymbol ?
+    FormatPriceWithSymbol(price, currency) :
+    new Intl.NumberFormat(rootStore.preferredLocale, {style: "currency", currency}).format(price.toString());
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
