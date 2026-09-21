@@ -212,6 +212,10 @@
     color: var(--property-text-highlight);
     display: inline;
     overflow-wrap: break-word;
+
+    * {
+      color: var(--property-text-highlight);
+    }
   }
 
   ol {

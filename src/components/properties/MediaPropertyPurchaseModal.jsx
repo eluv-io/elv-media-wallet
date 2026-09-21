@@ -6,7 +6,7 @@ import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "@/components/common/Loaders";
 import {NFTInfo, SHA512, ValidEmail} from "@/utils/Utils";
-import {Button, LoaderImage, Modal} from "@/components/properties/Common";
+import {Button, ExpandableDescription, LoaderImage, Modal} from "@/components/properties/Common";
 import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "@/components/common/UIComponents";
 import SupportedCountries from "@/utils/SupportedCountries";
 import {roundToDown} from "round-to";
@@ -202,9 +202,13 @@ const Item = observer(({item, children, hideInfo, hidePrice, showDescription, di
                     <div className={S("item__subtitle")}>
                       { item.subtitle }
                     </div>
-                    <div className={S("item__description")}>
-                      { item.description }
-                    </div>
+                    <ExpandableDescription
+                      maxLines={1000}
+                      expandable={false}
+                      description={item.description}
+                      descriptionRichText={item.description_rich_text}
+                      className={S("item__description")}
+                    />
                   </div>
               }
               {
@@ -1115,15 +1119,15 @@ const MediaPropertyPurchaseModal = observer(() => {
         header={header}
       >
         {
-            (purchaseItems || []).length === 0 ? null :
-              <PurchaseModalContent
-                items={purchaseItems}
-                itemId={params.itemId || params.listingId}
-                secondaryPurchaseOption={params.secondaryPurchaseOption}
-                confirmationId={params.confirmationId}
-                setHeader={setHeader}
-                Close={Close}
-              />
+          (purchaseItems || []).length === 0 ? null :
+            <PurchaseModalContent
+              items={purchaseItems}
+              itemId={params.itemId || params.listingId}
+              secondaryPurchaseOption={params.secondaryPurchaseOption}
+              confirmationId={params.confirmationId}
+              setHeader={setHeader}
+              Close={Close}
+            />
         }
       </Modal>
     </LoginGate>

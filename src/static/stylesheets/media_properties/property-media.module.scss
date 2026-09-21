@@ -177,6 +177,36 @@
     font-weight: 600;
   }
 
+  &__fullscreen-exit-button {
+    align-items: center;
+    background: rgb(0 0 0 / 75%);
+    border-radius: 10px;
+    display: flex;
+    font-size: 14px;
+    gap: 10px;
+    opacity: 0;
+    padding: 10px 15px;
+    position: absolute;
+    right: 50px;
+    top: 50px;
+    transition: opacity 0.25s ease;
+    z-index: 100;
+
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+
+    &--visible {
+      opacity: 0.5;
+    }
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+    }
+  }
+
   &__error-close {
     height: 25px;
     opacity: 0;
@@ -337,7 +367,13 @@
     }
   }
 
-  @media screen and (width < 800px) {
+  @media screen and (width <= 850px) {
+    &__fullscreen-exit-button {
+      opacity: 0.75;
+      right: 10px;
+      top: 50px;
+    }
+
     &__error {
       gap: 10px;
       padding-inline: 10px;
@@ -452,8 +488,6 @@
     width: 100%;
 
     &--fullscreen {
-      color: red;
-
       .media {
         max-height: unset!important;
       }

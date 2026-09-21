@@ -97,6 +97,10 @@
   &__description {
     color:var(--property-text-secondary);
     margin: 10px 0 5px;
+
+    * {
+      color:var(--property-text-faded);
+    }
   }
 
   &__details-toggle {

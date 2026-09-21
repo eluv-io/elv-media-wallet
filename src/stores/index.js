@@ -445,6 +445,7 @@ class RootStore {
 
         // Initialize Ory client
         const {Configuration, FrontendApi} = yield import("@ory/client");
+        this.oryProviderDomain = oryUrl;
         this.oryClient = new FrontendApi(
           new Configuration({
             features: {
@@ -650,6 +651,7 @@ class RootStore {
         idToken: jwtToken,
         force,
         provider: "ory",
+        providerDomain: this.oryProviderDomain,
         nonce,
         installId,
         origin,
@@ -735,6 +737,8 @@ class RootStore {
     const logoutUrl = !propertyConfig?.login?.settings?.openid_logout_url ? undefined :
       new URL(propertyConfig?.login?.settings?.openid_logout_url);
 
+    this.openIdProviderDomain = propertyConfig?.login?.settings?.openid_endpoint;
+
     return {
       openIdClient,
       config,
@@ -818,6 +822,7 @@ class RootStore {
         idToken: tokens.id_token,
         refreshToken: tokens.refresh_token,
         provider: "openId",
+        providerDomain: this.openIdProviderDomain,
         nonce,
         installId,
         origin,
@@ -866,6 +871,7 @@ class RootStore {
       cacheLocation: "localstorage",
       //useRefreshTokens: true,
     });
+    this.auth0ProviderDomain = config?.login?.settings?.auth0_domain;
   });
 
   AuthenticateAuth0 = flow(function * ({nonce, installId, origin, userData}={}) {
@@ -892,6 +898,7 @@ class RootStore {
         yield this.Authenticate({
           idToken: authInfo.__raw,
           provider: "auth0",
+          providerDomain: this.auth0ProviderDomain,
           nonce,
           installId,
           origin,
@@ -975,6 +982,7 @@ class RootStore {
     clientSigningToken,
     refreshToken,
     provider="external",
+    providerDomain,
     externalWallet,
     walletName,
     installId,
@@ -1050,6 +1058,7 @@ class RootStore {
         clientSigningToken,
         refreshToken,
         provider,
+        providerDomain,
         nonce,
         installId,
         save: this.authCode ? false : saveAuthInfo
@@ -2563,11 +2572,11 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, refreshToken, provider, providerDomain, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        return { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt, address };
+        return { clientAuthToken, clientSigningToken, refreshToken, provider, providerDomain, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2696,7 +2705,7 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", nonce, installId, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", providerDomain, nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
@@ -2704,6 +2713,7 @@ class RootStore {
       clientAuthToken,
       refreshToken,
       provider,
+      providerDomain,
       expiresAt,
       address,
       nonce,

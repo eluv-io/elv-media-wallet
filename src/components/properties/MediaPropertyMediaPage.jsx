@@ -29,6 +29,7 @@ import DownloadIcon from "@/assets/icons/download.svg";
 import PlayIcon from "@/assets/icons/media/play.svg";
 import VerticalIcon from "@/assets/icons/media/vertical.svg";
 import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
+import ExitFullscreenIcon from "@/assets/icons/minimize.svg";
 
 import XIcon from "@/assets/icons/x.svg";
 
@@ -451,6 +452,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
   );
 });
 
+let exitFullscreenButtonVisibilityTimeout;
 const MediaVideoWithSidebar = observer(({
   mediaItem,
   display,
@@ -459,9 +461,18 @@ const MediaVideoWithSidebar = observer(({
 }) => {
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenCloseButton, setShowFullscreenCloseButton] = useState(true);
 
   let streamLimit = rootStore.pageWidth > 1400 ? 16 :
     rootStore.pageWidth > 850 ? 9 : 8;
+
+  useEffect(() => {
+    clearTimeout(exitFullscreenButtonVisibilityTimeout);
+
+    exitFullscreenButtonVisibilityTimeout = setTimeout(() => {
+      setShowFullscreenCloseButton(false);
+    }, 5000);
+  }, [showFullscreenCloseButton]);
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {
@@ -470,7 +481,10 @@ const MediaVideoWithSidebar = observer(({
   }, [rootStore.pageWidth, rootStore.pageHeight]);
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      setShowFullscreenCloseButton(!!document.fullscreenElement);
+    };
 
     document.addEventListener("fullscreenchange", onChange);
 
@@ -522,12 +536,32 @@ const MediaVideoWithSidebar = observer(({
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
+        {
+          !isFullscreen ? null :
+            <button
+              onClick={() => document.exitFullscreen()}
+              title="Exit Fullscreen"
+              className={S("media__fullscreen-exit-button", showFullscreenCloseButton ? "media__fullscreen-exit-button--visible" : "")}
+            >
+              <ImageIcon icon={ExitFullscreenIcon}/>
+              Exit Fullscreen
+            </button>
+        }
       </div>
     );
   } else {
     media = (
       <div
-        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}>
+        onMouseMove={
+          !isFullscreen ? undefined :
+            () => setShowFullscreenCloseButton(true)
+        }
+        onClick={
+          !isFullscreen ? undefined :
+            () => setShowFullscreenCloseButton(true)
+        }
+        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}
+      >
         <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
@@ -570,6 +604,17 @@ const MediaVideoWithSidebar = observer(({
                 }
                 nextItem={mediaStore.sidebarContent.nextItem}
               />
+          }
+          {
+            !isFullscreen ? null :
+              <button
+                onClick={() => document.exitFullscreen()}
+                title="Exit Fullscreen"
+                className={S("media__fullscreen-exit-button", showFullscreenCloseButton ? "media__fullscreen-exit-button--visible" : "")}
+              >
+                <ImageIcon icon={ExitFullscreenIcon}/>
+                Exit Fullscreen
+              </button>
           }
         </div>
       </div>
