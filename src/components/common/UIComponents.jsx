@@ -253,11 +253,12 @@ export const ConvertCurrency = (amount, originalCurrency, targetCurrency, rounde
   return Money.fromDecimal(amount.multiply(rate, Math[rounder]).toString(), targetCurrency, rounder);
 };
 
-export const PriceCurrency = prices => {
+export const PriceCurrency = (prices, currency) => {
   let price;
-  let currency = "USD";
   if(typeof prices === "object") {
-    if(prices[checkoutStore.preferredCurrency]) {
+    if(currency && prices[currency]) {
+      price = prices[checkoutStore.currency];
+    } else if(prices[checkoutStore.preferredCurrency]) {
       price = prices[checkoutStore.preferredCurrency];
       currency = checkoutStore.preferredCurrency;
     } else if(prices[checkoutStore.currency]) {
@@ -273,13 +274,14 @@ export const PriceCurrency = prices => {
 
   return {
     price,
-    currency
+    currency: currency || "USD"
   };
 };
 
 export const FormatPriceString = (
   prices,
   options= {
+    currency: "",
     additionalFee: 0,
     quantity: 1,
     trimZeros: false,
@@ -293,7 +295,9 @@ export const FormatPriceString = (
     className: ""
   }
 ) => {
-  let { price, currency } = PriceCurrency(prices);
+  let { price, currency } = PriceCurrency(prices, options.currency);
+
+  currency = options.currency || currency;
 
   if(typeof price === "undefined" || isNaN(price)) {
     return "";
