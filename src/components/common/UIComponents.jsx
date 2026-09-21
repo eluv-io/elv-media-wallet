@@ -297,8 +297,6 @@ export const FormatPriceString = (
 ) => {
   let { price, currency } = PriceCurrency(prices, options.currency);
 
-  currency = options.currency || currency;
-
   if(typeof price === "undefined" || isNaN(price)) {
     return "";
   }
