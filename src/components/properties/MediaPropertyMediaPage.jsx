@@ -37,8 +37,6 @@ const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaStyles[c]
 
 const HEADER_SEPARATOR = " · ";
 
-const HEADER_SEPARATOR = " · ";
-
 /* Video */
 
 const EndScreen = observer(({mediaItem, nextItem}) => {
