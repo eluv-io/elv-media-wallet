@@ -1,14 +1,12 @@
-@import "variables";
-
-.loader {
-  height: 200px;
-  max-width: 100%;
-  width: 100%;
+.loader-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 300px;
 }
 
 .form {
-  @include page-fade-in(0.5s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   max-width: 400px;
   min-width: 400px;
   padding: 15px 15px 25px;
@@ -87,7 +85,7 @@
   }
 
   &__details {
-    @include page-fade-in(0.3s);
+    animation: var(--animation-fade-in) 0.25s ease;
   }
 
   &__subtitle {
@@ -99,6 +97,10 @@
   &__description {
     color:var(--property-text-secondary);
     margin: 10px 0 5px;
+
+    * {
+      color:var(--property-text-faded);
+    }
   }
 
   &__details-toggle {
@@ -110,7 +112,7 @@
 }
 
 .payment {
-  @include page-fade-in(0.75s);
+  animation: var(--animation-fade-in) 0.25s ease;
 
   &__input-label {
     font-size: 1em;
@@ -172,17 +174,12 @@
 }
 
 .status {
-  @include page-fade-in(0.25s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   min-height: 175px;
   padding: 30px 0 10px;
-
-  &__loader {
-    height: 150px;
-  }
 
   &__message {
     font-size: 1.5em;

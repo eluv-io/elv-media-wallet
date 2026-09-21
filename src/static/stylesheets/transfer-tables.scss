@@ -126,8 +126,7 @@
   }
 
   &__page-controls {
-    @include page-fade-in(0.25s);
-
+    animation: var(--animation-fade-in) 0.25s ease;
     margin-top: 10px;
 
     &:last-child {
@@ -162,9 +161,8 @@
   }
 
   &__pagination-message {
-    @include page-fade-in(0.25s);
-
     align-items: center;
+    animation: var(--animation-fade-in) 0.25s ease;
     display: flex;
     flex-grow: 1;
     font-size: 12px;
@@ -378,7 +376,7 @@
     padding: 40px 0;
   }
 
-  @media screen and (max-width: $breakpoint) {
+  @media screen and (width <= 1250px) {
     .no-tablet {
       display: none;
     }
@@ -391,13 +389,13 @@
     }
   }
 
-  @media screen and (max-width: $intermediate-breakpoint) {
+  @media screen and (width <= 1000px) {
     .no-tablet {
       display: none;
     }
   }
 
-  @media screen and (max-width: $tablet-breakpoint) {
+  @media screen and (width <= 850px) {
     &__header {
       flex-wrap: wrap;
       font-size: 12px;

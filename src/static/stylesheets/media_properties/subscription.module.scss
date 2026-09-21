@@ -1,8 +1,5 @@
-@import "variables";
-
 .subscription-container {
-  @include page-fade-in(0.5s);
-
+  animation: var(--animation-fade-in) 0.25s ease;
   background-color: #212121;
   border-radius: 5px;
   margin: 0 auto;

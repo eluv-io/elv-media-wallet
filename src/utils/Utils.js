@@ -1,13 +1,13 @@
-import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
-import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
-import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
-import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
-import PlayIcon from "Assets/icons/media/Play icon.svg";
-import Favicon from "Assets/icons/favicon.png";
+import AudioPlayCircleIcon from "@/assets/icons/media/blue play bars icon.svg";
+import AudioPlayIcon from "@/assets/icons/media/bars icon (no circle).svg";
+import VideoPlayCircleIcon from "@/assets/icons/media/video play icon.svg";
+import VideoPlayIcon from "@/assets/icons/media/video play icon (no circle).svg";
+import PlayIcon from "@/assets/icons/media/Play icon.svg";
+import Favicon from "@/assets/icons/favicon.png";
 
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore} from "@/stores";
 import UrlJoin from "url-join";
-import {FormatPriceString, LocalizeString, PriceCurrency} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString, PriceCurrency} from "@/components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const SHA512 = async (str) => {
@@ -217,6 +217,7 @@ export const NFTDisplayToken = nft => {
         return cap ? `${ordinal} / ${cap}` : ordinal;
 
     }
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {
     return nft?.details?.TokenIdStr || "";
   }
@@ -578,7 +579,7 @@ export const NFTMedia = ({nft, item, width}) => {
   }
 
   let mediaType = "image";
-  let embedUrl, imageUrl;
+  let embedUrl, imageUrl, imageHash;
   if(item?.video) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
     embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
@@ -624,8 +625,10 @@ export const NFTMedia = ({nft, item, width}) => {
 
   if(item?.image) {
     imageUrl = typeof item.image === "string" ? item.image : item.image.url;
+    imageHash = item.image_hash;
   } else if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
     imageUrl = nft.metadata.media.url;
+    imageHash = nft.metadata.media_hash;
 
     if(embedUrl) {
       embedUrl.searchParams.set("type", "Image");
@@ -633,6 +636,7 @@ export const NFTMedia = ({nft, item, width}) => {
     }
   } else {
     imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
+    imageHash = item?.nftTemplateMetadata?.image_hash || nft?.metadata?.image_hash;
   }
 
   if(imageUrl && width) {
@@ -644,6 +648,7 @@ export const NFTMedia = ({nft, item, width}) => {
   return {
     embedUrl,
     imageUrl,
+    imageHash,
     mediaType
   };
 };
@@ -651,7 +656,7 @@ export const NFTMedia = ({nft, item, width}) => {
 // Additional media
 export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requiresPermissions, watchedMediaIds=[], width}) => {
   let embedUrl = new URL("https://embed.v3.contentfabric.io");
-  let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
+  let imageUrl, imageHash, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
 
   let versionHash = item ? item.nftTemplateHash : nft?.details?.VersionHash;
 
@@ -665,6 +670,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   }
 
   imageUrl = selectedMedia.image;
+  imageHash = selectedMedia.image_hash;
   mediaType = (selectedMedia.media_type || "Image").toLowerCase();
 
   const embedMediaTypeParameter = Object.keys(EmbedMediaTypes).find(key => EmbedMediaTypes[key].toLowerCase() === mediaType.toLowerCase());
@@ -815,6 +821,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
 
   return {
     imageUrl,
+    imageHash,
     embedUrl,
     mediaLink,
     mediaType,
@@ -879,14 +886,19 @@ export const LinkTargetHash = (link) => {
   }
 };
 
-export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, path="", authToken, resolve=true, width}) => {
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, link, path="", authToken, resolve=true, width}) => {
+  if(link) {
+    versionHash = LinkTargetHash(link) || versionHash;
+    path = UrlJoin("/files", link?.["/"]?.split("files/").slice(1).join("files/"));
+  }
+
   let url = new URL(
     rootStore.network === "main" ?
       "https://main.glb.contentfabric.io/s/main" :
-      "https://demov3.net955210.contentfabric.io"
+      "https://demov3.net955210.contentfabric.io/s/demov3"
   );
 
-  let urlPath = UrlJoin("s", rootStore.network);
+  let urlPath = UrlJoin("s", rootStore.network === "main" ? "main" : "demov3");
   if(authToken) {
     urlPath = UrlJoin("t", authToken);
   }
@@ -1002,4 +1014,145 @@ export const SetHTMLMetaTags = ({metaTags={}}={metaTags: {}}) => {
   SetMetaTag("twitter:image:alt", metaTags.image_alt || "");
 
   document.title = metaTags.title || "Eluvio Media Wallet";
+};
+
+export const ConvertColor = ({hex, rgb, alpha}) => {
+  if(hex) {
+    if(hex.length === 4) {
+      // Handle 3 digit hex codes, e.g. #FFF
+      const [,r, g, b] = hex.split("");
+      hex = `#${r}${r}${g}${g}${b}${b}`;
+    }
+
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+      a: typeof alpha === "number" ? alpha : 1
+    } : null;
+  } else {
+    return `#${rgb.r.toString(16).padStart(2, "0")}${rgb.g.toString(16).padStart(2, "0")}${rgb.b.toString(16).padStart(2, "0")}`;
+  }
+};
+
+export const DefaultCardTheme = {
+  "active": {
+    "background_color": "#000000",
+    "background_color_2": "#000000",
+    "background_color_opacity": 0,
+    "background_gradient_angle": 0,
+    "background_type": "solid",
+    "border_color": "#FFFFFF"
+  },
+  "border_radius": "subtle",
+  "border_width": 0,
+  "circularize": false,
+  "description": "",
+  "effect": "",
+  "inactive": {
+    "background_color": "#000000",
+    "background_color_2": "#000000",
+    "background_color_opacity": 0,
+    "background_gradient_angle": 0,
+    "background_type": "solid",
+    "border_color": "#FFFFFF"
+  },
+  "label": "Default",
+  "mobile_state": ""
+};
+
+export const CardThemeProperties = ({theme, noMobile}) => {
+  let css = {};
+  let variants = [];
+
+  if(!theme) {
+    theme = DefaultCardTheme;
+  }
+
+  const FormatColor = (hex, alpha) => {
+    const {r, g, b, a} = ConvertColor({hex, alpha: typeof alpha === "number" ? alpha/100 : 1});
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  };
+
+  switch(theme.border_radius) {
+    case "subtle":
+      css["--border-radius"] = "5px";
+      break;
+
+    case "curved":
+      css["--border-radius"] = "20px";
+      break;
+
+    default:
+      css["--border-radius"] = 0;
+      break;
+  }
+
+  css["--border-width"] = `${theme.border_width || 0}px`;
+
+  css["--square-border-radius"] = "var(--border-radius)";
+  if(theme.circularize) {
+    css["--square-border-radius"] = "100%";
+  }
+
+  css["--border-color--active"] = theme.active.border_color || "#FFFFFF";
+  css["--border-color--inactive"] = theme.inactive.border_color || "#FFFFFF";
+
+  if(!theme.border_width) {
+    css["--border-color--active"] = "transparent";
+    css["--border-color--inactive"] = "transparent";
+  }
+
+  const activeBackground1 = FormatColor(
+    theme.active.background_color || "#000000",
+    theme.active.background_color_opacity
+  );
+
+  const activeBackground2 = FormatColor(
+    theme.active.background_color_2 || "#000000",
+    theme.active.background_color_2_opacity
+  );
+
+  const inactiveBackground1 = FormatColor(
+    theme.inactive.background_color || "#000000",
+    theme.inactive.background_color_opacity
+  );
+
+  const inactiveBackground2 = FormatColor(
+    theme.inactive.background_color_2 || "#000000",
+    theme.inactive.background_color_2_opacity
+  );
+
+  css["--background-color--active"] = activeBackground1;
+  css["--background-color--inactive"] = inactiveBackground1;
+
+  css["--background-color-2--active"] = theme.active.background_type === "gradient" ?
+    activeBackground2 : activeBackground1;
+
+  css["--background-color-2--inactive"] = theme.inactive.background_type === "gradient" ?
+    inactiveBackground2 : inactiveBackground1;
+
+  css["--background-gradient-angle--active"] = `${theme.active.background_gradient_angle || 0}deg`;
+  css["--background-gradient-angle--inactive"] = `${theme.inactive.background_gradient_angle || 0}deg`;
+
+  if(theme.effect) {
+    variants.push(`effect-${theme.effect}`);
+  }
+
+  if(rootStore.mobile && !noMobile) {
+    if(theme.mobile_state === "no-transition") {
+      variants = [];
+    } else if(theme.mobile_state === "active") {
+      variants.push("mobile-active");
+    }
+
+    variants.push("mobile");
+  }
+
+  return {
+    css,
+    variants
+  };
 };

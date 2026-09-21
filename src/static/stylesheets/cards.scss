@@ -9,7 +9,7 @@
 
   .card-container {
     flex: 1 1 100%;
-    max-width: calc(#{$breakpoint} / 3 - 27px);
+    max-width: 300px;
     min-width: 350px;
   }
 
@@ -18,7 +18,7 @@
     min-width: 250px;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     justify-items: center;
     margin: 0 auto;
     max-width: 350px;
@@ -154,8 +154,8 @@
     font-size: 18px;
     font-weight: 700;
     line-height: 1.25;
+    overflow-wrap: anywhere;
     text-transform: uppercase;
-    word-break: break-word;
   }
 
   &__edition {
@@ -364,7 +364,7 @@
       z-index: 10;
 
       &::after {
-        background: $black;
+        background: #000;
         content: "";
         height: 100%;
         left: 0;
@@ -396,7 +396,7 @@
         z-index: 1;
 
         * {
-          color: $white;
+          color: #FFF;
         }
       }
 
@@ -467,10 +467,10 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     &__actions {
       .action {
-        padding-inline: 25px;
+        padding-inline: 15px;
       }
     }
 

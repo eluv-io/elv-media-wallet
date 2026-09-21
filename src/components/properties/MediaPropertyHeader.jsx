@@ -1,31 +1,28 @@
-import HeaderStyles from "Assets/stylesheets/media_properties/property-header.module.scss";
+import HeaderStyles from "@/assets/stylesheets/media_properties/property-header.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useHistory} from "react-router-dom";
-import {rootStore, mediaPropertyStore, notificationStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
+import {rootStore, mediaPropertyStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
-import {Autocomplete, Checkbox, Combobox, Drawer, Group, Select, TextInput, useCombobox} from "@mantine/core";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import {Linkish} from "Components/common/UIComponents";
+import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch, Select, TextInput, useCombobox} from "@mantine/core";
+import {MediaPropertyBasePath, MediaPropertyLink} from "@/utils/MediaPropertyUtils";
+import {Linkish} from "@/components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
-import {Button} from "Components/properties/Common";
-import ProfileMenu from "Components/header/ProfileMenu";
-import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import {SetImageUrlDimensions} from "../../utils/Utils";
-import {LogInAuth0, LogInOpenId} from "Components/login";
+import {Button, DefaultProfileImage, RenderAction} from "@/components/properties/Common";
+import ProfileMenu from "@/components/header/ProfileMenu";
+import {Debounce, SetImageUrlDimensions} from "@/utils/Utils";
+import {LogInAuth0, LogInOpenId} from "@/components/login";
 
-import HomeIcon from "Assets/icons/home.svg";
-import SearchIcon from "Assets/icons/search.svg";
-import LeftArrowIcon from "Assets/icons/left-arrow.svg";
-import XIcon from "Assets/icons/x.svg";
-import MenuIcon from "Assets/icons/menu.svg";
-import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import SelectIcon from "Assets/icons/select";
-import LanguageIcon from "Assets/icons/header/language";
-
+import SearchIcon from "@/assets/icons/search.svg";
+import LeftArrowIcon from "@/assets/icons/left-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
+import MenuIcon from "@/assets/icons/menu.svg";
+import SelectIcon from "@/assets/icons/select.svg";
+import LanguageIcon from "@/assets/icons/header/language.svg";
+import AISparkleIcon from "@/assets/icons/ai-sparkle1.svg";
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 
@@ -47,6 +44,8 @@ const AdvancedSearchField = observer(({
     case "attribute":
       return (
         <Select
+          searchable
+          clearable
           key={`advanced-option-${index}`}
           label={title}
           value={mediaPropertyStore.searchOptions.attributes[attribute] || ""}
@@ -177,7 +176,7 @@ const AdvancedSearchField = observer(({
 });
 
 const QueryInput = observer(() => {
-  const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
+  const [query, setQuery] = useState(new URLSearchParams(window.location.search).get("q") || "");
   const [debouncedQuery] = useDebouncedValue(query, 1000);
 
   useEffect(() => {
@@ -211,16 +210,23 @@ const AdvancedSearch = observer(() => {
 
   const searchPath = UrlJoin(basePath, "search");
 
+  const filtersActive = Object.keys(mediaPropertyStore.searchOptions.attributes).length > 0 ||
+    mediaPropertyStore.searchOptions.tags?.length > 0;
+
   return (
     <>
       <Linkish
-        to={UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")}
-        className={S("search__filter")}
+        to={
+          window.location.pathname.endsWith("/search") ? null :
+            UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")
+        }
+        className={S("search__filter", filtersActive ? "search__filter--active" : "")}
         onClick={() => setShow(true)}
       >
         Filter
       </Linkish>
       <Drawer
+        lockScroll={false}
         position="right"
         opened={show}
         onClose={() => setShow(false)}
@@ -267,17 +273,140 @@ const AdvancedSearch = observer(() => {
   );
 });
 
+const AIAdvancedSearch = observer(() => {
+  const [show, setShow] = useState(false);
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
+  const parameters = mediaProperty?.metadata?.search?.ai_options?.advanced_search_options || [];
+
+  useEffect(() => {
+    mediaPropertyStore.LoadAISearchOptions(rootStore.routeParams);
+  }, []);
+
+  if(
+    !mediaProperty ||
+    !mediaProperty.metadata?.search?.ai_options?.enable_ai_search ||
+    parameters.length === 0
+  ) { return null; }
+
+  const searchPath = UrlJoin(basePath, "search");
+
+  const filtersActive = Object.keys(mediaPropertyStore.searchOptions.tracks).length > 0;
+
+  return (
+    <>
+      <Linkish
+        to={
+          window.location.pathname.endsWith("/search") ? null :
+            UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")
+        }
+        className={S("search__filter", filtersActive ? "search__filter--active" : "")}
+        onClick={() => setShow(true)}
+      >
+        Filter
+      </Linkish>
+      <Drawer
+        position="right"
+        opened={show}
+        onClose={() => setShow(false)}
+        title="Filter by"
+        classNames={{
+          content: S("filter"),
+          header: [S("filter__header"), "_title"].join(" "),
+          title: S("filter__title"),
+          body: S("filter__content")
+        }}
+      >
+        <div className={S("filter__fields")}>
+          <QueryInput />
+           {
+            parameters.map((spec, index) =>
+              <Select
+                searchable
+                clearable
+                key={`advanced-option-${index}`}
+                label={spec.title}
+                value={mediaPropertyStore.searchOptions.tracks?.[spec.track] || ""}
+                data={[
+                  { label: "All", value: ""},
+                  ...(mediaPropertyStore.aiSearchTrackOptions[spec.track] || [])
+                ]}
+                onChange={value =>
+                  mediaPropertyStore.SetSearchOption({
+                    field: "tracks",
+                    value: {
+                      ...(mediaPropertyStore.searchOptions.tracks || {}),
+                      [spec.track]: value
+                    }
+                  })}
+                classNames={inputClassnames}
+              />
+            )
+          }
+        </div>
+        <Group wrap="noWrap" grow className={S("filter__actions")}>
+          <Button
+            to={location.pathname === searchPath ? undefined : searchPath}
+            className={S("filter__action", "filter__action--primary")}
+            onClick={() => setShow(false)}
+          >
+            Done
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => mediaPropertyStore.ClearSearchOptions()}
+            defaultStyles
+            className={S("filter__action")}
+          >
+            Clear Filters
+          </Button>
+        </Group>
+      </Drawer>
+    </>
+  );
+});
+
 const SearchBar = observer(({autoFocus}) => {
   const [queryOptions, setQueryOptions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
-  const [lastSelectedAt, setLastSelectedAt] = useState(undefined);
   const [debouncedQuery] = useDebouncedValue(query, 250);
   const searchRef = useRef();
   const history = useHistory();
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  const aiSearchEnabled =
+    mediaProperty?.metadata?.search?.ai_options?.enable_ai_search &&
+    mediaProperty?.metadata?.search?.ai_options?.index_id;
+
+  const UpdateQueryParams = (query, force) => {
+    if(!force && !window.location.pathname.endsWith("/search")) {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+
+    url.searchParams.set("q", query);
+    if(mediaPropertyStore.searchMode === "clip") {
+      url.searchParams.set("m", "clip");
+    }
+
+    window.history.pushState(null, "", url.toString());
+
+    mediaPropertyStore.SetSearchOption({field: "query", value: query});
+  };
+
+  useEffect(() => {
+    const text = new URLSearchParams(window.location.search).get("q");
+
+    if(text) {
+      setQuery(text);
+    }
+  }, [rootStore.route]);
 
   useEffect(() => {
     setQuery(mediaPropertyStore.searchOptions.query);
+    UpdateQueryParams(mediaPropertyStore.searchOptions.query);
   }, [mediaPropertyStore.searchOptions.query]);
 
   useEffect(() => {
@@ -286,7 +415,7 @@ const SearchBar = observer(({autoFocus}) => {
       setQueryOptions([]);
     } else {
       mediaPropertyStore.SearchMedia({...rootStore.routeParams, query: debouncedQuery})
-        .then(results => {
+        .then(({results}) => {
           setSearchResults(results);
           setQueryOptions(
             results
@@ -297,46 +426,52 @@ const SearchBar = observer(({autoFocus}) => {
     }
   }, [debouncedQuery]);
 
-  useEffect(() => {
-    // Clear search on page change unless page change was result of search
-    if(Date.now() - lastSelectedAt > 1000) {
-      setQuery("");
-    }
-  }, [rootStore.routeParams]);
-
   const basePath = MediaPropertyBasePath(rootStore.routeParams);
-  const Select = (selectedTitle) => {
-    mediaPropertyStore.ClearSearchOptions();
-    setLastSelectedAt(Date.now());
-    const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
+  const Select = (text, force) => {
+    if(mediaPropertyStore.searchOptions.query !== query) {
+      //mediaPropertyStore.ClearSearchOptions();
+    }
 
-    if(matchingResults.length === 1) {
-      const {id, category} = matchingResults[0];
-      const type = category === "collection" ? "c" : category === "list" ? "l" : "m";
+    const matchingResults = searchResults
+      .filter(result =>
+        result.title?.toLowerCase() === text?.toLowerCase()
+      );
 
-      history.push(UrlJoin(basePath, type, id));
+    if(mediaPropertyStore.searchMode === "default" && matchingResults.length === 1 && matchingResults[0]?.mediaItem?.type === "media") {
+      const {linkPath} = MediaPropertyLink({
+        match: {
+          params: rootStore.routeParams,
+          url: window.location.pathname
+        },
+        mediaItem: matchingResults[0]?.mediaItem,
+        navContext: "search"
+      });
+
+      history.push(linkPath);
     } else {
-      // No results or ambiguous match - Go to search page
-      const params = new URLSearchParams();
-      params.set("q", query);
-      mediaPropertyStore.SetSearchOption({field: "query", value: query});
-      history.push(UrlJoin(basePath, "search", "?" + params.toString()));
+      UpdateQueryParams(text, force);
     }
 
     searchRef?.current.blur();
   };
 
+  let autocompleteOptions = queryOptions;
+  if(mediaPropertyStore.searchMode === "clip") {
+    autocompleteOptions = (mediaPropertyStore.previousSearchQueries?.clip || [])
+      .filter(option => option.toLowerCase().includes(query?.toLowerCase()));
+
+    if(autocompleteOptions.length === 1 && autocompleteOptions[0]?.toLowerCase() === query?.toLowerCase()) {
+      autocompleteOptions = [];
+    }
+  }
+
   return (
     <div className={S("search-container")}>
-      {
-        rootStore.pageWidth > 800 ? null :
-          <ImageIcon icon={SearchIcon} className={S("search-container__icon")} />
-      }
       <Autocomplete
         onClick={() => {
-          if(!location.pathname.includes("/search")) {
+          if(mediaPropertyStore.searchMode === "default" && !location.pathname.includes("/search")) {
             mediaPropertyStore.ClearSearchOptions();
-            history.push(UrlJoin(basePath, "search"));
+            history.push(UrlJoin(basePath, "search", query ? `?q=${query}` : ""));
           }
         }}
         ref={searchRef}
@@ -347,34 +482,68 @@ const SearchBar = observer(({autoFocus}) => {
           if(event.key !== "Enter") { return; }
 
           // Enter key pressed - will fire if a dropdown item is selected, so need to wait and see if the path changed
-          const originalPath = location.pathname;
+          const originalQuery = new URLSearchParams(window.location.search).get("q");
           setTimeout(() => {
-            if(location.pathname === originalPath) {
-              Select(query);
+            const currentQuery = new URLSearchParams(window.location.search).get("q");
+            if(originalQuery === currentQuery) {
+              Select(query, true);
             }
           }, 250);
         }}
-        placeholder={queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search}
-        data={queryOptions}
+        placeholder={
+          mediaPropertyStore.searchMode === "clip" ?
+            mediaPropertyStore.rootStore.l10n.media_properties.header.ai_search :
+            queryOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search
+        }
+        data={autocompleteOptions}
         limit={50}
-        onOptionSubmit={Select}
+        onOptionSubmit={text => Select(text, true)}
         role="search"
-        rightSection={
-          rootStore.pageWidth < 800 ? null :
-            <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
-              <ImageIcon alt="search" icon={SearchIcon} />
+        leftSectionWidth={rootStore.pageWidth > 800 ? 100 : 30}
+        leftSection={
+          !aiSearchEnabled ? null :
+            <button
+              onClick={event => {
+                event.preventDefault();
+                event.stopPropagation();
+                mediaPropertyStore.ToggleAISearchMode(
+                  mediaPropertyStore.searchMode === "default" ? "clip" : "default"
+                );
+
+                Select(query);
+              }}
+              className={S("search__ai-toggle", mediaPropertyStore.searchMode === "clip" ? "search__ai-toggle--active" : "")}
+            >
+              <ImageIcon icon={AISparkleIcon} />
+              <MantineSwitch
+                size="xs"
+                checked={mediaPropertyStore.searchMode === "clip"}
+                classNames={{
+                  root: S("search__ai-switch"),
+                  track: S("search__ai-switch-track"),
+                }}
+              />
             </button>
+        }
+        rightSection={
+          <button className={S("search__submit")} onClick={() => Select(query, true)} aria-label="Submit">
+            <ImageIcon alt="search" icon={SearchIcon} />
+          </button>
         }
         rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
         classNames={{
-          root: S("search"),
+          root: S("search", aiSearchEnabled ? "search--ai" : "search--standard"),
           input: S("search__input"),
           dropdown: S("search__dropdown"),
           options: S("search__options"),
           option: S("search__option")
         }}
       />
-      <AdvancedSearch query={query} setQuery={setQuery} />
+      {
+        mediaPropertyStore.searchMode === "clip" ?
+          <AIAdvancedSearch query={query} setQuery={setQuery} /> :
+          <AdvancedSearch query={query} setQuery={setQuery} />
+      }
     </div>
   );
 });
@@ -441,8 +610,7 @@ const LanguageMenu = observer(() => {
   );
 });
 
-const HeaderLinks = observer(({discoverDisabled}) => {
-  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
+const HeaderButtons = observer(({basePath, searchDisabled, showSearchBar, setShowSearchBar}) => {
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
 
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
@@ -471,14 +639,19 @@ const HeaderLinks = observer(({discoverDisabled}) => {
 
     return (
       <>
-        { customButtons }
+        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
+        {customButtons}
         {
-          discoverDisabled ? null :
-            <Linkish to="/" className={S("button")}>
-              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
+          searchDisabled || showSearchBar || rootStore.currentPath?.endsWith("/search") ? null :
+            <Linkish to={UrlJoin(basePath, "search")} onClick={() => setShowSearchBar?.(true)} className={S("button")}>
+              <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </Linkish>
         }
         <LanguageMenu/>
+        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+          <ImageIcon icon={MenuIcon} label="Show Settings Menu" className={S("button__icon")}/>
+          <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")}/>
+        </button>
         <Button
           onClick={async () => {
             const useOpenId = !!(mediaProperty?.metadata?.login?.settings?.use_openid && mediaProperty?.metadata?.login?.settings?.openid_endpoint);
@@ -494,34 +667,36 @@ const HeaderLinks = observer(({discoverDisabled}) => {
           }}
           className={S("sign-in")}
         >
-          { rootStore.l10n.login.sign_in }
+          {rootStore.l10n.login.sign_in}
         </Button>
       </>
     );
   } else {
     return (
       <>
-        { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
-        { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
-        { customButtons }
         {
-          discoverDisabled ? null :
-            <Linkish to="/" className={S("button")}>
-              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
+          searchDisabled || showSearchBar || rootStore.currentPath?.endsWith("/search") ? null :
+            <Linkish to={UrlJoin(basePath, "search")} onClick={() => setShowSearchBar?.(true)} className={S("button")}>
+              <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </Linkish>
         }
-        <LanguageMenu />
-        <button
-          className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
-          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
-        >
-          <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
-          <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
-        </button>
+        {customButtons}
+        <LanguageMenu/>
         <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
-          <ImageIcon icon={MenuIcon} label="Show Profile Menu" className={S("button__icon")} />
+          <ImageIcon
+            icon={
+              DefaultProfileImage({
+                address: rootStore.userInfo.address,
+                email: rootStore.userInfo.email,
+                name: rootStore.userInfo.name
+              })
+            }
+            label="Show Profile Menu"
+            className={S("button__profile-icon")}
+          />
           <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
         </button>
+        {!showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)}/>}
       </>
     );
   }
@@ -660,52 +835,146 @@ const PropertySelector = observer(({logo, basePath, mobile = false}) => {
   );
 });
 
-const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, searchDisabled}) => {
+const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, scrolled, searchDisabled}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   if(showSearchBar) {
     return (
-      <div key="header-search" className={S("header-mobile", "header-mobile--search", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
-        <SearchBar autoFocus />
+      <div
+        autoFocus
+        key="header-search"
+        className={
+          S(
+            "header-mobile",
+            "header-mobile--search",
+            scrolled ? "header-mobile--scrolled" : "",
+            rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : ""
+          )
+        }
+      >
+        <div className={S("header__background")}/>
+        <SearchBar autoFocus/>
         <button className={S("button")} onClick={() => setShowSearchBar(false)}>
-          <ImageIcon icon={XIcon} label="Cancel Search" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Cancel Search" className={S("button__icon")}/>
         </button>
       </div>
     );
   }
 
   return (
-    <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
+    <div
+      key="header"
+      className={
+        S(
+          "header-mobile",
+          scrolled ? "header-mobile--scrolled" : "",
+          rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : ""
+        )
+      }
+    >
+      <div className={S("header__background")}/>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
           !rootStore.backPath || discoverDisabled ?
-            <PropertySelector logo={logo} basePath={basePath} mobile /> :
+            <PropertySelector logo={logo} basePath={basePath} mobile/> :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
-              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")}/>
             </Linkish>
         }
       </div>
-      <div className={S("links")}>
+      <div className={S("buttons")}>
         {
           searchDisabled ? null :
             <button className={S("button")} onClick={() => setShowSearchBar(true)}>
               <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
             </button>
         }
-        <HeaderLinks discoverDisabled={discoverDisabled} />
+        <HeaderButtons
+          basePath={basePath}
+          searchDisabled
+        />
       </div>
     </div>
   );
 });
 
+const HeaderLinks = observer(({mediaProperty}) => {
+  const headerLinks = (mediaProperty.metadata?.header_links || [])
+    .filter(link => mediaPropertyStore.ActionVisible({
+      visibility: link.visibility,
+      behavior: link.behavior,
+      permissions: link.permissions
+    }));
+
+  return (
+    <div className={S("header-links")}>
+      {
+        headerLinks.map(link =>
+          <RenderAction
+            key={link.id}
+            action={link}
+            Component={params =>
+              <Linkish
+                {...params}
+                style={
+                  !CSS.supports("color", link.text_color) ? {} :
+                    {"--text-color": link.text_color}
+                }
+                className={S("header-links__link")}
+              >
+                <ImageIcon className={S("header-links__link-icon")} icon={link.icon?.url || ""} label={link.text} />
+                {link.text}
+              </Linkish>
+            }
+          />
+        )
+      }
+    </div>
+  );
+});
+
+let lastPageHeight = document.body.scrollHeight;
 const MediaPropertyHeader = observer(() => {
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setScrolled(false);
+
+    // Handle scroll change and whether the header should have a background
+    const ScrollFade = Debounce(() => {
+      const newPageHeight = document.querySelector("body").scrollHeight;
+      const scrollPosition = window.scrollY;
+      try {
+        if(newPageHeight !== lastPageHeight) {
+          // Page height changed - probably scrolled due to content change, ignore
+          return;
+        }
+
+        setScrolled(scrollPosition > 0);
+      } finally {
+        lastPageHeight = newPageHeight;
+      }
+    }, 50);
+
+    document.addEventListener("scroll", ScrollFade);
+
+    return () => document.removeEventListener("scroll", ScrollFade);
+  }, []);
+
+  useEffect(() => {
+    setShowSearchBar(rootStore.currentPath.endsWith("/search"));
+    setScrolled(false);
+  }, [rootStore.currentPath]);
 
   if(!mediaProperty) { return null; }
 
   const discoverDisabled = rootStore.isCustomDomain || mediaProperty?.metadata?.domain?.hide_home_button;
-  const searchDisabled = mediaProperty.metadata.search?.disabled ||
-    (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated);
+  const searchDisabled = (
+    mediaProperty.metadata.search?.disabled ||
+    (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated)
+  );
 
   const logo = SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300});
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
@@ -717,9 +986,10 @@ const MediaPropertyHeader = observer(() => {
     });
   }
 
-  if(rootStore.pageWidth < 800) {
+  if(rootStore.pageWidth < 850) {
     return (
       <MediaPropertyMobileHeader
+        scrolled={scrolled}
         discoverDisabled={discoverDisabled}
         logo={logo}
         basePath={basePath}
@@ -734,7 +1004,16 @@ const MediaPropertyHeader = observer(() => {
   }
 
   return (
-    <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
+    <div
+      className={
+        S(
+          "header",
+          scrolled ? "header--scrolled" : "",
+          rootStore.routeParams.mediaItemSlugOrId ? "header--media" : ""
+        )
+      }
+    >
+      <div className={S("header__background")} />
       <div className={S("nav")}>
         {
           !backPath || discoverDisabled ? null :
@@ -745,12 +1024,17 @@ const MediaPropertyHeader = observer(() => {
         <PropertySelector logo={logo} basePath={basePath} />
       </div>
       {
-        searchDisabled ?
-          <div className={S("search-container--placeholder")} /> :
-          <SearchBar/>
+        searchDisabled || !showSearchBar ?
+          <HeaderLinks mediaProperty={mediaProperty} /> :
+          <SearchBar autoFocus />
       }
-      <div className={S("links")}>
-        <HeaderLinks discoverDisabled={discoverDisabled} />
+      <div className={S("buttons")}>
+        <HeaderButtons
+          basePath={basePath}
+          showSearchBar={showSearchBar}
+          setShowSearchBar={setShowSearchBar}
+          searchDisabled={searchDisabled}
+        />
       </div>
     </div>
   );

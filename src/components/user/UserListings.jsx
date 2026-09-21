@@ -1,0 +1,19 @@
+import React from "react";
+import {observer} from "mobx-react";
+import {useRouteMatch} from "react-router-dom";
+import {rootStore} from "@/stores";
+import Listings from "@/components/listings/Listings";
+
+const UserListings = observer(() => {
+  const match = useRouteMatch();
+  const userProfile = rootStore.userProfiles[match.params.userId];
+
+  return (
+    <Listings
+      includeActivity={false}
+      initialFilters={{sellerAddress: userProfile.userAddress, includeCheckoutLocked: true}}
+    />
+  );
+});
+
+export default UserListings;

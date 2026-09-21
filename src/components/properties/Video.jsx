@@ -1,12 +1,12 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {forwardRef, useEffect, useRef, useState} from "react";
-import {LinkTargetHash} from "../../utils/Utils";
-import {rootStore, mediaPropertyStore, mediaStore} from "Stores";
+import {LinkTargetHash} from "@/utils/Utils";
+import {rootStore, mediaPropertyStore, mediaStore} from "@/stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import XIcon from "Assets/icons/x.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -18,6 +18,7 @@ const Video = forwardRef(function VideoComponent({
   contentInfo={},
   playerOptions={},
   playoutParameters={},
+  ignoreClipping=false,
   posterImage,
   isLive,
   callback,
@@ -56,11 +57,12 @@ const Video = forwardRef(function VideoComponent({
   }, [saveSettings, settingsUpdateKey, !!player]);
 
   useEffect(() => {
+    objectId = objectId || link?.objectId;
     if(link) {
       versionHash = LinkTargetHash(link);
     }
 
-    if(!versionHash) { return; }
+    if(!versionHash && !objectId) { return; }
 
     mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
       .then(setContentHash);
@@ -88,18 +90,26 @@ const Video = forwardRef(function VideoComponent({
       }
     }
 
+    let startTime;
+    if(ignoreClipping) {
+      startTime = playoutParameters.clipStart;
+      delete playoutParameters.clipStart;
+      delete playoutParameters.clipEnd;
+    }
+
     let startProgress = saveProgress && mediaPropertyStore.GetMediaProgress({mediaPropertySlugOrId, mediaItemId});
 
     if(startProgress > 0.95) {
       startProgress = 0;
     }
 
-    if(!player && saveSettings) {
+    if(saveSettings) {
       try {
         const savedSettings = JSON.parse(localStorage.getItem("video-settings") || "{}");
 
         mute = mute || savedSettings.muted;
-      } catch(error) { /* empty */ }
+      // eslint-disable-next-line no-unused-vars
+      } catch(error) {}
     }
 
     // TODO: Remove
@@ -142,6 +152,10 @@ const Video = forwardRef(function VideoComponent({
           watermark: EluvioPlayerParameters.watermark.OFF,
           verifyContent: EluvioPlayerParameters.verifyContent.ON,
           capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize[rootStore.pageWidth <= 720 ? "ON" : "OFF"],
+          dashjsOptions: {
+            selectionModeForInitialTrack: "highestBitrate",
+          },
+          startTime,
           startProgress,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
@@ -184,7 +198,7 @@ const Video = forwardRef(function VideoComponent({
 
       player.controls.RegisterVideoEventListener("volumechange", () => setSettingsUpdateKey(Math.random()));
     });
-  }, [targetRef, contentId, showVertical]);
+  }, [targetRef, contentId, ignoreClipping, showVertical]);
 
   useEffect(() => {
     if(!player) { return; }

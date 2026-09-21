@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
-import {Linkish, QRCodeElement} from "Components/common/UIComponents";
-import {SHA512} from "../../utils/Utils";
-import {Button} from "Components/properties/Common";
+import {rootStore} from "@/stores";
+import {Linkish, QRCodeElement} from "@/components/common/UIComponents";
+import {SHA512} from "@/utils/Utils";
+import {Button} from "@/components/properties/Common";
 import {ElvClient, ElvWalletClient} from "@eluvio/elv-client-js";
 
 const nonce = "TESTNONCE";

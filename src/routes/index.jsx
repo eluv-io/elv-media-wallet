@@ -1,0 +1,525 @@
+import React, {useEffect, useState} from "react";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import Profile from "@/components/profile";
+import UrlJoin from "url-join";
+import Listings from "@/components/listings/Listings";
+import {PackOpenStatus} from "@/components/marketplace/MintingStatus";
+import UserListings from "@/components/user/UserListings";
+import UserItems from "@/components/user/UserItems";
+import {Link, Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
+import {ErrorBoundary} from "@/components/common/ErrorBoundary";
+import {LoginGate} from "@/components/common/LoginGate";
+import {observer} from "mobx-react";
+import UserProfileContainer from "@/components/profile/UserProfileContainer";
+import UserActivity from "@/components/user/UserActivity";
+import {PageLoader} from "@/components/common/Loaders";
+import Notifications from "@/components/header/NotificationsMenu";
+import UserGifts from "@/components/user/UserGifts";
+
+import MediaPropertyPage from "@/components/properties/MediaPropertyPage";
+import MediaPropertySectionPage from "@/components/properties/MediaPropertySection";
+import MediaPropertyMediaPage from "@/components/properties/MediaPropertyMediaPage";
+import MediaPropertySearchPage from "@/components/properties/MediaPropertySearchPage";
+import ItemDetailsPage from "@/components/properties/ItemDetailsPage";
+import RedeemableOfferModal from "@/components/properties/RedeemableOfferModal";
+import EmailVerification from "@/components/login/EmailVerification";
+import FAQ from "@/components/properties/FAQ";
+import Subscription from "@/components/profile/Subscription";
+import CodeLoginTest from "@/components/login/CodeLoginTest";
+import {PurchaseGate} from "@/components/properties/Common";
+import MediaPropertyHeader from "@/components/properties/MediaPropertyHeader.jsx";
+
+const GetProperty = (match) => {
+  return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+};
+
+const GetNFT = (match) => {
+  return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
+};
+
+const TokenRoutes = basePath => {
+  return [
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "" },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId", noBreadcrumb: true, noBlock: true, Component: ItemDetailsPage, backPath: "" },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "" },
+  ]
+    .map(route => ({...route, path: UrlJoin(basePath, route.path), backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath }));
+};
+
+const UserRoutes = () => {
+  return [
+    {
+      name: "Subscriptions",
+      path: "details/subscriptions/:subscriptionId",
+      backPath: "details",
+      Component: Subscription
+    },
+    {
+      name: "Subscriptions",
+      path: "items/subscriptions/:subscriptionId",
+      backPath: "items",
+      Component: Subscription
+    },
+
+    { name: "Listings", path: "listings", includeUserProfile: true, backPath: "/", Component: UserListings },
+    { name: "Listings", path: "listings/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/listings" },
+    { name: "Listings", path: "listings/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/listings" },
+
+    { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+    { name: "Activity", path: "activity/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/activity" },
+    { name: "Activity", path: "activity/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/activity" },
+    { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true, authed: true },
+    { name: "Gifts", path: "gifts", Component: UserGifts, includeUserProfile: true, authed: true },
+    { name: "Details", path: "details", Component: Profile, includeUserProfile: true, authed: true },
+
+    { name: "Items", includeUserProfile: match => match.params.userId !== "me", path: "items", Component: UserItems },
+
+    ...TokenRoutes("items"),
+    ...TokenRoutes("listings"),
+
+    { path: "/", includeUserProfile: true, redirect: "items" },
+  ]
+    .map(route => ({
+      ...route,
+      navigationKey: "user",
+      locationType: "user",
+      loadUser: true,
+      path: UrlJoin("users", ":userId", route.path),
+      backPath: route.backPath && UrlJoin("users", ":userId", route.backPath)
+    }));
+};
+
+
+const PropertyMediaRoutes = (basePath="") => {
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
+  return [
+    { path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
+    { path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage, backPath: "l/:mediaListSlugOrId" },
+    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage, backPath: "c/:mediaCollectionSlugOrId?l=:mediaListSlugOrId" },
+  ].map(route => ({...route, name: GetPropertyPageTitle, backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath, noBlock: true}));
+};
+
+const PropertyRoutes = ({basePath="/", rootPath="/", authed, additionalRoutes=[]}) => {
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
+
+  // All possible permutations of property or parent property/subproperty with or without page slug/id
+  const propertyPaths = [
+    { path: ":mediaPropertySlugOrId", backPath: rootPath },
+    { path: ":mediaPropertySlugOrId/:pageSlugOrId", backPath: ":mediaPropertySlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId", backPath: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/" },
+    { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId" }
+  ];
+
+  const prefixPaths = propertyPaths.map(({path}) => path);
+
+  return [
+    // Search
+    ...((prefixPaths.map(path => [
+      { path: UrlJoin(basePath, path, "search"), Component: MediaPropertySearchPage, backPath: UrlJoin(basePath, path) },
+    ])).flat()),
+
+    // Media within section
+    ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path, "s/:sectionSlugOrId"))).flat())),
+
+    // Media without section
+    ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path))).flat())),
+
+    // Section pages
+    ...(prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "s/:sectionSlugOrId"),
+      backPath: UrlJoin(basePath, path),
+      Component: MediaPropertySectionPage
+    }))),
+
+    // Additional routes (item details)
+    ...additionalRoutes.map(route => [
+      ...prefixPaths.map(path =>
+        ({
+          ...route,
+          name: route.name || GetPropertyPageTitle,
+          path: UrlJoin(basePath, path, route.path),
+          backPath: UrlJoin(basePath, path)
+        })
+      )
+    ]).flat(),
+
+    // User routes
+    ...UserRoutes().map(route => [
+      ...(prefixPaths.map(path =>
+        ({
+          ...route,
+          path: UrlJoin(basePath, path, route.path),
+          includePageBlock: true,
+          backPath: UrlJoin(basePath, path, route.backPath || "")
+        })
+      ))
+    ]).flat(),
+
+    // Email Verification
+    ...prefixPaths.map(path => ({
+      name: "Email Verification",
+      path: UrlJoin(basePath, path, "verify"),
+      backPath: UrlJoin(basePath, path),
+      Component: EmailVerification
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "faq"),
+      backPath: UrlJoin(basePath, path),
+      Component: FAQ
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "faq", ":slug"),
+      backPath: UrlJoin(basePath, path),
+      Component: FAQ
+    })),
+
+    // Listings
+    ...prefixPaths.map(path => ({
+      name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item),
+      path: UrlJoin(basePath, path, "listings/:contractId/:tokenId/open"),
+      backPath: UrlJoin(basePath, path, "listings"),
+      includePageBlock: true,
+      Component: PackOpenStatus
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item),
+      path: UrlJoin(basePath, path, "listings/:contractId/:tokenId"),
+      backPath: UrlJoin(basePath, path, "listings"),
+      noBlock: true,
+      Component: ItemDetailsPage
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: "Listings",
+      path: UrlJoin(basePath, path, "listings"),
+      backPath: UrlJoin(basePath, path),
+      Component: Listings,
+      includePageBlock: true
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "code-login-test"),
+      backPath: UrlJoin(basePath, path),
+      Component: CodeLoginTest
+    })),
+
+    // Base property pages
+    ...(propertyPaths.map(({path, backPath}) => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path),
+      backPath,
+      Component: MediaPropertyPage
+    }))),
+  ].map(route => ({
+    ...route,
+    propertyRoute: true,
+    authed: route.authed || authed,
+    noBlock: route.noBlock || !route.includePageBlock
+  }));
+};
+
+const BundledPropertyRoutes = () => {
+  const basePath = "/m/:propertyItemContractId/:propertyItemTokenId/p";
+
+  return PropertyRoutes({
+    basePath,
+    rootPath: "/",
+    authed: true,
+    additionalRoutes: [
+      {path: "/details", Component: ItemDetailsPage, backPath: basePath}
+    ]
+  });
+};
+
+const UserRouteWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+  const [userNotFound, setUserNotFound] = useState(false);
+
+  useEffect(() => {
+    setUserNotFound(false);
+    rootStore.UserProfile({userId: match.params.userId})
+      .then(profile => {
+        if(!profile) {
+          setUserNotFound(true);
+        }
+      })
+      .catch(() => {
+        setUserNotFound(true);
+      });
+  }, [match.params.userId]);
+
+  if(match.params.userId === "me") {
+    return (
+      <LoginGate>
+        { children }
+      </LoginGate>
+    );
+  }
+
+  if(userNotFound) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            User not found
+          </h2>
+          <div className="actions-container">
+            <Link className="button action" to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "listings") : "/wallet/listings"}>
+              Back
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if(!rootStore.userProfiles[match.params.userId]) {
+    return <PageLoader />;
+  }
+
+  return children;
+});
+
+const RouteWrapper = observer(({routes, children}) => {
+  const match = useRouteMatch();
+  const [checkingSession, setCheckingSession] = useState(false);
+
+  useEffect(() => {
+    if(!rootStore.loggedIn) { return; }
+
+    setCheckingSession(true);
+
+    rootStore.CheckAuthSession()
+      .finally(() => setCheckingSession(false));
+  }, [match.path, rootStore.loggedIn]);
+
+  useEffect(() => {
+    const currentRoute = routes.find(route => match.path === route.path);
+
+    const breadcrumbs = routes
+      .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
+      .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
+      .map(route => {
+        route = { ...route };
+
+        Object.keys(match.params).map(key => route.path = route.path.replace(`:${key}`, match.params[key]));
+
+        return {
+          name: typeof route.name === "function" ? route.name(match) : route.name,
+          path: route.path
+        };
+      });
+
+    const title = breadcrumbs.slice(-1)[0]?.name;
+    if(title) {
+      document.title = title;
+    }
+
+    let navigationKey = currentRoute.navigationKey;
+    if(navigationKey === "shared") {
+      navigationKey = match.params.marketplaceId ? "marketplace" : "global";
+    }
+
+    rootStore.SetNavigationInfo({
+      navigationKey,
+      locationType: currentRoute.locationType,
+      marketplaceId: match.params.marketplaceId,
+      url: match.url,
+      path: match.path,
+      breadcrumbs
+    });
+
+    rootStore.SetRouteParams(match.params);
+    rootStore.SetBackPath(currentRoute.backPath);
+
+    if(currentRoute?.hideNavigation) {
+      rootStore.ToggleNavigation(false);
+      return () => rootStore.ToggleNavigation(true);
+    }
+  });
+
+  if(checkingSession || rootStore.signingOut) {
+    return <PageLoader />;
+  }
+
+  return children;
+});
+
+const PropertyRouteWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+  const permissions = mediaPropertyStore.ResolvePermission(match.params);
+  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+
+  if(
+    mediaProperty?.metadata?.require_login_for_media &&
+    match.params.mediaItemSlugOrId &&
+    !rootStore.loggedIn
+  ) {
+    return <LoginGate backPath={rootStore.backPath} />;
+  }
+
+  if(page?.permissions?.authorized && permissions?.authorized) {
+    return children;
+  }
+
+  return (
+    <PurchaseGate
+      routeParams={match.params}
+      purchasePageSettings={mediaProperty.metadata.purchase_page || {}}
+      noPurchaseAvailablePageSettings={mediaProperty.metadata.no_purchase_available_page || {}}
+      id={
+        !page?.permissions?.authorized ?
+          page.id :
+          permissions.causeId
+      }
+      permissions={
+        !page.permissions.authorized ?
+          page.permissions :
+          permissions
+      }
+    >
+      {children}
+    </PurchaseGate>
+  );
+});
+
+const GlobalWrapper = observer(({routes, children}) => {
+  const match = useRouteMatch();
+
+  const currentRoute = routes.find(route => match.path === route.path);
+
+  useEffect(() => {
+    rootStore.SetCurrentProperty(match.params.mediaPropertySlugOrId);
+  }, [match.params.mediaPropertySlugOrId]);
+
+  if(currentRoute?.redirect) {
+    return <Redirect to={UrlJoin(match.url, currentRoute.redirect)} />;
+  }
+
+  if(currentRoute?.noBlock) {
+    return (
+      <>
+        { children }
+        <RedeemableOfferModal />
+      </>
+    );
+  }
+
+  return (
+    <div className="page-block page-block--main-content" key={currentRoute?.routeKey || `main-content-${match.url}`}>
+      <div className="page-block__content">
+        {children}
+        <RedeemableOfferModal />
+      </div>
+    </div>
+  );
+});
+
+const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
+  let routes = [];
+  switch(routeList) {
+    case "property":
+      routes = [
+        ...PropertyRoutes({basePath: "/", rootPath: "/"})
+      ];
+
+      break;
+
+    case "bundledProperty":
+      routes = [
+        ...BundledPropertyRoutes()
+      ];
+
+      break;
+
+    default:
+      throw Error("Invalid route list: " + routeList);
+  }
+
+  routes = routes.map(route => ({
+    ...route,
+    path: UrlJoin(basePath, route.path),
+    backPath: route.backPath ? UrlJoin(basePath, route.backPath) : undefined
+  }));
+
+  return (
+    <Switch>
+      {
+        routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, propertyRoute, Component}) => {
+          let result = (
+            <GlobalWrapper routes={[...routes]}>
+              { Component ? <Component key={`component-${path}-${location.pathname}`} /> : null }
+            </GlobalWrapper>
+          );
+
+          if(propertyRoute) {
+            result = (
+              <PropertyRouteWrapper>
+                {result}
+              </PropertyRouteWrapper>
+            );
+          }
+
+          if(includeUserProfile) {
+            result = (
+              <UserProfileContainer includeUserProfile={includeUserProfile}>
+                {result}
+              </UserProfileContainer>
+            );
+          }
+
+          if(Wrapper) {
+            result = (
+              <Wrapper>
+                {result}
+              </Wrapper>
+            );
+          }
+
+          if(loadUser) {
+            result = (
+              <UserRouteWrapper>
+                {result}
+              </UserRouteWrapper>
+            );
+          }
+
+          if(authed) {
+            result = (
+              <LoginGate Condition={typeof authed === "function" ? authed : undefined} ignoreCapture={ignoreLoginCapture} to="/marketplaces">
+                { result }
+              </LoginGate>
+            );
+          }
+
+          return (
+            <Route exact={typeof exact === "undefined" ? true : exact} path={path} key={`wallet-route-${path}`}>
+              {
+                !propertyRoute ? null :
+                  <MediaPropertyHeader />
+              }
+              <ErrorBoundary>
+                <RouteWrapper routes={routes}>
+                  { result }
+                </RouteWrapper>
+              </ErrorBoundary>
+            </Route>
+          );
+        })
+      }
+    </Switch>
+  );
+});
+
+export default RenderRoutes;

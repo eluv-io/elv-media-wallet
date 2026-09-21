@@ -100,7 +100,7 @@ class NotificationStore {
 
           this.disabledNotificationTypes = disabledNotificationTypes;
           this.activeNotificationTypes = [...this.supportedNotificationTypes].filter(type => !this.disabledNotificationTypes.includes(type));
-          // eslint-disable-next-line no-empty
+        // eslint-disable-next-line no-unused-vars
         } catch(error) {}
       } else {
         this.activeNotificationTypes = [...this.supportedNotificationTypes];
@@ -116,7 +116,7 @@ class NotificationStore {
       if(notificationMarker) {
         try {
           this.notificationMarker = JSON.parse(notificationMarker);
-        // eslint-disable-next-line no-empty
+        // eslint-disable-next-line no-unused-vars
         } catch(error) {}
       }
     }

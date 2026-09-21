@@ -3,7 +3,13 @@
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: nowrap!important;
+}
+
+.ellipsis-pre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre!important;
 }
 
 .page-controls {
@@ -68,7 +74,7 @@
     user-select: none;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     &__ellipsis {
       display: none;
     }
@@ -111,8 +117,6 @@
 }
 
 .expandable-section {
-  @include component;
-
   box-shadow: var(--box-shadow-component);
   font-size: 14px;
   margin: 10px auto;
@@ -183,10 +187,9 @@
   min-height: 40px;
 
   &__content {
-    color: var(--color-component-text-highlight);
     font-size: 12px;
     max-width: calc(100% - 50px);
-    padding-right: 10px;
+    padding-right: 5px;
 
     * {
       font-size: 12px;
@@ -198,11 +201,11 @@
     border-radius: 8px;
     cursor: pointer;
     display: flex;
-    height: 25px;
+    height: 20px;
     justify-content: center;
     padding: 3px;
     transition: opacity 0.5s ease;
-    width: 35px;
+    width: 20px;
 
     svg {
       height: 100%;
@@ -216,10 +219,10 @@
 }
 
 .copy-button {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.07s ease;
 
   &--active {
-    opacity: 0.5;
+    opacity: 0.75;
   }
 }
 
@@ -286,10 +289,10 @@
   }
 
   .loader {
-    height: $action-height;
+    height: var(--action-height);
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     margin: 20px;
 
     .actions-container {
@@ -587,20 +590,19 @@
   }
 
   &__image {
-    @include page-fade-in(0.25s, linear);
+    animation: var(--animation-fade-in) 0.25s ease;
 
     &--zoomable {
       cursor: zoom-in;
     }
 
     &--hidden {
-      @include page-fade-out(0.25s, linear);
+      animation: var(--animation-fade-out) 0.25s ease;
     }
   }
 
   &__zoomed-image {
-    @include page-fade-in(0.25s, linear);
-
+    animation: var(--animation-fade-in) 0.25s ease;
     background-repeat: no-repeat;
     cursor: zoom-out;
     height: 100%;
@@ -612,8 +614,7 @@
     z-index: 100;
 
     &--hidden {
-      @include page-fade-out(0.25s, linear);
-
+      animation: var(--animation-fade-out) 0.25s ease;
       pointer-events: none;
     }
 

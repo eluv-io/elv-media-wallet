@@ -1,34 +1,39 @@
-import MediaStyles from "Assets/stylesheets/media_properties/property-media.module.scss";
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
+import MediaStyles from "@/assets/stylesheets/media_properties/property-media.module.scss";
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import { Redirect, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
+import {mediaPropertyStore, mediaStore, rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
-  MediaItemScheduleInfo, MediaPropertyLink
-} from "../../utils/MediaPropertyUtils";
-import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "Components/properties/Common";
+  MediaItemScheduleInfo,
+  MediaPropertyLink
+} from "@/utils/MediaPropertyUtils";
+import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "@/components/properties/Common";
 import Video from "./Video";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
-import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
-import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "Components/properties/MediaSidebar";
-import {Linkish} from "Components/common/UIComponents";
+import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
+import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "@/components/properties/MediaSidebar";
+import {CopyableField, Linkish} from "@/components/common/UIComponents";
 import {ActionIcon, Menu} from "@mantine/core";
 
-import MediaErrorIcon from "Assets/icons/media-error-icon";
-import MultiviewIcon from "Assets/icons/media/multiview";
-import DownloadIcon from "Assets/icons/download.svg";
-import VerticalIcon from "Assets/icons/media/vertical.svg";
-import AIDescriptionIcon from "Assets/icons/ai-description.svg";
-import XIcon from "Assets/icons/x";
+import MediaErrorIcon from "@/assets/icons/media-error-icon.svg";
+import MultiviewIcon from "@/assets/icons/media/multiview.svg";
+import DownloadIcon from "@/assets/icons/download.svg";
+import PlayIcon from "@/assets/icons/media/play.svg";
+import VerticalIcon from "@/assets/icons/media/vertical.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
+import ExitFullscreenIcon from "@/assets/icons/minimize.svg";
 
-const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
+import XIcon from "@/assets/icons/x.svg";
+
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaStyles[c] || "").join(" ");
 
 const HEADER_SEPARATOR = " · ";
 
@@ -36,8 +41,14 @@ const HEADER_SEPARATOR = " · ";
 
 const EndScreen = observer(({mediaItem, nextItem}) => {
   const match = useRouteMatch();
-  const [countdown, setCountdown] = useState(5.5);
+  const [countdown, setCountdown] = useState(5);
   const [redirect, setRedirect] = useState(false);
+  const navContext = new URLSearchParams(location.search).get("ctx");
+
+  const cardTheme = mediaPropertyStore.CardTheme({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    sectionSlugOrId: match.params.sectionSlugOrId || navContext
+  })?.cardTheme;
 
   useEffect(() => {
     const transitionAt = Date.now() + 5.5 * 1000;
@@ -56,7 +67,6 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
   }, []);
 
   if(nextItem && redirect) {
-    const navContext = new URLSearchParams(location.search).get("ctx");
     const linkPath = MediaPropertyLink({
       match,
       sectionItem: nextItem,
@@ -69,7 +79,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
 
   const display = nextItem?.mediaItem || nextItem?.display || {};
   return (
-    <div className={S("bumper", "bumper--next")}>
+    <div style={{...(cardTheme?.css || {})}} className={S("bumper", "bumper--next")}>
       <LoaderImage
         src={mediaItem?.thumbnail_image_landscape?.url}
         hash={mediaItem?.thumbnail_image_landscape_hash}
@@ -84,16 +94,23 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
               Up Next in {countdown + 1}
             </div>
             <div className={S("next__card")}>
-              <LoaderImage
-                src={display.thumbnail_image_landscape?.url}
-                hash={display.thumbnail_image_landscape_hash}
-                alt={display.title}
-                width={600}
-                className={S("next__card-thumbnail")}
-              />
+              <div
+                onClick={() => setRedirect(true)}
+                className={S("styled-card", "styled-card--no-transition", "styled-card--landscape", "next__card-image")}
+              >
+                <div className={S("styled-card__image-container")}>
+                  <LoaderImage
+                    src={display.thumbnail_image_landscape?.url}
+                    hash={display.thumbnail_image_landscape_hash}
+                    alt={display.title}
+                    width={600}
+                    className={S("styled-card__image")}
+                  />
+                </div>
+              </div>
               <div className={S("next__card-content")}>
                 <div className={S("next__card-title")}>
-                  { display.title }
+                  {display.title}
                 </div>
                 {
                   display.subtitle ? null :
@@ -125,6 +142,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
 
 const MediaVideo = observer(({
   mediaItem,
+  playFullVideo,
   playerProfile,
   display,
   videoRef,
@@ -149,11 +167,21 @@ const MediaVideo = observer(({
   const [loadKey, setLoadKey] = useState(0);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-  let backgroundImage = SetImageUrlDimensions({
-    url: (rootStore.pageWidth <= 800 && page?.layout?.background_image_mobile?.url) || page?.layout?.background_image?.url,
+
+  let backgroundImage = page?.layout?.background_image?.url;
+  let backgroundImageHash = page?.layout?.background_image_hash;
+
+  if(rootStore.pageWidth <= 850 && page?.layout?.background_image_mobile?.url) {
+    backgroundImage = page?.layout?.background_image_mobile?.url;
+    backgroundImageHash = page?.layout?.background_image_mobile_hash;
+  }
+
+  backgroundImage = SetImageUrlDimensions({
+    url: backgroundImage,
     width: rootStore.fullscreenImageWidth
-  });
-  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
+  }) || backgroundImage;
+
+  const {imageUrl, imageHash} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
   const multiviewing =
     // Multiview
@@ -164,19 +192,25 @@ const MediaVideo = observer(({
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     // Upcoming - countdown
+    if(rootStore.pageWidth < 850) {
+      if(rootStore.pageWidth < 850 && mediaItem?.countdown_background_mobile?.url) {
+        backgroundImage = mediaItem?.countdown_background_mobile?.url;
+        backgroundImageHash = mediaItem?.countdown_background_mobile_hash;
+      } else if(rootStore.pageWidth < 850 && mediaProperty.metadata?.countdown_background_mobile?.url) {
+        backgroundImage = mediaProperty.metadata?.countdown_background_mobile?.url;
+        backgroundImageHash = mediaProperty.metadata?.countdown_background_mobile_hash;
+      } else if(mediaItem?.countdown_background_desktop?.url) {
+        backgroundImage = mediaItem?.countdown_background_desktop?.url;
+        backgroundImageHash = mediaItem?.countdown_background_desktop_hash;
+      } else if(mediaProperty.metadata?.countdown_background_desktop?.url) {
+        backgroundImage = mediaProperty.metadata?.countdown_background_desktop?.url;
+        backgroundImageHash = mediaProperty.metadata?.countdown_background_desktop_hash;
+      }
+    }
 
     // Background image for countdown is either from media item, from property general settings, or the page background
     backgroundImage = SetImageUrlDimensions({
-      url:
-        (
-          rootStore.pageWidth <= 800 &&
-          (
-            mediaItem?.countdown_background_mobile?.url ||
-            mediaProperty.metadata?.countdown_background_mobile?.url
-          )
-        ) ||
-        mediaItem?.countdown_background_desktop?.url ||
-        mediaProperty.metadata?.countdown_background_desktop?.url,
+      url: backgroundImage,
       width: rootStore.fullscreenImageWidth
     }) || backgroundImage;
 
@@ -192,7 +226,8 @@ const MediaVideo = observer(({
         }
       >
         <LoaderImage
-          src={backgroundImage || imageUrl}
+          src={backgroundImage}
+          hash={backgroundImageHash}
           alt={mediaItem?.thumbnail_alt_text || mediaItem.title}
           className={S("media__error-image")}
         />
@@ -200,10 +235,11 @@ const MediaVideo = observer(({
         {
           icons.length === 0 ? null :
             <div className={S("media__error-content-icons")}>
-              {icons.map(({icon, alt_text}, index) =>
+              {icons.map(({icon, icon_hash, alt_text}, index) =>
                 <LoaderImage
                   key={`icon-${index}`}
                   src={icon.url}
+                  hash={icon_hash}
                   alt={alt_text}
                   className={S("media__error-content-icon")}
                 />
@@ -239,7 +275,12 @@ const MediaVideo = observer(({
     return (
       <div onClick={onClick} className={[S("media__error", multiviewing ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
-        <LoaderImage src={backgroundImage || imageUrl} alt={mediaItem.thumbnail_alt_text || mediaItem.title} className={S("media__error-image")} />
+        <LoaderImage
+          src={backgroundImage || imageUrl}
+          hash={backgroundImageHash || imageHash}
+          alt={mediaItem.thumbnail_alt_text || mediaItem.title}
+          className={S("media__error-image")}
+        />
         <div className={S("media__error-cover")} />
         <div className={S("media__error-message")}>
           {
@@ -274,6 +315,7 @@ const MediaVideo = observer(({
   return (
     <Video
       key={loadKey}
+      ignoreClipping={playFullVideo}
       ref={videoRef}
       link={mediaItem.media_link}
       isLive={display.live_video}
@@ -286,7 +328,7 @@ const MediaVideo = observer(({
       noReactiveMute={noReactiveMute}
       mediaPropertySlugOrId={mediaProperty.mediaPropertyId}
       mediaItemId={mediaItem.id}
-      saveProgress
+      saveProgress={!mediaItem.isSearchResult}
       playoutParameters={playoutParameters}
       endCallback={() => {
         // Set content ended
@@ -305,7 +347,8 @@ const MediaVideo = observer(({
         loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
         allowCasting: EluvioPlayerParameters.allowCasting[allowCasting ? "ON" : "OFF"],
         loadChapters: EluvioPlayerParameters.loadChapters.ON,
-        loadPoseOverlay: EluvioPlayerParameters.loadPoseOverlay.ON
+        loadPoseOverlay: EluvioPlayerParameters.loadPoseOverlay.ON,
+        showLoader: EluvioPlayerParameters.showLoader.OFF
       }}
       posterImage={
         SetImageUrlDimensions({
@@ -351,6 +394,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
   const primaryVideo = (
     <MediaVideo
       key={`media-${mediaStore.displayedContent[0].id}`}
+      playFullVideo={mediaStore.playFullVideo}
       saveSettings
       showVertical={showVertical}
       mediaItem={primaryMedia.mediaItem}
@@ -408,6 +452,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
   );
 });
 
+let exitFullscreenButtonVisibilityTimeout;
 const MediaVideoWithSidebar = observer(({
   mediaItem,
   display,
@@ -416,9 +461,18 @@ const MediaVideoWithSidebar = observer(({
 }) => {
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenCloseButton, setShowFullscreenCloseButton] = useState(true);
 
   let streamLimit = rootStore.pageWidth > 1400 ? 16 :
     rootStore.pageWidth > 850 ? 9 : 8;
+
+  useEffect(() => {
+    clearTimeout(exitFullscreenButtonVisibilityTimeout);
+
+    exitFullscreenButtonVisibilityTimeout = setTimeout(() => {
+      setShowFullscreenCloseButton(false);
+    }, 5000);
+  }, [showFullscreenCloseButton]);
 
   useEffect(() => {
     if(window.innerWidth < 850 || window.innerHeight < 600) {
@@ -427,7 +481,10 @@ const MediaVideoWithSidebar = observer(({
   }, [rootStore.pageWidth, rootStore.pageHeight]);
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      setShowFullscreenCloseButton(!!document.fullscreenElement);
+    };
 
     document.addEventListener("fullscreenchange", onChange);
 
@@ -460,7 +517,7 @@ const MediaVideoWithSidebar = observer(({
           }
         };
       } else {
-        const mediaItem = mediaPropertyStore.media[item.id];
+        const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: item.id});
 
         if(!mediaItem) {
           return;
@@ -479,12 +536,32 @@ const MediaVideoWithSidebar = observer(({
     media = (
       <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
         <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
+        {
+          !isFullscreen ? null :
+            <button
+              onClick={() => document.exitFullscreen()}
+              title="Exit Fullscreen"
+              className={S("media__fullscreen-exit-button", showFullscreenCloseButton ? "media__fullscreen-exit-button--visible" : "")}
+            >
+              <ImageIcon icon={ExitFullscreenIcon}/>
+              Exit Fullscreen
+            </button>
+        }
       </div>
     );
   } else {
     media = (
       <div
-        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}>
+        onMouseMove={
+          !isFullscreen ? undefined :
+            () => setShowFullscreenCloseButton(true)
+        }
+        onClick={
+          !isFullscreen ? undefined :
+            () => setShowFullscreenCloseButton(true)
+        }
+        className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}
+      >
         <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
@@ -492,6 +569,7 @@ const MediaVideoWithSidebar = observer(({
                 key={`media-${item.id}`}
                 capLevelToPlayerSize
                 mute={index > 0}
+                playFullVideo={mediaStore.playFullVideo && index === 0}
                 saveSettings={index === 0}
                 showVertical={index === 0 && showVertical}
                 noReactiveMute
@@ -526,6 +604,17 @@ const MediaVideoWithSidebar = observer(({
                 }
                 nextItem={mediaStore.sidebarContent.nextItem}
               />
+          }
+          {
+            !isFullscreen ? null :
+              <button
+                onClick={() => document.exitFullscreen()}
+                title="Exit Fullscreen"
+                className={S("media__fullscreen-exit-button", showFullscreenCloseButton ? "media__fullscreen-exit-button--visible" : "")}
+              >
+                <ImageIcon icon={ExitFullscreenIcon}/>
+                Exit Fullscreen
+              </button>
           }
         </div>
       </div>
@@ -581,6 +670,7 @@ const GalleryContent = observer(({galleryItem}) => {
     <LoaderImage
       loaderHeight="100%"
       src={galleryItem.image?.url || galleryItem.thumbnail?.url}
+      hash={galleryItem.image_hash || galleryItem.thumbnail_hash}
       lazy={false}
       alt={galleryItem.title || ""}
       loaderAspectRatio={
@@ -650,6 +740,7 @@ const MediaGallery = observer(({mediaItem}) => {
                 width={400}
                 key={`gallery-item-${item.id}`}
                 src={item.thumbnail?.url}
+                hash={item.thumbnail_hash}
                 alt={item.title || ""}
                 loaderAspectRatio={
                   item.thumbnail_aspect_ratio === "Portrait" ? "2 / 3" :
@@ -844,15 +935,21 @@ const Media = observer(({
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
-    const imageUrl = mediaItem.image?.url || MediaItemImageUrl({
+    let {imageUrl, imageHash} = MediaItemImageUrl({
       mediaItem,
       aspectRatio: mediaItem.image_aspect_ratio
-    })?.imageUrl;
+    });
+
+    if(mediaItem.image?.url) {
+      imageUrl = mediaItem.image.url;
+      imageHash = mediaItem.image_hash;
+    }
 
     return (
       <div className={S("media", "image")}>
         <LoaderImage
           src={imageUrl}
+          hash={imageHash}
           lazy={false}
           alt={mediaItem?.thumbnail_alt_text || mediaItem?.title}
           loaderHeight="100%"
@@ -898,6 +995,7 @@ const MediaPropertyMediaPage = observer(() => {
   const [updateIndex, setUpdateIndex] = useState(0);
   const match = useRouteMatch();
   const primaryMediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
+  const [contentElement, setContentElement] = useState();
 
   const mediaItem = !mediaStore.displayedContent[0] ? primaryMediaItem :
     mediaPropertyStore.MediaPropertyMediaItem({
@@ -907,17 +1005,24 @@ const MediaPropertyMediaPage = observer(() => {
 
   const context = new URLSearchParams(location.search).get("ctx");
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-  const mediaHash = LinkTargetHash(mediaItem.media_link);
+  const mediaHash = LinkTargetHash(mediaItem?.media_link);
   const mediaId = mediaHash && rootStore.client.utils.DecodeVersionHash(mediaHash)?.objectId;
 
   useEffect(() => {
+    if(!mediaItem) { return; }
+
     mediaStore.Reset();
     mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
-    mediaPropertyStore.SidebarContent({
-      ...match.params,
-      sectionSlugOrId: match.params.sectionSlugOrId || context
-    })
-      .then(content => mediaStore.SetSidebarContent(content));
+
+    if(context === "search" || primaryMediaItem.isSearchResult) {
+      mediaStore.SetSidebarContent(mediaPropertyStore.SearchSidebarContent());
+    } else {
+      mediaPropertyStore.SidebarContent({
+        ...match.params,
+        sectionSlugOrId: match.params.sectionSlugOrId || context
+      })
+        .then(content => mediaStore.SetSidebarContent(content));
+    }
 
     return () => mediaStore.Reset();
   }, [updateIndex]);
@@ -958,11 +1063,11 @@ const MediaPropertyMediaPage = observer(() => {
       mediaStore.LoadMediaTags({
         versionHash: mediaHash,
         offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
-        clipStart: mediaItem.media_link_info?.clip_start_time,
-        clipEnd: mediaItem.media_link_info?.clip_end_time
+        clipStart: mediaStore.playFullVideo ? undefined : mediaItem.media_link_info?.clip_start_time,
+        clipEnd: mediaStore.playFullVideo ? undefined : mediaItem.media_link_info?.clip_end_time
       });
     }
-  }, [mediaHash, mediaStore.availablePlayers[mediaId]]);
+  }, [mediaHash, mediaStore.availablePlayers[mediaId], mediaStore.playFullVideo]);
 
   if(!mediaItem) {
     return <Redirect to={rootStore.backPath} />;
@@ -999,10 +1104,18 @@ const MediaPropertyMediaPage = observer(() => {
                 {rootStore.l10n.media_properties.media.errors.unauthorized}
               </div>
           }
+          {
+            // TODO: REMOVE
+            mediaItem?.objectId
+          }
         </div>
       </div>
     );
   } else {
+    // TODO: Remove
+    const objectId = !mediaItem?.media_link?.["/"] ? null :
+      mediaPropertyStore.client.utils.DecodeVersionHash(LinkTargetHash(mediaItem.media_link["/"]))?.objectId;
+
     const textContent = (
       !(hasText || !hasDescription) ? null :
         <div key={`media-info-${mediaItem.id}`} className={S("media-info")}>
@@ -1053,6 +1166,34 @@ const MediaPropertyMediaPage = observer(() => {
                             variant="outline"
                             className={S("download-menu__button", mediaStore.showVertical ? "download-menu__button--active" : "")}
                           >
+                          </Button>
+                    }
+                    {
+                      !mediaItem.isSearchResult ? null :
+                        rootStore.pageWidth < 850 ?
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => mediaStore.SetPlayFullVideo(!mediaStore.playFullVideo)}
+                            title={mediaStore.playFullVideo ? "Play Clip" : "Play Full Length"}
+                            p={5}
+                            color={
+                              mediaStore.playFullVideo ?
+                                "var(--property-border-color-secondary)" :
+                                "var(--property-border-color)"
+                            }
+                            size={30}
+                            className={S("icon-button", "icon-button--dark")}
+                          >
+                            <ImageIcon icon={PlayIcon} />
+                          </ActionIcon> :
+                          <Button
+                            title={mediaStore.playFullVideo ? "Play Clip" : "Play Full Length"}
+                            onClick={() => mediaStore.SetPlayFullVideo(!mediaStore.playFullVideo)}
+                            rightIcon={PlayIcon}
+                            variant="outline"
+                            className={S("download-menu__button", mediaStore.playFullVideo ? "download-menu__button--active" : "")}
+                          >
+                            { mediaStore.playFullVideo ? "PLAY CLIP" : "PLAY FULL LENGTH"}
                           </Button>
                     }
                     {
@@ -1110,8 +1251,13 @@ const MediaPropertyMediaPage = observer(() => {
                     </div>
                 }
                 {
-                  !display.subtitle ? null :
-                    <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+                  !display.subtitle ?
+                    <CopyableField value={objectId} className={S("media-text__subtitle")}>
+                      {objectId}
+                    </CopyableField> :
+                    <h2 className={S("media-text__subtitle")}>
+                      {display.subtitle}
+                    </h2>
                 }
               </div>
           }
@@ -1129,7 +1275,11 @@ const MediaPropertyMediaPage = observer(() => {
     );
 
     content = (
-      <div className={S("media-page", sidebarAvailable ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
+      <div
+        // Don't show bottom content until main media has rendered
+        ref={element => setTimeout(() => setContentElement(element), 500)}
+        className={S("media-page", sidebarAvailable ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}
+      >
         <div className={S("media-container")}>
           <Media
             showVertical={showVertical}
@@ -1149,11 +1299,14 @@ const MediaPropertyMediaPage = observer(() => {
   return (
     <>
       { content }
-      <MediaPropertyPageContent
-        isMediaPage
-        params={match.params}
-        sections={page.layout?.sections}
-      />
+      {
+        !contentElement ? null :
+          <MediaPropertyPageContent
+            isMediaPage
+            params={match.params}
+            sections={page.layout?.sections}
+          />
+      }
     </>
   );
 });

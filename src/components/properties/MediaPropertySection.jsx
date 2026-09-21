@@ -1,49 +1,45 @@
-import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
+import SectionStyles from "@/assets/stylesheets/media_properties/property-section.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore, rootStore} from "Stores";
-import MediaCard, {ButtonCard} from "Components/properties/MediaCards";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import MediaCard, {ButtonCard} from "@/components/properties/MediaCards";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 import {
-  AttributeFilter,
   Button,
   Carousel,
   PageBackground,
   PageContainer,
-  PageHeader
-} from "Components/properties/Common";
+  PageHeader,
+  RenderAction
+} from "@/components/properties/Common";
 
-import RightArrow from "Assets/icons/right-arrow";
-import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
-import {LoginGate} from "Components/common/LoginGate";
+import RightArrow from "@/assets/icons/right-arrow.svg";
+import {NFTInfo, ScrollTo, SetImageUrlDimensions} from "@/utils/Utils";
+import {LoginGate} from "@/components/common/LoginGate";
 import {
   CreateMediaPropertyPurchaseParams,
   MediaItemImageUrl,
-  MediaPropertyBasePath,
-  MediaPropertyLink,
-  PurchaseParamsToItems
-} from "../../utils/MediaPropertyUtils";
-import Modal from "Components/common/Modal";
-import Video from "Components/properties/Video";
-import Filters from "Components/properties/Filters";
-import {FormatPriceString} from "Components/common/UIComponents";
-import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
+  MediaPropertyBasePath
+} from "@/utils/MediaPropertyUtils";
+import Filters, {AttributeFilter} from "@/components/properties/Filters";
+import {FormatPriceString} from "@/components/common/UIComponents";
+import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
 
-import LeftArrow from "Assets/icons/left-arrow";
-import PoweredByImage from "Assets/images/apps/Eluvio";
-import RokuImage from "Assets/images/apps/roku";
-import AmazonImage from "Assets/images/apps/amazon";
-import AndroidImage from "Assets/images/apps/android";
-import AppleImage from "Assets/images/apps/apple";
+import LeftArrow from "@/assets/icons/left-arrow.svg";
+import PoweredByImage from "@/assets/images/apps/Eluvio.png";
+import RokuImage from "@/assets/images/apps/roku.png";
+import AmazonImage from "@/assets/images/apps/amazon.png";
+import AndroidImage from "@/assets/images/apps/android.png";
+import AppleImage from "@/assets/images/apps/apple.png";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
   if(cardFormat === "button_vertical") {
-    return Math.round(pageWidth / 375);
+    return Math.round(pageWidth / 450);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
   }
@@ -105,114 +101,9 @@ const SectionContent = async ({match, section, mediaListId, activeFilters}) => {
   return content;
 };
 
-const ActionVisible = ({permissions, behavior, visibility}) => {
-  if(behavior === "sign_in" && rootStore.loggedIn) {
-    return false;
-  }
-
-  const hasPermissions = !!permissions?.find(permissionItemId =>
-    mediaPropertyStore.permissionItems[permissionItemId]?.authorized
-  );
-
-  switch(visibility) {
-    case "always":
-      return true;
-    case "authorized":
-      return hasPermissions;
-    case "authenticated":
-      return rootStore.loggedIn;
-    case "unauthorized":
-      return rootStore.loggedIn && !hasPermissions;
-    case "unauthenticated":
-      return !rootStore.loggedIn;
-    case "unauthenticated_or_unauthorized":
-      return !rootStore.loggedIn || !hasPermissions;
-  }
-};
-
-const Action = observer(({sectionId, sectionItemId, sectionItem, action}) => {
-  const match = useRouteMatch();
-  let buttonParams = {};
-
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
-  switch(action.behavior) {
-    case "sign_in":
-      buttonParams.onClick = () => rootStore.ShowLogin();
-      break;
-
-    case "video":
-      buttonParams.onClick = () => setShowVideoModal(true);
-      break;
-
-    case "page_link":
-      buttonParams.to = MediaPropertyBasePath({...match.params, pageSlugOrId: action.page_id});
-      break;
-
-    case "show_purchase":
-      const purchaseParams = CreateMediaPropertyPurchaseParams({
-        id: action.id,
-        sectionSlugOrId: sectionId,
-        sectionItemId,
-        actionId: action.id,
-        encode: false
-      });
-
-      if(
-        // Purchase action but can't purchase
-        PurchaseParamsToItems(
-          purchaseParams,
-          sectionItem?.permissions?.secondaryPurchaseOption
-        ).length === 0
-      ) {
-        return null;
-      }
-
-      const params = new URLSearchParams(location.search);
-      params.set("p", mediaPropertyStore.client.utils.B58(JSON.stringify(purchaseParams)));
-      buttonParams.to = location.pathname + "?" + params.toString();
-      break;
-
-    case "media_link":
-      const mediaItem = mediaPropertyStore.media[action.media_id];
-
-      if(mediaItem) {
-        buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
-      }
-      break;
-
-    case "link":
-      buttonParams = {
-        href: action.url,
-        rel: "noopener",
-        target: "_blank"
-      };
-      break;
-  }
-
-  return (
-    <>
-      {
-        !showVideoModal ? null :
-          <Modal className={[S("action__modal"), "modal--no-scroll"].join(" ")} Toggle={() => setShowVideoModal(false)}>
-            <Video link={action.video} />
-          </Modal>
-      }
-      <Button
-        {...buttonParams}
-        icon={action.button.icon?.url}
-        className={S("action", action.button_style ? `action--${action.button_style}` : "")}
-        styles={action.button}
-      >
-        { action.button.text }
-      </Button>
-    </>
-  );
-});
-
-const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
+const Actions = observer(({sectionId, sectionItemId, sectionItem, actions, className=""}) => {
   actions = (actions || [])
-    .filter(action => ActionVisible({
+    .filter(action => mediaPropertyStore.ActionVisible({
       visibility: action.visibility,
       behavior: action.behavior,
       permissions: action.permissions
@@ -221,15 +112,25 @@ const Actions = observer(({sectionId, sectionItemId, sectionItem, actions}) => {
   if(actions.length === 0) { return null; }
 
   return (
-    <div className={S("actions")}>
+    <div className={[S("actions"), className].join(" ")}>
       {
         actions.map(action =>
-          <Action
+          <RenderAction
             key={action.id}
             action={action}
             sectionId={sectionId}
             sectionItemId={sectionItemId}
             sectionItem={sectionItem}
+            Component={params =>
+              <Button
+                {...params}
+                icon={action.button.icon?.url}
+                className={S("action", action.button_style ? `action--${action.button_style}` : "")}
+                styles={action.button}
+              >
+                { action.button.text }
+              </Button>
+            }
           />
         )
       }
@@ -305,17 +206,18 @@ export const MediaPropertyPurchaseGatePage = observer(({settings, permissions}) 
             <div className={S("purchase-gate-page__content")}>
               <MediaGrid
                 wrapTitles
-                isFormattedContent
                 aspectRatio="Square"
                 cardFormat="button_vertical"
                 justification={settings.position?.toLowerCase() || "left"}
-                content={purchasableItems.map(item =>
+                content={purchasableItems}
+                ContentComponent={({item, ...props}) =>
                   <ButtonCard
+                    {...props}
+                    {...item}
                     orientation="vertical"
                     key={item.id}
-                    {...item}
                   />
-                )}
+                }
               />
             </div>
         }
@@ -372,6 +274,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
   return (
     <div
       style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight}}
+      data-section-id={section.id}
       className={S("hero-section")}
     >
       <PageBackground
@@ -391,7 +294,13 @@ export const MediaPropertyHeroSection = observer(({section}) => {
             }}
             style={activeIndex === index ? {} : {position: "absolute", opacity: 0, userSelect: "none"}}
             key={`content-${heroItem.id}`}
-            className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
+            className={
+              S(
+                "hero-section__content",
+                `hero-section__content--${heroItem.display?.position?.toLowerCase() || "left"}`,
+                activeIndex === index ? "hero-section__content--active" : ""
+              )
+            }
           >
             {
               heroItems.length < 2 ? null :
@@ -413,6 +322,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
                 sectionId={section.id}
                 sectionItemId={heroItem.id}
                 sectionItem={heroItem}
+                className={S("hero-section__actions")}
               />
             </PageHeader>
             {
@@ -489,7 +399,6 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
                         </h2>
                     }
                   </div>
-
               }
               {
                 !section.display.subtitle ? null :
@@ -543,19 +452,22 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
 
 export const MediaGrid = observer(({
   content,
+  ContentComponent,
   isSectionContent=false,
-  isFormattedContent=false,
   aspectRatio,
   textDisplay="all",
   justification="left",
   textJustification="left",
   cardFormat="vertical",
   cardSize="medium",
+  cardTheme,
+  hoverCardDisplay,
   defaultButtonText,
   wrapTitles=false,
   className="",
   navContext,
 }) => {
+  const match = useRouteMatch();
   aspectRatio = aspectRatio?.toLowerCase() || "mixed";
 
   const columns = GridContentColumns({
@@ -565,14 +477,63 @@ export const MediaGrid = observer(({
     cardSize
   });
 
+  if(!cardTheme && !hoverCardDisplay) {
+    const settings = mediaPropertyStore.CardTheme({...match.params});
+    cardTheme = cardTheme || settings.cardTheme;
+    hoverCardDisplay = hoverCardDisplay || settings.hoverCardDisplay;
+  }
+
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  const lcm = (a, b) =>  a / gcd(a, b) * b;
+
+  const remainder = content.length % columns;
+  let gridTemplateAreas = "";
+  let gridTemplateColumns = "1fr ".repeat(columns);
+  for(let row = 0; row < Math.ceil(content.length / columns); row++) {
+    const startIndex = (row) * columns;
+
+    if(justification === "center" && remainder !== 0) {
+      const remainder = content.length % columns;
+      // Get LCM of remainder, try to get an equal number of empty slots on either side
+      let numColumns = lcm(columns, remainder);
+      let columnsPerCard = numColumns / columns;
+      let numDots = (numColumns - columnsPerCard * remainder) / 2;
+
+      if(parseInt(numDots) !== numDots) {
+        // Unequal empty per side, adjust
+        numColumns *= 2;
+        columnsPerCard = numColumns / columns;
+        numDots = (numColumns - columnsPerCard * remainder) / 2;
+      }
+
+      gridTemplateColumns = "1fr ".repeat(numColumns);
+      if(startIndex + columns < content.length) {
+        // Not last row, fill up
+        gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")}'`;
+      } else {
+        // Last row
+        const startDots = ". ".repeat(Math.floor(numDots));
+        const endDots = ". ".repeat(Math.ceil(numDots));
+        gridTemplateAreas += `'${startDots} ${[...new Array(remainder)].map((_, i) => `card-${startIndex + i} `.repeat(columnsPerCard)).join(" ")} ${endDots}'`;
+      }
+    } else if(justification === "left" || startIndex + columns <= content.length) {
+      // Not the last row, left justified, or fully filled
+       gridTemplateAreas += `'${[...new Array(columns)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`;
+    } else if(justification === "right") {
+      const remainder = content.length - startIndex;
+      const emptySpots = columns - remainder;
+
+      // Right just - fill left spots with empty cells
+      gridTemplateAreas += `'${". ".repeat(emptySpots)} ${[...new Array(remainder)].map((_, i) => `card-${startIndex + i}`).join(" ")}'`;
+    }
+  }
+
   return (
     <div
-      style={
-        columns <= 1 ? {} :
-          {
-            gridTemplateColumns: `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`
-          }
-      }
+      style={{
+        gridTemplateColumns,
+        gridTemplateAreas
+      }}
       className={[S(
         "section__content",
         "section__content--grid",
@@ -583,12 +544,20 @@ export const MediaGrid = observer(({
       ), className].join(" ")}
     >
       {
-        isFormattedContent ? content :
-          content.map(item =>
+        content.map((item, index) =>
+          ContentComponent ?
+            <ContentComponent
+              key={`section-item-${item?.id || index}`}
+              item={item}
+              style={{
+                gridArea: `card-${index}`
+              }}
+            /> :
             <MediaCard
               size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
               format={cardFormat || "vertical"}
               key={`section-item-${item.id}`}
+              variants={cardTheme?.variants}
               sectionItem={isSectionContent ? item : undefined}
               mediaItem={isSectionContent ? undefined : item}
               textDisplay={textDisplay}
@@ -597,6 +566,11 @@ export const MediaGrid = observer(({
               wrapTitle={wrapTitles}
               buttonText={item?.card_button_text || defaultButtonText}
               navContext={navContext}
+              style={{
+                gridArea: `card-${index}`,
+                ...(cardTheme?.css || {})
+              }}
+              hoverCardDisplay={hoverCardDisplay}
               centered={
                 (MediaItemImageUrl({
                   mediaItem: item,
@@ -605,7 +579,7 @@ export const MediaGrid = observer(({
                 }))?.imageAspectRatio !== "landscape"
               }
             />
-          )
+        )
       }
     </div>
   );
@@ -640,7 +614,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
+const SectionContentCarousel = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
   sectionContent = sectionContent.slice(0, 100);
 
   return (
@@ -651,6 +625,9 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
         `section__content--${section.display.aspect_ratio?.toLowerCase()}`,
         `section__content--${section.display.justification || "left"}`
       )}
+      arrowClassName={S("section__carousel-arrow")}
+      leftArrowClassName={S("section__carousel-arrow--previous")}
+      rightArrowClassName={S("section__carousel-arrow--next")}
       slidesPerPage={({imageDimensions, swiper}) =>
         // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
         section.display.aspect_ratio && section.display.aspect_ratio !== "Mixed" ?
@@ -666,6 +643,9 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
         <MediaCard
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
           key={`media-card-${item.id}`}
+          hoverCardDisplay={hoverCardDisplay}
+          hoverCardSideBuffer={35}
+          variants={cardTheme?.variants}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
           textDisplay={section.display.content_display_text}
@@ -673,6 +653,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
           aspectRatio={section.display.aspect_ratio}
           wrapTitle={section.display.wrap_titles}
           format={section.display.card_style || "vertical"}
+          style={cardTheme?.css}
           buttonText={item?.card_button_text || section.display.card_default_button_text}
           navContext={navContext}
         />
@@ -681,13 +662,14 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
   );
 });
 
-const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
+const SectionContentGrid = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
 
   return (
     <MediaGrid
       content={sectionContent}
       isSectionContent
+      cardTheme={cardTheme}
       aspectRatio={aspectRatio}
       textDisplay={section.display.content_display_text}
       justification={section.display.justification}
@@ -695,6 +677,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       wrapTitles={section.display.wrap_titles}
       defaultButtonText={section.display.card_default_button_text}
       cardStyle={section.display.card_style}
+      hoverCardDisplay={hoverCardDisplay}
       navContext={navContext}
       cardFormat={section.display.card_style}
       cardSize={section.display.card_size}
@@ -706,6 +689,7 @@ export const SectionResultsGroup = observer(({
   groupBy,
   label,
   results,
+  sort=true,
   isSectionContent=false,
   wrapTitles=false,
   navContext
@@ -735,26 +719,28 @@ export const SectionResultsGroup = observer(({
     }
   });
 
-  // Sort results by start time
-  results = results.sort((a, b) => {
-    if(a?.mediaItem?.start_time) {
-      if(b?.mediaItem?.start_time) {
-        if(a.mediaItem.start_time !== b.mediaItem.start_time) {
-          return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
+  if(sort) {
+    // Sort results by start time
+    results = [...results].sort((a, b) => {
+      if(a?.mediaItem?.start_time) {
+        if(b?.mediaItem?.start_time) {
+          if(a.mediaItem.start_time !== b.mediaItem.start_time) {
+            return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
+          } else {
+            // Equal start times - sort by catalog title
+            return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
+          }
         } else {
-          // Equal start times - sort by catalog title
-          return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
+          return -1;
         }
+      } else if(b?.mediaItem?.start_time) {
+        return 1;
       } else {
-        return -1;
+        // No start times - sort by catalog title
+        return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
       }
-    } else if(b?.mediaItem?.start_time) {
-      return 1;
-    } else {
-      // No start times - sort by catalog title
-      return a.catalog_title || a.title > b.catalog_title || b.title ? 1 : -1;
-    }
-  });
+    });
+  }
 
   return (
     <div className={S("section", "section--page", "section__group")}>
@@ -925,6 +911,11 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
+  const {cardTheme, hoverCardDisplay} = mediaPropertyStore.CardTheme({
+    ...match.params,
+    sectionSlugOrId: sectionId || match.params.sectionSlugOrId
+  });
+
   let ContentComponent;
   switch(section.display.display_format?.toLowerCase()) {
     case "carousel":
@@ -974,6 +965,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
         `section-container--padding-${section.display.padding || "md"}`,
         `section-container--${section.display?.display_format || "grid"}`,
         `section-container--${section.display.justification || "left"}`,
+        section.display.logo ? "section-container--logo" : "",
         section.display.full_bleed ? "section-container--full-bleed" : ""
       ), className].join(" ")}
     >
@@ -1006,10 +998,16 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
           url.searchParams.delete("ctx");
           history.replaceState(undefined, undefined, url);
 
+          // Scroll twice, first for quick scroll, second in case the page wasn't fully rendered yet
           setTimeout(() => {
             // Scroll to section
             ScrollTo(-150, element);
           }, 50);
+
+          setTimeout(() => {
+            // Scroll to section
+            ScrollTo(-150, element);
+          }, 300);
         }}
         className={S(
           "section",
@@ -1069,6 +1067,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <div className={S("section__content--empty")} /> :
             <ContentComponent
               navContext={sectionId}
+              cardTheme={cardTheme}
+              hoverCardDisplay={hoverCardDisplay}
               section={section}
               sectionContent={
                 displayLimit ?
@@ -1156,11 +1156,11 @@ const MediaPropertySectionPage = observer(() => {
   if(groupBy) {
     let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
     if(groupBy === "__date") {
-      groups = groups.sort();
+      groups = [...groups].sort();
     } else if(groupBy !== "__media-type") {
       const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
 
-      groups = groups.sort((a, b) => {
+      groups = [...groups].sort((a, b) => {
         const indexA = tags.indexOf(a);
         const indexB = tags.indexOf(b);
 

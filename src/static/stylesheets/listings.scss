@@ -76,7 +76,7 @@
   margin: 50px 0 10px;
   text-align: center;
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     margin-top: 20px;
   }
 }

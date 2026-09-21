@@ -4,10 +4,10 @@ import {
   MediaItemIsMultiviewable,
   MediaItemScheduleInfo,
   PurchaseParamsToItems
-} from "../utils/MediaPropertyUtils";
+} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
-import {LinkTargetHash, NFTInfo} from "../utils/Utils";
+import {CardThemeProperties, DefaultCardTheme, LinkTargetHash, NFTInfo, StaticFabricUrl} from "@/utils/Utils";
 
 class MediaPropertyStore {
   allMediaProperties;
@@ -17,15 +17,22 @@ class MediaPropertyStore {
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
+  aiSearchMedia = {};
+  aiSearchTrackOptions = {};
+  objectIdToMediaIdsMap = {};
   permissionItems = {};
   previewPropertyId;
   previewAll = false;
-  searchIndexes = {};
+  aiSearchResultMediaIds = [];
+  previousSearchQueries = {};
+  mediaSearchIndexes = {};
+  searchMode = new URLSearchParams(location.search).get("m") || "default";
   searchOptions = {
     query: new URLSearchParams(location.search).get("q") || "",
     attributes: {},
     tags: [],
     tagSelect: {},
+    tracks: {},
     mediaType: undefined,
     startDate: undefined,
     endDate: undefined,
@@ -34,10 +41,13 @@ class MediaPropertyStore {
   };
   tags = [];
   _ownedItems = {};
+  loadingProgress = 0;
 
   mediaPlayers = {};
 
   mediaProgress = {};
+
+  cardThemes = {};
 
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
@@ -77,6 +87,57 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  SearchSidebarContent() {
+    if(!this.rootStore.mediaStore.searchResults) {
+      return { tabs: [] };
+    }
+
+    const query = this.rootStore.mediaStore.searchResults.query;
+
+    if(this.rootStore.mediaStore.searchResults.aiSearchResultMediaIds) {
+      return {
+        showSingleTab: true,
+        tabs: [{
+          title: `Search: ${query}`,
+          groups: [{
+            content: this.rootStore.mediaStore.searchResults.aiSearchResultMediaIds.map(id => {
+              const mediaItem = this.MediaPropertyMediaItem({mediaItemSlugOrId: id});
+
+              return {
+                mediaItem,
+                display: {
+                  ...mediaItem
+                },
+                ...mediaItem,
+              };
+            })
+          }]
+        }]
+      };
+    }
+
+    const groups = [...(this.rootStore.mediaStore.searchResults.groups || []), "__other"];
+    return {
+      showSingleTab: !!query,
+      tabs: [{
+        title: `Search: ${query}`,
+        groups: groups
+          .filter(group => !!this.rootStore.mediaStore.searchResults?.groupedResults[group])
+          .map(group => ({
+            title: group === "__other" ? "" : group,
+            content: this.rootStore.mediaStore.searchResults.groupedResults[group]
+              .map(({mediaItem}) => ({
+                mediaItem,
+                display: {
+                  ...mediaItem
+                },
+                ...mediaItem,
+              }))
+          }))
+      }]
+    };
+  }
+
   SidebarContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId, mediaItemSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
@@ -110,7 +171,7 @@ class MediaPropertyStore {
           ...tab,
           groups: (await Promise.all(
             tab.groups.map(async group => {
-              let content;
+              let content, groupSectionSlugOrId;
               if(group.type === "section") {
                 content = (await this.MediaPropertySectionContent({
                   mediaPropertySlugOrId,
@@ -120,6 +181,8 @@ class MediaPropertyStore {
                 }))
                   .map(item => item?.mediaItem)
                   .filter(item => item);
+
+                groupSectionSlugOrId = group.section_id || sectionSlugOrId;
               } else if(group.type === "automatic") {
                 const associatedCatalogIds = mediaProperty.metadata.media_catalogs;
                 const media = Object.values(this.media)
@@ -176,6 +239,7 @@ class MediaPropertyStore {
 
               return {
                 ...group,
+                sectionSlugOrId: groupSectionSlugOrId,
                 content
               };
             }))
@@ -344,17 +408,29 @@ class MediaPropertyStore {
   }
 
   ClearSearchOptions() {
+    this.ClearAISearchResults();
+
     this.searchOptions = {
       query: "",
       attributes: {},
       tags: [],
       tagSelect: {},
+      tracks: {},
       mediaType: null,
       startDate: null,
       endDate: null,
       startTime: null,
       endTime: null
     };
+  }
+
+  ClearAISearchResults() {
+    this.aiSearchResultMediaIds = [];
+  }
+
+  ToggleAISearchMode(mode) {
+    this.ClearSearchOptions();
+    this.searchMode = mode;
   }
 
   async SearchMedia({mediaPropertySlugOrId, query, searchOptions}) {
@@ -370,16 +446,31 @@ class MediaPropertyStore {
 
     let results;
     if(query) {
-      let suggestions = this.searchIndexes[mediaPropertyId].autoSuggest(query);
+      let suggestions = this.mediaSearchIndexes[mediaPropertyId].autoSuggest(query);
       if(suggestions.length === 0) {
         suggestions = [{suggestion: query}];
       }
 
       // TODO: Integrate category attr
       results = suggestions
-        .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
+        .map(({suggestion}) => this.mediaSearchIndexes[mediaPropertyId].search(suggestion))
         .flat()
-        .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index)
+        .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
+
+      if(query) {
+        // Results must contain ALL tokens from the query
+        // From minisearch library
+        const SPACE_OR_PUNCTUATION = /[\n\r -#%-*,-/:;?@[-\]_{}\u00A0\u00A1\u00A7\u00AB\u00B6\u00B7\u00BB\u00BF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166E\u1680\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2000-\u200A\u2010-\u2029\u202F-\u2043\u2045-\u2051\u2053-\u205F\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4F\u3000-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]+/u;
+        const tokens = query.toLowerCase().split(SPACE_OR_PUNCTUATION).filter(token => token);
+        results = results.filter(result =>
+          !tokens.find(token =>
+            !result.title?.toLowerCase().includes(token) &&
+            !result.catalog_title?.toLowerCase().includes(token)
+          )
+        );
+      }
+
+      results = results
         .map(result => ({
           ...result,
           mediaItem: this.media[result.id]
@@ -472,7 +563,46 @@ class MediaPropertyStore {
       }
     });
 
-    return results;
+    const groupBy = mediaProperty.metadata?.search?.group_by;
+
+    const groupedResults = this.GroupContent({content: results, groupBy});
+    let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
+    if(groupBy === "__date") {
+      const today = new Date().toISOString().split("T")[0];
+      const upcoming = groups.filter(group => group >= today);
+      const past = groups.filter(group => group < today);
+
+      groups = [
+        ...upcoming.sort(),
+        ...past.sort().reverse()
+      ];
+    } else if(groupBy !== "__media-type") {
+      const tags = this.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
+
+      groups = groups.sort((a, b) => {
+        const indexA = tags.indexOf(a);
+        const indexB = tags.indexOf(b);
+
+        if(indexA >= 0) {
+          if(indexB >= 0) {
+            return indexA < indexB ? -1 : 1;
+          }
+
+          return -1;
+        } else if(indexB >= 0) {
+          return 1;
+        }
+
+      return a < b ? -1 : 1;
+      });
+    }
+
+    return {
+      results,
+      groupBy,
+      groupedResults,
+      groups
+    };
   }
 
   GroupContent({content, groupBy, excludePast=true}) {
@@ -639,7 +769,7 @@ class MediaPropertyStore {
 
   MediaPropertyMediaItem({mediaItemSlugOrId}) {
     // TODO: Media slugs
-    return this.media[mediaItemSlugOrId];
+    return this.media[mediaItemSlugOrId] || this.aiSearchMedia[mediaItemSlugOrId];
   }
 
   ResolveSectionItem({sectionId, sectionItem}) {
@@ -1010,7 +1140,7 @@ class MediaPropertyStore {
     );
 
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
-    behavior = page.permissions?.behavior || behavior;
+    behavior = page?.permissions?.behavior || behavior;
 
     alternatePageId = (
       page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
@@ -1094,7 +1224,7 @@ class MediaPropertyStore {
     if(authorized && mediaCollectionSlugOrId) {
       const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
 
-      if(!mediaCollection.authorized) {
+      if(mediaCollection && !mediaCollection.authorized) {
         isTestContent = mediaCollection.test_content;
         authorized = false;
         permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
@@ -1106,7 +1236,7 @@ class MediaPropertyStore {
     if(authorized && mediaListSlugOrId) {
       const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
 
-      if(!mediaList.authorized) {
+      if(mediaList && !mediaList.authorized) {
         isTestContent = mediaList.test_content;
         authorized = false;
         permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
@@ -1118,7 +1248,7 @@ class MediaPropertyStore {
     if(authorized && mediaItemSlugOrId) {
       const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
 
-      if(!mediaItem.authorized) {
+      if(mediaItem && !mediaItem?.authorized) {
         isTestContent = mediaItem.test_content;
         authorized = false;
         permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
@@ -1227,6 +1357,79 @@ class MediaPropertyStore {
       permissionItemIds,
       cause: cause || "",
       causeId
+    };
+  }
+
+  ActionVisible({permissions, behavior, visibility}) {
+    if(behavior === "sign_in" && this.rootStore.loggedIn) {
+      return false;
+    }
+
+    const hasPermissions = !!permissions?.find(permissionItemId =>
+      this.permissionItems[permissionItemId]?.authorized
+    );
+
+    switch(visibility) {
+      case "always":
+        return true;
+      case "authorized":
+        return hasPermissions;
+      case "authenticated":
+        return this.rootStore.loggedIn;
+      case "unauthorized":
+        return this.rootStore.loggedIn && !hasPermissions;
+      case "unauthenticated":
+        return !this.rootStore.loggedIn;
+      case "unauthenticated_or_unauthorized":
+        return !this.rootStore.loggedIn || !hasPermissions;
+    }
+  }
+
+  CardTheme({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, search=false, searchLevel="primary"}) {
+    const property = this.MediaProperty({
+      mediaPropertySlugOrId: mediaPropertySlugOrId || this.rootStore.currentPropertyId
+    })?.metadata;
+
+    let cardThemeId, hoverCardDisplay, hoverCardAspectRatio;
+    if(search) {
+      cardThemeId = property?.search?.[`${searchLevel}_filter_card_theme_id`];
+    } else {
+      cardThemeId =
+        // Section
+        this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.card_theme_id ||
+        // Page
+        this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.card_theme_id ||
+        // Property
+        property?.card_theme_id;
+
+      hoverCardDisplay =
+        // Section
+        this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.hover_card_display ||
+        // Page
+        this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId})?.hover_card_display ||
+        // Property
+        property?.hover_card_display || "none";
+
+      hoverCardAspectRatio = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.display?.hover_card_aspect_ratio;
+    }
+
+    if(!this.cardThemes[cardThemeId] || this.cardThemes[cardThemeId].mobile !== this.rootStore.mobile) {
+      let cardTheme = property?.styling?.card_themes?.[cardThemeId];
+
+      if(!cardTheme) {
+        cardTheme = DefaultCardTheme;
+      }
+
+      this.cardThemes[cardThemeId] = CardThemeProperties({theme: cardTheme, noMobile: !!search});
+      this.cardThemes[cardThemeId].mobile = this.rootStore.mobile;
+    }
+
+    return {
+      cardTheme: this.cardThemes[cardThemeId],
+      hoverCardDisplay: {
+        display: hoverCardDisplay,
+        aspectRatio: hoverCardAspectRatio
+      }
     };
   }
 
@@ -1349,14 +1552,25 @@ class MediaPropertyStore {
         metadataUrl.searchParams.set("link_depth", "2");
 
         [
-          "info/media_property_order",
+          "info/main_page_property_lists",
           "tenants/*/.",
           "tenants/*/media_properties/*/.",
           "tenants/*/media_properties/*/name",
           "tenants/*/media_properties/*/title",
           "tenants/*/media_properties/*/slug",
           "tenants/*/media_properties/*/image",
-          "tenants/*/media_properties/*/video",
+          "tenants/*/media_properties/*/image_hash",
+          "tenants/*/media_properties/*/featured_image",
+          "tenants/*/media_properties/*/featured_image_hash",
+          "tenants/*/media_properties/*/main_page_title",
+          "tenants/*/media_properties/*/main_page_description",
+          "tenants/*/media_properties/*/main_page_logo",
+          "tenants/*/media_properties/*/main_page_logo_hash",
+          "tenants/*/media_properties/*/main_page_logo_scale",
+          "tenants/*/media_properties/*/main_page_card_video",
+          "tenants/*/media_properties/*/main_page_card_video_info",
+          "tenants/*/media_properties/*/main_page_inaccessible",
+          "tenants/*/media_properties/*/main_page_inaccessible_message",
           "tenants/*/media_properties/*/show_on_main_page",
           "tenants/*/media_properties/*/main_page_url",
           "tenants/*/media_properties/*/parent_property"
@@ -1365,7 +1579,6 @@ class MediaPropertyStore {
         const metadata = await (await fetch(metadataUrl.toString())).json();
 
         let allProperties = {};
-        const propertyOrder = metadata?.info?.media_property_order || [];
         const properties = Object.keys(metadata?.tenants || {}).map(tenantSlug => {
           return Object.keys(metadata.tenants[tenantSlug]?.media_properties || {}).map(propertySlug => {
             try {
@@ -1374,7 +1587,6 @@ class MediaPropertyStore {
               const propertyId = Utils.DecodeVersionHash(property["."].source).objectId;
               property = {
                 ...property,
-                order: propertyOrder.findIndex(propertySlugOrId => property.slug === propertySlugOrId || propertyId === propertySlugOrId),
                 tenantSlug,
                 tenantObjectHash: metadata.tenants[tenantSlug]["."].source,
                 tenantObjectId: Utils.DecodeVersionHash(metadata.tenants[tenantSlug]["."].source).objectId,
@@ -1382,21 +1594,17 @@ class MediaPropertyStore {
                 propertyId
               };
 
-              // Sort unordered properties
-              property.order = property.order >= 0 ?
-                property.order :
-                1000 + (property.slug || propertyId).charCodeAt(0);
-
+              // Generate image urls
               if(property.image) {
-                const imageUrl = new URL(
-                  this.rootStore.network === "demo" ?
-                    "https://demov3.net955210.contentfabric.io/s/demov3" :
-                    "https://main.glb.contentfabric.io/s/main"
-                );
+                property.image.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.image});
+              }
 
-                imageUrl.pathname = UrlJoin(imageUrl.pathname, "q", property.propertyHash, "meta/public/asset_metadata/info/image");
+              if(property.featured_image) {
+                property.featured_image.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.featured_image});
+              }
 
-                property.image.url = imageUrl.toString();
+              if(property.main_page_logo) {
+                property.main_page_logo.url = StaticFabricUrl({versionHash: property.propertyHash, link: property.main_page_logo});
               }
 
               allProperties[property.propertyId] = property;
@@ -1416,7 +1624,10 @@ class MediaPropertyStore {
 
         this.allMediaProperties = allProperties;
 
-        return properties;
+        return {
+          properties,
+          propertyLists: metadata.info.main_page_property_lists || []
+        };
       }
     });
   });
@@ -1627,6 +1838,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    this.loadingProgress = 0;
     yield this.LoadMediaPropertyHashes();
 
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
@@ -1672,6 +1884,8 @@ class MediaPropertyStore {
             `/public/asset_metadata/localizations/${localizationKey}/info`
         });
 
+        this.loadingProgress = 30;
+
         if(sessionStorage.getItem("openid")) {
           metadata.login.settings = {
             ...metadata.login.settings,
@@ -1689,6 +1903,8 @@ class MediaPropertyStore {
           this.LoadMarketplace({marketplaceId: marketplace_id, localizationKey, force});
           this.LoadOwnedItems({marketplaceId: marketplace_id, localizationKey, force});
         });
+
+        this.loadingProgress = 60;
 
         if(!isPreview && metadata.permission_set_links) {
           // Load from links
@@ -1710,6 +1926,8 @@ class MediaPropertyStore {
             )
           );
         }
+
+        this.loadingProgress = 80;
 
         // Load Media Catalogs
         let mediaCatalogContent;
@@ -1734,6 +1952,8 @@ class MediaPropertyStore {
           );
         }
 
+        this.loadingProgress = 98;
+
         this.tags = [...new Set([
           ...(this.tags || []),
           ...(mediaCatalogContent
@@ -1751,6 +1971,26 @@ class MediaPropertyStore {
           ...allMedia
         };
 
+        // Create a mapping from object ID -> media items
+        let objectIdToMediaIdsMap = {};
+        Object.values(this.media).forEach(media => {
+          if(media.media_type !== "Video" || !media.media_link?.["/"]) {
+            return;
+          }
+
+          const versionHash = LinkTargetHash(media.media_link);
+
+          if(!versionHash) { return; }
+
+          const objectId = this.client.utils.DecodeVersionHash(versionHash).objectId;
+
+          if(!objectId) { return; }
+
+          objectIdToMediaIdsMap[objectId] = [ ...(objectIdToMediaIdsMap[objectId] || []), media.id];
+        });
+
+        this.objectIdToMediaIdsMap = objectIdToMediaIdsMap;
+
         const indexableMedia = Object.values(this.media)
           .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
           .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
@@ -1767,7 +2007,7 @@ class MediaPropertyStore {
         });
         searchIndex.addAll(indexableMedia);
 
-        this.searchIndexes[mediaPropertyId] = searchIndex;
+        this.mediaSearchIndexes[mediaPropertyId] = searchIndex;
 
         // Resolve authorized state of sections and section items
 
@@ -1836,8 +2076,11 @@ class MediaPropertyStore {
 
         this.LoadMediaProgress({mediaPropertySlugOrId: mediaPropertyId});
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
+        this.LoadSearchQueries({mediaPropertySlugOrId: mediaPropertyId});
       }
     });
+
+    this.loadingProgress = 100;
 
     return force;
   });
@@ -2053,7 +2296,6 @@ class MediaPropertyStore {
 
                 window.dataLayer = window.dataLayer || [];
 
-                // eslint-disable-next-line no-inner-declarations
                 function gtag() {
                   window.dataLayer.push(arguments);
                 }
@@ -2294,7 +2536,8 @@ class MediaPropertyStore {
               key: `media-progress-${mediaPropertyId}`
             })
           );
-        } catch(error) { /* empty */ }
+        // eslint-disable-next-line no-unused-vars
+        } catch(error) {}
 
         this.mediaProgress[mediaPropertyId] = progress;
       }
@@ -2419,6 +2662,248 @@ class MediaPropertyStore {
     document.body.appendChild(a);
     a.click();
     a.remove();
+  });
+
+  // Search
+  LoadAISearchOptions = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    this.aiSearchTrackOptions = yield this.LoadResource({
+      key: "LoadAISearchOptions",
+      id: mediaPropertySlugOrId,
+      Load: (flow(function * () {
+        const searchSettings = mediaProperty.metadata.search?.ai_options;
+
+        // Determine tracks to query for and highest value for max results
+        let maxResults = 50;
+        let maxResultsPerTrack = {};
+        const tracks = searchSettings.advanced_search_options.map(spec => {
+          if(spec.max_options) {
+            maxResults = Math.max(maxResults, spec.max_options || 0);
+            maxResultsPerTrack[spec.track] = spec.max_options;
+          }
+
+          return spec.track;
+        });
+
+        const response = yield this.rootStore.mediaStore.QueryAIAPI({
+          server: "ai-04",
+          objectId: searchSettings.index_id,
+          path: UrlJoin("vector_store", "spaces", searchSettings.index_id, "stats"),
+          queryParams: {
+            max_results: maxResults,
+            tracks,
+            debug: true
+          }
+        });
+
+        let options = {};
+        Object.keys(response?.tags?.tracks || {}).forEach(track => {
+          const histogram = response.tags.tracks[track].histogram || {};
+          let trackOptions = Object.keys(histogram)
+            .sort((a, b) => histogram[a] > histogram[b] ? -1 : 1);
+
+          if(maxResultsPerTrack[track]) {
+            trackOptions = trackOptions.slice(0, maxResultsPerTrack[track]);
+          }
+          options[track] = [...trackOptions]
+            .sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1);
+        });
+
+        return options;
+      })).bind(this)
+    });
+  });
+
+  ClipSearch = flow(function * ({mediaPropertySlugOrId, query, start=0, limit=50}) {
+    this.ClearAISearchResults();
+
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) { return; }
+
+    const searchSettings = mediaProperty.metadata.search.ai_options;
+
+    let {contents, versionHashes} = yield this.LoadResource({
+      key: "ClipSearch",
+      id: `clip-search-${query}-${start}-${limit}-${JSON.stringify(this.searchOptions.tracks || {})}`,
+      ttl: 30,
+      Load: async () => {
+        const {contents} = (await this.rootStore.mediaStore.QueryAIAPI({
+          server: "ai-04",
+          method: "POST",
+          objectId: searchSettings.index_id,
+          path: UrlJoin("vector_search", searchSettings.index_id, "clip_search"),
+          headers: {
+            "Content-Type": "application/json"
+          },
+          queryParams: {
+            terms: query,
+            start,
+            limit,
+            clips: true,
+            clip_include_source_tags: true,
+            get_chunks: true,
+            max_total: 100,
+            debug: true
+          },
+          body: {
+            text_filters: Object.keys(this.searchOptions.tracks || {})
+              .map(track => ({
+                query: this.searchOptions.tracks[track],
+                track,
+                target: "tag"
+              }))
+              .filter(filter => filter.query)
+          }
+        })) || {};
+
+        const objectIds = contents
+          .map(result => result.id)
+          .filter((x, i, a) => a.findIndex(q => q === x) === i);
+
+        let versionHashes = {};
+        await Promise.all(
+          objectIds.map(async objectId => {
+            try {
+              versionHashes[objectId] = await this.client.LatestVersionHash({objectId});
+              // eslint-disable-next-line no-unused-vars
+            } catch(error) {}
+          })
+        );
+
+        return {
+          contents,
+          versionHashes
+        };
+      }
+    });
+
+    const versionHash = yield this.client.LatestVersionHash({objectId: searchSettings.index_id});
+    const baseUrl = yield this.client.Rep({
+      versionHash,
+      rep: "frame",
+      channelAuth: true,
+      queryParams: {
+        ignore_trimming: true
+      }
+    });
+
+    let media = {};
+    const mediaIds = contents.map((result, index) => {
+      let imageUrl = new URL(baseUrl);
+      imageUrl.pathname = result.image_url.split("?")[0];
+
+      const params = new URLSearchParams(result.image_url.split("?")[1]);
+      params.keys().forEach(key => imageUrl.searchParams.set(key, params.get(key)));
+
+      const mediaId = `msch${this.client.utils.B58(`${query}::${index}`)}`;
+      let versionHash = versionHashes[result.id];
+
+      const mediaItemIds = this.objectIdToMediaIdsMap[result.id] || [];
+      const authorized = !!versionHash;
+
+      media[mediaId] = {
+        isSearchResult: true,
+        searchResultScore: result.score,
+        id: mediaId,
+        mediaItemIds,
+        objectId: result.id,
+        public: authorized,
+        authorized,
+        catalog_title: result.name,
+        title: result.name,
+        subtitle: "",
+        description: "",
+        description_rich_text: "",
+        headers: [],
+        tags: [],
+        type: "media",
+        media_type: "Video",
+        resolvedPermissions: {
+          authorized,
+          purchasable: false
+        },
+        media_link: {
+          objectId: result.id,
+          "/": `/qfab/${versionHash}/meta/public/asset_metadata`
+        },
+        media_link_info: {
+          name: result.name,
+          type: "clip",
+          clip_start_time: result.start_time / 1000,
+          clip_end_time: result.end_time / 1000
+        },
+        thumbnail_image_landscape: {
+          url: imageUrl
+        }
+      };
+
+      return mediaId;
+    });
+
+    this.aiSearchMedia = media;
+
+    this.SaveSearchQuery({mode: "clip", query});
+
+    this.aiSearchResultMediaIds = mediaIds;
+
+    return mediaIds;
+  });
+
+  LoadSearchQueries = flow(function * ({mediaPropertySlugOrId}) {
+    if(!this.rootStore.loggedIn) { return; }
+
+    try {
+      const queries = yield this.rootStore.walletClient.ProfileMetadata({
+        type: "app",
+        appId: this.rootStore.appId,
+        mode: "private",
+        key: `search-queries-${mediaPropertySlugOrId}`
+      });
+
+      if(queries) {
+        this.previousSearchQueries = JSON.parse(this.client.utils.FromB64(queries));
+      }
+    } catch(error) {
+      console.error("Failed loading previous search queries");
+      console.error(error);
+    }
+  });
+
+  SaveSearchQuery = flow(function * ({mode, query}) {
+    if(!this.rootStore.loggedIn || !mode || !query) { return; }
+
+    const initialQueries = JSON.stringify(this.previousSearchQueries);
+
+    if(!this.previousSearchQueries) {
+      this.previousSearchQueries = {};
+    }
+
+    this.previousSearchQueries[mode] = [
+      query,
+      ...(this.previousSearchQueries[mode] || [])
+    ]
+      .filter(q => q)
+      .filter((x, i, a) => a.findIndex(q => q === x) === i)
+      .slice(0, 10);
+
+    if(JSON.stringify(this.previousSearchQueries) === initialQueries) {
+      // No change
+      return;
+    }
+
+    yield this.rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      appId: this.rootStore.appId,
+      mode: "private",
+      key: `search-queries-${this.rootStore.currentPropertyId}`,
+      value: this.rootStore.client.utils.B64(
+        JSON.stringify(this.previousSearchQueries || {})
+      )
+    });
   });
 }
 

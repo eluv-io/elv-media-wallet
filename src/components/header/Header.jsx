@@ -1,71 +1,21 @@
-import HeaderStyles from "Assets/stylesheets/header.module.scss";
+import HeaderStyles from "@/assets/stylesheets/header.module.scss";
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Linkish, RichText} from "Components/common/UIComponents";
-import {mediaPropertyStore, notificationStore, rootStore} from "Stores";
-import ImageIcon from "Components/common/ImageIcon";
-import {Debounce} from "../../utils/Utils";
-import UrlJoin from "url-join";
-import ProfileMenu from "Components/header/ProfileMenu";
-
-import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
-import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import NotificationsIcon from "Assets/icons/header/Notification Icon";
-import MenuIcon from "Assets/icons/menu";
-import DiscoverIcon from "Assets/icons/discover";
-import LeftArrowIcon from "Assets/icons/left-arrow.svg";
-import XIcon from "Assets/icons/x";
-import {Autocomplete} from "@mantine/core";
-import SearchIcon from "Assets/icons/search";
+import {Linkish} from "@/components/common/UIComponents";
+import {mediaPropertyStore, rootStore} from "@/stores";
+import ImageIcon from "@/components/common/ImageIcon";
+import {Debounce} from "@/utils/Utils";
 import {useDebouncedValue} from "@mantine/hooks";
+import {Autocomplete} from "@mantine/core";
+
+import EluvioE from "@/assets/images/eluvio-e.svg";
+import LeftArrowIcon from "@/assets/icons/left-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
+import SearchIcon from "@/assets/icons/search.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 
-const NotificationBanner = observer(() => {
-  const [notificationHash, setNotificationHash] = useState(undefined);
-  const [active, setActive] = useState(false);
-
-  const marketplace = rootStore.marketplaces[rootStore.routeParams.marketplaceId];
-  const notification = marketplace?.branding?.notification || {};
-  const savedHash = marketplace && rootStore.GetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`);
-
-  useEffect(() => {
-    if(!notification || !notification.active) { return; }
-
-    crypto.subtle.digest("SHA-1", new TextEncoder("utf-8").encode(
-      (notification.header || "") + (notification.text || "")
-    ))
-      .then(digest => {
-        const hash = Array.from(new Uint8Array(digest))
-          .map(v => v.toString(16).padStart(2, "0"))
-          .join("");
-
-        setNotificationHash(hash);
-        setActive(hash !== savedHash);
-      });
-  }, [notification]);
-
-  if(!active) {
-    return null;
-  }
-
-  return (
-    <div className={S("notification-banner")}>
-      <h2>{ notification.header }</h2>
-      <RichText richText={notification.text} className={S("notification-banner__text")} />
-      <button
-        onClick={() => {
-          rootStore.SetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`, notificationHash);
-          setActive(false);
-        }}
-        className={S("notification-banner__close-button")}
-      >
-        <ImageIcon icon={XIcon} title="Dismiss" className={S("notification-banner__close-icon")} />
-      </button>
-    </div>
-  );
-});
 
 const Home = observer(() => {
   return (
@@ -85,9 +35,6 @@ const Home = observer(() => {
             <div className={S("home__title")}>
               Media Wallet
             </div>
-            <div className={S("home__subtitle")}>
-              { rootStore.l10n.header.subtitle}
-            </div>
           </div>
         </Linkish>
       </div>
@@ -95,80 +42,18 @@ const Home = observer(() => {
   );
 });
 
-// eslint-disable-next-line no-unused-vars
-const Links = observer(({marketplaceId}) => {
-  if(!rootStore.loggedIn) { return <div className={S("links")} />; }
-
-  const basePath = marketplaceId ?
-    UrlJoin("/marketplace", marketplaceId, "/users/me") :
-    "/wallet/users/me";
-
-  return (
-    <nav className={S("links")}>
-      <Linkish to={"/"} useNavLink exact className={S("link")}>
-        { rootStore.l10n.header.discover }
-      </Linkish>
-      <Linkish to={UrlJoin(basePath, "items")} useNavLink className={S("link")}>
-        { rootStore.l10n.header.my_items }
-      </Linkish>
-    </nav>
-  );
-});
-
-// eslint-disable-next-line no-unused-vars
-const UserLinks = observer(() => {
-  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
-  const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
-
-  if(!rootStore.loggedIn) {
-    return (
-      <div className={S("user-links")}>
-        <button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
-          { rootStore.l10n.login.sign_in }
-        </button>
-        {
-          rootStore.routeParams.marketplaceId && !(rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace)  ?
-            <Linkish
-              className={S("button")}
-              title="Discover Projects"
-              to="/"
-            >
-              <ImageIcon icon={DiscoverIcon} />
-            </Linkish> : null
-        }
-      </div>
-    );
-  } else {
-    return (
-      <div className={S("user-links")}>
-        { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
-        { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
-
-        <button
-          className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
-          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
-        >
-          <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
-          <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
-        </button>
-        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
-          <ImageIcon icon={MenuIcon} label="Show Profile Menu" className={S("button__icon")} />
-          <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
-        </button>
-      </div>
-    );
-  }
-});
-
-
 const SearchBar = observer(() => {
   const [filter, setFilter] = useState(rootStore.discoverFilter);
-  const [debouncedFilter] = useDebouncedValue(filter, 300);
+  const [debouncedFilter] = useDebouncedValue(filter, 600);
   const [mediaProperties, setMediaProperties] = useState(undefined);
+  const [featuredPropertyLists, setFeaturedPropertyLists] = useState(undefined);
 
   useEffect(() => {
     mediaPropertyStore.LoadMediaProperties()
-      .then(setMediaProperties);
+      .then(({properties, propertyLists}) => {
+        setMediaProperties(properties);
+        setFeaturedPropertyLists(propertyLists);
+      });
 
     return () => rootStore.SetDiscoverFilter("");
   }, []);
@@ -177,12 +62,27 @@ const SearchBar = observer(() => {
     rootStore.SetDiscoverFilter(debouncedFilter);
   }, [debouncedFilter]);
 
+  let allDisplayedProperties = [];
+  featuredPropertyLists
+    ?.forEach(({properties}) =>
+      (properties || []).map(propertySlugOrId => {
+        const property = (
+          mediaProperties.find(property => property.propertyId === propertySlugOrId) ||
+          mediaProperties.find(property => property.slug === propertySlugOrId)
+        );
+
+        if(property && !allDisplayedProperties.find(p => p.slug === property.slug || p.propertyId === property.propertyId)) {
+          allDisplayedProperties.push(property);
+        }
+      })
+    );
+
   return (
     <Autocomplete
+      clearable
       data={
-        mediaProperties
-          ?.map(property => property.title || property.name)
-          ?.filter((value, index, array) => array.indexOf(value) === index)
+        allDisplayedProperties
+          .map(property => ({label: property.title || property.name, value: property.propertyId}))
       }
       value={filter}
       onChange={value => setFilter(value)}
@@ -195,9 +95,13 @@ const SearchBar = observer(() => {
       role="search"
       rightSection={
         rootStore.pageWidth < 800 ? null :
-          <div className={S("search__submit")}>
-            <ImageIcon alt="search" icon={SearchIcon} />
-          </div>
+          filter ?
+            <button onClick={() => setFilter("")} className={S("search__submit")}>
+              <ImageIcon alt="search" icon={XIcon}/>
+            </button> :
+            <div className={S("search__submit")}>
+              <ImageIcon alt="search" icon={SearchIcon}/>
+            </div>
       }
       rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
       classNames={{
@@ -269,7 +173,7 @@ const Header = observer(() => {
     document.addEventListener("scroll", ScrollFade);
 
     return () => document.removeEventListener("scroll", ScrollFade);
-  }, [marketplaceId]);
+  }, []);
 
   if(rootStore.pageWidth < 800) {
     return <MobileHeader scrolled={scrolled} />;
@@ -281,7 +185,7 @@ const Header = observer(() => {
     <>
       <div className={S("header-placeholder")} />
       <header className={S("header", scrolled ? "header--scrolled" : "")}>
-        <div className={S("header__background")} />
+        <div className={S("header__background")}/>
         {
           !backPath || location.pathname === backPath ? null :
             <div className={S("back-link-container")}>
@@ -295,15 +199,9 @@ const Header = observer(() => {
             </div>
         }
 
-        <Home marketplaceId={marketplaceId} />
-        {
-          rootStore.routeParams.marketplaceId ? null :
-            <SearchBar />
-        }
-        { /* <Links marketplaceId={marketplaceId} /> */ }
-        { /* <UserLinks /> */ }
+        <Home marketplaceId={marketplaceId}/>
+        <SearchBar />
       </header>
-      <NotificationBanner />
     </>
   );
 });

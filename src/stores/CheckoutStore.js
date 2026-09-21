@@ -4,7 +4,7 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import {rootStore} from "./index";
-import {NFTInfo} from "../utils/Utils";
+import {NFTInfo} from "@/utils/Utils";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -623,6 +623,7 @@ class CheckoutStore {
       try {
         // Ensure listing is still available
         yield this.rootStore.walletClient.Listing({listingId});
+      // eslint-disable-next-line no-unused-vars
       } catch(error) {
         throw {
           status: 409,
