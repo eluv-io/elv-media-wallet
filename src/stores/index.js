@@ -1,13 +1,13 @@
-// eslint-disable-next-line no-console
+
 console.time("Initial Load");
 
-import {SearchParams} from "../utils/Utils";
+import {SearchParams} from "@/utils/Utils";
 
 window.sessionStorageAvailable = false;
 try {
   sessionStorage.getItem("test");
   window.sessionStorageAvailable = true;
-// eslint-disable-next-line no-empty
+// eslint-disable-next-line no-unused-vars
 } catch(error) {}
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
@@ -18,23 +18,20 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 import {parseDomain} from "parse-domain";
 
-import {SendEvent} from "Components/interface/Listener";
-import EVENTS from "../../client/src/Events";
-
-import CheckoutStore from "Stores/CheckoutStore";
-import TransferStore from "Stores/TransferStore";
-import CryptoStore from "Stores/CryptoStore";
-import NotificationStore from "Stores/NotificationStore";
-import MediaPropertyStore from "Stores/MediaPropertyStore";
-import MediaStore from "Stores/MediaStore";
+import CheckoutStore from "@/stores/CheckoutStore";
+import TransferStore from "@/stores/TransferStore";
+import CryptoStore from "@/stores/CryptoStore";
+import NotificationStore from "@/stores/NotificationStore";
+import MediaPropertyStore from "@/stores/MediaPropertyStore";
+import MediaStore from "@/stores/MediaStore";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
 import MergeWith from "lodash/mergeWith";
 
-import LocalizationEN from "Assets/localizations/en.yml";
-import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
+import LocalizationEN from "@/assets/localizations/en.yml";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -50,6 +47,7 @@ try {
 
   sessionStorage.getItem("TestStorage");
   localStorage.getItem("TestStorage");
+// eslint-disable-next-line no-unused-vars
 } catch(error) {
   storageSupported = false;
 }
@@ -122,11 +120,14 @@ class RootStore {
   loginBackPath;
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
+  showSplash = true;
+  splashDelay = 750;
 
   loggedIn = false;
   signingOut = false;
   externalWalletUser = false;
   disableCloseEvent = false;
+  userInfo = {};
   darkMode = !searchParams.has("lt");
 
   loginCustomization = {};
@@ -176,6 +177,7 @@ class RootStore {
   basePublicUrl = undefined;
 
   route = location.pathname;
+  currentPath = window.location.pathname;
   routeParams = {};
   backPath = undefined;
 
@@ -192,8 +194,6 @@ class RootStore {
 
   marketplaceFilters = [];
 
-  EVENTS = EVENTS;
-
   noItemsAvailable = false;
 
   analyticsInitialized = false;
@@ -206,6 +206,10 @@ class RootStore {
 
   _resources = {};
   logTiming = false;
+
+  get mobile() {
+    return this.pageWidth < 850;
+  }
 
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
@@ -300,9 +304,24 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
+    if(typeof navigation !== "undefined" && navigation?.addEventListener) {
+      navigation.addEventListener("navigate", event =>
+        runInAction(() => this.currentPath = new URL(event.destination.url).pathname)
+      );
+    } else {
+      setInterval(() => {
+        // Not all browsers support navigation callback, just set an interval to check if the path has changed
+        if(window.location.pathname !== this.currentPath) {
+          runInAction(() => this.currentPath = window.location.pathname);
+        }
+      }, 500);
+    }
+
     // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
-    const SetVH = () =>
+    const SetVH = () => {
       document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+      document.documentElement.style.setProperty("--vw", `${window.innerWidth * 0.01}px`);
+    };
 
     SetVH();
 
@@ -324,10 +343,6 @@ class RootStore {
     }
 
     this.Initialize();
-  }
-
-  RouteChange(pathname) {
-    this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
   }
 
   SetDiscoverFilter(filter) {
@@ -355,7 +370,7 @@ class RootStore {
       return false;
     }
 
-    const localization = (yield import(`Assets/localizations/${language}.yml`)).default;
+    const localization = (yield import(`@/assets/localizations/${language}.yml`)).default;
 
     const MergeLocalization = (l10n, en) => {
       if(Array.isArray(en)) {
@@ -430,6 +445,7 @@ class RootStore {
 
         // Initialize Ory client
         const {Configuration, FrontendApi} = yield import("@ory/client");
+        this.oryProviderDomain = oryUrl;
         this.oryClient = new FrontendApi(
           new Configuration({
             features: {
@@ -500,7 +516,7 @@ class RootStore {
       this.client = this.walletClient.client;
 
       this.staticToken = this.client.staticToken;
-      this.authToken = undefined;
+      this.authToken = this.walletClient.AuthToken();
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
@@ -584,15 +600,13 @@ class RootStore {
           specified: true
         });
       }
-
-      this.SendEvent({event: EVENTS.LOADED});
     } catch(error) {
       this.Log("Initialization failed:", true);
       this.Log(error, true);
     } finally {
       if(this.walletClient) {
         this.loaded = true;
-        // eslint-disable-next-line no-console
+
         console.timeEnd("Initial Load");
       } else {
         // Retry
@@ -637,6 +651,7 @@ class RootStore {
         idToken: jwtToken,
         force,
         provider: "ory",
+        providerDomain: this.oryProviderDomain,
         nonce,
         installId,
         origin,
@@ -685,12 +700,8 @@ class RootStore {
     }
   });
 
-  GetPropertySlugOrId() {
-    let id = this.currentPropertyId || this.routeParams.mediaPropertySlugOrId;
-
-    if(id) {
-      return id;
-    } else if(window.location.pathname.includes("/p/")) {
+  GetPropertySlugOrIdFromPath() {
+    if(window.location.pathname.includes("/p/")) {
       return window.location.pathname.split("/p/").slice(-1)[0].split("/")[0];
     } else {
       const slug = window.location.pathname.split("/")[1];
@@ -699,6 +710,14 @@ class RootStore {
         return slug;
       }
     }
+  }
+
+  GetPropertySlugOrId() {
+    return (
+      this.currentPropertyId ||
+      this.routeParams.mediaPropertySlugOrId ||
+      this.GetPropertySlugOrIdFromPath()
+    );
   }
 
   InitializeOpenIdClient = flow(function * () {
@@ -715,7 +734,10 @@ class RootStore {
       propertyConfig.login.settings.openid_client_id
     );
 
-    const logoutUrl = new URL(propertyConfig?.login?.settings?.openid_logout_url);
+    const logoutUrl = !propertyConfig?.login?.settings?.openid_logout_url ? undefined :
+      new URL(propertyConfig?.login?.settings?.openid_logout_url);
+
+    this.openIdProviderDomain = propertyConfig?.login?.settings?.openid_endpoint;
 
     return {
       openIdClient,
@@ -755,7 +777,6 @@ class RootStore {
 
   AuthenticateOpenId = flow(function * ({refreshToken, nonce, installId, origin, userData}={}) {
     try {
-      // eslint-disable-next-line no-console
       console.time("OpenId Authentication");
 
       const {openIdClient, config} = yield this.InitializeOpenIdClient();
@@ -801,6 +822,7 @@ class RootStore {
         idToken: tokens.id_token,
         refreshToken: tokens.refresh_token,
         provider: "openId",
+        providerDomain: this.openIdProviderDomain,
         nonce,
         installId,
         origin,
@@ -827,7 +849,6 @@ class RootStore {
       throw { uiMessage: this.l10n.login.errors.login_failed };
       //this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
-      // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
     }
   });
@@ -850,16 +871,15 @@ class RootStore {
       cacheLocation: "localstorage",
       //useRefreshTokens: true,
     });
+    this.auth0ProviderDomain = config?.login?.settings?.auth0_domain;
   });
 
   AuthenticateAuth0 = flow(function * ({nonce, installId, origin, userData}={}) {
     try {
-      // eslint-disable-next-line no-console
       console.time("Auth0 Authentication");
 
       // Check for existing Auth0 authentication status
       // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
-      // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
 
@@ -878,6 +898,7 @@ class RootStore {
         yield this.Authenticate({
           idToken: authInfo.__raw,
           provider: "auth0",
+          providerDomain: this.auth0ProviderDomain,
           nonce,
           installId,
           origin,
@@ -905,7 +926,6 @@ class RootStore {
 
       this.SignOut({returnUrl: window.location.href, reload: true, logOutAuth0: true});
     } finally {
-      // eslint-disable-next-line no-console
       console.timeEnd("Auth0 Authentication");
     }
   });
@@ -962,6 +982,7 @@ class RootStore {
     clientSigningToken,
     refreshToken,
     provider="external",
+    providerDomain,
     externalWallet,
     walletName,
     installId,
@@ -1037,6 +1058,7 @@ class RootStore {
         clientSigningToken,
         refreshToken,
         provider,
+        providerDomain,
         nonce,
         installId,
         save: this.authCode ? false : saveAuthInfo
@@ -1076,10 +1098,9 @@ class RootStore {
 
       this.RemoveLocalStorage("signed-out");
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
-
       this.notificationStore.InitializeNotifications(true);
 
+      this.userInfo = this.walletClient.UserInfo();
 
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
@@ -1179,7 +1200,7 @@ class RootStore {
     }
 
     if(options?.styling?.filter_style === "squared") {
-      //variables.push("--property-filter-border-radius: 0px;");
+      variables.push("--property-filter-border-radius: 0px;");
     } else if(options?.styling?.filter_style === "alternating") {
       variables.push("--property-filter-border-radius: 7px 0 7px 0;");
     }
@@ -1252,10 +1273,6 @@ class RootStore {
     }
   });
 
-  SendEvent({event, data}) {
-    SendEvent({event, data});
-  }
-
   PublicLink({versionHash, path, queryParams={}}) {
     const url = new URL(this.basePublicUrl);
     url.pathname = UrlJoin("q", versionHash, "meta", path);
@@ -1297,6 +1314,7 @@ class RootStore {
       const url = new URL(imageUrl);
 
       return url.hostname.endsWith("contentfabric.io");
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return false;
     }
@@ -1310,7 +1328,7 @@ class RootStore {
       imageUrl.searchParams.set("width", width);
 
       return imageUrl.toString();
-    // eslint-disable-next-line no-empty
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {}
   }
 
@@ -1583,7 +1601,6 @@ class RootStore {
       }
 
       if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
-        // eslint-disable-next-line no-async-promise-executor
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
@@ -1905,7 +1922,6 @@ class RootStore {
 
             case "HP-CM-30":
               // Not enough balance - No special message
-
             // eslint-disable-next-line no-fallthrough
             default:
               throw error;
@@ -2389,7 +2405,6 @@ class RootStore {
           parameters.to = UrlJoin(parameters.to, SearchParams()["otp_code"] || "");
 
           // Fall through to redirect
-        // eslint-disable-next-line no-fallthrough
         case "redirect":
           if(parameters.url) {
             window.location.href = parameters.url;
@@ -2557,11 +2572,11 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, refreshToken, provider, providerDomain, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
 
-        return { clientAuthToken, clientSigningToken, refreshToken, provider, expiresAt, address };
+        return { clientAuthToken, clientSigningToken, refreshToken, provider, providerDomain, expiresAt, address };
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -2600,6 +2615,7 @@ class RootStore {
     this.RemoveLocalStorage(this.AuthStorageKey());
 
     this.authInfo = undefined;
+    this.userInfo = {};
   }
 
   SetAuthInfoFromAuthorizationParam = flow(function * ({
@@ -2689,7 +2705,7 @@ class RootStore {
     });
   });
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", nonce, installId, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, refreshToken, provider="external", providerDomain, nonce, installId, save=true}) {
     let { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
@@ -2697,6 +2713,7 @@ class RootStore {
       clientAuthToken,
       refreshToken,
       provider,
+      providerDomain,
       expiresAt,
       address,
       nonce,
@@ -2729,6 +2746,15 @@ class RootStore {
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
+  async SetShowSplash(show) {
+    do {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } while(!show && window.initSplashRender + 3000 > Date.now() && this.mediaPropertyStore.loadingProgress < 100);
+
+    this.showSplash = show;
+    delete window.initSplashRender;
+  }
+
   ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
     const mediaProperty = this.mediaPropertyStore.MediaProperty(this.routeParams);
     if(mediaProperty?.metadata?.login?.settings?.disable_login) {
@@ -2737,15 +2763,15 @@ class RootStore {
     }
 
     if(this.capturedLogin && !ignoreCapture) {
-      if(this.loggedIn) { return; }
-
-      this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
+      return;
     } else {
       this.requireLogin = requireLogin;
       this.loginBackPath = backPath;
       this.loginCancel = Cancel;
       this.showLogin = true;
     }
+
+    this.SetShowSplash(false);
   }
 
   HideLogin() {
@@ -2823,6 +2849,7 @@ class RootStore {
   GetLocalStorage(key) {
     try {
       return localStorage.getItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2835,6 +2862,7 @@ class RootStore {
       } else {
         return JSON.parse(this.GetLocalStorage(key));
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2843,6 +2871,7 @@ class RootStore {
   SetLocalStorage(key, value) {
     try {
       return localStorage.setItem(key, value);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2851,6 +2880,7 @@ class RootStore {
   RemoveLocalStorage(key) {
     try {
       return localStorage.removeItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2859,6 +2889,7 @@ class RootStore {
   GetSessionStorage(key) {
     try {
       return sessionStorage.getItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2871,6 +2902,7 @@ class RootStore {
       } else {
         return JSON.parse(this.GetSessionStorage(key));
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2879,6 +2911,7 @@ class RootStore {
   SetSessionStorage(key, value) {
     try {
       return sessionStorage.setItem(key, value);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2887,6 +2920,7 @@ class RootStore {
   RemoveSessionStorage(key) {
     try {
       return sessionStorage.removeItem(key);
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       return undefined;
     }
@@ -2908,19 +2942,13 @@ class RootStore {
         this.pageWidth = width;
         this.pageHeight = height;
 
-        this.fullscreenImageWidth = width > 3000 ? 3840 : width > 2000 ? 2560 : 1920;
+        this.fullscreenImageWidth = (
+          width > 3000 ? 3840 :
+            width > 2000 ? 2560 :
+              width > 1000 ? 1920 :
+                1000
+        );
       });
-
-      const bodyScrollVisible = document.body.getBoundingClientRect().height > window.innerHeight;
-      if(this.embedded && bodyScrollVisible) {
-        this.SendEvent({
-          event: EVENTS.RESIZE,
-          data: {
-            width,
-            height: height + 200
-          }
-        });
-      }
     }, 100);
   }
 
@@ -2953,6 +2981,7 @@ class RootStore {
 
     if(!path && !query) { return; }
 
+    const params = new URLSearchParams(query);
     if(context === "s") {
       if(!path.includes("/s/:sectionSlugOrId") && location.pathname.includes("/s/:sectionSlugOrId/")) {
         path = UrlJoin(path, "/s/:sectionSlugOrId");
@@ -2962,6 +2991,17 @@ class RootStore {
     } else if(context === "search") {
       if(!location.pathname.endsWith("/search")) {
         path = UrlJoin(path, "/search");
+        context = "";
+
+        const mediaId = location.pathname.split("/").slice(-1)[0];
+        if(mediaId?.startsWith("msch")) {
+          // Search result, parse
+          const query = this.client.utils.FromB58ToStr(mediaId.replace("msch", "")).split("::")[0];
+          params.set("q", query);
+          params.set("m", "clip");
+        } else if(this.mediaPropertyStore.searchOptions.query) {
+          params.set("q", this.mediaPropertyStore.searchOptions.query);
+        }
       } else {
         context = undefined;
       }
@@ -2975,12 +3015,10 @@ class RootStore {
       )
       .join("/");
 
-    const params = new URLSearchParams(query);
     for(const [key, value] of params.entries()) {
       params.set(
         key,
-        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) ||
-        value
+        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) || value
       );
     }
 

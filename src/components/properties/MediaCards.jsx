@@ -1,25 +1,558 @@
-import MediaCardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
+import MediaCardStyles from "@/assets/stylesheets/media_properties/media-cards.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import {
   MediaItemImageUrl, MediaItemLivePreviewImageUrl,
   MediaItemScheduleInfo, MediaPropertyLink
-} from "../../utils/MediaPropertyUtils";
-import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "Components/properties/Common";
+} from "@/utils/MediaPropertyUtils";
+import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "@/components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
-import {FormatPriceString, Linkish} from "Components/common/UIComponents";
-import Video from "Components/properties/Video";
+import {FormatPriceString, Linkish} from "@/components/common/UIComponents";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
+import {Popover, Select} from "@mantine/core";
+import ImageIcon from "@/components/common/ImageIcon";
 
-const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
+import ArrowRightIcon from "@/assets/icons/arrow-right.svg";
+import CaretDownIcon from "@/assets/icons/down-caret.svg";
+import PlayIcon from "@/assets/icons/media/play.svg";
+import XIcon from "@/assets/icons/x.svg";
+
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyles[c] || "").join(" ");
+
+const HEADER_SEPARATOR = " · ";
+
+const MediaItem = observer(({mediaItemId, index, navContext}) => {
+  const match = useRouteMatch();
+  const [hovering, setHovering] = useState(false);
+  const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItemId});
+
+  if(!mediaItem) { return null; }
+
+  const permissions = mediaPropertyStore.ResolvePermission({...match.params, mediaItemSlugOrId: mediaItemId});
+
+  if(permissions.hide) { return null; }
+
+  const linkInfo = MediaPropertyLink({match, mediaItem, navContext});
+  const imageInfo = MediaItemImageUrl({
+    mediaItem,
+    display: mediaItem,
+    width: 600
+  });
+
+  return (
+    <Linkish
+      disabled={permissions.disable}
+      to={linkInfo.linkPath}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      className={S("media-list-item")}
+    >
+      <div className={S("media-list-item__info")}>
+        <div className={S("media-list-item__index")}>
+          { index + 1 }
+        </div>
+        <div className={S("styled-card", `styled-card--${imageInfo.imageAspectRatio}`, "media-list-item__card", hovering ? "styled-card--transition-active" : "")}>
+          <div className={S("styled-card__image-container", "media-list-item__image-container")}>
+            <LoaderImage
+              src={imageInfo.imageUrl}
+              hash={imageInfo.imageHash}
+              className={S("styled-card__image", "media-list-item__image")}
+            />
+          </div>
+        </div>
+        <div className={S("media-list-item__text")}>
+          {
+            (mediaItem.headers || []).length === 0 ? null :
+              <div className={S("media-list-item__headers")}>
+                {mediaItem.headers?.join?.(HEADER_SEPARATOR)}
+              </div>
+          }
+          {
+            !mediaItem.title ? null :
+              <div title={mediaItem.title} className={[S("media-list-item__title"), "_title"].join(" ")}>
+                {mediaItem.title}
+              </div>
+          }
+          {
+            !mediaItem.subtitle ? null :
+              <div className={S("media-list-item__subtitle")}>
+                {mediaItem.subtitle}
+              </div>
+          }
+        </div>
+      </div>
+      {
+        !mediaItem.description ? null :
+          <ExpandableDescription
+            onClick={event => {
+              event.stopPropagation();
+              event.preventDefault();
+              return false;
+            }}
+            description={mediaItem.description}
+            maxLines={3}
+            className={S("media-list-item__description")}
+            indicatorClassName={S("media-list-item__description-expand")}
+          />
+      }
+    </Linkish>
+  );
+});
+
+const MediaDetailsModal = observer(({
+  display,
+  url,
+  linkPath,
+  navContext,
+  onClick,
+  imageUrl,
+  livePreviewUrl,
+  lazy,
+  aspectRatio,
+  imageAspectRatio,
+  scheduleInfo,
+  progress,
+  style,
+  Close
+}) => {
+  const [selectedMediaListId, setSelectedMediaListId] = useState(
+    display?.type === "collection" ? display.media_lists?.[0] :
+      display.type === "list" ? display.id : undefined
+  );
+
+  const selectedMediaList = !selectedMediaListId ? undefined :
+    mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: selectedMediaListId});
+
+  return (
+    <Modal
+      noBackground
+      width={800}
+      opened
+      centered
+      withCloseButton={false}
+      onClose={Close}
+    >
+      <div
+        style={{...(style || {})}}
+        className={S("details-modal", `details-modal--${imageAspectRatio || aspectRatio}`)}
+      >
+        <div className={S("details-modal__close-header")}>
+          <Linkish title="Close" onClick={Close} aria-label="Close Details" className={S("details-modal__close")}>
+            <ImageIcon icon={XIcon} />
+          </Linkish>
+        </div>
+        <div className={S("details-modal__top")}>
+          <div className={S("styled-card", "styled-card--active", `styled-card--${imageAspectRatio || aspectRatio}`, "details-modal__card")}>
+            <div className={S("styled-card__image-container", "details-modal__image-container")}>
+              <LoaderImage
+                lazy={lazy}
+                src={livePreviewUrl || imageUrl}
+                alternateSrc={livePreviewUrl ? imageUrl : undefined}
+                alt={display.thumbnail_alt_text || display.title}
+                width={600}
+                showWithoutSource
+                className={S("styled-card__image", "details-modal__image")}
+              />
+              {
+                // Schedule indicator
+                !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
+                  scheduleInfo.currentlyLive ?
+                    <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
+                      {mediaPropertyStore.rootStore.l10n.media_properties.media.live}
+                    </div> :
+                    <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
+                      <div>{scheduleInfo.displayStartDate} at {scheduleInfo.displayStartTime}</div>
+                    </div>
+              }
+              {
+                // Progress indicator
+                !progress || isNaN(progress) || progress ? null :
+                  <div className={S("styled-card__progress-container")}>
+                    <div
+                      style={{width: `${progress * 100}%`}}
+                      className={S("styled-card__progress-indicator")}
+                    />
+                  </div>
+              }
+            </div>
+          </div>
+          <div className={S("details-modal__top-content")}>
+            <div className={S("details-modal__top-text")}>
+              {
+                (display.headers || []).length === 0 ? null :
+                  <div className={S("details-modal__headers")}>
+                    {display.headers?.join?.(HEADER_SEPARATOR)}
+                  </div>
+              }
+              {
+                !display.title ? null :
+                  <div title={display.title} className={[S("details-modal__title"), "_title"].join(" ")}>
+                    {display.title}
+                  </div>
+              }
+              {
+                !display.subtitle ? null :
+                  <div className={S("details-modal__subtitle")}>
+                    {display.subtitle}
+                  </div>
+              }
+            </div>
+            <div className={S("details-modal__actions")}>
+              {
+                display.type !== "media" ? null :
+                  <Linkish
+                    title="Go to Content"
+                    to={linkPath}
+                    href={url}
+                    onClick={
+                      !onClick ? null :
+                        event => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onClick?.();
+                        }
+                    }
+                    className={S("details-modal__button")}
+                  >
+                    <ImageIcon icon={PlayIcon}/>
+                    { progress > 0 ? "Resume" : "Play" }
+                  </Linkish>
+              }
+            </div>
+          </div>
+        </div>
+        <div className={S("details-modal__content")}>
+          {
+            !display.description ? null :
+              <ExpandableDescription
+                description={display.description}
+                descriptionRichText={display.description_rich_text}
+                maxLines={5}
+                className={S("details-modal__description")}
+              />
+          }
+        </div>
+        {
+          !selectedMediaListId ? null :
+            <>
+              {
+                display.type !== "collection" || display.media_lists.length <= 1 ? null :
+                  <div className={S("details-modal__list-header")}>
+                    <div className={S("details-modal__list-header-text")}>
+                      {display.media_lists_label || "Lists"}
+                    </div>
+                    <Select
+                      value={selectedMediaListId}
+                      onChange={value => setSelectedMediaListId(value)}
+                      maw={225}
+                      fz={20}
+                      data={
+                        display.media_lists
+                          .map(mediaListId => ({
+                            value: mediaListId,
+                            label: mediaPropertyStore.MediaPropertyMediaItem({
+                              mediaItemSlugOrId: mediaListId
+                            })?.title
+                          }))
+                      }
+                    />
+                  </div>
+              }
+              {
+                !selectedMediaList ? null :
+                  <div key={selectedMediaListId} className={S("media-list")}>
+                    {
+                      selectedMediaList.media?.map((mediaItemId, index) =>
+                        <MediaItem
+                          key={mediaItemId}
+                          index={index}
+                          mediaItemId={mediaItemId}
+                          navContext={navContext}
+                        />
+                      )
+                    }
+                  </div>
+              }
+            </>
+        }
+      </div>
+    </Modal>
+  );
+});
+
+
+let hoverCardTimeout;
+const MediaHoverCard = observer(({
+  display,
+  url,
+  authorized,
+  disabled,
+  linkPath,
+  onClick,
+  imageUrl,
+  imageHash,
+  livePreviewUrl,
+  lazy,
+  aspectRatio,
+  imageAspectRatio,
+  scheduleInfo,
+  progress,
+  children,
+  style,
+  sideBuffer=0,
+  ShowDetailsModal,
+  openDelay=1000,
+  closeDelay=100
+}) => {
+  const [closeTimeout, setCloseTimeout] = useState(undefined);
+  const [opened, setOpened] = useState(false);
+  const [targetRef, setTargetRef] = useState(undefined);
+  const [hoverCardRef, setHoverCardRef] = useState(undefined);
+  const [dimensions, setDimensions] = useState({});
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  const Focus = (duration=openDelay) => {
+    clearTimeout(hoverCardTimeout);
+    clearTimeout(closeTimeout);
+    hoverCardTimeout = setTimeout(() => setOpened(true), duration);
+
+    setDimensions(targetRef?.getBoundingClientRect());
+  };
+
+  const Blur = (duration=closeDelay) => {
+    clearTimeout(hoverCardTimeout);
+    clearTimeout(closeTimeout);
+    setCloseTimeout(setTimeout(() => setOpened(false), duration));
+  };
+
+  useEffect(() => {
+    if(!targetRef) { return; }
+
+    setDimensions(targetRef.getBoundingClientRect());
+
+    if(!opened) {
+      setVideoLoaded(false);
+    }
+  }, [opened]);
+
+  // Close on unfocus
+  useEffect(() => {
+    if(!opened || !hoverCardRef) { return; }
+
+    const DetectUnfocus = event => {
+      if(!hoverCardRef.contains(event.target)) {
+        Blur(closeDelay);
+      }
+    };
+
+    document.addEventListener("focusin", DetectUnfocus);
+
+    return () => document.removeEventListener("focusin", DetectUnfocus);
+  }, [opened, hoverCardRef]);
+
+  const overscale = 100;
+  const hoverCardWidth = Math.max((dimensions.width || 0) + overscale, 250);
+  let extensionX = -1 * (hoverCardWidth - (dimensions.width || 0)) / 2;
+  let extensionY = aspectRatio === imageAspectRatio ? extensionX : extensionX / 3;
+
+  if(dimensions.x - (overscale / 2) < sideBuffer) {
+    // Offscreen left
+    extensionX = -1 * (dimensions.x - 5) + sideBuffer;
+  } else if(dimensions.right + overscale - document.body.getBoundingClientRect().width > sideBuffer) {
+    // Offscreen right
+    extensionX = -1 * (dimensions.right + overscale * 1.25 - document.body.getBoundingClientRect().width + sideBuffer);
+  }
+
+  style = {...(style || {})};
+  style["--scale"] = 1;
+
+  if(dimensions.width) {
+    style["--width"] = `${hoverCardWidth}px`;
+  }
+
+  if(parseInt(style["--border-radius"]) <= 5) {
+    // Square out subtle border radius in hover card
+    style["--border-radius"] = "0px";
+  }
+
+  return (
+    <Popover
+      trapFocus
+      opened={opened}
+      position="center"
+      middlewares={{flip: false, shift: false}}
+      onDismiss={() => setOpened(false)}
+      // x - mainAxis, y - crossAxis
+      offset={{mainAxis: extensionX, crossAxis: extensionY}}
+      transitionProps={{
+        transition: "pop",
+        duration: 200,
+        exitDuration: 100
+      }}
+    >
+      <Popover.Target>
+        <div
+          ref={setTargetRef}
+          onMouseEnter={() => Focus(openDelay)}
+          onFocus={() => Focus(openDelay)}
+          onBlur={() => clearTimeout(hoverCardTimeout)}
+          onMouseLeave={() => clearTimeout(hoverCardTimeout)}
+          style={style}
+          className={S("hover-card-target", opened ? "hover-card-target--delay-transition" : "")}
+        >
+          { children }
+        </div>
+      </Popover.Target>
+      <Popover.Dropdown
+        style={style}
+        className={S("hover-card-container")}
+      >
+        <Linkish
+          ref={setHoverCardRef}
+          to={linkPath}
+          href={url}
+          onClick={onClick}
+          onMouseEnter={() => clearTimeout(closeTimeout)}
+          onMouseLeave={() => Blur(closeDelay)}
+          className={S("styled-card", `styled-card--${imageAspectRatio}`, "styled-card--active", "hover-card")}
+        >
+          <div className={S("styled-card__image-container", "hover-card__image-container")}>
+            <LoaderImage
+              lazy={lazy}
+              src={livePreviewUrl || imageUrl}
+              hash={imageHash}
+              hideLoader={!imageHash}
+              alternateSrc={livePreviewUrl ? imageUrl : undefined}
+              alt={display.thumbnail_alt_text || display.title}
+              width={600}
+              showWithoutSource
+              className={S("styled-card__image", "hover-card__image")}
+            />
+            {
+              !display?.preview_video ? null :
+                <Video
+                  link={display.preview_video}
+                  linkInfo={display.preview_video_info}
+                  mute
+                  hideControls
+                  autoAspectRatio={false}
+                  playerOptions={{
+                    backgroundColor: "transparent",
+                    showLoader: false,
+                    loop: true,
+                    autoplay: true,
+                    capLevelToPlayerSize: true
+                  }}
+                  readyCallback={() => setVideoLoaded(true)}
+                  className={S("styled-card__image", "styled-card__video", videoLoaded ? "styled-card__video--loaded" : "")}
+                />
+            }
+            {
+              // Schedule indicator
+              !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
+                scheduleInfo.currentlyLive ?
+                  <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
+                    {mediaPropertyStore.rootStore.l10n.media_properties.media.live}
+                  </div> :
+                  <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
+                    <div>{scheduleInfo.displayStartDate} at {scheduleInfo.displayStartTime}</div>
+                  </div>
+            }
+            {
+              // Progress indicator
+              !progress || isNaN(progress) ? null :
+                <div className={S("styled-card__progress-container")}>
+                  <div
+                    style={{width: `${progress * 100}%`}}
+                    className={S("styled-card__progress-indicator")}
+                  />
+                </div>
+            }
+            {
+              authorized || !rootStore.loggedIn || disabled ? null :
+                <div className={S("media-card__unauthorized-indicator")}>
+                  { rootStore.l10n.actions.purchase.view_purchase_options }
+                </div>
+            }
+          </div>
+          <div className={S("hover-card__content")}>
+            <div className={S("hover-card__actions")}>
+              <Linkish
+                data-autofocus
+                to={linkPath}
+                href={url}
+                onClick={onClick}
+                title="Go to Content"
+                className={S("hover-card__action")}
+              >
+                <ImageIcon icon={ArrowRightIcon}/>
+              </Linkish>
+              <div className={S("hover-card__separator")} />
+              <Linkish
+                title="More Info"
+                onClick={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  ShowDetailsModal();
+                  setOpened(false);
+                }}
+                className={S("hover-card__action")}
+              >
+                <ImageIcon icon={CaretDownIcon} />
+              </Linkish>
+            </div>
+            <div className={S("hover-card__text")}>
+              {
+                (display.headers || []).length === 0 ? null :
+                  <div className={S("hover-card__headers")}>
+                    {display.headers?.join?.(HEADER_SEPARATOR)}
+                  </div>
+              }
+              {
+                !display.title ? null :
+                  <div title={display.title} className={[S("hover-card__title"), "_title"].join(" ")}>
+                    {display.title}
+                  </div>
+              }
+              {
+                !display.subtitle ? null :
+                  <div className={S("hover-card__subtitle")}>
+                    {display.subtitle}
+                  </div>
+              }
+              {
+                !display.description ? null :
+                  <ExpandableDescription
+                    description={display.description}
+                    maxLines={3}
+                    onClick={event => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      ShowDetailsModal();
+                      setOpened(false);
+                      return true;
+                    }}
+                    className={S("hover-card__description")}
+                  />
+              }
+            </div>
+          </div>
+        </Linkish>
+      </Popover.Dropdown>
+    </Popover>
+  );
+});
 
 export const MediaCardWithButtonVertical = observer(({
   display,
   price,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo={},
   textDisplay,
@@ -29,14 +562,17 @@ export const MediaCardWithButtonVertical = observer(({
   url,
   size,
   lazy=true,
+  wrapTitle,
   buttonText,
   onClick,
   className="",
   setShowModal,
+  style={},
   isModal
 }) => {
   return (
     <div
+      style={style}
       className={[
         S(
           "media-card-button-vertical",
@@ -53,6 +589,7 @@ export const MediaCardWithButtonVertical = observer(({
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
           width={600}
@@ -74,19 +611,19 @@ export const MediaCardWithButtonVertical = observer(({
       </div>
       <div className={S("media-card-button-vertical__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-          <div className={S("media-card-button-vertical__headers")}>
-            { display.headers?.join?.("     ") }
+          <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__headers")].join(" ")}>
+            { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
           !display.title ? null :
-            <h3 className={[S("media-card-button-vertical__title"), "_title"].join(" ")}>
+            <h3 className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__title"), "_title"].join(" ")}>
               { display.title }
             </h3>
         }
         {
           !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-            <div className={S("media-card-button-vertical__subtitle")}>
+            <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-vertical__subtitle")].join(" ")}>
               { display.subtitle }
             </div>
         }
@@ -136,6 +673,7 @@ const MediaCardWithButtonHorizontal = observer(({
   price,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo={},
   textDisplay,
@@ -145,13 +683,16 @@ const MediaCardWithButtonHorizontal = observer(({
   url,
   size,
   lazy=true,
+  wrapTitle,
   buttonText,
   onClick,
   className="",
-  setShowModal
+  setShowModal,
+  style={}
 }) => {
   return (
     <div
+      style={style}
       className={[
         S(
           "media-card-button-horizontal",
@@ -167,6 +708,7 @@ const MediaCardWithButtonHorizontal = observer(({
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           loaderAspectRatio={aspectRatio}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
@@ -189,19 +731,19 @@ const MediaCardWithButtonHorizontal = observer(({
       </div>
       <div className={S("media-card-button-horizontal__text")}>
         { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-          <div className={S("media-card-button-horizontal__headers")}>
-            { display.headers?.join?.("     ") }
+          <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__headers")].join(" ")}>
+            { display.headers?.join?.(HEADER_SEPARATOR) }
           </div>
         }
         {
           !display.title ? null :
-            <h3 className={[S("media-card-button-horizontal__title"), "_title"].join(" ")}>
+            <h3 className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__title"), "_title"].join(" ")}>
               { display.title }
             </h3>
         }
         {
           !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-            <div className={S("media-card-button-horizontal__subtitle")}>
+            <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-button-horizontal__subtitle")].join(" ")}>
               { display.subtitle }
             </div>
         }
@@ -278,6 +820,7 @@ const MediaCardBanner = observer(({
   display,
   imageContainerRef,
   imageUrl,
+  imageHash,
   scheduleInfo,
   textDisplay,
   linkPath="",
@@ -350,8 +893,8 @@ const MediaCardBanner = observer(({
                 lazy={lazy}
                 showWithoutSource
                 src={imageUrl}
+                hash={imageHash}
                 alt={display.banner_alt_text || display.title}
-                loaderAspectRatio={10}
                 className={S("media-card-banner__image")}
               /> : null
         }
@@ -411,11 +954,13 @@ const MediaCardBanner = observer(({
   );
 });
 
-
 const MediaCardVertical = observer(({
+  mediaItemId,
+  sectionItemId,
   display,
   imageContainerRef,
   imageUrl,
+  imageHash,
   livePreviewUrl,
   scheduleInfo,
   textDisplay,
@@ -423,12 +968,15 @@ const MediaCardVertical = observer(({
   aspectRatio,
   linkPath="",
   url,
+  disabled,
   size,
   lazy=true,
   wrapTitle=false,
   progress,
   authorized,
   onClick,
+  style,
+  noTransition=false,
   className=""
 }) => {
   let textScale = (aspectRatio) === "landscape" ? 1 : 0.9;
@@ -440,43 +988,52 @@ const MediaCardVertical = observer(({
       to={linkPath}
       href={url}
       onClick={onClick}
+      data-section-item-id={sectionItemId}
+      data-media-item-id={mediaItemId}
+      style={{...(style || {})}}
       className={[
         S(
+          "media-card",
           "media-card-vertical",
+          "styled-card",
+          `styled-card--${aspectRatio}`,
+          noTransition ? "styled-card--no-transition" : "",
           `media-card-vertical--${aspectRatio}`,
           `media-card-vertical--${textJustification || "left"}`,
           `media-card-vertical--text-${textDisplay || "left"}`,
-          size === "fixed" ? "media-card-vertical--size-fixed" : "",
-          size === "mixed" ? "media-card-vertical--size-mixed" : "",
-          size === "carousel-mixed" ? "media-card-vertical--size-carousel-mixed" : "",
+          size === "fixed" ? "styled-card--size-fixed" : "",
+          size === "mixed" ? "styled-card--size-mixed" : "",
+          size === "carousel-mixed" ? "styled-card--size-carousel-mixed" : "",
         ),
         className
       ].join(" ")}
     >
-      <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
+      <div ref={imageContainerRef} className={S("media-card-vertical__image-container", "styled-card__image-container")}>
         <LoaderImage
           lazy={lazy}
           src={livePreviewUrl || imageUrl}
+          hash={imageHash}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.thumbnail_alt_text || display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
+          loaderAspectRatio={aspectRatio}
           showWithoutSource
-          className={S("media-card-vertical__image")}
+          className={S("media-card-vertical__image", "styled-card__image")}
         />
         {
           // Schedule indicator
           !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
             scheduleInfo.currentlyLive ?
-              <div className={S("media-card-vertical__indicator", "media-card-vertical__live-indicator")}>
+              <div className={S("styled-card__indicator", "styled-card__live-indicator")}>
                 { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
               </div> :
-              <div className={S("media-card-vertical__indicator", "media-card-vertical__upcoming-indicator")}>
+              <div className={S("styled-card__indicator", "styled-card__upcoming-indicator")}>
                 <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
               </div>
         }
         {
-          authorized || !rootStore.loggedIn ? null :
+          authorized || !rootStore.loggedIn || disabled ? null :
             <div className={S("media-card__unauthorized-indicator")}>
               { rootStore.l10n.actions.purchase.view_purchase_options }
             </div>
@@ -484,10 +1041,10 @@ const MediaCardVertical = observer(({
         {
           // Progress indicator
           !progress || isNaN(progress) ? null :
-            <div className={S("media-card-vertical__progress-container")}>
+            <div className={S("styled-card__progress-container")}>
               <div
                 style={{width: `${progress * 100}%`}}
-                className={S("media-card-vertical__progress-indicator")}
+                className={S("styled-card__progress-indicator")}
               />
             </div>
         }
@@ -497,26 +1054,19 @@ const MediaCardVertical = observer(({
         textDisplay === "none" ? null :
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-              <div className={S("media-card-vertical__headers")}>
-                { display.headers?.join?.("     ") }
+              <div className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__headers")].join(" ")}>
+                { display.headers?.join?.(HEADER_SEPARATOR) }
               </div>
             }
             {
               !display.title ? null :
-                wrapTitle ?
-                  <ExpandableDescription
-                    expandable={false}
-                    description={display.title}
-                    maxLines={3}
-                    className={[S("media-card-vertical__title--wrap"), "_title"].join(" ")}
-                  /> :
-                  <h3 title={display.title} className={[S("media-card-vertical__title", wrapTitle ? "media-card-vertical__title--wrap" : ""), "_title"].join(" ")}>
-                    { display.title }
-                  </h3>
+                <h3 title={display.title} className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__title"), "_title"].join(" ")}>
+                  { display.title }
+                </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={S("media-card-vertical__subtitle")}>
+                <ScaledText title={display.subtitle} maxPx={16 * textScale} minPx={16 * textScale} className={[!wrapTitle ? "ellipsis-pre" : "", S("media-card-vertical__subtitle")].join(" ")}>
                   { display.subtitle }
                 </ScaledText>
             }
@@ -525,92 +1075,6 @@ const MediaCardVertical = observer(({
     </Linkish>
   );
 });
-
-const MediaCardHorizontal = observer(({
-  display,
-  imageContainerRef,
-  imageUrl,
-  livePreviewUrl,
-  scheduleInfo,
-  textDisplay,
-  aspectRatio,
-  linkPath="",
-  url,
-  lazy=true,
-  onClick,
-  className=""
-}) => {
-  return (
-    <Linkish
-      aria-label={display.title}
-      to={linkPath}
-      href={url}
-      onClick={onClick}
-      className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio}`), className].join(" ")}
-    >
-      <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
-        { !imageUrl ? null :
-          <LoaderImage
-            lazy={lazy}
-            src={livePreviewUrl || imageUrl}
-            alternateSrc={livePreviewUrl ? imageUrl : undefined}
-            alt={display.thumbnail_alt_text || display.title}
-            width={600}
-            className={S("media-card-horizontal__image")}
-          />
-        }
-        {
-          // Schedule indicator
-          !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
-            scheduleInfo.currentlyLive ?
-              <div className={S("media-card-horizontal__indicator", "media-card-horizontal__live-indicator")}>
-                { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
-              </div> :
-              <div className={S("media-card-horizontal__indicator", "media-card-horizontal__upcoming-indicator")}>
-                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
-                <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
-              </div>
-        }
-      </div>
-      {
-        // Text
-        textDisplay === "none" ? null :
-          <div className={S("media-card-horizontal__text")}>
-            { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
-              <div className={S("media-card-horizontal__headers")}>
-                { display.headers?.map((header, index) =>
-                  <div className={S("media-card-horizontal__header")} key={`header-${index}`}>
-                    <div className={S("media-card-horizontal__headers")}>
-                      {header}
-                    </div>
-                  </div>
-                )}
-              </div>
-            }
-            {
-              !display.title ? null :
-                <h3 className={[S("media-card-horizontal__title"), "_title"].join(" ")}>
-                  { display.title }
-                </h3>
-            }
-            {
-              !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <div className={S("media-card-horizontal__subtitle")}>
-                  { display.subtitle }
-                </div>
-            }
-            <Description
-              description={display.description}
-              maxLines={textDisplay === "all" ? 2 : 4}
-              onClick={event => event.stopImmediatePropagation()}
-              className={S("media-card-horizontal__description")}
-            />
-          </div>
-      }
-    </Linkish>
-  );
-});
-
 
 const MediaCard = observer(({
   disabled,
@@ -623,6 +1087,9 @@ const MediaCard = observer(({
   setImageDimensions,
   buttonText,
   navContext,
+  variants=[],
+  hoverCardDisplay,
+  hoverCardSideBuffer=0,
   size,
   fullBleed=false,
   lazy=true,
@@ -630,9 +1097,11 @@ const MediaCard = observer(({
   onClick,
   className="",
   centered,
+  style={},
   ...props
 }) => {
   const match = useRouteMatch();
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
   const [livePreviewUrl, setLivePreviewUrl] = useState(undefined);
@@ -686,7 +1155,7 @@ const MediaCard = observer(({
   }
 
   aspectRatio = aspectRatio?.toLowerCase() || "";
-  let {imageUrl, imageAspectRatio} = MediaItemImageUrl({
+  let {imageUrl, imageHash, imageAspectRatio} = MediaItemImageUrl({
     mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
     display,
     aspectRatio,
@@ -695,9 +1164,14 @@ const MediaCard = observer(({
 
   if(format === "banner") {
     imageUrl =
-      (mediaPropertyStore.rootStore.pageWidth < 800 && sectionItem?.banner_image_mobile?.url) ||
+      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile?.url) ||
       sectionItem?.banner_image?.url ||
       imageUrl;
+
+    imageHash =
+      (mediaPropertyStore.rootStore.pageWidth < 850 && sectionItem?.banner_image_mobile_hash) ||
+      sectionItem?.banner_image_hash ||
+      imageHash;
   }
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
@@ -705,17 +1179,25 @@ const MediaCard = observer(({
   const cardMediaItem = mediaItem || sectionItem?.mediaItem;
   const progress =
     cardMediaItem &&
+    !cardMediaItem.isSearchResult &&
     !scheduleInfo.isLiveContent &&
     mediaPropertyStore.GetMediaProgress({mediaItemId: cardMediaItem.id});
 
   disabled = disabled || permissions.disable;
 
-  let linkPath, url, authorized, price;
+  let linkPath, url, authorized, price, mediaType;
   if(!disabled) {
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
+    mediaType = linkInfo.mediaType;
     linkPath = linkInfo?.linkPath;
     url = linkInfo?.url;
     authorized = linkInfo?.authorized;
+    navContext = navContext || linkInfo.navContext;
+
+    // For collections and lists, show details modal on click
+    if(["collection", "list"].includes(linkInfo.mediaType)) {
+      onClick = () => setShowDetailsModal(true);
+    }
 
     if(sectionItem?.display?.show_price && linkInfo.purchaseItems && linkInfo.purchaseItems.length > 0) {
       const prices = linkInfo.purchaseItems
@@ -739,7 +1221,7 @@ const MediaCard = observer(({
         price = `${minPrice} - ${maxPrice}`;
       }
     }
-  } else if(!rootStore.loggedIn) {
+  } else if(!rootStore.loggedIn && permissions.purchasable) {
     // Disabled but not logged in - prompt login
     disabled = false;
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
@@ -749,9 +1231,12 @@ const MediaCard = observer(({
 
   let args = {
     ...props,
+    sectionItemId: sectionItem?.id,
+    mediaItemId: cardMediaItem?.id,
     display,
     price,
     imageUrl,
+    imageHash,
     livePreviewUrl,
     textDisplay,
     textJustification,
@@ -768,6 +1253,9 @@ const MediaCard = observer(({
     authorized,
     fullBleed,
     progress,
+    style,
+    mediaType,
+    navContext,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?
@@ -775,24 +1263,74 @@ const MediaCard = observer(({
         !authorized ?
           S("media-card--unauthorized") : "",
       centered ? S("media-card--centered") : "",
+      ...(variants || []).map(variant => S(`styled-card--${variant}`)),
       className
     ]
       .filter(c => c)
       .join(" ")
   };
 
-  switch(format) {
-    case "horizontal":
-      return <MediaCardHorizontal {...args} />;
-    case "button_vertical":
-      return <ButtonCard orientation="vertical" {...args} />;
-    case "button_horizontal":
-      return <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
-    case "banner":
-      return <MediaCardBanner sectionItem={sectionItem} {...args} />;
-    default:
-      return <MediaCardVertical {...args} />;
+  if(args.aspectRatio?.toLowerCase() !== "landscape" || args.progress > 0.95) {
+    delete args.progress;
   }
+
+  let card, hoverCardImageProps;
+  switch(format) {
+    case "button_vertical":
+      card = <ButtonCard orientation="vertical" {...args} />;
+      break;
+
+    case "button_horizontal":
+      card = <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
+      break;
+
+    case "banner":
+      card = <MediaCardBanner sectionItem={sectionItem} {...args} />;
+      break;
+
+    default:
+      if(!rootStore.mobile && (hoverCardDisplay?.display === "all" || (hoverCardDisplay?.display === "media" && mediaType === "media"))) {
+        if(hoverCardDisplay?.aspectRatio) {
+          hoverCardImageProps = MediaItemImageUrl({
+            mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
+            display,
+            aspectRatio: hoverCardDisplay.aspectRatio,
+            width: 600
+          });
+        }
+
+        card = (
+          <MediaHoverCard
+            {...args}
+            {...(hoverCardImageProps || {})}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || args.aspectRatio}
+            sideBuffer={hoverCardSideBuffer}
+            openDelay={400}
+            ShowDetailsModal={() => setShowDetailsModal(true)}
+          >
+            <MediaCardVertical {...args} noTransition />
+          </MediaHoverCard>
+        );
+      } else {
+        card = <MediaCardVertical {...args} />;
+      }
+  }
+
+  return (
+    <>
+      {card}
+      {
+        !showDetailsModal ? null :
+          <MediaDetailsModal
+            {...args}
+            {...(hoverCardImageProps || {})}
+            imageAspectRatio={hoverCardDisplay?.aspectRatio || aspectRatio}
+            onClick={undefined}
+            Close={() => setShowDetailsModal(false)}
+          />
+      }
+    </>
+  );
 });
 
 export default MediaCard;

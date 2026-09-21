@@ -283,7 +283,7 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     padding: 0;
 
     &__address-field {
@@ -309,8 +309,9 @@
 .username-modal,
 .deposit-form,
 .withdrawal-confirmation {
-  @include modal;
-
+  background: var(--background-modal-primary);
+  border: var(--border-modal-primary);
+  border-radius: var(--border-radius-modal);
   max-width: 550px;
   width: 100%;
 
@@ -344,13 +345,13 @@
 
   &__select,
   &__country-select {
-    height: $action-height;
+    height: var(--action-height);
     margin: 0 auto 30px;
     max-width: 410px;
 
     .styled-select__button,
     .styled-select__option {
-      height: $action-height;
+      height: var(--action-height);
     }
   }
 
@@ -475,7 +476,7 @@
   }
 
   .loader {
-    height: $action-height;
+    height: var(--action-height);
   }
 
   &__amount-selection {
@@ -512,7 +513,7 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     margin: 0 20px;
 
     &__message {
@@ -526,8 +527,6 @@
 }
 
 .accept-popup {
-  @include component;
-
   border: 0;
 
   &,
@@ -541,8 +540,6 @@
   }
 
   &__box {
-    @include component;
-
     max-width: 400px;
     padding: 30px;
   }
@@ -600,7 +597,7 @@
     width: 100%;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (width <= 600px) {
     &__box {
       border: 0;
       justify-content: space-evenly;

@@ -1,4 +1,5 @@
-import SidebarStyles from "Assets/stylesheets/media_properties/media-sidebar.module.scss";
+import StyledCardStyles from "@/assets/stylesheets/media_properties/styled-cards.module.scss";
+import SidebarStyles from "@/assets/stylesheets/media_properties/media-sidebar.module.scss";
 
 import {observer} from "mobx-react";
 import React, {useEffect, useState} from "react";
@@ -7,31 +8,32 @@ import {
   MediaItemScheduleInfo,
   MediaPropertyBasePath,
   MediaPropertyLink
-} from "../../utils/MediaPropertyUtils";
-import {mediaPropertyStore, mediaStore, rootStore} from "Stores";
+} from "@/utils/MediaPropertyUtils";
+import {mediaPropertyStore, mediaStore, rootStore} from "@/stores";
 import {useRouteMatch} from "react-router-dom";
-import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {Linkish} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {Button, LoaderImage, Modal} from "@/components/properties/Common";
+import {Linkish} from "@/components/common/UIComponents";
+import ImageIcon from "@/components/common/ImageIcon";
+import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
 import {TextInput} from "@mantine/core";
-import {useIsVisible} from "Components/common/Hooks";
+import {useIsVisible} from "@/components/common/Hooks";
 import UrlJoin from "url-join";
 
-import HideIcon from "Assets/icons/right-arrow";
-import ShowIcon from "Assets/icons/left-arrow";
-import FullscreenIcon from "Assets/icons/full screen";
-import PipVideoIcon from "Assets/icons/pip";
-import MultiviewIcon from "Assets/icons/media/multiview";
-import EyeIcon from "Assets/icons/eye.svg";
-import XIcon from "Assets/icons/x";
-import AIDescriptionIcon from "Assets/icons/ai-description";
-import SearchIcon from "Assets/icons/search";
+import HideIcon from "@/assets/icons/right-arrow.svg";
+import ShowIcon from "@/assets/icons/left-arrow.svg";
+import FullscreenIcon from "@/assets/icons/full screen.svg";
+import PipVideoIcon from "@/assets/icons/pip.svg";
+import MultiviewIcon from "@/assets/icons/media/multiview.svg";
+import EyeIcon from "@/assets/icons/eye.svg";
+import XIcon from "@/assets/icons/x.svg";
+import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
+import SearchIcon from "@/assets/icons/search.svg";
 
-const S = (...classes) => classes.map(c => SidebarStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => StyledCardStyles[c] || SidebarStyles[c] || "").join(" ");
 
 const Item = observer(({
   imageUrl,
+  imageHash,
   title,
   subtitle,
   scheduleInfo,
@@ -46,7 +48,8 @@ const Item = observer(({
   multiviewMode,
   displayedContent,
   setDisplayedContent,
-  wrapTitle=false
+  wrapTitle=false,
+  variants=[]
 }) => {
   multiviewMode = multiviewMode || mediaStore.multiviewMode;
   displayedContent = displayedContent || mediaStore.displayedContent;
@@ -74,10 +77,17 @@ const Item = observer(({
   let linkPath;
   if(!toggleOnClick && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
     const navContext = new URLSearchParams(location.search).get("ctx");
-    linkPath = MediaPropertyLink({match, mediaItem: rootStore.mediaPropertyStore.media[contentItem.id], navContext})?.linkPath || "";
+    linkPath = MediaPropertyLink({
+      match,
+      mediaItem: mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: contentItem.id}),
+      navContext
+    })?.linkPath || "";
   }
 
-  const ToggleMultiview = () => {
+  const ToggleMultiview = event => {
+    event.preventDefault();
+    event.stopPropagation();
+
     if(isActive) {
       setDisplayedContent(displayedContent.filter(item => contentItem.id !== item.id));
     } else if(multiviewMode === "pip" && displayedContent.length >= 1) {
@@ -85,6 +95,8 @@ const Item = observer(({
     } else if(displayedContent.length < streamLimit) {
       setDisplayedContent([...displayedContent, contentItem]);
     }
+
+    return true;
   };
 
   onClick = onClick ? onClick :
@@ -98,6 +110,9 @@ const Item = observer(({
 
   return (
     <Linkish
+      onClick={onClick}
+      to={linkPath}
+      disabled={disabled}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       ref={
@@ -118,30 +133,33 @@ const Item = observer(({
     >
       {
         !imageUrl ? null :
-          <Linkish
-            onClick={onClick}
-            to={linkPath}
-            disabled={disabled}
-            className={S("item__image-container", "item__image-container--landscape")}
-          >
-            <LoaderImage
-              loaderAspectRatio={16 / 9}
-              alt={title}
-              className={S("item__image")}
-              src={imageUrl}
-            />
-            {
-              !scheduleInfo?.currentlyLive ? null :
-                <div className={S("live-badge")}>Live</div>
+          <div
+            className={
+              S(
+                "styled-card",
+                "styled-card--landscape",
+                hovering ? "styled-card--transition-active" : "",
+                "item__card",
+                ...(variants || []).map(variant => `styled-card--${variant}`)
+              )
             }
-          </Linkish>
+          >
+            <div className={S("styled-card__image-container", "item__image-container", "item__image-container--landscape")}>
+              <LoaderImage
+                loaderAspectRatio={16 / 9}
+                src={imageUrl}
+                hash={imageHash}
+                alt={title}
+                className={S("styled-card__image", "item__image")}
+              />
+              {
+                !scheduleInfo?.currentlyLive ? null :
+                  <div className={S("live-badge")}>Live</div>
+              }
+            </div>
+          </div>
       }
-      <Linkish
-        onClick={onClick}
-        to={linkPath}
-        disabled={disabled}
-        className={S("item__text")}
-      >
+      <div className={S("item__text")}>
         <div title={title} className={S("item__title", !wrapTitle ? "ellipsis" : "")}>
           {title}
         </div>
@@ -157,7 +175,7 @@ const Item = observer(({
               {scheduleInfo.displayStartDateLong} at {scheduleInfo.displayStartTime}
             </div>
         }
-      </Linkish>
+      </div>
       {
         noActions ? null :
           <div className={S("item__actions")}>
@@ -236,8 +254,8 @@ export const Banners = observer(() => {
               className={S("banner")}
             >
               <LoaderImage
-                loaderAspectRatio={3}
                 src={banner[imageKey]?.url}
+                hash={banner[`${imageKey}_hash`]}
                 width={1000}
                 alt={banner.image_alt}
                 className={S("banner__image")}
@@ -290,8 +308,13 @@ const MediaSidebar = observer(({
     );
   }
 
+  const cardTheme = mediaPropertyStore.CardTheme({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+
   return (
-    <div className={S("sidebar", mediaStore.sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}>
+    <div
+      style={{...(cardTheme.css || {})}}
+      className={S("sidebar", mediaStore.sidebarContent.anyMultiview ? "sidebar--with-multiview" : "")}
+    >
       <div className={S("sidebar__actions")}>
         {
           !mediaStore.sidebarContent.anyMultiview ? null :
@@ -348,7 +371,7 @@ const MediaSidebar = observer(({
       <Banners />
       <div className={S("tabs-container")}>
         {
-          (mediaStore.sidebarContent.tabs || []).length <= 1 ? null :
+          (mediaStore.sidebarContent.tabs || []).length <= 1 && !mediaStore.sidebarContent.showSingleTab ? null :
             <div className={S("tabs")}>
               {
                 mediaStore.sidebarContent.tabs.map((tab, index) =>
@@ -356,7 +379,7 @@ const MediaSidebar = observer(({
                     onClick={() => setTabIndex(index)}
                     key={`tab-${tab.id}`}
                     className={[
-                      S("tab", tabIndex === index ? "tab--active" : ""),
+                      S("tab", "ellipsis", tabIndex === index ? "tab--active" : ""),
                       "_title"
                     ].join(" ")}
                   >
@@ -369,75 +392,95 @@ const MediaSidebar = observer(({
       </div>
       <div ref={setContentElement} className={S("content")}>
         {
-          tab?.groups?.map(group =>
-            <div key={`group-${group.id}`} className={S("content__section")}>
-              {
-                !group.title ? null :
-                  <div className={[S("content__title"), "_title"].join(" ")}>
-                    { group.title }
-                  </div>
-              }
-              {group.content.map((item, index) => {
-                let {imageUrl} = MediaItemImageUrl({
-                  mediaItem: item.mediaItem,
-                  display: item.display
-                });
+          tab?.groups?.map(group => {
+            let groupTheme;
+            if(group.sectionSlugOrId) {
+              groupTheme = mediaPropertyStore.CardTheme({
+                mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+                sectionSlugOrId: group.sectionSlugOrId
+              })?.cardTheme;
+            }
 
-                let additionalViews = item?.additional_views || [];
-                if(
-                  (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
-                  item.mediaItem?.id !== mediaItem.id
-                ) {
-                  // Hide additional views if item is upcoming and not the active item
-                  additionalViews = [];
+            return (
+              <div
+                key={`group-${group.id}`}
+                style={{
+                  ...(groupTheme?.css || {})
+                }}
+                className={S("content__section")}
+              >
+                {
+                  !group.title ? null :
+                    <div className={[S("content__title"), "_title"].join(" ")}>
+                      {group.title}
+                    </div>
                 }
+                {group.content.map((item, index) => {
+                  let {imageUrl, imageHash} = MediaItemImageUrl({
+                    mediaItem: item.mediaItem,
+                    display: item.display
+                  });
 
-                return (
-                  <>
-                    <Item
-                      noBorder={index === 0}
-                      imageUrl={imageUrl}
-                      title={item.display.sidebar_title || item.display.title}
-                      subtitle={item.display.subtitle}
-                      scheduleInfo={item.scheduleInfo}
-                      key={`item-${item.id}`}
-                      contentItem={{type: "media-item", id: item.mediaItem.id}}
-                      primaryMediaId={mediaItem.id}
-                      noActions={!item?.isMultiviewable}
-                      streamLimit={streamLimit}
-                    />
-                    {
-                      additionalViews.length === 0 ? null :
-                        <div className={S("content__views-container")}>
-                          {
-                            additionalViews.map((view, index) =>
-                              <Item
-                                imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
-                                title={view.label}
-                                key={`item-${item.id}-${index}`}
-                                scheduleInfo={item.scheduleInfo}
-                                contentItem={{
-                                  ...view,
-                                  type: "additional-view",
-                                  id: `${item.id}-${index}`,
-                                  mediaItemId: item.id,
-                                  playerProfile: item.player_profile,
-                                  index,
-                                  label: `${item.display.title} - ${view.label}`
-                                }}
-                                wrapTitle
-                                primaryMediaId={mediaItem.id}
-                                streamLimit={streamLimit}
-                              />
-                            )
-                          }
-                        </div>
-                    }
-                  </>
-                );
-              })}
-            </div>
-          )
+                  let additionalViews = item?.additional_views || [];
+                  if(
+                    (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
+                    item.mediaItem?.id !== mediaItem.id
+                  ) {
+                    // Hide additional views if item is upcoming and not the active item
+                    additionalViews = [];
+                  }
+
+                  return (
+                    <>
+                      <Item
+                        noBorder={index === 0}
+                        imageUrl={imageUrl}
+                        imageHash={imageHash}
+                        title={item.display.sidebar_title || item.display.title}
+                        subtitle={item.display.subtitle}
+                        scheduleInfo={item.scheduleInfo}
+                        key={`item-${item.id}`}
+                        contentItem={{type: "media-item", id: item.mediaItem.id}}
+                        primaryMediaId={mediaItem.id}
+                        noActions={!item?.isMultiviewable}
+                        streamLimit={streamLimit}
+                        variants={groupTheme?.variants || cardTheme?.variants}
+                      />
+                      {
+                        additionalViews.length === 0 ? null :
+                          <div className={S("content__views-container")}>
+                            {
+                              additionalViews.map((view, index) =>
+                                <Item
+                                  imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                  hash={view.image_url}
+                                  title={view.label}
+                                  key={`item-${item.id}-${index}`}
+                                  scheduleInfo={item.scheduleInfo}
+                                  contentItem={{
+                                    ...view,
+                                    type: "additional-view",
+                                    id: `${item.id}-${index}`,
+                                    mediaItemId: item.id,
+                                    playerProfile: item.player_profile,
+                                    index,
+                                    label: `${item.display.title} - ${view.label}`
+                                  }}
+                                  wrapTitle
+                                  primaryMediaId={mediaItem.id}
+                                  streamLimit={streamLimit}
+                                  variants={groupTheme?.variants || cardTheme?.variants}
+                                />
+                              )
+                            }
+                          </div>
+                      }
+                    </>
+                  );
+                })}
+              </div>
+            );
+          })
         }
       </div>
     </div>
@@ -448,6 +491,8 @@ export const MultiviewSelectionModal = observer(({
   mediaItem,
   streamLimit
 }) => {
+  const match = useRouteMatch();
+
   let tabs = (mediaStore.sidebarContent.tabs || []).filter(tab =>
     tab.groups?.find(group =>
       group.content?.find(item =>
@@ -475,6 +520,8 @@ export const MultiviewSelectionModal = observer(({
   if(tabs.length === 0) {
     return null;
   }
+
+  const cardTheme = mediaPropertyStore.CardTheme({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
 
   return (
     <Modal
@@ -519,11 +566,25 @@ export const MultiviewSelectionModal = observer(({
             </div>
           </div>
       }
-      <div className={S("multiview-selection-modal__items")}>
+      <div style={{...(cardTheme?.css || {})}} className={S("multiview-selection-modal__items")}>
         {
-          tab?.groups.map(group =>
-            !group.content.find(item => item?.isMultiviewable) ? null :
-              <div key={`group-${group.id}`} className={S("content__section")}>
+          tab?.groups.map(group => {
+            let groupTheme;
+            if(group.sectionSlugOrId) {
+              groupTheme = mediaPropertyStore.CardTheme({
+                mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+                sectionSlugOrId: group.sectionSlugOrId
+              })?.cardTheme;
+            }
+
+            return !group.content.find(item => item?.isMultiviewable) ? null :
+              <div
+                key={`group-${group.id}`}
+                style={{
+                  ...(groupTheme?.css || {})
+                }}
+                className={S("content__section")}
+              >
                 {
                   !group.title ? null :
                     <div className={[S("content__title"), "_title"].join(" ")}>
@@ -533,7 +594,7 @@ export const MultiviewSelectionModal = observer(({
                 {group.content
                   .filter(item => item?.isMultiviewable)
                   .map((item, index) => {
-                    let {imageUrl} = MediaItemImageUrl({
+                    let {imageUrl, imageHash} = MediaItemImageUrl({
                       mediaItem: item.mediaItem,
                       display: item.display
                     });
@@ -546,11 +607,21 @@ export const MultiviewSelectionModal = observer(({
                       additionalViews = [];
                     }
 
+                    let groupTheme;
+                    if(group.sectionSlugOrId) {
+                      groupTheme = mediaPropertyStore.CardTheme({
+                        ...match.params,
+                        sectionSlugOrId: group.sectionSlugOrId
+                      })?.cardTheme;
+                    }
+
+
                     return (
                       <>
                         <Item
                           noBorder={index === 0}
                           imageUrl={imageUrl}
+                          imageHash={imageHash}
                           toggleOnClick
                           title={item.display.sidebar_title || item.display.title}
                           subtitle={item.display.subtitle}
@@ -562,6 +633,7 @@ export const MultiviewSelectionModal = observer(({
                           streamLimit={streamLimit}
                           displayedContent={selectedContent}
                           setDisplayedContent={setSelectedContent}
+                          variants={groupTheme?.variants || cardTheme?.variants}
                         />
                         {
                           additionalViews.length === 0 ? null :
@@ -572,6 +644,7 @@ export const MultiviewSelectionModal = observer(({
                                     noBorder={index === 0}
                                     toggleOnClick
                                     imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
+                                    imageHash={view.image_hash}
                                     title={view.label}
                                     key={`item-${item.id}-${index}`}
                                     contentItem={{
@@ -590,6 +663,7 @@ export const MultiviewSelectionModal = observer(({
                                     streamLimit={streamLimit}
                                     displayedContent={selectedContent}
                                     setDisplayedContent={setSelectedContent}
+                                    variants={groupTheme?.variants || cardTheme?.variants}
                                   />
                                 )
                               }
@@ -598,8 +672,8 @@ export const MultiviewSelectionModal = observer(({
                       </>
                     );
                   })}
-              </div>
-          )
+              </div>;
+          })
         }
       </div>
       <div className={S("multiview-selection-modal__actions")}>

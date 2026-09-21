@@ -1,6 +1,6 @@
 import {LinkTargetHash, NFTInfo, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
@@ -199,23 +199,28 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url, purchaseItems;
+  let url, purchaseItems, mediaType;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
-      linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
+      //linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
     }
 
     if(match.params.mediaListSlugOrId) {
-      linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
+      //linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
     }
 
     const mediaId = mediaItem?.id || sectionItem?.media_id;
 
     if((mediaItem?.type || sectionItem?.media_type) === "collection") {
-      linkPath = UrlJoin(linkPath, "c", mediaId);
+      //linkPath = UrlJoin(linkPath, "c", mediaId);
+      linkPath = undefined;
+      mediaType = "collection";
     } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
-      linkPath = UrlJoin(linkPath, "l", mediaId);
+      //linkPath = UrlJoin(linkPath, "l", mediaId);
+      linkPath = undefined;
+      mediaType = "list";
     } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
+      mediaType = "media";
       const listParam = new URLSearchParams(location.search).get("l");
 
       if(listParam) {
@@ -250,6 +255,16 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       const pageSlugOrId = page?.slug || sectionItem.page_id;
       linkPath = MediaPropertyBasePath({...match.params, pageSlugOrId});
       navContext = undefined;
+    }
+  } else if(sectionItem?.type === "search_page_link") {
+    linkPath = UrlJoin(linkPath, "/search");
+
+    if(sectionItem.primary_filter) {
+      params.set("pf", sectionItem.primary_filter);
+    }
+
+    if(sectionItem.secondary_filter) {
+      params.set("sf", sectionItem.secondary_filter);
     }
   } else if(sectionItem?.type === "property_link") {
     linkPath = MediaPropertyBasePath({
@@ -294,7 +309,6 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     mediaPropertyStore.ResolvePermission({...match.params, sectionItemSlugOrId: sectionItem?.id, mediaItemSlugOrId: mediaItem?.id});
 
   if(!permissions.authorized && permissions.showAlternatePage) {
-
     linkPath = MediaPropertyBasePath({
       ...match.params,
       pageSlugOrId: permissions.alternatePageId
@@ -306,7 +320,9 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath,
     url,
     purchaseItems: purchaseItems || [],
-    authorized: permissions?.authorized
+    authorized: permissions?.authorized,
+    mediaType,
+    navContext
   };
 };
 
@@ -441,11 +457,8 @@ export const MediaItemScheduleInfo = mediaItem => {
       displayStartTime
     };
   } catch(error) {
-    // eslint-disable-next-line no-console
     console.error(`Error parsing start/end time in media item ${mediaItem.name}`);
-    // eslint-disable-next-line no-console
     console.error(error);
-    // eslint-disable-next-line no-console
     console.error(mediaItem);
 
     return {
@@ -546,6 +559,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
     [aspectRatio, ...aspectRatioPreference].find(ratio => display?.[`thumbnail_image_${ratio}`]) || aspectRatioPreference[0];
 
   let imageUrl = display?.[`thumbnail_image_${imageAspectRatio}`]?.url;
+  const imageHash = display?.[`thumbnail_image_${imageAspectRatio}_hash`];
 
   if(width) {
     imageUrl = SetImageUrlDimensions({url: imageUrl, width});
@@ -553,6 +567,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
 
   return {
     imageUrl,
+    imageHash,
     imageAspectRatio,
     altText: display.thumbnail_alt_text
   };

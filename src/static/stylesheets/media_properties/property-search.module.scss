@@ -1,17 +1,12 @@
-@import "variables";
-
 .search {
   background-color: var(--property-background);
-
-  &.search {
-    padding-inline: 75px;
-  }
+  padding-inline: 0;
 
   &__content {
-    @include page-fade-in;
-
+    animation: var(--animation-fade-in) 0.25s ease;;
     display: grid;
     gap: 50px;
+    padding-inline: var(--property-page-padding);
   }
 
   &__results {
@@ -20,17 +15,18 @@
 
   &__filters {
     margin-bottom: 50px;
+    padding-left: var(--property-page-padding);
   }
 
   &__loader {
     height: var(--property-full-content-height);
   }
 
-  @media screen and (width <= 800px) {
-    padding-inline: 25px;
+  @media screen and (width <= 850px) {
+    padding-inline: 15px;
 
     &.search {
-      padding-inline: 25px;
+      padding-inline: 15px;
     }
 
     &__attribute--primary {
