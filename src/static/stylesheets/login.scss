@@ -39,10 +39,6 @@
   max-width: 265px;
   width: 100%;
 
-  & > .loader {
-    min-height: 100px;
-  }
-
   &__title {
     font-size: 18px;
     margin-bottom: 10px;
@@ -59,6 +55,13 @@
   &__form {
     display: grid;
     gap: 10px;
+  }
+
+  &__loader {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: 100px;
   }
 
   input {
@@ -84,10 +87,12 @@
   --login-box--border-radius: 4px;
   --login-action-primary--background: #2d61e4;
   --login-action-primary--color: #FFF;
+  --login-action-primary--color-rgb: 255, 255, 255;
   --login-action-primary--border-color: #2d61e4;
   --login-action-primary--border-radius: 4px;
   --login-action-secondary--background: #000;
   --login-action-secondary--color: #FFF;
+  --login-action-secondary--color-rgb: 255, 255, 255;
   --login-action-secondary--border-color: #444;
   --login-action-secondary--border-radius: 4px;
   --login-input--background: #090909;
@@ -241,6 +246,18 @@
     }
   }
 
+  &__title {
+    background: var(--linear-light, linear-gradient(180deg, #FFF 0%, #C0C0C0 100%));
+    background-clip: text;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.371px;
+    line-height: normal;
+    margin-top: 10px;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+  }
+
   &__logo-container {
     align-items: center;
     display: flex;
@@ -286,6 +303,8 @@
 
       * {
         color: var(--login-action-primary--color);
+
+        --loader-color-rgb: var(--login-action-primary--color-rgb);
       }
     }
 
@@ -299,6 +318,8 @@
 
       * {
         color: var(--login-action-secondary--color);
+
+        --loader-color-rgb: var(--login-action-secondary--color-rgb);
       }
     }
 
@@ -445,6 +466,10 @@
     a {
       color: var(--login-text-link--color);
     }
+
+    p {
+      font-size: 12px!important;
+    }
   }
 
   &__terms {
@@ -575,6 +600,8 @@
 
       * {
         color: #121212;
+
+        --loader-color-rgb: 50, 50, 50;
       }
     }
 
@@ -584,6 +611,8 @@
 
       * {
         color: #FFF;
+
+        --loader-color-rgb: 255, 255, 255;
       }
     }
   }
@@ -629,8 +658,9 @@
 }
 
 .custom-consent {
-  @include modal;
-
+  background: var(--background-modal-primary);
+  border: var(--border-modal-primary);
+  border-radius: var(--border-radius-modal);
   max-width: 900px;
 
   &__header {
@@ -681,7 +711,7 @@
 }
 
 
-@media screen and (max-width: $mobile-breakpoint) {
+@media screen and (width <= 600px) {
   .consent-modal {
     .modal__content {
       align-items: flex-start;

@@ -1,0 +1,10 @@
+{
+  "comment": "Keep synchronized with vite config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/assets/*": ["./src/static/*"]
+    }
+  }
+}

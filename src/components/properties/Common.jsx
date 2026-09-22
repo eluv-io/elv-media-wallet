@@ -1,30 +1,33 @@
-import CommonStyles from "Assets/stylesheets/media_properties/common.module";
+import CommonStyles from "@/assets/stylesheets/media_properties/common.module.scss";
 
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import SanitizeHTML from "sanitize-html";
-import {SetImageUrlDimensions} from "../../utils/Utils";
+import {SetImageUrlDimensions} from "@/utils/Utils";
 import {useHistory} from "react-router-dom";
-import {Modal as MantineModal} from "@mantine/core";
+import {Modal as MantineModal, Progress} from "@mantine/core";
 import {
-  CreateMediaPropertyPurchaseParams,
-  MediaPropertyPurchaseParams
-} from "../../utils/MediaPropertyUtils";
-import ImageIcon from "Components/common/ImageIcon";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+  CreateMediaPropertyPurchaseParams, MediaPropertyBasePath, MediaPropertyLink,
+  MediaPropertyPurchaseParams, PurchaseParamsToItems
+} from "@/utils/MediaPropertyUtils";
+import ImageIcon from "@/components/common/ImageIcon";
+import ResponsiveEllipsis from "@/components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
-import {A11y} from "swiper/modules";
-import {Loader} from "Components/common/Loaders";
-import {Linkish} from "Components/common/UIComponents";
-import Video from "Components/properties/Video";
+import {A11y, Pagination} from "swiper/modules";
+import {Loader} from "@/components/common/Loaders";
+import {Linkish} from "@/components/common/UIComponents";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
-import {MediaPropertyPurchaseGatePage} from "Components/properties/MediaPropertySection";
+import {MediaPropertyPurchaseGatePage} from "@/components/properties/MediaPropertySection";
+import {LoginGate} from "@/components/common/LoginGate";
+import {decodeThumbHash, thumbHashToApproximateAspectRatio, thumbHashToDataURL} from "@/utils/Thumbhash";
+import Hash from "@/utils/Hash.js";
 
-import LeftArrow from "Assets/icons/left-arrow";
-import RightArrow from "Assets/icons/right-arrow";
-import XIcon from "Assets/icons/x";
-import {LoginGate} from "Components/common/LoginGate";
+import LeftArrow from "@/assets/icons/left-arrow.svg";
+import RightArrow from "@/assets/icons/right-arrow.svg";
+import XIcon from "@/assets/icons/x.svg";
+
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
 export const PageContainer = ({children, className, ...props}) => {
@@ -47,6 +50,9 @@ export const PageBackground = observer(({
   const backgroundImage = pageWidth <= 800 ?
     display?.background_image_mobile?.url :
     display?.background_image?.url;
+  const backgroundHash = pageWidth <= 800 ?
+    display?.background_image_mobile_hash :
+    display?.background_image_hash;
 
   const backgroundVideoKey = pageWidth <= 800 ?
     "background_video_mobile" :
@@ -69,6 +75,7 @@ export const PageBackground = observer(({
               url: backgroundImage,
               width: mediaPropertyStore.rootStore.fullscreenImageWidth
             })}
+            hash={backgroundHash}
             className={[S("page-background__image"), className, imageClassName].join(" ")}
             {...props}
           />
@@ -82,7 +89,8 @@ export const PageBackground = observer(({
             hideControls
             playerOptions={{
               loop: EluvioPlayerParameters.loop.ON,
-              showLoader: EluvioPlayerParameters.showLoader.OFF
+              showLoader: EluvioPlayerParameters.showLoader.OFF,
+              backgroundColor: "transparent"
             }}
             className={[S("page-background__video"), videoClassName].join(" ")}
           />
@@ -132,6 +140,7 @@ export const PageHeader = observer(({
                 loaderWidth={400}
                 alt={display.logo_alt || display.title || "Logo"}
                 src={display.logo?.url}
+                hash={display.logo_hash}
                 className={S("page-header__logo")}
               />
           }
@@ -185,19 +194,40 @@ export const RichText = ({richText, ...props}) => {
 export const LoaderImage = observer(({
   src,
   alternateSrc,
+  hash,
   width,
   loaderHeight,
   loaderWidth,
   loaderAspectRatio,
+  preferHashRatio,
   lazy=true,
   showWithoutSource=false,
+  hideLoader=false,
   delay=25,
   loaderDelay=250,
+  onLoad,
   ...props
 }) => {
   const [loaded, setLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [useAlternateSrc, setUseAlternateSrc] = useState(false);
+  hash = hash && decodeThumbHash(hash);
+
+  if(useAlternateSrc && !alternateSrc) {
+    try {
+      // If loading failed and no alternate src provided, try removing width param
+      alternateSrc = new URL(src);
+      alternateSrc.searchParams.delete("width");
+      alternateSrc = alternateSrc.toString();
+    // eslint-disable-next-line no-unused-vars
+    } catch(error) {}
+  }
+
+  if(preferHashRatio) {
+    loaderAspectRatio = (hash && thumbHashToApproximateAspectRatio(hash)) || loaderAspectRatio;
+  } else {
+    loaderAspectRatio = loaderAspectRatio || (hash && thumbHashToApproximateAspectRatio(hash));
+  }
 
   useEffect(() => {
     setLoaded(false);
@@ -215,7 +245,7 @@ export const LoaderImage = observer(({
   }
 
   if(loaded) {
-    return <img src={(useAlternateSrc && src) || src} {...props} />;
+    return <img src={(useAlternateSrc && alternateSrc) || src} {...props} />;
   }
 
   return (
@@ -228,25 +258,41 @@ export const LoaderImage = observer(({
             className={S("lazy-image__loader-image") + " " + props.className}
             loading={lazy ? "lazy" : "eager"}
             src={(useAlternateSrc && alternateSrc) || src}
-            onLoad={() => setTimeout(() => setLoaded(true), delay)}
-            onError={() => {
-              setUseAlternateSrc(true);
+            onLoad={event => {
+              onLoad?.(event);
+              setTimeout(() => setLoaded(true), delay);
             }}
+            onError={() => setUseAlternateSrc(true)}
           />
       }
       {
         loaded ? null :
-          <div
-            {...props}
-            style={{
-              ...(props.style || {}),
-              ...(loaderWidth ? {width: loaderWidth} : {}),
-              ...(loaderHeight ? {height: loaderHeight} : {}),
-              ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
-            }}
-            key={props.key ? `${props.key}--placeholder` : undefined}
-            className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
-          />
+          hash ?
+            <div
+              {...props}
+              className={[S("lazy-image__hash-container"), props.className].join(" ")}
+              style={{
+                aspectRatio: loaderAspectRatio,
+                opacity: hideLoader ? 0 : props?.style?.opacity || 1
+              }}
+            >
+              <div
+                style={{background: `center / cover url(${thumbHashToDataURL(hash)})`}}
+                className={S("lazy-image__hash")}
+              />
+            </div>:
+            <div
+              {...props}
+              style={{
+                ...(props.style || {}),
+                ...(loaderWidth ? {width: loaderWidth} : {}),
+                ...(loaderHeight ? {height: loaderHeight} : {}),
+                ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {}),
+                opacity: hideLoader ? 0 : props?.style?.opacity || 1
+              }}
+              key={props.key ? `${props.key}--placeholder` : undefined}
+              className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
+            />
       }
     </>
   );
@@ -422,7 +468,8 @@ export const ExpandableDescription = observer(({
   togglePosition="left",
   maxLines,
   expandable=true,
-  className=""
+  className="",
+  indicatorClassName=""
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -455,7 +502,7 @@ export const ExpandableDescription = observer(({
     }
 
     if(onClick && onClick(event) === true) {
-      return;
+      return true;
     }
 
     useModal ?
@@ -510,7 +557,18 @@ export const ExpandableDescription = observer(({
         {
           !showToggle ? null :
             expandable ?
-              <button onClick={Expand} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
+              <button
+                onClick={Expand}
+                className={
+                  [
+                    S(
+                      "expandable-description__toggle",
+                      `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`
+                    ),
+                    indicatorClassName || ""
+                  ].join(" ")
+                }
+              >
                 {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
               </button> :
               <div className={S("expandable-description__ellipsis")}>
@@ -544,7 +602,11 @@ export const Carousel = observer(({
   UpdateActiveSlideIndex,
   RenderSlide,
   initialImageDimensions,
-  className=""
+  paginate=false,
+  className="",
+  arrowClassName="",
+  leftArrowClassName="",
+  rightArrowClassName="",
 }) => {
   const [swiper, setSwiper] = useState(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -579,22 +641,29 @@ export const Carousel = observer(({
 
   let slidesPerPage = 1;
   try {
-    slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
-  // eslint-disable-next-line no-empty
+    slidesPerPage = Math.min(5, Math.max(1, (swiper?.slidesPerViewDynamic() - 2 || 1)));
+  // eslint-disable-next-line no-unused-vars
   } catch(error) {}
 
   return (
     <Swiper
       className={[S("carousel"), className].join(" ")}
-      modules={[A11y]}
+      modules={[A11y, paginate ? Pagination : undefined].filter(m => m)}
       threshold={5}
       slidesPerView="auto"
       observer
       observeParents
       speed={750}
       parallax
+      pagination={
+        !paginate ? undefined :
+        {clickable: true}
+      }
       updateOnWindowResize
-      onActiveIndexChange={swiper => setActiveSwiperSlide(swiper.activeIndex)}
+      onActiveIndexChange={swiper => {
+        setActiveSwiperSlide(swiper.activeIndex);
+        setActiveIndex(swiper.activeIndex);
+      }}
       {...swiperOptions}
       onSwiper={swiper => {
         setSwiper(swiper);
@@ -603,12 +672,13 @@ export const Carousel = observer(({
     >
       <button
         disabled={firstSlideVisible}
-        style={{height: (imageDimensions?.height + 10) || "100%"}}
-        onClick={() => {
+        style={{height: (imageDimensions?.height) || "100%"}}
+        onClick={event => {
+          event.stopPropagation();
           swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage));
           SetSlideVisibility();
         }}
-        className={S("carousel__arrow", "carousel__arrow--previous")}
+        className={[S("carousel__arrow", "carousel__arrow--previous"), arrowClassName, leftArrowClassName].join(" ")}
       >
         <ImageIcon label="Previous Page" icon={LeftArrow} />
       </button>
@@ -638,115 +708,17 @@ export const Carousel = observer(({
       }
       <button
         disabled={lastSlideVisible || content.length === 1}
-        style={{height: (imageDimensions?.height + 10) || "100%"}}
-        onClick={() => {
+        style={{height: (imageDimensions?.height) || "100%"}}
+        onClick={event => {
+          event.stopPropagation();
           SetSlideVisibility();
           swiper?.slideTo(Math.min(content.length - 1, swiper.activeIndex + slidesPerPage));
         }}
-        className={S("carousel__arrow", "carousel__arrow--next")}
+        className={[S("carousel__arrow", "carousel__arrow--next"), arrowClassName, rightArrowClassName].join(" ")}
       >
         <ImageIcon label="Next Page" icon={RightArrow} />
       </button>
     </Swiper>
-  );
-});
-
-export const AttributeFilter = observer(({
-  attributeKey,
-  filterOptions,
-  dependentAttribute,
-  variant="text",
-  level="primary",
-  activeFilters,
-  SetActiveFilters,
-  className="",
-  swiperOptions={}
-}) => {
-  if(!attributeKey || !filterOptions || filterOptions.length === 0) { return null; }
-
-  const selected = attributeKey === "__media-type" ?
-    (activeFilters?.mediaType || "") :
-    activeFilters?.attributes[attributeKey] || "";
-
-  return (
-    <Carousel
-      content={filterOptions}
-      className={[S("attribute-filter", `attribute-filter--${variant}`, `attribute-filter--${level}`), className].join(" ")}
-      swiperOptions={{
-        threshold: 0,
-        spaceBetween: level === "primary" && !(variant === "box" || variant === "image") ? 30 : 10,
-        slidesPerView: "auto",
-        ...swiperOptions
-      }}
-      RenderSlide={({item}) => {
-        const value = item?.value;
-        const image = variant === "image" ? item?.image : undefined;
-
-        return (
-          <button
-            onClick={() => {
-              let newFilters = {};
-
-              if(attributeKey === "__media-type") {
-                // Media type + attribute
-                newFilters.mediaType = value;
-
-                if(dependentAttribute) {
-                  newFilters.attributes = {
-                    ...activeFilters.attributes,
-                    [dependentAttribute]: ""
-                  };
-                }
-              } else {
-                // 2 Attributes
-                if(dependentAttribute && dependentAttribute !== "__media-type") {
-                  newFilters = {
-                    attributes: {
-                      ...activeFilters.attributes,
-                      [attributeKey]: value,
-                      [dependentAttribute]: ""
-                    }
-                  };
-                } else {
-                  // Attribute + media type
-                  newFilters.attributes = {...activeFilters.attributes, [attributeKey]: value};
-
-                  if(dependentAttribute === "__media-type") {
-                    newFilters.mediaType = "";
-                  }
-                }
-              }
-
-              SetActiveFilters(newFilters);
-            }}
-            className={
-              S(
-                "attribute-filter__attribute",
-                `attribute-filter__attribute--${image ? "image" : variant}`,
-                selected === value ? "attribute-filter__attribute--active" : ""
-              )
-            }
-          >
-            {
-              image ?
-                <div className={S("attribute-filter__attribute-image-container")}>
-                  <LoaderImage
-                    src={image?.url}
-                    loaderHeight={100}
-                    alt={value || "All"}
-                    title={value || "All"}
-                    lazy={false}
-                    width={300}
-                    loaderAspectRatio={1}
-                    className={S("attribute-filter__attribute-image")}
-                  />
-                </div> :
-                value || "All"
-            }
-          </button>
-        );
-      }}
-    />
   );
 });
 
@@ -819,12 +791,16 @@ export const Button = ({variant="primary", active, loading, icon, rightIcon, sty
           <>
             {
               !icon ? null:
-                <ImageIcon icon={icon} className={S("button__icon")} />
+                <div className={S("button__icon-container")}>
+                  <ImageIcon icon={icon} className={S("button__icon")} />
+                </div>
             }
             { props.children }
             {
               !rightIcon ? null :
-                <ImageIcon icon={rightIcon} className={S("button__icon")} />
+                <div className={S("button__icon-container")}>
+                  <ImageIcon icon={rightIcon} className={S("button__icon")} />
+                </div>
             }
           </> :
           <>
@@ -875,7 +851,7 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
       url.searchParams.delete("confirmationId");
       history.replace(url.pathname + url.search);
     }
-  }, [permissions]);
+  }, [permissions.authorized, permissions.purchaseGate, permissions.permissionItemIds?.toString()]);
 
   if(!permissions.authorized && permissions.purchaseGate) {
     if(permissions.purchasable && purchasePageSettings?.enabled) {
@@ -903,3 +879,255 @@ export const PurchaseGate = observer(({purchasePageSettings, noPurchaseAvailable
 
   return children;
 });
+
+export const SplashScreen = observer(({hiding}) => {
+  const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+  const [styling, setStyling] = useState(undefined);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+
+  useEffect(() => {
+    window.initSplashRender = Date.now();
+
+    // Load and splash details, set init timing for minimum display duration
+    (async () => {
+      const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+
+      setStyling(undefined);
+
+      const settings = await rootStore.LoadPropertyCustomization(mediaPropertySlugOrId);
+
+      setStyling({
+        ...(settings?.styling || {}),
+        mediaPropertySlugOrId
+      });
+
+      if(!settings?.styling?.splash_screen_logo?.url) {
+        setLogoLoaded(true);
+      }
+    })();
+  }, [rootStore.currentPath]);
+
+  useEffect(() => {
+    document.documentElement.classList.add("no-scroll");
+    document.body.classList.add("no-scroll");
+
+    return () => {
+      document.documentElement.classList.remove("no-scroll");
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  if(!mediaPropertySlugOrId || !styling) {
+    return <div className={S("splash")} />;
+  }
+
+  const key = rootStore.mobile ?
+    "splash_screen_background_mobile" : "splash_screen_background";
+
+  return (
+    <div
+      style={{
+        "--splash-animation-duration": `${rootStore.splashDelay}ms`
+      }}
+      className={S("splash", hiding ? "splash--hiding" : "")}
+    >
+      {
+        !styling?.[key]?.url ?
+          <div
+            style={{
+              backgroundColor: styling.splash_screen_background_color || "#000000",
+            }}
+            className={S("splash__background")}
+          />:
+          <LoaderImage
+            alt="Splash Background"
+            delay={0}
+            loaderDelay={0}
+            src={styling[key].url}
+            hash={styling[`${key}_hash`]}
+            width={rootStore.fullscreenImageWidth}
+            className={S("splash__image")}
+          />
+      }
+      <div className={S("splash__content-container")}>
+        <div
+          style={{
+            width: `${styling.splash_screen_logo_scale || 100}%`,
+          }}
+          className={S("splash__content")}
+        >
+          {
+            !styling?.splash_screen_logo?.url ? null :
+              <LoaderImage
+                hideLoader
+                delay={0}
+                loaderDelay={0}
+                onLoad={() => setLogoLoaded(true)}
+                width={rootStore.fullscreenImageWidth / 2}
+                alt="Splash Logo"
+                src={styling.splash_screen_logo.url}
+                hash={styling.splash_screen_logo_hash}
+                className={S("splash__logo")}
+              />
+          }
+          {
+            !logoLoaded ? null :
+              styling.splash_show_progress ?
+                <Progress color="white" transitionDuration={1000} value={mediaPropertyStore.loadingProgress} max={100} className={S("splash__progress")} /> :
+                <Loader color="White" className={S("splash__loader")}/>
+          }
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export const RenderAction = observer(({
+  sectionId,
+  sectionItemId,
+  sectionItem,
+  action,
+  Component
+}) => {
+  let buttonParams = {};
+
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  switch(action.behavior) {
+    case "sign_in":
+      buttonParams.onClick = () => rootStore.ShowLogin();
+      break;
+
+    case "video":
+      buttonParams.onClick = () => setShowVideoModal(true);
+      break;
+
+    case "page_link":
+      buttonParams.to = MediaPropertyBasePath({...rootStore.routeParams, pageSlugOrId: action.page_id});
+      break;
+
+    case "show_purchase":
+      const purchaseParams = CreateMediaPropertyPurchaseParams({
+        id: action.id,
+        sectionSlugOrId: sectionId,
+        sectionItemId,
+        actionId: action.id,
+        encode: false
+      });
+
+      if(
+        // Purchase action but can't purchase
+        PurchaseParamsToItems(
+          purchaseParams,
+          sectionItem?.permissions?.secondaryPurchaseOption
+        ).length === 0
+      ) {
+        return null;
+      }
+
+      const params = new URLSearchParams(location.search);
+      params.set("p", mediaPropertyStore.client.utils.B58(JSON.stringify(purchaseParams)));
+      buttonParams.to = location.pathname + "?" + params.toString();
+      break;
+
+    case "media_link":
+      const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: action.media_id});
+
+      if(mediaItem) {
+        buttonParams.to = MediaPropertyLink({
+          match: {
+            params: rootStore.routeParams,
+            url: rootStore.currentPath
+          },
+          mediaItem
+        }).linkPath;
+      }
+      break;
+
+    case "link":
+      buttonParams = {
+        href: action.url,
+        rel: "noopener",
+        target: "_blank"
+      };
+      break;
+
+    case "property_link":
+      const url = new URL(window.location.origin);
+      url.pathname = MediaPropertyBasePath({mediaPropertySlugOrId: action.property, pageSlugOrId: action.property_page});
+      buttonParams.href = url.toString();
+      break;
+
+    case "subproperty_link":
+      buttonParams.target = "";
+      buttonParams.href = MediaPropertyBasePath({
+        parentMediaPropertySlugOrId: rootStore.routeParams.mediaPropertySlugOrId,
+        parentPageSlugOrId: rootStore.routeParams.pageSlugOrId,
+        mediaPropertySlugOrId: action.subproperty,
+        pageSlugOrId: action.subproperty_page
+      });
+      break;
+
+  }
+
+  return (
+    <>
+      {
+        !showVideoModal ? null :
+          <Modal
+            withCloseButton
+            opened
+            centered
+            noBackground
+            onClose={() => setShowVideoModal(false)}
+            bodyClassName={S("action-video-container")}
+          >
+            <Video
+              link={action.video}
+              playerOptions={{showLoader: false, backgroundColor: "black"}}
+              className={S("action-video")}
+            />
+          </Modal>
+      }
+      <Component
+        {...buttonParams}
+      />
+    </>
+  );
+});
+
+const HSLColor = (str="", s, l) => {
+  const hue = Hash(str).reduce((a, v) => a + v, 0) % 360;
+
+  return `hsl(${hue}, ${s}%, ${l}%)`;
+};
+
+const canvas = document.createElement("canvas");
+let profileImageUrls = {};
+export const DefaultProfileImage = ({name, email, address}={}) => {
+  name = name || email || "";
+
+  if(!profileImageUrls[address]) {
+    const context = canvas.getContext("2d");
+
+    canvas.width = 200;
+    canvas.height = 200;
+
+    const gradient = context.createLinearGradient(0, 0, context.canvas.width, 0);
+    gradient.addColorStop(0, HSLColor(address, 100, 30));
+    gradient.addColorStop(1, HSLColor(address, 100, 20));
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.font = "400 100px Helvetica";
+    context.fillStyle = "#FFFFFF";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(name.toUpperCase().charAt(0), canvas.width / 2, canvas.height / 2 + 5);
+
+    profileImageUrls[name] = canvas.toDataURL("image/png");
+  }
+
+  return profileImageUrls[name];
+};

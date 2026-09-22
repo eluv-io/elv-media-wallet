@@ -86,7 +86,7 @@
     margin-left: 1em;
   }
 
-  @media screen and (max-width: $tablet-breakpoint) {
+  @media screen and (width <= 850px) {
     & > * {
       font-size: 14px;
     }

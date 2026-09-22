@@ -6,6 +6,7 @@ class MediaStore {
   sidebarContent = {};
   mediaTags = {};
 
+  playFullVideo = false;
   multiviewMode = "multiview";
   showSidebar = true;
   selectedShowTagSidebar = false;
@@ -16,6 +17,8 @@ class MediaStore {
   // Dont want to observe entire player
   players = {};
   availablePlayers = {};
+
+  searchResults;
 
   get client() {
     return this.rootStore.client;
@@ -46,6 +49,7 @@ class MediaStore {
     this.sidebarContent = {};
     this.mediaTags = {};
     this.showVertical = false;
+    this.playFullVideo = false;
     this.showSidebar = true;
     this.selectedShowTagSidebar = false;
     this.showMultiviewSelectionModal = false;
@@ -92,6 +96,10 @@ class MediaStore {
     }
   }
 
+  SetPlayFullVideo(playFullVideo) {
+    this.playFullVideo = playFullVideo;
+  }
+
   SetPlayer({objectId, player}) {
     this.players[objectId] = player;
     this.availablePlayers[objectId] = player.id || true;
@@ -100,6 +108,14 @@ class MediaStore {
   ClearPlayer({objectId}) {
     delete this.players[objectId];
     delete this.availablePlayers[objectId];
+  }
+
+  SetSearchResults(searchResults) {
+    this.searchResults = searchResults;
+  }
+
+  ClearSearchResults() {
+    this.searchResults = undefined;
   }
 
   /* Tags */
@@ -145,7 +161,7 @@ class MediaStore {
           async ({name}) => (
             await this.QueryAIAPI({
               objectId,
-              path: offering || compositionKey ?
+              path: compositionKey ?
                 UrlJoin("/tagstore", objectId, "compositions", "tags") :
                 UrlJoin("/tagstore", objectId, "tags"),
               queryParams: {
@@ -196,7 +212,7 @@ class MediaStore {
         if(tracks.find(track => track.name === "auto_captions")) {
           transcriptionTags = (await this.QueryAIAPI({
             objectId,
-            path: offering || compositionKey ?
+            path: compositionKey ?
               UrlJoin("/tagstore", objectId, "compositions", "tags") :
               UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {
@@ -220,7 +236,7 @@ class MediaStore {
         if(tracks.find(track => track.name === "chapter")) {
           chapterTags = (await this.QueryAIAPI({
             objectId,
-            path: offering || compositionKey ?
+            path: compositionKey ?
               UrlJoin("/tagstore", objectId, "compositions", "tags") :
               UrlJoin("/tagstore", objectId, "tags"),
             queryParams: {
@@ -282,7 +298,7 @@ class MediaStore {
     url.pathname = path;
 
     Object.keys(queryParams).forEach(key =>
-      queryParams[key] && url.searchParams.set(key, queryParams[key])
+      typeof queryParams[key] !== "undefined" && url.searchParams.set(key, queryParams[key])
     );
 
     const authToken =

@@ -1,4 +1,5 @@
 .footer {
+  animation: var(--animation-fade-in) 0.25s ease;
   padding: 75px;
   position: relative;
   width: 100%;
@@ -59,8 +60,8 @@
     }
   }
 
-  @media screen and (width <= 800px) {
-    padding-inline: 25px;
+  @media screen and (width <= 850px) {
+    padding-inline: 15px;
 
     &__html {
       height: 100vh;
@@ -108,7 +109,7 @@
     width: 100%;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     flex-direction: column;
     margin-bottom: 50px;
   }

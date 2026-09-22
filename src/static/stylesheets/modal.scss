@@ -24,7 +24,7 @@
   }
 
   &:not(&--no-fade) {
-    @include page-fade-in(0.3s);
+    animation: var(--animation-fade-in) 0.25s ease;
   }
 
   &--no-scroll {
@@ -68,7 +68,7 @@
   }
 }
 
-@media only screen and (max-width: $tablet-breakpoint) {
+@media only screen and (width <= 850px) {
   .modal {
     height: 100%;
     overflow: hidden auto;

@@ -1,27 +1,27 @@
-import PurchaseModalStyles from "Assets/stylesheets/media_properties/property-purchase-modal.module.scss";
+import PurchaseModalStyles from "@/assets/stylesheets/media_properties/property-purchase-modal.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "@/stores";
 import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
-import {Loader} from "Components/common/Loaders";
-import {NFTInfo, SHA512, ValidEmail} from "../../utils/Utils";
-import {Button, LoaderImage, Modal} from "Components/properties/Common";
-import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "Components/common/UIComponents";
-import SupportedCountries from "../../utils/SupportedCountries";
+import {Loader} from "@/components/common/Loaders";
+import {NFTInfo, SHA512, ValidEmail} from "@/utils/Utils";
+import {Button, ExpandableDescription, LoaderImage, Modal} from "@/components/properties/Common";
+import {FormatPriceString, LocalizeString, ParseMoney, PriceCurrency} from "@/components/common/UIComponents";
+import SupportedCountries from "@/utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
-import {LoginGate} from "Components/common/LoginGate";
+import {LoginGate} from "@/components/common/LoginGate";
 import {
   MediaPropertyBasePath,
   MediaPropertyPurchaseParams,
   PurchaseParamsToItems
-} from "../../utils/MediaPropertyUtils";
+} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 
-import PurchaseIcon from "Assets/icons/listing";
-import XIcon from "Assets/icons/x";
+import PurchaseIcon from "@/assets/icons/listing.svg";
+import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
@@ -157,24 +157,25 @@ const DiscountInput = observer(({item, Update}) => {
   );
 });
 
-const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, Actions}) => {
-  const hasDetails = item.subtitle || item.description;
-  const [showDetails, setShowDetails] = useState(false);
+const Item = observer(({item, children, hideInfo, hidePrice, showDescription, discountCodeInfo, Actions}) => {
+  const hasDetails = !showDescription && (item.subtitle || item.description);
+  const [showDetails, setShowDetails] = useState(showDescription);
 
   const {currency, discountedPrice} = DiscountedPrice({item, discountCode: discountCodeInfo});
 
   return (
     <div className={S("item-container")}>
-
-        {
-          !item.imageUrl ? null :
-            <LoaderImage
-              loaderAspectRatio={1}
-              src={item.imageUrl}
-              width={600}
-              className={S("item-image")}
-            />
-        }
+      {
+        !item.imageUrl ? null :
+          <LoaderImage
+            loaderAspectRatio={1}
+            preferHashRatio
+            src={item.imageUrl}
+            hash={item.imageHash}
+            width={600}
+            className={S("item-image")}
+          />
+      }
       <div className={S("item")}>
         {
           hideInfo ? null :
@@ -201,9 +202,13 @@ const Item = observer(({item, children, hideInfo, hidePrice, discountCodeInfo, A
                     <div className={S("item__subtitle")}>
                       { item.subtitle }
                     </div>
-                    <div className={S("item__description")}>
-                      { item.description }
-                    </div>
+                    <ExpandableDescription
+                      maxLines={1000}
+                      expandable={false}
+                      description={item.description}
+                      descriptionRichText={item.description_rich_text}
+                      className={S("item__description")}
+                    />
                   </div>
               }
               {
@@ -256,6 +261,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
             <Item
               key={`item-${item?.id}`}
               item={item}
+              showDescription={items?.length === 1}
               hidePrice={item.showSecondary && secondaryPurchaseOption !== "show"}
               Actions={({item, discountCode, discountedPrice, currency}) => {
                 return (
@@ -583,7 +589,7 @@ const Payment = observer(({item, Back}) => {
   }
 
   return (
-    <Item discountCodeInfo={discountCodeInfo} item={item}>
+    <Item showDescription discountCodeInfo={discountCodeInfo} item={item}>
       <div key={`actions-${page}`} className={S("payment")}>
         { options }
         {
@@ -867,6 +873,9 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
     imageUrl: item.use_custom_image ?
       item.image?.url :
       itemInfo?.mediaInfo?.imageUrl,
+    imageHash: item.use_custom_image ?
+      item.image_hash :
+      itemInfo?.mediaInfo?.imageHash,
     itemInfo
   };
 };
@@ -910,13 +919,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
 
       setPurchaseItems(formattedPurchaseItems);
       setLoaded(true);
-
-      const secondaryOnly = !isListing && !formattedPurchaseItems?.find(item => item.showPrimary);
-
-      setHeader(
-        rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]
-      );
-
+      setHeader(rootStore.l10n.media_properties.purchase.purchase_now);
     });
   }, [items]);
 
@@ -945,7 +948,11 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   if(!loaded || (purchaseItems || []).length === 0) {
     // Not loaded or no items
     key = 0;
-    content = <Loader className={S("loader")}/>;
+    content = (
+      <div className={S("loader-container")}>
+        <Loader />
+      </div>
+    );
   } else if((selectedItemId && !selectedItem.free)  || confirmationId) {
     // Purchased/claimed
     if(confirmationId) {
@@ -1112,15 +1119,15 @@ const MediaPropertyPurchaseModal = observer(() => {
         header={header}
       >
         {
-            (purchaseItems || []).length === 0 ? null :
-              <PurchaseModalContent
-                items={purchaseItems}
-                itemId={params.itemId || params.listingId}
-                secondaryPurchaseOption={params.secondaryPurchaseOption}
-                confirmationId={params.confirmationId}
-                setHeader={setHeader}
-                Close={Close}
-              />
+          (purchaseItems || []).length === 0 ? null :
+            <PurchaseModalContent
+              items={purchaseItems}
+              itemId={params.itemId || params.listingId}
+              secondaryPurchaseOption={params.secondaryPurchaseOption}
+              confirmationId={params.confirmationId}
+              setHeader={setHeader}
+              Close={Close}
+            />
         }
       </Modal>
     </LoginGate>

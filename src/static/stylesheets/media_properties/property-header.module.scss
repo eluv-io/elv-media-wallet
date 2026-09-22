@@ -1,23 +1,33 @@
-@import "./variables";
-
 .header {
-  @include page-fade-in(0.25s);
-
   align-items: center;
-  background: linear-gradient(180deg, #1C1D20 0%, #000 100%);
+  background: linear-gradient(180deg, rgb(0 0 0 / 70%) 0%, transparent);
   display: flex;
   gap: 50px;
   height: var(--property-header-height);
   justify-content: space-between;
   padding: 0 50px 8px;
-  position: sticky;
+  position: fixed;
   top: 0;
+  transition: all 0.5s ease;
   user-select: none;
   width: 100%;
   z-index: 2;
 
-  &:not(&--media) {
-    box-shadow: 0 0 30px black;
+  * {
+    transition: all 0.5s ease;
+  }
+
+  &--scrolled {
+    .header__background {
+      opacity: 0.5;
+    }
+  }
+
+  &__background {
+    background: black;
+    inset: 0;
+    opacity: 0;
+    position: absolute;
   }
 
   @media screen and (width <= 850px) {
@@ -54,14 +64,18 @@
 }
 
 .preview-indicator {
-  background: rgb(0 0 0 / 50%);
-  color: #aad9ff;
+  bottom: -10px;
+  color: var(--property-text-highlight);
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.75;
   position: absolute;
+  right: 0;
   text-shadow: 0 0 5px black;
 }
 
 
-.links {
+.buttons {
   align-items: center;
   display: flex;
   gap: 15px;
@@ -78,10 +92,9 @@
   }
 }
 
-.button {
-  @include page-fade-in;
-
+.button {;
   align-items: center;
+  animation: var(--animation-fade-in) 0.25s ease;
   background-color: var(--property-search-button-background);
   border: 1px solid transparent;
   border-radius: 100%;
@@ -92,6 +105,10 @@
   position: relative;
   transition: background-color 0.25s ease, border 0.25s ease;
   width: 35px;
+
+  * {
+    transition: all 0.15s ease;
+  }
 
   &--custom {
     background: var(--property-button-background);
@@ -112,7 +129,6 @@
   &__icon-close {
     height: 50%;
     position: absolute;
-    transition: opacity 0.1s ease;
     width: 50%;
   }
 
@@ -121,8 +137,15 @@
     stroke-width: 3px;
   }
 
+  &__profile-icon {
+    border-radius: 100%;
+    inset: 0;
+    position: absolute;
+  }
+
   &--active {
-    .button__icon {
+    .button__icon,
+    .button__profile-icon {
       opacity: 0;
     }
 
@@ -132,7 +155,7 @@
   }
 
   &--notification {
-    @include page-fade-in;
+    animation: var(--animation-fade-in) 0.25s ease;;
 
     &::after {
       background: red;
@@ -153,7 +176,7 @@
   text-transform: uppercase;
   width: max-content;
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     min-height: 36px;
   }
 }
@@ -162,6 +185,7 @@
 
 .search-container {
   align-items: center;
+  animation: var(--animation-fade-in) 0.5s ease;
   display: flex;
   flex: 1 1 0;
   gap: 20px;
@@ -176,7 +200,7 @@
     z-index: 1;
   }
 
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     gap: 10px;
   }
 }
@@ -191,6 +215,10 @@
     font-weight: 500;
     height: 100%;
     padding: 10px 15px;
+
+    &--active {
+      border: 1px solid var(--property-text-highlight);
+    }
   }
 
   &__input {
@@ -199,16 +227,60 @@
     color: var(--property-text-primary);
     font-size: 1.15em;
     height: 45px;
-    padding: 0 30px;
 
     &::placeholder {
       color: var(--property-text-secondary);
-      font-size: 1.15em;
+      font-size: 1em;
     }
   }
 
-  &__options {
-    padding: 10px 10px 0;
+  &--standard {
+    .search__input {
+      padding-left: 20px;
+    }
+  }
+
+  &__ai-toggle {
+    align-items: center;
+    background-color: var(--property-background-tertiary);
+    border-radius: 20px;
+    display: flex;
+    font-size: 14px;
+    gap: 5px;
+    height: 70%;
+    justify-content: center;
+    padding: 5px 10px 5px 5px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    width: 87%;
+
+    input {
+      min-height: 0!important;
+      min-width: 0!important;
+    }
+
+    svg {
+      height: 20px;
+
+      * {
+        fill: white;
+        stroke: white;
+      }
+    }
+
+    &--active {
+      background-color: var(--property-text-faded);
+    }
+
+    * {
+      font-family: var(--font-family-primary);
+      font-weight: 700;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+  }
+
+  &__ai-switch-track {
+    background-color: var(--property-background-tertiary);
+    border: 1px solid var(--property-text-extra-faded);
   }
 
   &__option {
@@ -239,27 +311,28 @@
     background-color: var(--property-search-background);
   }
 
-  &__submit {
-    align-items: center;
-    background-color: var(--property-search-button-background);
-    border-left: 1px solid #67676a;
-    border-radius: 0 33px 33px 0;
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    padding: 13px;
-    position: absolute;
-    right: 0;
-    width: 100%;
-
-    svg {
+  @media screen and (width >= 800px) {
+    &__submit {
+      align-items: center;
+      background-color: var(--property-search-button-background);
+      border-left: 1px solid #67676a;
+      border-radius: 0 33px 33px 0;
+      display: flex;
       height: 100%;
+      justify-content: center;
+      padding: 13px;
+      position: absolute;
+      right: 0;
       width: 100%;
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 
-
-  @media screen and (width <= 800px) {
+  @media screen and (width <= 850px) {
     &__input,
     &__option {
       font-size: 0.8em;
@@ -269,7 +342,22 @@
     &__input {
       border: 0;
       height: 30px;
-      padding-left: 35px;
+      padding-left: 40px;
+    }
+
+    &__submit {
+      height: 100%;
+      padding: 7px;
+      width: 100%;
+
+      svg {
+        height: 100%;
+        width: 100%;
+
+        * {
+          color: var(--property-text-faded);
+        }
+      }
     }
 
     &__filter {
@@ -280,6 +368,26 @@
       font-size: 0.9em;
       height: 36px;
       justify-content: center;
+    }
+
+    &__ai-switch {
+      display: none;
+    }
+
+    &__ai-toggle {
+      height: 25px;
+      margin-left: 5px;
+      padding: 4px;
+      width: 25px;
+
+      span {
+        display: none;
+      }
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 }
@@ -412,8 +520,7 @@
   }
 
   &__dropdown {
-    @include page-fade-in(0.15s);
-
+    animation: var(--animation-fade-in) 0.25s ease;
     background: black;
     border: 1px solid var(--property-border-color);
     border-radius: 0 0 10px 10px;
@@ -465,8 +572,7 @@
 
 .language-menu {
   &__dropdown {
-    @include page-fade-in;
-
+    animation: var(--animation-fade-in) 0.25s ease;;
     background-color: #202023;
     border: 0;
     border-radius: 12px;
@@ -489,23 +595,24 @@
 
 .header-mobile {
   align-items: center;
-  background-color: black;
   display: flex;
   gap: 10px;
   height: 60px;
   justify-content: space-between;
   padding-inline: 15px;
-  position: sticky;
+  position: fixed;
   top: 0;
   width: 100%;
   z-index: 2;
 
-  &:not(&--media) {
-    box-shadow: 0 0 10px black;
+  & > * {
+    transition: all 0.5s ease;
   }
 
-  & > * {
-    @include page-fade-in(1s);
+  &--scrolled {
+    .header__background {
+      opacity: 0.5;
+    }
   }
 
   &__controls {
@@ -520,7 +627,48 @@
     min-width: unset;
   }
 
-  .links {
+  .buttons {
     gap: 5px;
+  }
+}
+
+.header-links {
+  flex-grow: 1;
+  gap: 20px;
+  z-index: 1;
+
+  &,
+  &__link {
+    align-items: center;
+    display: flex;
+  }
+
+  &__link {
+    color: var(--text-color, var(--property-text-primary));
+    font-weight: 700;
+    gap: 10px;
+
+    &:hover {
+      color: var(--text-color, var(--property-text-primary));
+    }
+  }
+
+  &__link-icon {
+    height: 35px;
+    object-fit: contain;
+    width: 35px;
+  }
+
+  @media screen and (width <= 1250px) {
+    gap: 30px;
+    margin-left: 20px;
+
+    &__link {
+      font-size: 12px;
+    }
+
+    &__link-icon {
+      display: none;
+    }
   }
 }

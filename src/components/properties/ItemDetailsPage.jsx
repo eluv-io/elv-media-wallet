@@ -1,42 +1,42 @@
-import ItemDetailStyles from "Assets/stylesheets/media_properties/item-details.module.scss";
+import ItemDetailStyles from "@/assets/stylesheets/media_properties/item-details.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Stores";
-import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
-import {Button, Description, LoaderImage, PageContainer} from "Components/properties/Common";
-import {NFTImage} from "Components/common/Images";
+import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "@/stores";
+import {Ago, MiddleEllipsis, NFTInfo} from "@/utils/Utils";
+import {Button, Description, LoaderImage, PageContainer} from "@/components/properties/Common";
+import {NFTImage} from "@/components/common/Images";
 import {
   ButtonWithLoader,
   CopyableField,
   FormatPriceString,
   Linkish,
   LocalizeString
-} from "Components/common/UIComponents";
-import Confirm from "Components/common/Confirm";
+} from "@/components/common/UIComponents";
+import Confirm from "@/components/common/Confirm";
 import {Modal, TextInput} from "@mantine/core";
-import {PageLoader} from "Components/common/Loaders";
+import {PageLoader} from "@/components/common/Loaders";
 import {
   CreateMediaPropertyPurchaseParams,
   CreateRedeemableParams,
   MediaPropertyBasePath
-} from "../../utils/MediaPropertyUtils";
-import ListingModal from "Components/listings/ListingModal";
-import OfferModal from "Components/listings/OfferModal";
+} from "@/utils/MediaPropertyUtils";
+import ListingModal from "@/components/listings/ListingModal";
+import OfferModal from "@/components/listings/OfferModal";
 import Path from "path";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
+import ImageIcon from "@/components/common/ImageIcon";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {FilteredTable} from "Components/common/Table";
-import {OffersTable} from "Components/listings/TransferTables";
-import ListingStats from "Components/listings/ListingStats";
+import {FilteredTable} from "@/components/common/Table";
+import {OffersTable} from "@/components/listings/TransferTables";
+import ListingStats from "@/components/listings/ListingStats";
 
-import ProfileIcon from "Assets/icons/profile.svg";
-import TransactionIcon from "Assets/icons/transaction history icon";
-import PurchaseOffersIcon from "Assets/icons/Offers table icon";
-import RewardsIcon from "Assets/icons/Offers icon.svg";
-import Video from "Components/properties/Video";
+import ProfileIcon from "@/assets/icons/profile.svg";
+import TransactionIcon from "@/assets/icons/transaction history icon.svg";
+import PurchaseOffersIcon from "@/assets/icons/Offers table icon.svg";
+import RewardsIcon from "@/assets/icons/Offers icon.svg";
+import Video from "@/components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
@@ -105,6 +105,7 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
                 await transferStore.TransferNFT({nft, targetAddress});
                 SetTransferred();
                 Close();
+              // eslint-disable-next-line no-unused-vars
               } catch(error) {
                 setError("Transfer failed");
               }
@@ -178,8 +179,13 @@ const RedeemableOffers = observer(({nftInfo}) => {
                 {
                   !(offer.image || offer.animation) ? null :
                     <div className={S("redeemable-offer__image-container")}>
-                      <LoaderImage alt={offer.name} src={offer.image.url} width={500}
-                                   className={S("redeemable-offer__image")}/>
+                      <LoaderImage
+                        alt={offer.name}
+                        src={offer.image.url}
+                        hash={offer.image_hash}
+                        width={500}
+                        className={S("redeemable-offer__image")}
+                      />
                       {
                         !offer.animation ? null :
                           <Video
@@ -484,6 +490,7 @@ const DetailsPage = observer(({nftInfo, contractStats}) => {
       } else {
         mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
       }
+    // eslint-disable-next-line no-unused-vars
     } catch(error) {
       mintDate = "";
     }
