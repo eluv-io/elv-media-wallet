@@ -44,6 +44,7 @@
 
   &__rich-text {
     font-size: 14px;
+    max-width: min(1000px, 90vw);
   }
 
   &__html {
@@ -57,6 +58,11 @@
     &--rich-text {
       border-radius: 5px;
       padding: 15px;
+    }
+
+    &__image {
+      max-height: 90vh;
+      max-width: 90vw;
     }
   }
 

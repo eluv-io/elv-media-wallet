@@ -49,6 +49,10 @@ class MediaPropertyStore {
 
   cardThemes = {};
 
+  videoModalInfo = {
+    show: false
+  };
+
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
     DISABLE: "disable",
@@ -2456,6 +2460,18 @@ class MediaPropertyStore {
       }
     });
   });
+
+  SetVideoModalInfo({videoLink, videoLinkInfo}={}) {
+    if(!videoLink) {
+      this.videoModalInfo = { show: false };
+    } else {
+      this.videoModalInfo = {
+        show: true,
+        videoLink: videoLink,
+        videoLinkInfo: videoLinkInfo
+      };
+    }
+  }
 
   SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;

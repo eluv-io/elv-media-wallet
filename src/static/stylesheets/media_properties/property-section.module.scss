@@ -453,6 +453,7 @@
   &__links {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
   }
 
@@ -484,7 +485,6 @@
     flex-direction: column;
 
     &__links {
-      flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
     }

@@ -39,6 +39,8 @@
 
 .profile-menu {
   font-weight: 500;
+  max-height: calc(90vh - var(--property-header-height));
+  overflow-y: auto;
   padding: 20px 30px;
 
   &__user {

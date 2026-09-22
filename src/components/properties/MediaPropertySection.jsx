@@ -872,6 +872,14 @@ const AppLinks = observer(() => {
           <ImageIcon icon={AndroidImage} label="Get it on Google Play"/>
         </a>
         <a
+          href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={RokuImage} label="Available on Roku"/>
+        </a>
+        <a
           href="https://us.lgappstv.com/main/tvapp/detail?appId=1273688"
           target="_blank"
           rel="noopener noreferrer"
@@ -886,14 +894,6 @@ const AppLinks = observer(() => {
           className={S("app-links__link")}
         >
           <ImageIcon icon={SamsungImage} label="Available on Samsung TV Plus"/>
-        </a>
-        <a
-          href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={S("app-links__link")}
-        >
-          <ImageIcon icon={RokuImage} label="Available on Roku"/>
         </a>
       </div>
     </div>

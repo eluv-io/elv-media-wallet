@@ -747,22 +747,21 @@ const PropertySelector = observer(({logo, basePath, mobile = false}) => {
     );
   }
 
-  const Option = ({option, selected=false}) => (
+  const Option = ({option}) => (
     <>
       <img
         src={option?.icon?.url}
         className={S("property-selector__option-icon")}
       />
       {
-        selected && mobile ? null :
-          option?.logo ?
-            <img
-              src={option.logo.url}
-              className={S("property-selector__option-logo")}
-            /> :
-            <div className={S("property-selector__option-title")}>
-              { option.title }
-            </div>
+        option?.logo ?
+          <img
+            src={option.logo.url}
+            className={S("property-selector__option-logo")}
+          /> :
+          <div className={S("property-selector__option-title")}>
+            { option.title }
+          </div>
       }
     </>
   );
@@ -875,11 +874,14 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
       <div className={S("header__background")}/>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
-          !rootStore.backPath || discoverDisabled ?
-            <PropertySelector logo={logo} basePath={basePath} mobile/> :
+          !rootStore.backPath || discoverDisabled ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")}/>
             </Linkish>
+        }
+        {
+          !logo ? null :
+            <PropertySelector logo={logo} basePath={basePath} mobile/>
         }
       </div>
       <div className={S("buttons")}>
@@ -976,7 +978,13 @@ const MediaPropertyHeader = observer(() => {
     (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated)
   );
 
-  const logo = SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300});
+  const logo = SetImageUrlDimensions({
+    url: rootStore.pageWidth < 850 ?
+      mediaProperty?.metadata.mobile_header_logo?.url :
+      mediaProperty?.metadata.header_logo?.url,
+    width: 300
+  });
+
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
 
   if((basePath === location.pathname || UrlJoin(basePath, "/main") === location.pathname) && rootStore.routeParams.parentMediaPropertySlugOrId) {

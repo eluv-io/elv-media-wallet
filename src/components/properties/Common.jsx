@@ -991,15 +991,16 @@ export const RenderAction = observer(({
 }) => {
   let buttonParams = {};
 
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
   switch(action.behavior) {
     case "sign_in":
       buttonParams.onClick = () => rootStore.ShowLogin();
       break;
 
     case "video":
-      buttonParams.onClick = () => setShowVideoModal(true);
+      buttonParams.onClick = () => mediaPropertyStore.SetVideoModalInfo({
+        videoLink: action.video,
+        videoLinkInfo: action.video_info
+      });
       break;
 
     case "page_link":
@@ -1067,32 +1068,32 @@ export const RenderAction = observer(({
         pageSlugOrId: action.subproperty_page
       });
       break;
+  }
 
+  return <Component {...buttonParams} />;
+});
+
+export const MediaPropertyVideoModal = observer(() => {
+  if(!mediaPropertyStore.videoModalInfo?.show) {
+    return;
   }
 
   return (
-    <>
-      {
-        !showVideoModal ? null :
-          <Modal
-            withCloseButton
-            opened
-            centered
-            noBackground
-            onClose={() => setShowVideoModal(false)}
-            bodyClassName={S("action-video-container")}
-          >
-            <Video
-              link={action.video}
-              playerOptions={{showLoader: false, backgroundColor: "black"}}
-              className={S("action-video")}
-            />
-          </Modal>
-      }
-      <Component
-        {...buttonParams}
+    <Modal
+      withCloseButton
+      opened
+      centered
+      noBackground
+      onClose={() => mediaPropertyStore.SetVideoModalInfo()}
+      bodyClassName={S("action-video-container")}
+    >
+      <Video
+        link={mediaPropertyStore.videoModalInfo.videoLink}
+        linkInfo={mediaPropertyStore.videoModalInfo.videoLinkInfo}
+        playerOptions={{showLoader: false, backgroundColor: "black"}}
+        className={S("action-video")}
       />
-    </>
+    </Modal>
   );
 });
 
