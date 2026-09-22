@@ -88,7 +88,7 @@
     flex-direction: column;
     font-size: 18px;
     height: max-content;
-    max-width: calc(100vw - 30px);
+    max-width: calc(100vw - 2 * var(--property-page-padding));
     overflow: hidden;
     position: absolute;
     right: 0;

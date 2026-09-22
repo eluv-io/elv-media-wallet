@@ -467,6 +467,7 @@ export const MediaGrid = observer(({
   className="",
   navContext,
 }) => {
+  const [containerElement, setContainerElement] = useState(null);
   const match = useRouteMatch();
   aspectRatio = aspectRatio?.toLowerCase() || "mixed";
 
@@ -528,11 +529,25 @@ export const MediaGrid = observer(({
     }
   }
 
+
+  const padding = parseInt(
+    window.getComputedStyle(containerElement || document.body)
+      .getPropertyValue("--property-page-padding") || 0
+  );
+
+  const gap = parseInt(
+    window.getComputedStyle(containerElement || document.body)
+      .getPropertyValue("gap") || 0
+  );
+
   return (
     <div
+      ref={setContainerElement}
       style={{
         gridTemplateColumns,
-        gridTemplateAreas
+        gridTemplateAreas,
+        // Calculate card width - 100vw - page padding - gap between cards
+        "--max-card-width": `calc((100vw - (2 * ${padding}px) - (${columns - 1} * ${gap || 0}px)) / ${columns})`
       }}
       className={[S(
         "section__content",

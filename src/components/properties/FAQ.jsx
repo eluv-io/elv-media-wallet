@@ -1,19 +1,20 @@
 import FAQStyles from "@/assets/stylesheets/media_properties/faq.module.scss";
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "@/stores";
 import {LoaderImage, PageContainer, RichText} from "@/components/properties/Common";
 import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 import {Accordion} from "@mantine/core";
-import {SetImageUrlDimensions} from "@/utils/Utils";
+import {ScrollTo, SetImageUrlDimensions} from "@/utils/Utils";
 import ImageIcon from "@/components/common/ImageIcon";
 import Video from "@/components/properties/Video";
-import {Linkish} from "@/components/common/UIComponents";
+import {Copy, Linkish} from "@/components/common/UIComponents";
 
 import PlusIcon from "@/assets/icons/plus.svg";
 import MinusIcon from "@/assets/icons/minus.svg";
+import LinkIcon from "@/assets//icons/linked wallet icon (r).svg";
 
 const S = (...classes) => classes.map(c => FAQStyles[c] || "").join(" ");
 
@@ -50,13 +51,32 @@ const FAQPage = observer(() => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty({...match.params});
 
-  if(!mediaProperty) { return null; }
-
-  let faq = mediaProperty.metadata?.faq || {};
+  let faq = mediaProperty?.metadata?.faq || {};
   if(match.params.slug) {
     faq = mediaProperty.metadata.faq.additional
       ?.find(other => other.slug === match.params.slug) || faq;
   }
+
+  useEffect(() => {
+    if(rootStore.showSplash) { return; }
+
+    const initialQuestionIndex = faq?.questions
+      ?.findIndex(({question}) =>
+        `#${encodeURIComponent(question)}` === window.location.hash
+      );
+
+    if(initialQuestionIndex >= 0) {
+      setOpenedItem(initialQuestionIndex.toString());
+
+      setTimeout(() => {
+        const element = document.querySelector(`#question-${initialQuestionIndex}`);
+
+        if(element) {
+          ScrollTo(-75, element, undefined, "smooth");
+        }
+      }, 100);
+    }
+  }, [rootStore.showSplash]);
 
   if((faq.questions || []).length === 0) {
     return <Redirect to={MediaPropertyBasePath(match.params)} />;
@@ -111,11 +131,13 @@ const FAQPage = observer(() => {
                 const beforeImages = images.filter(i => i.position === "before");
                 const afterImages = images.filter(i => i.position === "after");
                 const insideImages = images.filter(i => i.position === "inside" || !i.position);
+                const link = new URL(window.location.href);
+                link.hash = encodeURIComponent(question);
 
                 return (
-                  <>
-                    <QuestionImages center images={beforeImages} />
-                    <Accordion.Item key={`question-${index}`} value={index.toString()}>
+                  <div key={`question-${index}`} id={`question-${index}`}>
+                    <QuestionImages key={`question-${index}-images`} center images={beforeImages} />
+                    <Accordion.Item key={`question-${index}-item`} value={index.toString()}>
                       <Accordion.Control
                         chevron={
                           <ImageIcon
@@ -124,28 +146,46 @@ const FAQPage = observer(() => {
                           />
                         }
                       >
-                        <div className={S("question__label")}>{question}</div>
+                        <div className={S("question__label")}>
+                          <span>
+                            {question}
+                          </span>
+
+                          <button
+                            onClick={event => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              Copy(link.toString());
+                            }}
+                            title="Copy Link to Question"
+                            className={S("copy-link")}
+                          >
+                            <ImageIcon icon={LinkIcon} />
+                          </button>
+                        </div>
                       </Accordion.Control>
                       <Accordion.Panel>
-                        {
-                          !video || openedItem !== index.toString() ? null :
-                            <Video
-                              link={video}
-                              playerOptions={{
-                                autoplay: false
-                              }}
-                              className={S("video")}
-                            />
-                        }
-                        {
-                          openedItem !== index.toString() ? null :
-                            <QuestionImages images={insideImages} />
-                        }
-                        <RichText richText={answer} className={S("answer")}/>
+                        <>
+                          {
+                            !video || openedItem !== index.toString() ? null :
+                              <Video
+                                link={video}
+                                playerOptions={{
+                                  autoplay: false
+                                }}
+                                className={S("video")}
+                              />
+                          }
+                          {
+                            openedItem !== index.toString() ? null :
+                              <QuestionImages images={insideImages} />
+                          }
+                          <RichText richText={answer} className={S("answer")}/>
+                        </>
                       </Accordion.Panel>
                     </Accordion.Item>
                     <QuestionImages center images={afterImages} />
-                  </>
+                  </div>
                 );
               })
             }

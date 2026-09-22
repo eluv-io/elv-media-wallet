@@ -134,7 +134,7 @@
   position: relative;
   width: 100%;
 
-  --max-card-width: 400px;
+  --max-card-width: min(400px, calc(100vw - 2 * var(--property-page-padding)));
 
   &--page {
     .section__content--grid {
@@ -370,7 +370,7 @@
     width: 100%;
 
     &--page {
-      max-width: calc(100vw - 30px);
+      max-width: calc(100vw - 2 * var(--property-page-padding));
       width: 100%;
     }
 

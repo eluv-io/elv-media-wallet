@@ -23,12 +23,6 @@
   }
 
   @media screen and (width <= 850px) {
-    padding-inline: 15px;
-
-    &.search {
-      padding-inline: 15px;
-    }
-
     &__attribute--primary {
       font-size: 0.8em;
     }
