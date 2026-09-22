@@ -31,9 +31,10 @@ import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPag
 import LeftArrow from "@/assets/icons/left-arrow.svg";
 import PoweredByImage from "@/assets/images/apps/Eluvio.png";
 import RokuImage from "@/assets/images/apps/roku.png";
-import AmazonImage from "@/assets/images/apps/amazon.png";
 import AndroidImage from "@/assets/images/apps/android.png";
+import LGImage from "@/assets/images/apps/lg-content-store.png";
 import AppleImage from "@/assets/images/apps/apple.png";
+import SamsungImage from "@/assets/images/apps/samsung.png";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -871,12 +872,20 @@ const AppLinks = observer(() => {
           <ImageIcon icon={AndroidImage} label="Get it on Google Play"/>
         </a>
         <a
-          href="https://www.amazon.com/gp/product/B0CDLG65ML"
+          href="https://us.lgappstv.com/main/tvapp/detail?appId=1273688"
           target="_blank"
           rel="noopener noreferrer"
           className={S("app-links__link")}
         >
-          <ImageIcon icon={AmazonImage} label="Available at Amazon Appstore"/>
+          <ImageIcon icon={LGImage} label="Available on LG Content Store"/>
+        </a>
+        <a
+          href="https://www.samsung.com/us/tvs/smart-tv/samsung-tv-apps-detail/?appId=3202506040182"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={SamsungImage} label="Available on Samsung TV Plus"/>
         </a>
         <a
           href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
