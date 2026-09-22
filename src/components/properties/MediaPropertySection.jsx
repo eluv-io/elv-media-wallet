@@ -856,12 +856,12 @@ const AppLinks = observer(() => {
           <ImageIcon icon={AndroidImage} label="Get it on Google Play"/>
         </a>
         <a
-          href="https://www.amazon.com/gp/product/B0CDLG65ML"
+          href="https://www.lgappstv.com"
           target="_blank"
           rel="noopener noreferrer"
           className={S("app-links__link")}
         >
-          <ImageIcon icon={AmazonImage} label="Available at Amazon Appstore"/>
+          <ImageIcon icon={LgImage} label="Available on LG Apps Store"/>
         </a>
         <a
           href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
