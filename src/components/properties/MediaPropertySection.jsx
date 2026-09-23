@@ -40,7 +40,7 @@ const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
   if(cardFormat === "button_vertical") {
-    return Math.round(pageWidth / 450);
+    return Math.round(pageWidth / 425);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
   }

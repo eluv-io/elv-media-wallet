@@ -44,6 +44,10 @@
 
   &--carousel {
     padding-right: 0!important;
+
+    .section__content {
+      --min-card-width: var(--max-card-width);
+    }
   }
 
   &--grid {
@@ -134,7 +138,7 @@
   position: relative;
   width: 100%;
 
-  --max-card-width: min(400px, calc(100vw - 2 * var(--property-page-padding)));
+  --max-card-width: var(--card-size-width);
 
   &--page {
     .section__content--grid {
@@ -169,26 +173,27 @@
   // Card Sizes
 
   &--extra_small {
-    --max-card-width: min(var(--property-section-card-width-extra_small), 75vw);
+    --card-size-width: var(--property-section-card-width-extra_small);
   }
 
   &--small {
-    --max-card-width: min(var(--property-section-card-width-small), 75vw);
+    --card-size-width: var(--property-section-card-width-small);
   }
 
   &--medium {
-    --max-card-width: min(var(--property-section-card-width-medium), 75vw);
+    --card-size-width: var(--property-section-card-width-medium);
   }
 
   &--large {
-    --max-card-width: min(var(--property-section-card-width-large), 75vw);
+    --card-size-width: var(--property-section-card-width-large);
   }
 
   &--extra_large {
-    --max-card-width: min(var(--property-section-card-width-extra_large), 75vw);
+    --card-size-width: var(--property-section-card-width-extra_large);
   }
 
   &__page-header {
+    margin-bottom: 10px;
     margin-top: 0!important;
     padding-bottom: 0;
   }
@@ -352,6 +357,11 @@
       &--spacing-lg {
         gap: 100px;
       }
+    }
+
+    &--square,
+    &--portrait {
+      --max-card-width: calc(var(--card-size-width) / 3 * 2);
     }
   }
 
