@@ -1220,9 +1220,9 @@ class MediaPropertyStore {
     }
 
     if(search) {
-      behavior = mediaProperty.metadata.permissions.search_permissions_behavior || behavior;
-      alternatePageId = mediaProperty.metadata.permissions.search_permissions_alternate_page_id || alternatePageId;
-      secondaryPurchaseOption = mediaProperty.metadata.permissions.search_permissions_secondary_market_purchase_option || secondaryPurchaseOption;
+      behavior = mediaProperty?.metadata.permissions.search_permissions_behavior || behavior;
+      alternatePageId = mediaProperty?.metadata.permissions.search_permissions_alternate_page_id || alternatePageId;
+      secondaryPurchaseOption = mediaProperty?.metadata.permissions.search_permissions_secondary_market_purchase_option || secondaryPurchaseOption;
     }
 
     if(authorized && mediaCollectionSlugOrId) {
@@ -1291,7 +1291,7 @@ class MediaPropertyStore {
       this.permissionItems[permissionItemId]?.purchaseAuthorized
     );
 
-    const purchaseUnauthorizedBehavior = mediaProperty.metadata.permissions?.permission_items_unauthorized_permissions_behavior || behavior;
+    const purchaseUnauthorizedBehavior = mediaProperty?.metadata.permissions?.permission_items_unauthorized_permissions_behavior || behavior;
     if(sectionItem?.type === "item_purchase") {
       if(
          PurchaseParamsToItems(
@@ -1312,7 +1312,7 @@ class MediaPropertyStore {
       behavior = purchaseUnauthorizedBehavior;
       alternatePageId = (
         purchaseUnauthorizedBehavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
-        mediaProperty.metadata.permissions?.permission_items_unauthorized_alternate_page_id
+        mediaProperty?.metadata.permissions?.permission_items_unauthorized_alternate_page_id
       ) || alternatePageId;
     }
 
@@ -1649,7 +1649,7 @@ class MediaPropertyStore {
       Load: async () => {
         const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
         if(mediaProperty) {
-          return mediaProperty.metadata;
+          return mediaProperty?.metadata;
         }
 
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;

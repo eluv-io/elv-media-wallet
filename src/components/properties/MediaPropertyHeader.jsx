@@ -759,7 +759,7 @@ const PropertySelector = observer(({logo, basePath, mobile = false}) => {
             src={option.logo.url}
             className={S("property-selector__option-logo")}
           /> :
-          <div className={S("property-selector__option-title")}>
+          <div className={S("ellipsis", "property-selector__option-title")}>
             { option.title }
           </div>
       }
@@ -879,10 +879,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, discoverDisabled, s
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")}/>
             </Linkish>
         }
-        {
-          !logo ? null :
-            <PropertySelector logo={logo} basePath={basePath} mobile/>
-        }
+        <PropertySelector logo={logo} basePath={basePath} mobile/>
       </div>
       <div className={S("buttons")}>
         {
