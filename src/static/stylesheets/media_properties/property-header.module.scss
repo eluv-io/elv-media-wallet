@@ -480,10 +480,15 @@
   }
 
   &__select {
+    align-items: center;
     background: black;
     border: 1px solid var(--property-border-color);
     border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    pointer-events: initial;
     transition: border-radius 0s;
+    z-index: 1;
 
     &--active {
       border-bottom: 1px solid transparent;
@@ -495,13 +500,24 @@
       background: var(--property-search-button-background);
       border: 0;
       border-radius: 5px;
-      gap: 0;
+      gap: 3px;
       height: 35px;
       padding: 5px;
-      width: 65px;
+      width: max-content;
 
       .property-selector__select-icon {
         height: 20px;
+        width: 20px;
+      }
+
+      .property-selector__option-title {
+        display: block;
+        font-size: 12px;
+        height: max-content;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 60px;
       }
     }
   }
@@ -517,6 +533,7 @@
   &__select-icon {
     height: 30px;
     opacity: 0.75;
+    width: 30px;
   }
 
   &__dropdown {

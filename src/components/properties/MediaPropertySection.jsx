@@ -31,15 +31,16 @@ import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPag
 import LeftArrow from "@/assets/icons/left-arrow.svg";
 import PoweredByImage from "@/assets/images/apps/Eluvio.png";
 import RokuImage from "@/assets/images/apps/roku.png";
-import AmazonImage from "@/assets/images/apps/amazon.png";
 import AndroidImage from "@/assets/images/apps/android.png";
+import LGImage from "@/assets/images/apps/lg-content-store.png";
 import AppleImage from "@/assets/images/apps/apple.png";
+import SamsungImage from "@/assets/images/apps/samsung.png";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
   if(cardFormat === "button_vertical") {
-    return Math.round(pageWidth / 450);
+    return Math.round(pageWidth / 425);
   } else if(cardFormat === "button_horizontal") {
     return Math.floor(pageWidth / 600) || 1;
   }
@@ -467,6 +468,7 @@ export const MediaGrid = observer(({
   className="",
   navContext,
 }) => {
+  const [containerElement, setContainerElement] = useState(null);
   const match = useRouteMatch();
   aspectRatio = aspectRatio?.toLowerCase() || "mixed";
 
@@ -528,11 +530,25 @@ export const MediaGrid = observer(({
     }
   }
 
+
+  const padding = parseInt(
+    window.getComputedStyle(containerElement || document.body)
+      .getPropertyValue("--property-page-padding") || 0
+  );
+
+  const gap = parseInt(
+    window.getComputedStyle(containerElement || document.body)
+      .getPropertyValue("gap") || 0
+  );
+
   return (
     <div
+      ref={setContainerElement}
       style={{
         gridTemplateColumns,
-        gridTemplateAreas
+        gridTemplateAreas,
+        // Calculate card width - 100vw - page padding - gap between cards
+        "--max-card-width": `calc((100vw - (2 * ${padding}px) - (${columns - 1} * ${gap || 0}px)) / ${columns})`
       }}
       className={[S(
         "section__content",
@@ -856,20 +872,28 @@ const AppLinks = observer(() => {
           <ImageIcon icon={AndroidImage} label="Get it on Google Play"/>
         </a>
         <a
-          href="https://www.amazon.com/gp/product/B0CDLG65ML"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={S("app-links__link")}
-        >
-          <ImageIcon icon={AmazonImage} label="Available at Amazon Appstore"/>
-        </a>
-        <a
           href="https://channelstore.roku.com/en-gb/details/6fdb7c67cc944e0db2bad6c3f472beaf:406eb61dd4c5ea8334e27098831e89dc/eluvio-media-wallet"
           target="_blank"
           rel="noopener noreferrer"
           className={S("app-links__link")}
         >
           <ImageIcon icon={RokuImage} label="Available on Roku"/>
+        </a>
+        <a
+          href="https://us.lgappstv.com/main/tvapp/detail?appId=1273688"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={LGImage} label="Available on LG Content Store"/>
+        </a>
+        <a
+          href="https://www.samsung.com/us/tvs/smart-tv/samsung-tv-apps-detail/?appId=3202506040182"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={S("app-links__link")}
+        >
+          <ImageIcon icon={SamsungImage} label="Available on Samsung TV Plus"/>
         </a>
       </div>
     </div>

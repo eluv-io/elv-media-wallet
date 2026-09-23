@@ -177,6 +177,17 @@ const App = observer(() => {
     }
   }, [rootStore.showSplash]);
 
+  useEffect(() => {
+    if(showSplash && !hidingSplash) {
+      document.documentElement.classList.add("no-scroll");
+      document.body.classList.add("no-scroll");
+    } else {
+      document.documentElement.classList.remove("no-scroll");
+      document.body.classList.remove("no-scroll");
+    }
+  }, [showSplash, hidingSplash]);
+
+
   if(rootStore.routeChange) {
     return <Redirect to={rootStore.routeChange} />;
   }

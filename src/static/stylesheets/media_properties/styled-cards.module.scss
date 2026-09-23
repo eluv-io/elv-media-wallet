@@ -9,7 +9,7 @@
   cursor: pointer;
   display: block;
   flex: 1 1 100%;
-  max-width: min(calc(100vw - 50px), var(--max-card-width));
+  max-width: min(calc(100vw - 2 * var(--property-page-padding)), var(--max-card-width));
   transition: all var(--transition-duration) ease, transform calc(var(--transition-duration) / 2) ease;
   user-select: none;
   width: 100%;

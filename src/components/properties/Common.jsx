@@ -203,9 +203,11 @@ export const LoaderImage = observer(({
   lazy=true,
   showWithoutSource=false,
   hideLoader=false,
+  keepLoader=false,
   delay=25,
   loaderDelay=250,
   onLoad,
+  loaderClassName="",
   ...props
 }) => {
   const [loaded, setLoaded] = useState(false);
@@ -244,8 +246,32 @@ export const LoaderImage = observer(({
     src = SetImageUrlDimensions({url: src, width});
   }
 
+  let hashLoader = !hash ? null :
+    <div
+      {...props}
+      className={[S("lazy-image__hash-container"), props.className, loaderClassName].join(" ")}
+      style={{
+        aspectRatio: loaderAspectRatio,
+        opacity: hideLoader ? 0 : props?.style?.opacity || 1,
+        animation: loaded ? "unset" : undefined
+      }}
+    >
+      <div
+        style={{background: `center / cover url(${thumbHashToDataURL(hash)})`}}
+        className={S("lazy-image__hash")}
+      />
+    </div>;
+
   if(loaded) {
-    return <img src={(useAlternateSrc && alternateSrc) || src} {...props} />;
+    return (
+      <>
+        {
+          !keepLoader ? null :
+            hashLoader
+        }
+        <img src={(useAlternateSrc && alternateSrc) || src} {...props} />
+      </>
+    );
   }
 
   return (
@@ -266,33 +292,20 @@ export const LoaderImage = observer(({
           />
       }
       {
-        loaded ? null :
-          hash ?
-            <div
-              {...props}
-              className={[S("lazy-image__hash-container"), props.className].join(" ")}
-              style={{
-                aspectRatio: loaderAspectRatio,
-                opacity: hideLoader ? 0 : props?.style?.opacity || 1
-              }}
-            >
-              <div
-                style={{background: `center / cover url(${thumbHashToDataURL(hash)})`}}
-                className={S("lazy-image__hash")}
-              />
-            </div>:
-            <div
-              {...props}
-              style={{
-                ...(props.style || {}),
-                ...(loaderWidth ? {width: loaderWidth} : {}),
-                ...(loaderHeight ? {height: loaderHeight} : {}),
-                ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {}),
-                opacity: hideLoader ? 0 : props?.style?.opacity || 1
-              }}
-              key={props.key ? `${props.key}--placeholder` : undefined}
-              className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
-            />
+        loaded || hideLoader ? null :
+          hashLoader ||
+          <div
+            {...props}
+            style={{
+              ...(props.style || {}),
+              ...(loaderWidth ? {width: loaderWidth} : {}),
+              ...(loaderHeight ? {height: loaderHeight} : {}),
+              ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {}),
+              opacity: hideLoader ? 0 : props?.style?.opacity || 1
+            }}
+            key={props.key ? `${props.key}--placeholder` : undefined}
+            className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || "", loaderClassName].join(" ")}
+          />
       }
     </>
   );
@@ -907,16 +920,6 @@ export const SplashScreen = observer(({hiding}) => {
     })();
   }, [rootStore.currentPath]);
 
-  useEffect(() => {
-    document.documentElement.classList.add("no-scroll");
-    document.body.classList.add("no-scroll");
-
-    return () => {
-      document.documentElement.classList.remove("no-scroll");
-      document.body.classList.remove("no-scroll");
-    };
-  }, []);
-
   if(!mediaPropertySlugOrId || !styling) {
     return <div className={S("splash")} />;
   }
@@ -943,9 +946,11 @@ export const SplashScreen = observer(({hiding}) => {
             alt="Splash Background"
             delay={0}
             loaderDelay={0}
+            keepLoader
             src={styling[key].url}
             hash={styling[`${key}_hash`]}
             width={rootStore.fullscreenImageWidth}
+            loaderClassName={S("splash__image--loader")}
             className={S("splash__image")}
           />
       }
@@ -991,15 +996,16 @@ export const RenderAction = observer(({
 }) => {
   let buttonParams = {};
 
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
   switch(action.behavior) {
     case "sign_in":
       buttonParams.onClick = () => rootStore.ShowLogin();
       break;
 
     case "video":
-      buttonParams.onClick = () => setShowVideoModal(true);
+      buttonParams.onClick = () => mediaPropertyStore.SetVideoModalInfo({
+        videoLink: action.video,
+        videoLinkInfo: action.video_info
+      });
       break;
 
     case "page_link":
@@ -1067,32 +1073,32 @@ export const RenderAction = observer(({
         pageSlugOrId: action.subproperty_page
       });
       break;
+  }
 
+  return <Component {...buttonParams} />;
+});
+
+export const MediaPropertyVideoModal = observer(() => {
+  if(!mediaPropertyStore.videoModalInfo?.show) {
+    return;
   }
 
   return (
-    <>
-      {
-        !showVideoModal ? null :
-          <Modal
-            withCloseButton
-            opened
-            centered
-            noBackground
-            onClose={() => setShowVideoModal(false)}
-            bodyClassName={S("action-video-container")}
-          >
-            <Video
-              link={action.video}
-              playerOptions={{showLoader: false, backgroundColor: "black"}}
-              className={S("action-video")}
-            />
-          </Modal>
-      }
-      <Component
-        {...buttonParams}
+    <Modal
+      withCloseButton
+      opened
+      centered
+      noBackground
+      onClose={() => mediaPropertyStore.SetVideoModalInfo()}
+      bodyClassName={S("action-video-container")}
+    >
+      <Video
+        link={mediaPropertyStore.videoModalInfo.videoLink}
+        linkInfo={mediaPropertyStore.videoModalInfo.videoLinkInfo}
+        playerOptions={{showLoader: false, backgroundColor: "black"}}
+        className={S("action-video")}
       />
-    </>
+    </Modal>
   );
 });
 

@@ -60,8 +60,10 @@
   @media screen and (width <= 850px) {
     --property-header-height: 60px;
     --property-page-padding: 15px;
+    --property-section-card-width-extra_small: 225px;
     --property-section-card-width-small: 250px;
     --property-section-card-width-medium: 300px;
     --property-section-card-width-large: 400px;
+    --property-section-card-width-extra_large: 450px;
   }
 }

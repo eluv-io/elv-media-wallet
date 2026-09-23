@@ -14,7 +14,7 @@
   flex-direction: column;
   font-size: 18px;
   height: max-content;
-  max-width: calc(100vw - 30px);
+  max-width: calc(100vw - 2 * var(--property-page-padding));
   position: absolute;
   right: 0;
   top: calc(100% + 5px);
@@ -39,6 +39,8 @@
 
 .profile-menu {
   font-weight: 500;
+  max-height: calc(90vh - var(--property-header-height));
+  overflow-y: auto;
   padding: 20px 30px;
 
   &__user {

@@ -357,9 +357,11 @@ const RouteWrapper = observer(({routes, children}) => {
 
 const PropertyRouteWrapper = observer(({children}) => {
   const match = useRouteMatch();
-  const permissions = mediaPropertyStore.ResolvePermission(match.params);
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
+  const permissions = mediaProperty && mediaPropertyStore.ResolvePermission(match.params);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
+
+  if(!mediaProperty) { return <PageLoader />; }
 
   if(
     mediaProperty?.metadata?.require_login_for_media &&

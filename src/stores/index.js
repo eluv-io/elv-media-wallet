@@ -2749,7 +2749,7 @@ class RootStore {
   async SetShowSplash(show) {
     do {
       await new Promise(resolve => setTimeout(resolve, 500));
-    } while(!show && window.initSplashRender + 3000 > Date.now() && this.mediaPropertyStore.loadingProgress < 100);
+    } while(!show && window.initSplashRender + 4000 > Date.now() && this.mediaPropertyStore.loadingProgress < 100);
 
     this.showSplash = show;
     delete window.initSplashRender;

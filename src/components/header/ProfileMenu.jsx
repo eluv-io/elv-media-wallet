@@ -8,6 +8,7 @@ import ImageIcon from "@/components/common/ImageIcon.jsx";
 import UrlJoin from "url-join";
 import HoverMenu from "@/components/common/HoverMenu";
 import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
+import {RenderAction} from "@/components/properties/Common.jsx";
 
 import ProfileIcon from "@/assets/icons/profile.svg";
 import ItemsIcon from "@/assets/icons/items.svg";
@@ -15,7 +16,6 @@ import HomeIcon from "@/assets/icons/home.svg";
 import EluvioIcon from "@/assets/icons/eluvio-icon.svg";
 import MarketplaceIcon from "@/assets/icons/marketplace.svg";
 import NotificationsIcon from "@/assets//icons/header/Notification Icon.svg";
-import {RenderAction} from "@/components/properties/Common.jsx";
 
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
@@ -37,6 +37,7 @@ const ProfileMenu = observer(({Hide}) => {
       behavior: link.behavior,
       permissions: link.permissions
     }));
+
 
   return (
     <HoverMenu className={S("header-menu", "profile-menu")} Hide={Hide}>
