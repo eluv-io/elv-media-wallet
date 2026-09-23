@@ -1023,6 +1023,13 @@
     width: 100%;
   }
 
+  &__image--loader {
+    height: 100%;
+    inset: 0;
+    position: absolute;
+    width: 100%;
+  }
+
   &__content-container {
     width: 50%;
     z-index: 1;
@@ -1039,6 +1046,7 @@
   }
 
   &__logo {
+    animation: var(--animation-fade-in) var(--splash-animation-duration) ease-out;
     width: 100%;
   }
 

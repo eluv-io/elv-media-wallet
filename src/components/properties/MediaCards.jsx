@@ -833,7 +833,6 @@ const MediaCardBanner = observer(({
   imageContainerRef,
   imageUrl,
   imageHash,
-  scheduleInfo,
   textDisplay,
   linkPath="",
   url,
@@ -909,18 +908,6 @@ const MediaCardBanner = observer(({
                 alt={display.banner_alt_text || display.title}
                 className={S("media-card-banner__image")}
               /> : null
-        }
-        {
-          // Schedule indicator
-          !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
-            scheduleInfo.currentlyLive ?
-              <div className={S("media-card-banner__indicator", "media-card-banner__live-indicator")}>
-                { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
-              </div> :
-              <div className={S("media-card-banner__indicator", "media-card-banner__upcoming-indicator")}>
-                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
-                <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
-              </div>
         }
       </div>
       {
