@@ -345,6 +345,11 @@ class MediaPropertyStore {
         id: "__media-type",
         title: "Media Type",
         tags: ["Video", "Gallery", "Image", "Ebook"]
+      },
+      "__schedule": {
+        id: "__schedule",
+        title: "Schedule Status",
+        tags: ["Live", "Upcoming", "VOD"]
       }
     };
 
@@ -571,7 +576,7 @@ class MediaPropertyStore {
 
     const groupedResults = this.GroupContent({content: results, groupBy});
     let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
-    if(groupBy === "__date") {
+    if(groupBy === "__date" || groupBy === "__schedule") {
       const today = new Date().toISOString().split("T")[0];
       const upcoming = groups.filter(group => group >= today);
       const past = groups.filter(group => group < today);
@@ -816,6 +821,12 @@ class MediaPropertyStore {
 
       select.media_types = filterOptions.mediaType ? [filterOptions.mediaType] : select.media_types;
 
+      if(filterOptions.schedule) {
+        select.content_type = "media";
+        select.media_types = ["Video"];
+        select.schedule = filterOptions.schedule;
+      }
+
       content = (
         yield this.FilteredMedia({
           media: Object.values(this.media),
@@ -874,7 +885,8 @@ class MediaPropertyStore {
       // Manual Section
       content = section.content;
 
-      const hasActiveFilters = Object.keys(filterOptions.attributes || {}).length > 0 || !!filterOptions.mediaType;
+      const hasActiveFilters = Object.keys(filterOptions.attributes || {}).length > 0 || !!filterOptions.mediaType || !!filterOptions.schedule;
+
       if(hasActiveFilters) {
         let select = {
           attributes: [],
@@ -888,6 +900,12 @@ class MediaPropertyStore {
 
         select.attributes = select.attributes.filter(key => !!select.attribute_values[key]);
         select.media_types = filterOptions.mediaType ? [filterOptions.mediaType] : [];
+
+        if(filterOptions.schedule) {
+          select.content_type = "media";
+          select.media_types = ["Video"];
+          select.schedule = filterOptions.schedule;
+        }
 
         // Active filters - only applies to section items with media
         content = section.content
@@ -1010,43 +1028,49 @@ class MediaPropertyStore {
         scheduleFiltersActive &&
         select.schedule
       ) {
-        if(!mediaItem.live_video || mediaItem.media_type !== "Video") {
+        if(mediaItem.media_type !== "Video") {
+          // Not a video type, or live video but filter is VOD
           return false;
-        }
+        } else {
+          // Check schedule
+          const startTime = mediaItem.start_time && new Date(mediaItem.start_time);
+          const endTime = mediaItem.end_time && new Date(mediaItem.end_time);
 
-        const startTime = mediaItem.start_time && new Date(mediaItem.start_time);
-        const endTime = mediaItem.end_time && new Date(mediaItem.end_time);
+          const started = !startTime || startTime < now;
+          const ended = endTime && endTime < now;
+          const afterStartLimit = !select.start_time || new Date(select.start_time) < startTime;
+          const beforeEndLimit = !select.end_time || new Date(select.end_time) > startTime;
 
-        const started = !startTime || startTime < now;
-        const ended = endTime && endTime < now;
-        const afterStartLimit = !select.start_time || new Date(select.start_time) < startTime;
-        const beforeEndLimit = !select.end_time || new Date(select.end_time) > startTime;
+          switch(select.schedule?.toLowerCase()) {
+            case "vod" :
+              if(mediaItem.live_video) { return false; }
+              break;
 
-        switch(select.schedule) {
-          case "live":
-            if(!started || ended) { return false; }
+            case "live":
+              if(!started || ended || !mediaItem.live_video) { return false; }
 
-            break;
+              break;
 
-          case "live_and_upcoming":
-            if(ended || !beforeEndLimit) { return false; }
+            case "live_and_upcoming":
+              if(ended || !beforeEndLimit || !mediaItem.live_video) { return false; }
 
-            break;
+              break;
 
-          case "upcoming":
-            if(started || !beforeEndLimit) { return false; }
+            case "upcoming":
+              if(started || !beforeEndLimit || !mediaItem.live_video) { return false; }
 
-            break;
+              break;
 
-          case "past":
-            if(!ended || !afterStartLimit) { return false; }
+            case "past":
+              if(!ended || !afterStartLimit) { return false; }
 
-            break;
+              break;
 
-          case "period":
-            if(!afterStartLimit || !beforeEndLimit) { return false; }
+            case "period":
+              if(!afterStartLimit || !beforeEndLimit) { return false; }
 
-            break;
+              break;
+          }
         }
       }
 

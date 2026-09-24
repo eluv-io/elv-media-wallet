@@ -39,9 +39,18 @@ const AttributeFilterOption = observer(({
           [dependentAttribute]: ""
         };
       }
+    } else if(attributeKey === "__schedule") {
+      newFilters.schedule = value;
+
+      if(dependentAttribute) {
+        newFilters.attributes = {
+          ...activeFilters.attributes,
+          [dependentAttribute]: ""
+        };
+      }
     } else {
       // 2 Attributes
-      if(dependentAttribute && dependentAttribute !== "__media-type") {
+      if(dependentAttribute && !["__media-type", "__schedule"].includes(dependentAttribute)) {
         newFilters = {
           attributes: {
             ...activeFilters.attributes,
@@ -55,6 +64,8 @@ const AttributeFilterOption = observer(({
 
         if(dependentAttribute === "__media-type") {
           newFilters.mediaType = "";
+        } else if(dependentAttribute === "__schedule") {
+          newFilters.schedule = "";
         }
       }
     }
@@ -159,7 +170,9 @@ export const AttributeFilter = observer(({
 
   const selectedValue = attributeKey === "__media-type" ?
     (activeFilters?.mediaType || "") :
-    activeFilters?.attributes[attributeKey] || "";
+    attributeKey === "__schedule" ?
+      (activeFilters?.schedule || "") :
+      activeFilters?.attributes[attributeKey] || "";
 
   return (
     <Carousel
@@ -182,21 +195,24 @@ export const AttributeFilter = observer(({
         slidesPerView: "auto",
         ...swiperOptions
       }}
-      RenderSlide={({item}) =>
-        <AttributeFilterOption
-          value={item?.value}
-          image={item?.image}
-          imageHash={item?.imageHash}
-          selected={selectedValue === item?.value}
-          attributeKey={attributeKey}
-          filterOptions={filterOptions}
-          dependentAttribute={dependentAttribute}
-          variant={variant}
-          level={level}
-          activeFilters={activeFilters}
-          SetActiveFilters={SetActiveFilters}
-        />
-      }
+      RenderSlide={({item}) => {
+        return (
+          <AttributeFilterOption
+            item={item}
+            value={item?.value}
+            image={item?.image}
+            imageHash={item?.imageHash}
+            selected={selectedValue === item?.value}
+            attributeKey={attributeKey}
+            filterOptions={filterOptions}
+            dependentAttribute={dependentAttribute}
+            variant={variant}
+            level={level}
+            activeFilters={activeFilters}
+            SetActiveFilters={SetActiveFilters}
+          />
+        );
+      }}
     />
   );
 });
@@ -205,7 +221,9 @@ export const AttributeFilter = observer(({
 const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilters}) => {
   const selectedPrimaryValue = filterSettings.primary_filter === "__media-type" ?
     activeFilters.mediaType :
-    activeFilters.attributes[filterSettings.primary_filter];
+    filterSettings.primary_filter === "__schedule" ?
+      activeFilters.schedule :
+      activeFilters.attributes[filterSettings.primary_filter];
 
   if(type === "primary") {
     return {
@@ -232,7 +250,9 @@ const FormatFilterOptions = ({match, type="primary", filterSettings, activeFilte
 
   const selectedSecondaryValue = selectedPrimaryOption.secondary_filter_attribute === "__media-type" ?
     activeFilters.mediaType :
-    activeFilters.attributes[selectedPrimaryOption.secondary_filter_attribute];
+    selectedPrimaryOption.secondary_filter_attribute === "__schedule" ?
+      activeFilters.schedule :
+      activeFilters.attributes[selectedPrimaryOption.secondary_filter_attribute];
 
   return {
     attributeKey: selectedPrimaryOption.secondary_filter_attribute,
@@ -269,10 +289,16 @@ const Filters = observer(({
   const secondaryFilterOptions = FormatFilterOptions({match, type: "secondary", filterSettings, activeFilters});
 
   const primaryFilterValue = primaryFilterOptions.attributeKey === "__media-type" ?
-    activeFilters.mediaType : activeFilters.attributes?.[primaryFilterOptions.attributeKey];
+    activeFilters.mediaType :
+    primaryFilterOptions.attributeKey === "__schedule" ?
+      activeFilters.schedule :
+    activeFilters.attributes?.[primaryFilterOptions.attributeKey];
 
   const secondaryFilterValue = secondaryFilterOptions.attributeKey === "__media-type" ?
-    activeFilters.mediaType : activeFilters.attributes?.[secondaryFilterOptions.attributeKey];
+    activeFilters.mediaType :
+    secondaryFilterOptions.attributeKey === "__schedule" ?
+      activeFilters.schedule :
+      activeFilters.attributes?.[secondaryFilterOptions.attributeKey];
 
   useEffect(() => {
     clearTimeout(onChangeTimeout);
@@ -294,6 +320,8 @@ const Filters = observer(({
     ) {
       if(primaryFilterOptions.attributeKey === "__media-type") {
         SetActiveFilters({mediaType: initialPrimaryFilter || primaryFilterOptions.filterOptions[0].value});
+      } else if(primaryFilterOptions.attributeKey === "__schedule") {
+        SetActiveFilters({schedule: initialPrimaryFilter || primaryFilterOptions.filterOptions[0].value});
       } else {
         SetActiveFilters({
           attributes: {
@@ -315,13 +343,19 @@ const Filters = observer(({
         !secondaryFilterOptions.filterOptions.find(option => !option.value)
       )
     ) {
+      const newValue = initialSecondaryFilter && secondaryFilterOptions.filterOptions
+        ?.find(({value}) => value === initialSecondaryFilter) ?
+        initialSecondaryFilter : secondaryFilterOptions.filterOptions[0].value;
+
       if(secondaryFilterOptions.attributeKey === "__media-type") {
-        SetActiveFilters({mediaType: initialSecondaryFilter || secondaryFilterOptions.filterOptions[0].value});
+        SetActiveFilters({mediaType: newValue});
+      } else if(secondaryFilterOptions.attributeKey === "__schedule") {
+        SetActiveFilters({schedule: newValue});
       } else {
         SetActiveFilters({
           attributes: {
             ...mediaPropertyStore.searchOptions.attributes,
-            [secondaryFilterOptions.attributeKey]: initialSecondaryFilter || secondaryFilterOptions.filterOptions[0].value
+            [secondaryFilterOptions.attributeKey]: newValue
           }
         });
       }}

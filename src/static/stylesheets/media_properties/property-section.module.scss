@@ -44,10 +44,6 @@
 
   &--carousel {
     padding-right: 0!important;
-
-    .section__content {
-      --min-card-width: var(--max-card-width);
-    }
   }
 
   &--grid {
@@ -658,7 +654,6 @@
     display: flex;
     justify-content: flex-start;
     max-width: 100%;
-    overflow: hidden;
     width: 100%;
   }
 

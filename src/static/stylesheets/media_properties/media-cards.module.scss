@@ -124,7 +124,7 @@
   color: white;
   max-width: var(--max-card-width);
   text-align: left;
-  width: var(--min-card-width, 100%);
+  width: 100%;
 
   &--center {
     * {

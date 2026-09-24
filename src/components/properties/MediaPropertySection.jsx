@@ -45,7 +45,7 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
     return Math.floor(pageWidth / 600) || 1;
   }
 
-  const cardWidth = Math.min(
+  let cardWidth = Math.min(
     0.75 * pageWidth,
     parseInt(
       window.getComputedStyle(document.body)
@@ -60,7 +60,8 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat, cardSize}) => {
   if(["landscape", "mixed"].includes(aspectRatio?.toLowerCase())) {
     return Math.round(pageWidth / cardWidth);
   } else {
-    return Math.round(pageWidth / (cardWidth - 75));
+    cardWidth = cardWidth * 2 / 3;
+    return Math.round(pageWidth / cardWidth);
   }
 };
 
@@ -917,7 +918,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     mediaListSlugOrId: mediaListId
   });
 
-  const filtersActive = activeFilters.mediaType || Object.keys(activeFilters.attributes).length > 0;
+  const filtersActive = activeFilters.mediaType || activeFilters.schedule || Object.keys(activeFilters.attributes).length > 0;
 
   useEffect(() => {
     if(!section) { return; }
@@ -926,8 +927,9 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       .then(content => {
         setSectionContent(content);
 
-        if(!filtersActive)
+        if(!filtersActive) {
           setAllContentLength(content.length);
+        }
       });
   }, [match.params, sectionId, mediaListId, activeFilters]);
 
@@ -1081,7 +1083,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <Filters
               filterSettings={section.filters}
               activeFilters={activeFilters}
-              primaryOnly
+              primaryOnly={!section.filters?.show_secondary_filter_in_page_view}
               SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
               className={S("section__page-filter")}
             />

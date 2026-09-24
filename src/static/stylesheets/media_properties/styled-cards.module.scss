@@ -234,6 +234,9 @@
   &__image {
     object-fit: cover;
     object-position: center;
+
+    // Ensure images stretch as much as possible, even if they are naturally small
+    width: 10000px;
     z-index: 1;
   }
 

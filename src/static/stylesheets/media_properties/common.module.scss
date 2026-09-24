@@ -685,6 +685,7 @@
   --swiper-pagination-color: var(--property-text-primary);
 
   max-width: 100%;
+  padding-right: 20px;
   position: relative;
 
   &__slide {
@@ -717,14 +718,19 @@
       }
     }
 
+    &:disabled {
+      pointer-events: none;
+    }
+
     svg {
       border-radius: 100%;
       filter: drop-shadow(1px 1px 5px black);
-      height: 50px;
-      padding: 12px;
+      height: 45px;
+      max-height: 100%;
+      padding: 5px;
       position: relative;
       stroke-width: 2px;
-      width: 50px;
+      width: 45px;
       z-index: 1;
 
       * {
