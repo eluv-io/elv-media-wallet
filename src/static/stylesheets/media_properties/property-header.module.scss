@@ -664,8 +664,8 @@
     font-size: 15px;
     font-weight: 700;
     gap: 10px;
-    height: 45px;
-    padding-inline: 15px;
+    height: 48px;
+    padding-inline: 20px;
     transition: border 0.5s ease;
     white-space: nowrap;
 
@@ -678,8 +678,8 @@
   }
 
   &__link-icon {
-    height: 30px;
-    max-width: 30px;
+    height: 35px;
+    max-width: 35px;
     object-fit: contain;
   }
 
@@ -689,10 +689,13 @@
 
     &__link {
       font-size: 12px;
+      height: 40px;
+      padding-inline: 15px;
     }
 
     &__link-icon {
-      display: none;
+      height: 25px;
+      max-width: 25px;
     }
   }
 }
