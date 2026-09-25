@@ -11,7 +11,7 @@ import {Autocomplete, Checkbox, Combobox, Drawer, Group, Switch as MantineSwitch
 import {MediaPropertyBasePath, MediaPropertyLink} from "@/utils/MediaPropertyUtils";
 import {Linkish} from "@/components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
-import {Button, DefaultProfileImage, RenderAction} from "@/components/properties/Common";
+import {Button, Carousel, DefaultProfileImage, RenderAction} from "@/components/properties/Common";
 import ProfileMenu from "@/components/header/ProfileMenu";
 import {Debounce, SetImageUrlDimensions} from "@/utils/Utils";
 import {LogInAuth0, LogInOpenId} from "@/components/login";
@@ -905,30 +905,39 @@ const HeaderLinks = observer(({mediaProperty}) => {
       permissions: link.permissions
     }));
 
+  const outlineColor = mediaProperty.metadata?.styling?.header_link_outline_color;
   return (
-    <div className={S("header-links")}>
-      {
-        headerLinks.map(link =>
-          <RenderAction
-            key={link.id}
-            action={link}
-            Component={params =>
-              <Linkish
-                {...params}
-                style={
-                  !CSS.supports("color", link.text_color) ? {} :
-                    {"--text-color": link.text_color}
-                }
-                className={S("header-links__link")}
-              >
-                <ImageIcon className={S("header-links__link-icon")} icon={link.icon?.url || ""} label={link.text} />
-                {link.text}
-              </Linkish>
-            }
-          />
-        )
+    <Carousel
+      style={
+        !CSS.supports("color", outlineColor) ? {} :
+          { "--outline-color": outlineColor }
       }
-    </div>
+      content={headerLinks}
+      noArrows
+      className={S("header-links")}
+      swiperOptions={{
+        spaceBetween: 5
+      }}
+      RenderSlide={({item}) =>
+        <RenderAction
+          key={item.id}
+          action={item}
+          Component={params =>
+            <Linkish
+              {...params}
+              style={
+                !CSS.supports("color", item.text_color) ? {} :
+                  {"--text-color": item.text_color}
+              }
+              className={S("header-links__link", params.active ? "header-links__link--active" : "")}
+            >
+              <ImageIcon className={S("header-links__link-icon")} icon={item.icon?.url || ""} label={item.text} />
+              {item.text}
+            </Linkish>
+          }
+        />
+      }
+    />
   );
 });
 

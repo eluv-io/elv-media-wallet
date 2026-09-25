@@ -28,6 +28,7 @@ import Subscription from "@/components/profile/Subscription";
 import CodeLoginTest from "@/components/login/CodeLoginTest";
 import {PurchaseGate} from "@/components/properties/Common";
 import MediaPropertyHeader from "@/components/properties/MediaPropertyHeader.jsx";
+import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils.js";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -363,6 +364,10 @@ const PropertyRouteWrapper = observer(({children}) => {
 
   if(!mediaProperty) { return <PageLoader />; }
 
+  if(!page) {
+    return <Redirect to={MediaPropertyBasePath({...match.params, pageSlugOrId: ""})} />;
+  }
+
   if(
     mediaProperty?.metadata?.require_login_for_media &&
     match.params.mediaItemSlugOrId &&
@@ -382,8 +387,8 @@ const PropertyRouteWrapper = observer(({children}) => {
       noPurchaseAvailablePageSettings={mediaProperty.metadata.no_purchase_available_page || {}}
       id={
         !page?.permissions?.authorized ?
-          page.id :
-          permissions.causeId
+          page?.id :
+          permissions?.causeId
       }
       permissions={
         !page.permissions.authorized ?
