@@ -68,6 +68,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
           mediaStore.searchResults.groups.map(attribute =>
             <SectionResultsGroup
               key={`results-${attribute}`}
+              sort
               groupBy={mediaStore.searchResults.groupBy}
               label={Object.keys(mediaStore.searchResults.groupedResults || {}).length > 1 ? attribute : ""}
               results={mediaStore.searchResults.groupedResults[attribute]}
@@ -78,6 +79,7 @@ const MediaPropertyDefaultSearchPage = observer(() => {
         {
           !mediaStore.searchResults.groupedResults.__other ? null :
             <SectionResultsGroup
+              sort
               label={Object.keys(mediaStore.searchResults.groupedResults || {}).length > 1 ? "Other" : ""}
               results={mediaStore.searchResults.groupedResults.__other}
               navContext="search"
@@ -112,7 +114,6 @@ const MediaPropertyAISearchPage = observer(() => {
     <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
       <SectionResultsGroup
         label={`Search results for ${query}`}
-        sort={false}
         results={searchResults}
         navContext="search"
       />

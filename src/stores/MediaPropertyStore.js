@@ -576,7 +576,7 @@ class MediaPropertyStore {
 
     const groupedResults = this.GroupContent({content: results, groupBy});
     let groups = Object.keys(groupedResults || {}).filter(attr => attr !== "__other");
-    if(groupBy === "__date" || groupBy === "__schedule") {
+    if(groupBy === "__date") {
       const today = new Date().toISOString().split("T")[0];
       const upcoming = groups.filter(group => group >= today);
       const past = groups.filter(group => group < today);
@@ -585,6 +585,9 @@ class MediaPropertyStore {
         ...upcoming.sort(),
         ...past.sort().reverse()
       ];
+    } else if(groupBy === "__schedule") {
+      groups = ["Live", "Upcoming", "VOD", "Ended"]
+        .filter(key => groups.includes(key));
     } else if(groupBy !== "__media-type") {
       const tags = this.GetMediaPropertyAttributes({mediaPropertySlugOrId})?.[groupBy]?.tags || [];
 
@@ -618,6 +621,11 @@ class MediaPropertyStore {
     let groupedResults = {};
     content
       .filter(result => {
+        if(groupBy !== "__schedule") { return true; }
+
+        return result.mediaItem?.type === "media" && result.mediaItem?.media_type === "Video";
+      })
+      .filter(result => {
         if(groupBy !== "__date") { return true; }
 
         const {isLiveContent, ended} = MediaItemScheduleInfo(result.mediaItem);
@@ -637,6 +645,19 @@ class MediaPropertyStore {
             categories = [result.mediaItem.media_type || "__other"];
           } else if(groupBy === "__date") {
             categories = [result.mediaItem.canonical_date || "__other"];
+          } else if(groupBy === "__schedule") {
+            const {isLiveContent, currentlyLive, started, ended} = MediaItemScheduleInfo(result.mediaItem);
+            if(!isLiveContent) {
+              categories = ["VOD"];
+            } else if(currentlyLive) {
+              categories = ["Live"];
+            } else if(!started && !ended) {
+              categories = ["Upcoming"];
+            } else if(started && ended) {
+              categories = ["Ended"];
+            } else {
+              categories = ["__other"];
+            }
           } else {
             categories = result.mediaItem.attributes?.[groupBy];
           }
