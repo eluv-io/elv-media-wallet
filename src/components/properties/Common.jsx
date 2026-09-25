@@ -616,10 +616,12 @@ export const Carousel = observer(({
   RenderSlide,
   initialImageDimensions,
   paginate=false,
+  noArrows=false,
   className="",
   arrowClassName="",
   leftArrowClassName="",
   rightArrowClassName="",
+  style={}
 }) => {
   const [swiper, setSwiper] = useState(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -668,6 +670,7 @@ export const Carousel = observer(({
       observeParents
       speed={750}
       parallax
+      style={style}
       pagination={
         !paginate ? undefined :
         {clickable: true}
@@ -684,7 +687,7 @@ export const Carousel = observer(({
       }}
     >
       <button
-        disabled={firstSlideVisible}
+        disabled={firstSlideVisible || noArrows}
         style={{height: (imageDimensions?.height) || "100%"}}
         onClick={event => {
           event.stopPropagation();
@@ -720,7 +723,7 @@ export const Carousel = observer(({
         )
       }
       <button
-        disabled={lastSlideVisible || content.length === 1}
+        disabled={lastSlideVisible || content.length === 1 || noArrows}
         style={{height: (imageDimensions?.height) || "100%"}}
         onClick={event => {
           event.stopPropagation();
@@ -995,7 +998,6 @@ export const RenderAction = observer(({
   Component
 }) => {
   let buttonParams = {};
-
   switch(action.behavior) {
     case "sign_in":
       buttonParams.onClick = () => rootStore.ShowLogin();
@@ -1009,7 +1011,14 @@ export const RenderAction = observer(({
       break;
 
     case "page_link":
-      buttonParams.to = MediaPropertyBasePath({...rootStore.routeParams, pageSlugOrId: action.page_id});
+      const page = mediaPropertyStore.MediaPropertyPage({...rootStore.routeParams, pageSlugOrId: action.page_id});
+
+      if(page) {
+        buttonParams.to = MediaPropertyBasePath({...rootStore.routeParams, pageSlugOrId: page.slug || page.id});
+        const currentPage =  mediaPropertyStore.MediaPropertyPage({...rootStore.routeParams});
+        buttonParams.active = page.id === currentPage?.id;
+      }
+
       break;
 
     case "show_purchase":
@@ -1059,9 +1068,19 @@ export const RenderAction = observer(({
       break;
 
     case "property_link":
-      const url = new URL(window.location.origin);
-      url.pathname = MediaPropertyBasePath({mediaPropertySlugOrId: action.property, pageSlugOrId: action.property_page});
-      buttonParams.href = url.toString();
+      if(action.property === rootStore.currentPropertySlug || action.property === rootStore.currentPropertyId) {
+        buttonParams.to = MediaPropertyBasePath({...rootStore.routeParams, pageSlugOrId: action.property_page});
+        buttonParams.active = true;
+      } else {
+        const url = new URL(window.location.origin);
+        url.pathname = MediaPropertyBasePath({
+          mediaPropertySlugOrId: action.property,
+          pageSlugOrId: action.property_page
+        });
+        buttonParams.href = url.toString();
+        buttonParams.active = action.property === rootStore.currentPropertySlug || action.property === rootStore.currentPropertyId;
+      }
+
       break;
 
     case "subproperty_link":
