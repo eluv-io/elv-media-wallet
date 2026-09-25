@@ -71,9 +71,10 @@
   }
 
   &__error-message {
-    color: #FFF;
+    color: #ddd;
     font-size: 14px;
-    margin: 20px 0;
+    font-weight: 600;
+    margin-bottom: 10px;
     text-align: center;
     white-space: pre-wrap;
   }
