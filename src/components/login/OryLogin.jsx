@@ -298,36 +298,6 @@ const OryLogin = observer(({
     }
   }, [rootStore.oryClient, flowType]);
 
-  /*
-  useEffect(() => {
-    try {
-      if(
-        flowType !== "login" ||
-        !flow ||
-        !flow.refresh ||
-        flow.state !== "choose_method" ||
-        !flow.expires_at ||
-        new Date(flow.expires_at) < new Date()
-      ) {
-        return;
-      }
-
-      setLoggingOut(true);
-      rootStore.SignOut({reload: false})
-        .finally(() => {
-          setLoggingOut(false);
-          setFlows({});
-          setFlowType(undefined);
-          setTimeout(() => setFlowType("login"), 50);
-        });
-    } catch(error) {
-      console.error(error);
-    }
-  }, [flow]);
-
-
-   */
-
   if(
     !codeAuth &&
     (rootStore.loggedIn && ["/login"].includes(location.pathname))
@@ -596,7 +566,6 @@ const OryLogin = observer(({
         setErrorMessage(errors);
         return;
       }
-
 
       const fieldErrors = error.response?.data?.ui?.nodes
         ?.map(node =>
