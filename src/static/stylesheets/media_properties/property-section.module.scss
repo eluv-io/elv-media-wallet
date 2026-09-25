@@ -194,11 +194,6 @@
     padding-bottom: 0;
   }
 
-  &__page-filters {
-    margin-inline: 0;
-    padding-left: 0;
-  }
-
   &__logo-container {
     display: grid;
     gap: 40px;
@@ -227,6 +222,10 @@
     display: flex;
     gap: 30px;
     width: 100%;
+
+    & + .section__page-filter {
+      margin-top: 20px;
+    }
   }
 
   &__title {
@@ -274,8 +273,8 @@
 
   &__page-filter {
     font-size: 14px;
-    margin: 10px 0 20px;
-    padding: 0 0 5px;
+    margin-bottom: 10px;
+    padding: 0;
     width: 100%;
 
     @media screen and (width <= 850px) {
@@ -285,17 +284,22 @@
 
   &__groups {
     display: grid;
-    gap: 50px;
+    gap: 20px;
   }
 
   &__group-title {
-    font-size: 1.5em;
+    animation: var(--animation-fade-in) 0.5s ease-in;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-top: 40px;
+
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
   &__content {
-    animation: var(--animation-fade-in) 0.25s ease;;
+    animation: var(--animation-fade-in) 0.5s ease-in;
     margin-top: 20px;
     max-width: 100%;
     width: 100%;
@@ -405,11 +409,12 @@
     &__title-container {
       flex-wrap: wrap;
       gap: 20px;
-      max-width: 85vw;
+      max-width: 100%;
+      padding-right: 20px;
     }
 
     &__subtitle {
-      max-width: 85vw;
+      max-width: 100%;
     }
 
     &__title {

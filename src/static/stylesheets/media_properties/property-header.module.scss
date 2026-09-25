@@ -651,7 +651,7 @@
 
 .header-links {
   flex-grow: 1;
-  gap: 20px;
+  gap: 5px;
   z-index: 1;
 
   &,
@@ -661,19 +661,21 @@
   }
 
   &__link {
+    border: 2px solid transparent;
+    border-radius: 10px;
     color: var(--text-color, var(--property-text-primary));
+    font-size: 15px;
     font-weight: 700;
     gap: 10px;
-
-    &:hover {
-      color: var(--text-color, var(--property-text-primary));
-    }
+    height: 50px;
+    padding-inline: 15px;
+    transition: all 0.5s ease;
   }
 
   &__link-icon {
-    height: 35px;
+    height: 30px;
+    max-width: 30px;
     object-fit: contain;
-    width: 35px;
   }
 
   @media screen and (width <= 1250px) {

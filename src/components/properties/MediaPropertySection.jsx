@@ -549,7 +549,7 @@ export const MediaGrid = observer(({
         gridTemplateColumns,
         gridTemplateAreas,
         // Calculate card width - 100vw - page padding - gap between cards
-        "--max-card-width": `calc((100vw - (2 * ${padding}px) - (${columns - 1} * ${gap || 0}px)) / ${columns})`
+        "--max-card-width": `min(1000px, calc((100vw - (2 * ${padding}px) - (${columns - 1} * ${gap || 0}px)) / ${columns})`
       }}
       className={[S(
         "section__content",
@@ -602,7 +602,7 @@ export const MediaGrid = observer(({
   );
 });
 
-const SectionContentBanner = observer(({section, sectionContent, navContext}) => {
+const SectionContentBanner = observer(({section, content, navContext}) => {
   return (
     <div
       className={S(
@@ -613,7 +613,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
       )}
     >
       {
-        sectionContent.map(sectionItem =>
+        content.map(sectionItem =>
           <MediaCard
             format="banner"
             key={`section-item-${sectionItem.id}`}
@@ -631,8 +631,14 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
-  sectionContent = sectionContent.slice(0, 100);
+const SectionContentCarousel = observer(({section, content, navContext}) => {
+  const match = useRouteMatch();
+  const {hoverCardDisplay, cardTheme} = mediaPropertyStore.CardTheme({
+    ...match.params,
+    sectionSlugOrId: section.id
+  });
+
+  content = content.slice(0, 100);
 
   return (
     <Carousel
@@ -655,7 +661,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, ho
         spaceBetween: 20
       }}
       initialImageDimensions={{height: 400, width: 400}}
-      content={sectionContent}
+      content={content}
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "carousel-mixed" : "fixed"}
@@ -679,12 +685,17 @@ const SectionContentCarousel = observer(({section, sectionContent, cardTheme, ho
   );
 });
 
-const SectionContentGrid = observer(({section, sectionContent, cardTheme, hoverCardDisplay, navContext}) => {
+const SectionContentGrid = observer(({section, content, navContext}) => {
+  const match = useRouteMatch();
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
+  const {hoverCardDisplay, cardTheme} = mediaPropertyStore.CardTheme({
+    ...match.params,
+    sectionSlugOrId: section.id
+  });
 
   return (
     <MediaGrid
-      content={sectionContent}
+      content={content}
       isSectionContent
       cardTheme={cardTheme}
       aspectRatio={aspectRatio}
@@ -703,11 +714,12 @@ const SectionContentGrid = observer(({section, sectionContent, cardTheme, hoverC
 });
 
 export const SectionResultsGroup = observer(({
+  ContentComponent,
+  section,
   groupBy,
   label,
   results,
-  sort=true,
-  isSectionContent=false,
+  sort=false,
   wrapTitles=false,
   navContext
 }) => {
@@ -720,21 +732,25 @@ export const SectionResultsGroup = observer(({
   }
 
   let aspectRatio;
-  results.forEach(result => {
-    if(aspectRatio === "mixed") { return; }
+  if(!section) {
+    results.forEach(result => {
+      if(aspectRatio === "mixed") {
+        return;
+      }
 
-    let {imageAspectRatio} = MediaItemImageUrl({
-      mediaItem: result.mediaItem
+      let {imageAspectRatio} = MediaItemImageUrl({
+        mediaItem: result.mediaItem
+      });
+
+      if(!aspectRatio) {
+        aspectRatio = imageAspectRatio;
+      } else if(aspectRatio !== imageAspectRatio) {
+        aspectRatio = "mixed";
+      } else {
+        aspectRatio = imageAspectRatio;
+      }
     });
-
-    if(!aspectRatio) {
-      aspectRatio = imageAspectRatio;
-    } else if(aspectRatio !== imageAspectRatio) {
-      aspectRatio = "mixed";
-    } else {
-      aspectRatio = imageAspectRatio;
-    }
-  });
+  }
 
   if(sort) {
     // Sort results by start time
@@ -760,25 +776,28 @@ export const SectionResultsGroup = observer(({
   }
 
   return (
-    <div className={S("section", "section--page", "section__group")}>
+    <>
       {
         !label ? null :
           <h2 className={[S("section__group-title"), "_title"].join(" ")}>
             { label }
           </h2>
       }
-      <MediaGrid
-        isSectionContent={isSectionContent}
-        wrapTitles={wrapTitles}
-        content={
-          isSectionContent ?
-            results :
-            results.map(result => result.mediaItem || result)
-        }
-        aspectRatio={aspectRatio === "Mixed" ? undefined : aspectRatio}
-        navContext={navContext}
-      />
-    </div>
+      {
+        section ?
+          <ContentComponent
+            section={section}
+            content={results}
+            navContext={navContext}
+          /> :
+          <MediaGrid
+            wrapTitles={wrapTitles}
+            content={results.map(result => result.mediaItem || result)}
+            aspectRatio={aspectRatio === "Mixed" ? undefined : aspectRatio}
+            navContext={navContext}
+          />
+      }
+    </>
   );
 });
 
@@ -901,10 +920,117 @@ const AppLinks = observer(() => {
   );
 });
 
+// This renders the actual items within the section. May be grouped
+const SectionItems = observer(({section, activeFilters, groupBy}) => {
+  const match = useRouteMatch();
+  const [sectionContent, setSectionContent] = useState(undefined);
+
+  useEffect(() => {
+    if(!section) { return; }
+
+    SectionContent({
+      match,
+      section,
+      mediaListId: match.params.mediaListSlugOrId,
+      activeFilters,
+      groupBy
+    })
+      .then(setSectionContent);
+  }, [match.params, activeFilters]);
+
+  if(!sectionContent || sectionContent.length === 0) {
+    return <div className={S("section__content--empty")} />;
+  }
+
+  let ContentComponent;
+  switch(section.display?.display_format?.toLowerCase()) {
+    case "carousel":
+      ContentComponent = SectionContentCarousel;
+      break;
+    case "banner":
+      ContentComponent = SectionContentBanner;
+      break;
+    default:
+      ContentComponent = SectionContentGrid;
+      break;
+  }
+
+  if(!groupBy) {
+    return (
+      <ContentComponent
+        section={section}
+        content={sectionContent}
+        navContext={section.id}
+        key={`content-${JSON.stringify(activeFilters)}`}
+      />
+    );
+  }
+
+  let groupedContent, groups;
+  if(groupBy) {
+    groupedContent = mediaPropertyStore.GroupContent({
+      content: sectionContent,
+      groupBy,
+      excludePast: false
+    });
+
+    groups = Object.keys(groupedContent || {}).filter(attr => attr !== "__other");
+    if(groupBy === "__date") {
+      groups = [...groups].sort();
+    } else if(groupBy !== "__media-type") {
+      const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
+
+      groups = [...groups].sort((a, b) => {
+        const indexA = tags.indexOf(a);
+        const indexB = tags.indexOf(b);
+
+        if(indexA >= 0) {
+          if(indexB >= 0) {
+            return indexA < indexB ? -1 : 1;
+          }
+
+          return -1;
+        } else if(indexB >= 0) {
+          return 1;
+        }
+
+        return a < b ? -1 : 1;
+      });
+    }
+  }
+
+  return (
+    <>
+      {
+        groups.map(attribute =>
+          <SectionResultsGroup
+            ContentComponent={ContentComponent}
+            key={`results-${attribute}`}
+            section={section}
+            groupBy={groupBy}
+            label={Object.keys(groupedContent || {}).length > 1 ? attribute : ""}
+            results={groupedContent?.[attribute]}
+            navContext={section.id}
+          />
+        )
+      }
+      {
+        !groupedContent.__other ? null :
+          <SectionResultsGroup
+            ContentComponent={ContentComponent}
+            section={section}
+            label={Object.keys(groupedContent || {}).length > 1 ? "Other" : ""}
+            results={groupedContent?.__other}
+            navContext={section.id}
+          />
+      }
+    </>
+  );
+});
+
 export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, className = ""}) => {
   const match = useRouteMatch();
   let navContext = new URLSearchParams(location.search).get("ctx");
-  const [sectionContent, setSectionContent] = useState([]);
   const [allContentLength, setAllContentLength] = useState(0);
 
   const [activeFilters, setActiveFilters] = useState({
@@ -925,8 +1051,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
     SectionContent({match, section, mediaListId, activeFilters})
       .then(content => {
-        setSectionContent(content);
-
         if(!filtersActive) {
           setAllContentLength(content.length);
         }
@@ -935,24 +1059,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   if(!section || allContentLength === 0) {
     return null;
-  }
-
-  const {cardTheme, hoverCardDisplay} = mediaPropertyStore.CardTheme({
-    ...match.params,
-    sectionSlugOrId: sectionId || match.params.sectionSlugOrId
-  });
-
-  let ContentComponent;
-  switch(section.display.display_format?.toLowerCase()) {
-    case "carousel":
-      ContentComponent = SectionContentCarousel;
-      break;
-    case "banner":
-      ContentComponent = SectionContentBanner;
-      break;
-    default:
-      ContentComponent = SectionContentGrid;
-      break;
   }
 
   let displayLimit = section.display?.display_limit;
@@ -965,7 +1071,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   if(
     displayLimit &&
-    ContentComponent === SectionContentGrid &&
+    !["carousel", "banner"].includes(section.display.display_format) &&
     (section.display?.aspect_ratio && section.display.aspect_ratio !== "Mixed")
     && section.display?.display_limit_type === "rows"
   ) {
@@ -1061,8 +1167,10 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
                 }
                 {
                   !showAllLink ? null :
-                    <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)}
-                          className={S("section__title-link")}>
+                    <Link
+                      to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)}
+                      className={S("section__title-link")}
+                    >
                       <div>
                         {rootStore.l10n.media_properties.sections.view_all}
                       </div>
@@ -1088,27 +1196,21 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
               className={S("section__page-filter")}
             />
         }
-        {
-          sectionContent.length === 0 ?
-            <div className={S("section__content--empty")} /> :
-            <ContentComponent
-              navContext={sectionId}
-              cardTheme={cardTheme}
-              hoverCardDisplay={hoverCardDisplay}
-              section={section}
-              sectionContent={
-                displayLimit ?
-                  sectionContent.slice(0, displayLimit) :
-                  sectionContent
-              }
-            />
-        }
+        <SectionItems
+          key={`section-items-${JSON.stringify(activeFilters || {})}`}
+          section={section}
+          displayLimit={displayLimit}
+          activeFilters={activeFilters}
+          groupBy={
+            !section.filters?.show_group_by_in_page_view ? null :
+              section.filters?.group_by
+          }
+        />
         {
           !section.display.show_app_links ? null :
             <AppLinks />
         }
       </div>
-
     </div>
   );
 });
@@ -1117,41 +1219,12 @@ const MediaPropertySectionPage = observer(() => {
   const match = useRouteMatch();
   const history = useHistory();
 
-  const [sectionContent, setSectionContent] = useState([]);
-  const [groupedSectionContent, setGroupedSectionContent] = useState({});
   const [activeFilters, setActiveFilters] = useState({
     attributes: {},
     mediaType: undefined
   });
 
-  let navContext = new URLSearchParams(location.search).get("ctx");
-
   const section = mediaPropertyStore.MediaPropertySection({...match.params});
-  const groupBy = section?.filters?.group_by;
-
-  useEffect(() => {
-    if(!section) { return; }
-
-    SectionContent({
-      match,
-      section: mediaPropertyStore.MediaPropertySection({...match.params}),
-      mediaListId: match.params.mediaListSlugOrId,
-      activeFilters
-    })
-      .then(content => {
-        setSectionContent(content);
-
-        if(groupBy) {
-          setGroupedSectionContent(
-            mediaPropertyStore.GroupContent({
-              content,
-              groupBy,
-              excludePast: false
-            })
-          );
-        }
-      });
-  }, [match.params, activeFilters]);
 
   useEffect(() => {
     // Ensure ctx is set
@@ -1168,83 +1241,6 @@ const MediaPropertySectionPage = observer(() => {
 
   let sectionPermissions = mediaPropertyStore.ResolvePermission({...match.params});
 
-  let ContentComponent;
-  switch(section.display.display_format?.toLowerCase()) {
-    case "banner":
-      ContentComponent = SectionContentBanner;
-      break;
-    default:
-      ContentComponent = SectionContentGrid;
-      break;
-  }
-
-  let sectionItems;
-  if(groupBy) {
-    let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
-    if(groupBy === "__date") {
-      groups = [...groups].sort();
-    } else if(groupBy !== "__media-type") {
-      const tags = mediaPropertyStore.GetMediaPropertyAttributes({...match.params})?.[groupBy]?.tags || [];
-
-      groups = [...groups].sort((a, b) => {
-        const indexA = tags.indexOf(a);
-        const indexB = tags.indexOf(b);
-
-        if(indexA >= 0) {
-          if(indexB >= 0) {
-            return indexA < indexB ? -1 : 1;
-          }
-
-          return -1;
-        } else if(indexB >= 0) {
-          return 1;
-        }
-
-        return a < b ? -1 : 1;
-      });
-    }
-
-
-    sectionItems = (
-      <div className={S("section__groups")}>
-        {
-          groups.map(attribute =>
-            <SectionResultsGroup
-              key={`results-${attribute}`}
-              isSectionContent
-              wrapTitle={section.display.wrap_titles}
-              groupBy={groupBy}
-              label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
-              results={groupedSectionContent[attribute]}
-              navContext="s"
-            />
-          )
-        }
-        {
-          !groupedSectionContent.__other ? null :
-            <SectionResultsGroup
-              isSectionContent
-              wrapTitles={section.display.wrap_titles}
-              label={Object.keys(groupedSectionContent || {}).length > 1 ? "Other" : ""}
-              results={groupedSectionContent.__other}
-              navContext="s"
-            />
-        }
-      </div>
-    );
-  } else {
-    sectionItems = (
-      <div className={S("section", "section--page")}>
-        <ContentComponent
-          section={section}
-          sectionContent={sectionContent}
-          navContext={!match.params.mediaListSlugOrId ? "s" : navContext}
-          key={`content-${JSON.stringify(activeFilters)}`}
-        />
-      </div>
-    );
-  }
-
   return (
     <PageContainer className={S("page", "section-page")}>
       <PageBackground display={section.display} />
@@ -1260,10 +1256,24 @@ const MediaPropertySectionPage = observer(() => {
         filterSettings={section.filters || {}}
         activeFilters={activeFilters}
         SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
-        className={S("section__page-filters")}
+        className={S("section__page-filter")}
       />
       <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
-        {sectionItems}
+        <div
+          className={S(
+            "section",
+            "section--page",
+            "section--grid",
+            `section--${section.display.justification || "left"}`,
+            `section--${section.display.card_size || "medium"}`
+          )}
+        >
+          <SectionItems
+            section={section}
+            activeFilters={activeFilters}
+            groupBy={section?.filters?.group_by}
+          />
+        </div>
       </LoginGate>
     </PageContainer>
   );

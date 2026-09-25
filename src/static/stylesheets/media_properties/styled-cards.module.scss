@@ -41,7 +41,7 @@
   }
 
   &--square {
-    --card-width: calc(var(--max-card-width) - 90px);
+    --card-width: calc(var(--max-card-width) / 16 * 9);
 
     .styled-card__image-container {
       display: flex;
@@ -69,7 +69,7 @@
   }
 
   &--portrait {
-    --card-width: calc(var(--max-card-width) - 90px);
+    --card-width: calc(var(--max-card-width) / 16 * 9 / 3 * 2);
 
     .styled-card__image-container,
     .styled-card__image {
@@ -236,7 +236,7 @@
     object-position: center;
 
     // Ensure images stretch as much as possible, even if they are naturally small
-    width: 10000px;
+    width: 1000px;
     z-index: 1;
   }
 
