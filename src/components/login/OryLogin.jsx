@@ -194,6 +194,8 @@ const OryLogin = observer(({
   const [redirect, setRedirect] = useState(undefined);
   const formRef = useRef();
 
+  const flow = flows[flowType];
+
   useEffect(() => {
     if(!rootStore.oryClient) { return; }
 
@@ -262,7 +264,27 @@ const OryLogin = observer(({
             .then(({data}) => setFlows({...flows, [flowType]: data}));
         } else {
           rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
-            .then(({data}) => setFlows({...flows, [flowType]: data}));
+            .then(({data}) => {
+              try {
+                // Weird state where ory is logged in but still asking for password. Just log out and retry
+                if(
+                  data.refresh &&
+                  data.state === "choose_method" &&
+                  data.expires_at &&
+                  new Date(data.expires_at) > new Date()
+                ) {
+                  setFlowType(undefined);
+                  rootStore.SignOut({reload: false})
+                    .finally(() => setFlowType("login"));
+
+                  return;
+                }
+              } catch(error) {
+                console.error(error);
+              }
+
+              setFlows({...flows, [flowType]: data});
+            });
         }
         break;
       case "registration":
@@ -275,6 +297,36 @@ const OryLogin = observer(({
         break;
     }
   }, [rootStore.oryClient, flowType]);
+
+  /*
+  useEffect(() => {
+    try {
+      if(
+        flowType !== "login" ||
+        !flow ||
+        !flow.refresh ||
+        flow.state !== "choose_method" ||
+        !flow.expires_at ||
+        new Date(flow.expires_at) < new Date()
+      ) {
+        return;
+      }
+
+      setLoggingOut(true);
+      rootStore.SignOut({reload: false})
+        .finally(() => {
+          setLoggingOut(false);
+          setFlows({});
+          setFlowType(undefined);
+          setTimeout(() => setFlowType("login"), 50);
+        });
+    } catch(error) {
+      console.error(error);
+    }
+  }, [flow]);
+
+
+   */
 
   if(
     !codeAuth &&
@@ -301,8 +353,6 @@ const OryLogin = observer(({
       setLoggingOut(false);
     }
   };
-
-  const flow = flows[flowType];
 
   if(!flow || loading || loggingOut) {
     return (
@@ -547,15 +597,23 @@ const OryLogin = observer(({
         return;
       }
 
+
       const fieldErrors = error.response?.data?.ui?.nodes
         ?.map(node =>
           node.messages
             ?.filter(message => message.type === "error")
-            ?.map(message => message.text)
+            ?.map(message =>
+              // Missing username or password error
+              message.id === 4000002 ?
+                rootStore.l10n.login.ory.errors.invalid_credentials :
+                message.text
+            )
             ?.join("\n")
         )
+        ?.filter((x, i, a) => a.indexOf(x) === i)
         ?.filter(message => message)
         ?.join("\n");
+
 
       if(fieldErrors) {
         setErrorMessage(fieldErrors);
@@ -607,6 +665,7 @@ const OryLogin = observer(({
           <div key={`message-${message.id || message}`} className="ory-login__message">{ message.text || message }</div>
         )
       }
+      { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
       <form
         title={title}
         key={`form-${flowType}-${flow.state}`}
@@ -781,7 +840,6 @@ const OryLogin = observer(({
             </div>
         }
       </form>
-      { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
     </div>
   );
 });
