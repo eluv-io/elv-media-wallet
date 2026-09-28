@@ -123,10 +123,12 @@
       justify-content: center;
       max-width: unset;
       min-height: calc(100 * var(--vh));
+      padding: 0;
+      width: 100%;
     }
 
     &__children {
-      width: initial;
+      width: 100%;
     }
   }
 }
