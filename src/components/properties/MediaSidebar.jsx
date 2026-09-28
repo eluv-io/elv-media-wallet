@@ -48,7 +48,6 @@ const Item = observer(({
   multiviewMode,
   displayedContent,
   setDisplayedContent,
-  wrapTitle=false,
   variants=[]
 }) => {
   multiviewMode = multiviewMode || mediaStore.multiviewMode;
@@ -160,7 +159,7 @@ const Item = observer(({
           </div>
       }
       <div className={S("item__text")}>
-        <div title={title} className={S("item__title", !wrapTitle ? "ellipsis" : "")}>
+        <div title={title} className={S("item__title")}>
           {title}
         </div>
         {
@@ -466,7 +465,6 @@ const MediaSidebar = observer(({
                                     index,
                                     label: `${item.display.title} - ${view.label}`
                                   }}
-                                  wrapTitle
                                   primaryMediaId={mediaItem.id}
                                   streamLimit={streamLimit}
                                   variants={groupTheme?.variants || cardTheme?.variants}
@@ -656,7 +654,6 @@ export const MultiviewSelectionModal = observer(({
                                       index,
                                       label: `${item.display.title} - ${view.label}`
                                     }}
-                                    wrapTitle
                                     primaryMediaId={mediaItem.id}
                                     scheduleInfo={item.scheduleInfo}
                                     multiviewMode="multiview"
