@@ -915,6 +915,8 @@ const HeaderLinks = observer(({mediaProperty}) => {
             Component={params =>
               <Linkish
                 {...params}
+                // TODO: remove
+                target=""
                 style={
                   !CSS.supports("color", link.text_color) ? {} :
                     {"--text-color": link.text_color}
