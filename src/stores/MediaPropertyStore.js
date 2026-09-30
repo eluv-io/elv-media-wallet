@@ -158,7 +158,7 @@ class MediaPropertyStore {
         mediaItemSlugOrId
       });
 
-      if(mediaItem?.additional_views) {
+      if((mediaItem?.additional_views || []).length > 0) {
         tabConfig = [{
           groups: [{
             type: "manual",
