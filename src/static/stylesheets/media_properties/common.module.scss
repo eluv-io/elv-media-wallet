@@ -1061,7 +1061,8 @@
 
   &__progress {
     animation: var(--animation-fade-in) 0.5s ease;
-    background: #333;
+    backdrop-filter: blur(5px);
+    background: rgb(255 255 255 / 30%);
     height: 5px;
     margin-top: 50px;
     width: 100%;

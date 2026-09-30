@@ -545,6 +545,8 @@ export const MediaGrid = observer(({
   return (
     <div
       ref={setContainerElement}
+      // Re-render when size is changed to avoid card resizing animation
+      key={`grid-${gridTemplateColumns}-${padding}-${columns}-${gap}`}
       style={{
         gridTemplateColumns,
         gridTemplateAreas,
@@ -1090,6 +1092,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   return (
     <div
+      key={`section-${JSON.stringify(activeFilters || {})}`}
       data-section-id={sectionId}
       style={style}
       className={[S(
