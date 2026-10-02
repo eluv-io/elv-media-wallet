@@ -11,6 +11,7 @@ import ImageIcon from "@/components/common/ImageIcon";
 
 import GoogleLogo from "@/assets/icons/google-logo.png";
 import AppleLogo from "@/assets/icons/apple-logo.png";
+import FacebookLogo from "@/assets/icons/facebook-logo.png";
 import MetamaskIcon from "@/assets/icons/metamask fox.png";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -625,6 +626,7 @@ const OryLogin = observer(({
 
   const showGoogleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
   const showAppleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showFacebookLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
   const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
   return (
@@ -752,8 +754,21 @@ const OryLogin = observer(({
         }
         { additionalContent }
         {
-          flowType !== "login" || !(showGoogleLogin || showAppleLogin) ? null :
+          flowType !== "login" || !(showGoogleLogin || showAppleLogin || showFacebookLogin) ? null :
             <div className="login-page__third-party-login-container">
+              {
+                !showFacebookLogin ? null :
+                  <ButtonWithLoader
+                    disabled={requiredOptionsMissing}
+                    action={false}
+                    onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "facebook"})}
+                    title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
+                    className="login-page__third-party-login login-page__third-party-login--facebook"
+                  >
+                    <ImageIcon icon={FacebookLogo} className="login-page__third-party-login__logo" />
+                    Sign In with Facebook
+                  </ButtonWithLoader>
+              }
               {
                 !showGoogleLogin ? null :
                   <ButtonWithLoader
@@ -767,7 +782,7 @@ const OryLogin = observer(({
                     Sign In with Google
                   </ButtonWithLoader>
               }
-                {
+              {
                 !showAppleLogin ? null :
                   <ButtonWithLoader
                     disabled={requiredOptionsMissing}
