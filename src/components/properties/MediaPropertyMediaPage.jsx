@@ -502,6 +502,8 @@ const MediaVideoWithSidebar = observer(({
   const mediaInfo = mediaStore.displayedContent
     .map(item => {
       if(item.type === "additional-view") {
+        const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: item.mediaItemId});
+
         return {
           id: item.id,
           mediaItemId: item.mediaItemId,
@@ -511,6 +513,7 @@ const MediaVideoWithSidebar = observer(({
           mediaItem: {
             media_link: item.media_link,
             media_link_info: item.media_link_info,
+            enable_dvr: mediaItem?.enable_dvr
           },
           display: {
             title: item.label
