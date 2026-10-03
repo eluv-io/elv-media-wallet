@@ -1092,6 +1092,11 @@
     font-size: 14px;
     font-weight: 600;
     white-space: pre-wrap;
+
+    * {
+      color: var(--property-text-extra-faded);
+      stroke: var(--property-text-extra-faded);
+    }
   }
 
   &__headers {

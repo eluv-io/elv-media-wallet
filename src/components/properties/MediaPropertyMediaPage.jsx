@@ -1251,10 +1251,7 @@ const MediaPropertyMediaPage = observer(() => {
                     </div>
                 }
                 {
-                  !display.subtitle ?
-                    <CopyableField value={objectId} className={S("media-text__subtitle")}>
-                      {objectId}
-                    </CopyableField> :
+                  !display.subtitle ? null :
                     <h2 className={S("media-text__subtitle")}>
                       {display.subtitle}
                     </h2>
@@ -1270,6 +1267,12 @@ const MediaPropertyMediaPage = observer(() => {
                   className={S("media-text__description")}
                 />
               </div>
+          }
+          {
+            EluvioConfiguration?.mode !== "staging" ? null :
+              <CopyableField value={objectId} className={S("media-text__subtitle")}>
+                {objectId}
+              </CopyableField>
           }
         </div>
     );
