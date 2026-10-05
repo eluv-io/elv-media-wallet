@@ -160,9 +160,12 @@ const MediaVideo = observer(({
   className="",
   containerProps
 }) => {
+  let primaryMediaItem = mediaItem?.type !== "additional-view" ? mediaItem :
+    mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItem.media_item_id});
+
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
-  const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
+  const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(primaryMediaItem));
   const [error, setError] = useState();
   const [loadKey, setLoadKey] = useState(0);
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
@@ -189,19 +192,18 @@ const MediaVideo = observer(({
     // Pip
     (mediaStore.displayedContent.length === 2 && hideControls);
 
-
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     // Upcoming - countdown
     if(rootStore.pageWidth < 850) {
-      if(rootStore.pageWidth < 850 && mediaItem?.countdown_background_mobile?.url) {
-        backgroundImage = mediaItem?.countdown_background_mobile?.url;
-        backgroundImageHash = mediaItem?.countdown_background_mobile_hash;
+      if(rootStore.pageWidth < 850 && primaryMediaItem?.countdown_background_mobile?.url) {
+        backgroundImage = primaryMediaItem?.countdown_background_mobile?.url;
+        backgroundImageHash = primaryMediaItem?.countdown_background_mobile_hash;
       } else if(rootStore.pageWidth < 850 && mediaProperty.metadata?.countdown_background_mobile?.url) {
         backgroundImage = mediaProperty.metadata?.countdown_background_mobile?.url;
         backgroundImageHash = mediaProperty.metadata?.countdown_background_mobile_hash;
-      } else if(mediaItem?.countdown_background_desktop?.url) {
-        backgroundImage = mediaItem?.countdown_background_desktop?.url;
-        backgroundImageHash = mediaItem?.countdown_background_desktop_hash;
+      } else if(primaryMediaItem?.countdown_background_desktop?.url) {
+        backgroundImage = primaryMediaItem?.countdown_background_desktop?.url;
+        backgroundImageHash = primaryMediaItem?.countdown_background_desktop_hash;
       } else if(mediaProperty.metadata?.countdown_background_desktop?.url) {
         backgroundImage = mediaProperty.metadata?.countdown_background_desktop?.url;
         backgroundImageHash = mediaProperty.metadata?.countdown_background_desktop_hash;
@@ -228,7 +230,7 @@ const MediaVideo = observer(({
         <LoaderImage
           src={backgroundImage}
           hash={backgroundImageHash}
-          alt={mediaItem?.thumbnail_alt_text || mediaItem.title}
+          alt={primaryMediaItem?.thumbnail_alt_text || primaryMediaItem.title}
           className={S("media__error-image")}
         />
         <div className={S("media__error-cover")} />
@@ -258,7 +260,7 @@ const MediaVideo = observer(({
         <Countdown
           displayTime={scheduleInfo.startTime}
           time={scheduleInfo.streamStartTime}
-          OnEnded={() => setScheduleInfo(MediaItemScheduleInfo(mediaItem))}
+          OnEnded={() => setScheduleInfo(MediaItemScheduleInfo(primaryMediaItem))}
           className={S("media__countdown")}
         />
         {
@@ -511,6 +513,8 @@ const MediaVideoWithSidebar = observer(({
           type: "additional-view",
           playerProfile: item.playerProfile,
           mediaItem: {
+            type: "additional-view",
+            media_item_id: item.mediaItemId,
             media_link: item.media_link,
             media_link_info: item.media_link_info,
             enable_dvr: mediaItem?.enable_dvr

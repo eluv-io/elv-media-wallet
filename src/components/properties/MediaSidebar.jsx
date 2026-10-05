@@ -421,13 +421,6 @@ const MediaSidebar = observer(({
                   });
 
                   let additionalViews = item?.additional_views || [];
-                  if(
-                    (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
-                    item.mediaItem?.id !== mediaItem.id
-                  ) {
-                    // Hide additional views if item is upcoming and not the active item
-                    additionalViews = [];
-                  }
 
                   return (
                     <>
@@ -598,12 +591,6 @@ export const MultiviewSelectionModal = observer(({
                     });
 
                     let additionalViews = item?.additional_views || [];
-                    if(
-                      (!item.isMultiviewable || (item.scheduleInfo.isLiveContent && !item.scheduleInfo.currentlyLive)) &&
-                      item.mediaItem?.id !== mediaItem.id
-                    ) {
-                      additionalViews = [];
-                    }
 
                     let groupTheme;
                     if(group.sectionSlugOrId) {
@@ -612,7 +599,6 @@ export const MultiviewSelectionModal = observer(({
                         sectionSlugOrId: group.sectionSlugOrId
                       })?.cardTheme;
                     }
-
 
                     return (
                       <>
