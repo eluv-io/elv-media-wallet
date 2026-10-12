@@ -865,6 +865,8 @@
   }
 
   @media screen and (height <= 600px) and (orientation: landscape) {
+    --content-area-height: calc(var(--property-full-content-height));
+
     &__media-container {
       &:not(&--fullscreen) {
         max-height: var(--content-area-height);
@@ -911,7 +913,7 @@
     }
   }
 
-  @media screen and (width <= 850px) {
+  @media screen and (width <= 850px), (height <= 600px) {
     gap: 0;
     grid-template-columns: 1fr;
     margin-top: 0;

@@ -549,13 +549,18 @@ const OryLogin = observer(({
         setRedirect(nextPath);
       }
     } catch(error) {
+      rootStore.Log(error, true);
+
       if(error.login_limited) {
         setFlows({...flows, login_limited: {}});
         setFlowType("login_limited");
         return;
       }
 
-      rootStore.Log(error, true);
+      if(error?.body?.error?.cause?.op?.toLowerCase()?.includes("identity not found")) {
+        setErrorMessage(rootStore.l10n.login.ory.errors.unknown_email)
+        return;
+      }
 
       const errors = error?.response?.data?.ui?.messages
         ?.map(message => message.text)

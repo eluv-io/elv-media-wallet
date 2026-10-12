@@ -73,6 +73,7 @@ login:
       invalid_recovery_email: The link you used is no longer valid. Please enter your email address to obtain a recovery code.
       invalid_email: Invalid Email
       invalid_password_confirmation: Password confirmation must match password
+      unknown_email: This email address is not currently associated with an account.
 
 
 navigation:
