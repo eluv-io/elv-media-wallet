@@ -59,7 +59,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
-  uiLocalizations = ["en", "de", "es", "fr", "it", "pt", "pt-br"];
+  uiLocalizations = ["en", "de", "es", "fj", "fr", "it", "pt", "pt-br", "sm", "to"];
   alertNotification = this.GetSessionStorage("alert-notification");
 
   customDomainPropertyId;
