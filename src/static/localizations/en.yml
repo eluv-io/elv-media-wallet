@@ -54,6 +54,9 @@ login:
       update_password: Update Password
       proceed: Proceed
       sign_out: Sign Out
+      sign_in_with_google: Sign In with Google
+      sign_in_with_apple: Sign In with Apple
+      sign_in_with_facebook: Sign In with Facebook
     refresh: Confirm Your Identify
     aal2: Two-Factor Authentication
     registration: Register Your Account
@@ -712,6 +715,10 @@ media_properties:
     ai_search: Search within content by phrase or keyword
     filter: Filter
   footer:
+    links:
+      terms: Eluvio Terms
+      privacy_policy: Eluvio Privacy Policy
+      support: Get Support
     social_links:
       text: Stay Connected
   sections:

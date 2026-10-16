@@ -784,7 +784,7 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--google"
                   >
                     <ImageIcon icon={GoogleLogo} className="login-page__third-party-login__logo" />
-                    Sign In with Google
+                    { rootStore.l10n.login.ory.actions.sign_in_with_google }
                   </ButtonWithLoader>
               }
               {
@@ -797,7 +797,7 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--apple"
                   >
                     <ImageIcon icon={AppleLogo} className="login-page__third-party-login__logo" />
-                    Sign In with Apple
+                    { rootStore.l10n.login.ory.actions.sign_in_with_apple }
                   </ButtonWithLoader>
               }
             </div>

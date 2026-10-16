@@ -906,7 +906,7 @@ export const SplashScreen = observer(({hiding}) => {
 
     // Load and splash details, set init timing for minimum display duration
     (async () => {
-      const mediaPropertySlugOrId = rootStore.GetPropertySlugOrIdFromPath();
+      const mediaPropertySlugOrId = rootStore.currentPropertyId || rootStore.GetPropertySlugOrIdFromPath();
 
       setStyling(undefined);
 

@@ -722,7 +722,7 @@ class RootStore {
 
   InitializeOpenIdClient = flow(function * () {
     const propertyConfig = yield this.LoadPropertyCustomization(
-      this.GetPropertySlugOrId()
+      this.currentPropertyId || this.GetPropertySlugOrId()
     );
 
     if(!propertyConfig?.login?.settings?.use_openid || !propertyConfig?.login?.settings?.openid_endpoint) { return {}; }
@@ -855,7 +855,7 @@ class RootStore {
 
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
-      this.GetPropertySlugOrId()
+      this.currentPropertyId || this.GetPropertySlugOrId()
     );
 
     if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }
