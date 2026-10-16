@@ -273,7 +273,7 @@ const OryLogin = observer(({
                 }
               }
 
-              setFlows({...flows, [flowType]: data})
+              setFlows({...flows, [flowType]: data});
             });
         } else {
           rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})

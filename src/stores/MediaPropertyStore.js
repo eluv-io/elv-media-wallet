@@ -1666,6 +1666,8 @@ class MediaPropertyStore {
   });
 
   LoadMediaPropertyCustomizationMetadata = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    if(mediaPropertySlugOrId === "oidc") { return {}; }
+
     if(!this.mediaPropertyHashes[mediaPropertySlugOrId]) {
       yield this.LoadMediaPropertyHashes();
     }

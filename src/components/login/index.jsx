@@ -681,7 +681,16 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const automaticRedirect = rootStore.loaded && customizationOptions && !customizationOptions.use_ory && !customizationOptions.enable_metamask && !params.isAuth0Callback && !params.isOpenIdCallback;
+  const automaticRedirect = (
+    rootStore.loaded &&
+    customizationOptions &&
+    !customizationOptions.use_ory &&
+    !customizationOptions.enable_metamask &&
+    !params.isAuth0Callback &&
+    !params.isThirdPartyCallback &&
+    !params.isThirdPartyConflict &&
+    !params.isOpenIdCallback
+  );
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -923,16 +932,9 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization(params.mediaPropertySlugOrId)
       .then(options => {
-        if(!options) {
-          setCustomizationOptions({});
-          return;
-        }
+        options = ParseDomainCustomization(options?.login, options?.font);
 
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
-
-        if(options.mediaPropertyId) {
-          options = ParseDomainCustomization(options?.login, options.font);
-        }
 
         // Load initial user data from localstorage, if present
         let initialUserData = {
