@@ -262,7 +262,22 @@ const OryLogin = observer(({
 
         if(searchParams.has("flow")) {
           rootStore.oryClient.getLoginFlow({id: searchParams.get("flow")})
-            .then(({data}) => setFlows({...flows, [flowType]: data}));
+            .then(({data}) => {
+              if(data.return_to) {
+                const returnToUrl = new URL(data.return_to);
+
+                if(returnToUrl.hostname !== window.location.hostname) {
+                  // We were returned to the wrong place
+                  returnToUrl.searchParams.set("flow", searchParams.get("flow"));
+
+                  window.location.href = returnToUrl.toString();
+
+                  return;
+                }
+              }
+
+              setFlows({...flows, [flowType]: data});
+            });
         } else {
           rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
             .then(({data}) => {

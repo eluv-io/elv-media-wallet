@@ -1017,6 +1017,11 @@ class MediaPropertyStore {
         return false;
       }
 
+      // Inaccessible
+      if(!mediaItem.public && mediaItem.permissions.length === 0) {
+        return false;
+      }
+
       const scheduleFiltersActive =
         select.content_type === "media" &&
         (select.media_types.length === 0 || (select.media_types.length === 1 && select.media_types[0] === "Video"));
@@ -1682,6 +1687,8 @@ class MediaPropertyStore {
   });
 
   LoadMediaPropertyCustomizationMetadata = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    if(mediaPropertySlugOrId === "oidc") { return {}; }
+
     if(!this.mediaPropertyHashes[mediaPropertySlugOrId]) {
       yield this.LoadMediaPropertyHashes();
     }

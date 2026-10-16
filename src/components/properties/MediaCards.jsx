@@ -569,7 +569,7 @@ export const MediaCardWithButtonVertical = observer(({
 }) => {
   return (
     <div
-      style={style}
+      style={{...(style || {})}}
       className={[
         S(
           "media-card-button-vertical",
