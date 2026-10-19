@@ -574,14 +574,32 @@ const OryLogin = observer(({
       }
 
       if(error?.body?.error?.cause?.op?.toLowerCase()?.includes("identity not found")) {
-        setErrorMessage(rootStore.l10n.login.ory.errors.unknown_email)
+        setErrorMessage(rootStore.l10n.login.ory.errors.unknown_email);
         return;
       }
 
+      if(error?.response?.data?.ui?.messages?.find(message => message.id === 4000001)) {
+        // Third party login cancelled - redirect to next url
+        if(flow?.data?.return_to) {
+          const returnToUrl = new URL(flow.data.return_to);
+          const next = returnToUrl.searchParams.get("next");
+
+          if(next) {
+            returnToUrl.pathname = decodeURIComponent(next);
+            returnToUrl.searchParams.delete("next");
+
+            window.location.pathname = returnToUrl.toString();
+            return;
+          }
+        }
+      }
+
       const errors = error?.response?.data?.ui?.messages
-        ?.map(message => message.text)
-        ?.filter(message => message)
-        ?.join("\n");
+        // Ugly oidc cancel error
+        ?.filter(message => message.id === 4000001 ? undefined : message)
+        .map(message => message.text)
+        .filter(message => message)
+        .join("\n");
 
       if(errors) {
         setErrorMessage(errors);
@@ -644,9 +662,10 @@ const OryLogin = observer(({
     statusMessage
   ].filter(m => m);
 
-  const showGoogleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
-  const showAppleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
-  const showFacebookLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
+  const disableThirdParty = !!customizationOptions.disable_third_party_login;
+  const showGoogleLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_google_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
+  const showAppleLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_apple_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showFacebookLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
   const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
   return (
