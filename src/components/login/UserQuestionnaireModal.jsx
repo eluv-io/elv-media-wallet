@@ -29,7 +29,7 @@ const UserQuestionnaireModal = observer(() => {
   }, [rootStore.showUserQuestionnaire]);
 
   useEffect(() => {
-    if(!questionnaireInfo || !questionnaireInfo.enable || !rootStore.loggedIn) { return; }
+    if(!questionnaireInfo || !questionnaireInfo.enable || !rootStore.loggedIn || !rootStore.currentPropertyTenantId) { return; }
 
     setLoading(true);
 
@@ -59,7 +59,7 @@ const UserQuestionnaireModal = observer(() => {
         setAnswers({});
         setLoading(false);
       });
-  }, [rootStore.loggedIn, rootStore.showUserQuestionnaire, questionnaireInfo?.enable, rootStore.currentPropertyId]);
+  }, [rootStore.loggedIn, rootStore.showUserQuestionnaire, questionnaireInfo?.enable, rootStore.currentPropertyId, rootStore.currentPropertyTenantId]);
 
   if(!rootStore.loggedIn || !rootStore.showUserQuestionnaire || !questionnaireInfo.enable) { return null; }
 

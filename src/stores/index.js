@@ -2770,7 +2770,7 @@ class RootStore {
       return {};
     }
 
-    yield Utils.ResponseToJson(
+    return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "tenant_binding", this.currentPropertyTenantId),
         method: "GET",
