@@ -668,13 +668,13 @@ const OryLogin = observer(({
   const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
   const thirdPartyConflictMessage = flow?.ui?.messages?.find(message => message.id === 1010016);
-  if(thirdPartyConflictMessage) {
+  if(thirdPartyConflictMessage && thirdPartyConflictMessage?.context?.provider) {
     // Confirm with provider - originally logged in with third party
     const provider = thirdPartyConflictMessage.context?.provider?.toLowerCase() || "google";
     return (
       <div className={S("ory-login")}>
         <div className="ory-login__message">
-          {message.text.split("Please")[0]}
+          {thirdPartyConflictMessage.text.split("Please")[0]}
         </div>
         <ButtonWithLoader
           action={false}
