@@ -52,6 +52,7 @@
   --property-section-card-width-large: 500px;
   --property-section-card-width-extra_large: 550px;
   --animation-fade-in: fadein;
+  --card-size-width: var(--property-section-card-width-medium);
 
   @media screen and (width <= 1200px) {
     --property-page-padding: 35px;

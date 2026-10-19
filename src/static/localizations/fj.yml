@@ -1,0 +1,163 @@
+header:
+  activity: Cakacaka
+  collections: iSoqoni
+  discover: Vakaraica
+  profile: iRairai
+  store: Sitoa
+  stores: Veisitoa
+  items: Veika eso
+  notifications: Notisi
+  gifts: iLoloma
+  media_wallet: Baosi livaliva
+  title: Baosi livaliva
+  subtitle: Cakacakataki mai na Lewena
+  my_items: Veika eso e noqu
+  details: Veika baleti Baosi  Livaliva
+  preferences: Digidigi
+  home: iTekitekivu
+login:
+  sign_in: Saini mo curu iloma
+  sign_up: Saini ni vakaio
+  sign_out: Saini mo curu ituba
+  signed_in: Se curu tiko
+  signed_in_as: Se curu tiko o
+  signed_in_via: Saini ena sala tani
+  powered_by: Kena iuli
+  select_all_options: Digitaka kece
+  accept: Au ciqoma
+  terms_and_conditions: Veilawa e vauci kina
+  terms: Niu sa tekivutaka e dua na akaude seu sa saini kina au sa ciqoma na veilawa e vauci kina
+  email_consent: Niu makataka qo au sa vakadonuya me maroroi na noqu imeli ena noqu baosi livaliva. {tenant clause}.   E rawa ni vakau imeli kei na veika volitaki na kabani Elovio
+  email_consent_tenant_clause: ka veiwasei kei {tenant name}
+  login_code: '"Code" Naba vuni'
+  code_auth_success: Sa curu rawa
+  email_confirmed: Sa vakadeitaki na nomu imeli
+  errors:
+    missing_required_options: Kerea mo digia na kena e dodonu mo digia.
+    too_many_logins: Sa sivia na wiliwili ni vanua duidui e dola mai kina na akaude oqo. Waraka me sivi e 24 na aua qai tovolea tale.
+    login_failed: E cala na saini ni curu, tovolea tale.
+    forced_logout: O sa sainitaki mo curu ituba ni dua tale e vakayagataka tiko na akaude sa muduka na nomu gauna.
+    session_expired: Sa oti na nomu gauna. Kerea mo saini mo curu tale.
+    email_confirmation_failed: Sega ni vakadeitaki rawa na nomu imeli. Kerea mo tovolea tale.
+  ory:
+    actions:
+      registration: Saini mo tekivu
+      recovery: O sa guilecava na nomu vosavuni?
+      back_to_sign_in: Lesu tale ki na saini ni curu
+      update_password: Vakavoutaka na nomu vosavuni?
+      proceed: Toso sara yani
+      sign_out: Saini mo curu ituba
+    refresh: Vakadeitaka ni o iko dina
+    aal2: Vakadeitaki vakarua o cei o iko
+    registration: Rejista-taka na nomu akaude
+    recovery: Curu lesu ki na nomu akaude
+    verification: Vakadeitaka na nomu akaude
+    update_password: Veisautaka na nomu vosavuni
+    messages:
+      recovery_prompt: Vola na imeli a vakayagataki me dola kina na akaude mo rawa ni veisautaka na nomu vosavuni
+      recovery_code_prompt: Edua na naba(code ) e sa vakau kina imeli vata ya. Tabaka na 'code' mo rawa ni curu tale ki na nomu akaude
+      set_password: Digia e dua na vosavuni(password) ni nomu akaude
+      password_updated: Sa veisau rawa na nomu vosavuni
+      login_limited: Sa sivia na iwiliwili ni curu ena nomu akaude. O vinakata me sogo e dua na saini curu makawa?
+      third_party_conflict: O a tovolea mo saini curu yani ena imeli ia sa tiko oti na akaude e vakayagataka na imeli qori. Kerea mo vakayagataka na nomu vosavuni me vakadonui na curu vaka imeli.
+    errors:
+      invalid_credentials: Veicalati na itukutuku
+      invalid_verification_code: Veicalati na code
+      invalid_recovery_email: Sa sega tale ni yaga na isema(link) qo. Kerea mo vola na nomu imeli me rawa ni vakau mai kina na code ni saini curu
+      invalid_email: Imeli veicalati
+      invalid_password_confirmation: Na vosavuni me tautauvata kei na kena a volai eliu.
+navigation:
+  profile: Kemu irairai
+  discover: Vakaraica
+  items: Veika eso e noqu
+  activity: Noqu cakacaka
+  notifications: Veinotisi
+  gifts: iLoloma
+  wallet_details: iVakavamacala ni Baosi Livaliva
+  preferences: Digidigi
+  home: iTekitekivu
+actions:
+  confirm: Vakadeitaka
+  continue: Toso sara yani
+  back: Lesu tale
+  back_to: Lesu tale ki {thing}
+  cancel: Muduka
+  close: Sogota
+  share: Wasea
+  done: Sa qaravi oti
+  apply: Tabaka
+  select: Digia
+errors:
+  general: Vosota, edua na ka e cala
+time_units:
+  day: siga
+  days: vica na siga
+  hour: aua
+  hours: vica na aua
+  minute: miniti
+  minutes: vica na miniti
+  second: sekodi
+  seconds: vica na sekodi
+time:
+  day: 1 na siga
+  days: '{vica na siga} vica na siga'
+  hour: 1 na aua
+  hours: '{vica na aua} vica na aua'
+  minute: 1 na miniti
+  minutes: '{Vica na miniti} vica na miniti'
+  second: 1 na sekodi
+  seconds: '{Vica na sekodi} vica na sekodi'
+ago:
+  day: 1 na siga sa oti
+  days: '{vica na siga} vica na siga'
+  hour: 1 na aua sa oti
+  hours: '{vica na aua} vica na aua sa oti'
+  minute: 1 na miniti sa oti
+  minutes: '{Vica na miniti} vica na miniti sa oti'
+  second: 1 sekodi sa oti
+  seconds: '{vica na sekodi} vica na sekodi sa oti'
+media_properties:
+  media_properties: Lewe ni Media
+  media_property: Lewe ni Media
+  header:
+    search: Vakasaqara
+    ai_search: Vakasaqara e loma ka vakayagataka e dua na mala ni vosa se dua na vosa
+    filter: Tavuloni kina
+  footer:
+    social_links:
+      text: Sema tiko
+  sections:
+    view_all: Raica taucoko
+  search:
+    title: Vakasaqara na "(query)"
+  page:
+    actions:
+      item_details: Kena matailalai
+  item_details:
+    pages:
+      description: Kena ivakamacala
+      details: Kena matailalai
+      contract: Konitaraki kei na kena ivolavolai
+    tables:
+      trading: Veivoli vakaveisa
+      offers: iSau e soli mai
+      rewards: Na icovi
+  media:
+    live: Bula
+    upcoming: Lako tiko mai
+    select_media: Digia na Media
+    select_streams: Digia na kena veidrodro
+    description:
+      show: Wilika vakalevu
+      hide: Vakaraitaka vakalailai
+    sidebar:
+      today: Nikua
+      upcoming: Lako tiko mai
+      main_view: Na kena levu e Saravi
+      more_content: Na kena levu tale na itukutuku
+      multiview: E vica  me saravi
+    errors:
+      default: Na veilawa qo sa sega ni dola tiko
+      not_started: Na porokaramu qo e sebera ni tekivu
+      ended: Na porokaramu qo e sa oti
+      unauthorized: E sega ni o vakadonui mo raica na kena qo

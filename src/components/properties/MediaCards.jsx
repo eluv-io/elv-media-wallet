@@ -481,16 +481,13 @@ const MediaHoverCard = observer(({
           </div>
           <div className={S("hover-card__content")}>
             <div className={S("hover-card__actions")}>
-              <Linkish
-                data-autofocus
-                to={linkPath}
-                href={url}
-                onClick={onClick}
+              <div
+                // This button is fake, the whole card is a link
                 title="Go to Content"
                 className={S("hover-card__action")}
               >
                 <ImageIcon icon={ArrowRightIcon}/>
-              </Linkish>
+              </div>
               <div className={S("hover-card__separator")} />
               <Linkish
                 title="More Info"

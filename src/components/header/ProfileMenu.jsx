@@ -12,7 +12,6 @@ import {RenderAction} from "@/components/properties/Common.jsx";
 
 import ProfileIcon from "@/assets/icons/profile.svg";
 import ItemsIcon from "@/assets/icons/items.svg";
-import HomeIcon from "@/assets/icons/home.svg";
 import EluvioIcon from "@/assets/icons/eluvio-icon.svg";
 import MarketplaceIcon from "@/assets/icons/marketplace.svg";
 import NotificationsIcon from "@/assets//icons/header/Notification Icon.svg";
@@ -78,14 +77,6 @@ const ProfileMenu = observer(({Hide}) => {
             />
           )
         }
-        <Linkish
-          to={MediaPropertyBasePath(rootStore.routeParams, {includePage: false})}
-          onClick={Hide}
-          className={S("profile-menu__link", "profile-menu__link--header")}
-        >
-          <ImageIcon icon={HomeIcon} label="Items"  className={S("profile-menu__link-icon")}/>
-          {rootStore.l10n.navigation.home}
-        </Linkish>
         <div className={S("profile-menu__separator")}/>
         {
           !rootStore.loggedIn ? null :

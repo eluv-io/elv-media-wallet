@@ -785,6 +785,8 @@
 
   &__card {
     cursor: initial;
+
+    --max-card-width: 400px;
   }
 
   &__top {

@@ -54,6 +54,12 @@ login:
       update_password: Update Password
       proceed: Proceed
       sign_out: Sign Out
+      sign_in_with_google: Sign In with Google
+      sign_in_with_apple: Sign In with Apple
+      sign_in_with_facebook: Sign In with Facebook
+      confirm_with_google: Confirm with Google
+      confirm_with_apple: Confirm with Apple
+      confirm_with_facebook: Confirm with Facebook
     refresh: Confirm Your Identify
     aal2: Two-Factor Authentication
     registration: Register Your Account
@@ -66,13 +72,14 @@ login:
       set_password: Please choose a password for your account
       password_updated: Password updated successfully!
       login_limited: Maximum number of allowed logins exceeded. Would you like to force log out an older session?
-      third_party_conflict: You tried to sign in with {email} but this account already exists. Please enter your password to allow this login method with your account.
+      third_party_conflict: You tried to sign in with {email} but this account already exists. Please confirm your account to proceed.
     errors:
       invalid_credentials: Invalid Credentials
       invalid_verification_code: Invalid Verification Code
       invalid_recovery_email: The link you used is no longer valid. Please enter your email address to obtain a recovery code.
       invalid_email: Invalid Email
       invalid_password_confirmation: Password confirmation must match password
+      unknown_email: This email address is not currently associated with an account.
 
 
 navigation:
@@ -711,6 +718,10 @@ media_properties:
     ai_search: Search within content by phrase or keyword
     filter: Filter
   footer:
+    links:
+      terms: Eluvio Terms
+      privacy_policy: Eluvio Privacy Policy
+      support: Get Support
     social_links:
       text: Stay Connected
   sections:

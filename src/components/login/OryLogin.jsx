@@ -11,6 +11,7 @@ import ImageIcon from "@/components/common/ImageIcon";
 
 import GoogleLogo from "@/assets/icons/google-logo.png";
 import AppleLogo from "@/assets/icons/apple-logo.png";
+import FacebookLogo from "@/assets/icons/facebook-logo.png";
 import MetamaskIcon from "@/assets/icons/metamask fox.png";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -194,6 +195,8 @@ const OryLogin = observer(({
   const [redirect, setRedirect] = useState(undefined);
   const formRef = useRef();
 
+  const flow = flows[flowType];
+
   useEffect(() => {
     if(!rootStore.oryClient) { return; }
 
@@ -270,6 +273,21 @@ const OryLogin = observer(({
                   window.location.href = returnToUrl.toString();
 
                   return;
+                } else if(data?.ui?.messages?.find(message => message.id === 4000001)) {
+                  // Third party login cancelled - redirect to next url
+                  if(data?.return_to) {
+                    const returnToUrl = new URL(data.return_to);
+                    const next = returnToUrl.searchParams.get("next");
+
+                    if(next) {
+                      returnToUrl.pathname = decodeURIComponent(next);
+                      returnToUrl.searchParams.delete("next");
+                      returnToUrl.searchParams.delete("pid");
+
+                      window.location = returnToUrl.toString();
+                      return;
+                    }
+                  }
                 }
               }
 
@@ -277,7 +295,27 @@ const OryLogin = observer(({
             });
         } else {
           rootStore.oryClient.createBrowserLoginFlow({refresh: true, returnTo: returnUrl.toString()})
-            .then(({data}) => setFlows({...flows, [flowType]: data}));
+            .then(({data}) => {
+              try {
+                // Weird state where ory is logged in but still asking for password. Just log out and retry
+                if(
+                  data.refresh &&
+                  data.state === "choose_method" &&
+                  data.expires_at &&
+                  new Date(data.expires_at) > new Date()
+                ) {
+                  setFlowType(undefined);
+                  rootStore.SignOut({reload: false})
+                    .finally(() => setFlowType("login"));
+
+                  return;
+                }
+              } catch(error) {
+                console.error(error);
+              }
+
+              setFlows({...flows, [flowType]: data});
+            });
         }
         break;
       case "registration":
@@ -316,8 +354,6 @@ const OryLogin = observer(({
       setLoggingOut(false);
     }
   };
-
-  const flow = flows[flowType];
 
   if(!flow || loading || loggingOut) {
     return (
@@ -544,18 +580,25 @@ const OryLogin = observer(({
         setRedirect(nextPath);
       }
     } catch(error) {
+      rootStore.Log(error, true);
+
       if(error.login_limited) {
         setFlows({...flows, login_limited: {}});
         setFlowType("login_limited");
         return;
       }
 
-      rootStore.Log(error, true);
+      if(error?.body?.error?.cause?.op?.toLowerCase()?.includes("identity not found")) {
+        setErrorMessage(rootStore.l10n.login.ory.errors.unknown_email);
+        return;
+      }
 
       const errors = error?.response?.data?.ui?.messages
-        ?.map(message => message.text)
-        ?.filter(message => message)
-        ?.join("\n");
+        // Ugly oidc cancel error
+        ?.filter(message => message.id === 4000001 ? undefined : message)
+        .map(message => message.text)
+        .filter(message => message)
+        .join("\n");
 
       if(errors) {
         setErrorMessage(errors);
@@ -566,11 +609,18 @@ const OryLogin = observer(({
         ?.map(node =>
           node.messages
             ?.filter(message => message.type === "error")
-            ?.map(message => message.text)
+            ?.map(message =>
+              // Missing username or password error
+              message.id === 4000002 ?
+                rootStore.l10n.login.ory.errors.invalid_credentials :
+                message.text
+            )
             ?.join("\n")
         )
+        ?.filter((x, i, a) => a.indexOf(x) === i)
         ?.filter(message => message)
         ?.join("\n");
+
 
       if(fieldErrors) {
         setErrorMessage(fieldErrors);
@@ -611,17 +661,20 @@ const OryLogin = observer(({
     statusMessage
   ].filter(m => m);
 
-  const showGoogleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
-  const showAppleLogin = !isThirdPartyConflict && !customizationOptions.disable_third_party_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
-  const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
+  const disableThirdParty = !!customizationOptions.disable_third_party_login;
+  const showGoogleLogin = !disableThirdParty && !customizationOptions.disable_google_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
+  const showAppleLogin = !disableThirdParty && !customizationOptions.disable_apple_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showFacebookLogin = !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
+  const showMetamaskLogin = customizationOptions.enable_metamask;
 
   return (
     <div className="ory-login">
       {
         messages.map(message =>
-          <div key={`message-${message.id || message}`} className="ory-login__message">{ message.text || message }</div>
+          <div key={`message-${message.id || message}`} className="ory-login__message">{message.text || message}</div>
         )
       }
+      {errorMessage ? <div className="ory-login__error-message">{errorMessage}</div> : null}
       <form
         title={title}
         key={`form-${flowType}-${flow.state}`}
@@ -739,8 +792,25 @@ const OryLogin = observer(({
         }
         { additionalContent }
         {
-          flowType !== "login" || !(showGoogleLogin || showAppleLogin) ? null :
+          flowType !== "login" || !(showGoogleLogin || showAppleLogin || showFacebookLogin) ? null :
             <div className="login-page__third-party-login-container">
+              {
+                !showFacebookLogin ? null :
+                  <ButtonWithLoader
+                    disabled={requiredOptionsMissing}
+                    action={false}
+                    onClick={async event => await OrySubmit(event, {thirdParty: true, provider: "facebook"})}
+                    title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
+                    className="login-page__third-party-login login-page__third-party-login--facebook"
+                  >
+                    <ImageIcon icon={FacebookLogo} className="login-page__third-party-login__logo" />
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_facebook :
+                        rootStore.l10n.login.ory.actions.sign_in_with_facebook
+                    }
+                  </ButtonWithLoader>
+              }
               {
                 !showGoogleLogin ? null :
                   <ButtonWithLoader
@@ -751,10 +821,14 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--google"
                   >
                     <ImageIcon icon={GoogleLogo} className="login-page__third-party-login__logo" />
-                    Sign In with Google
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_google :
+                        rootStore.l10n.login.ory.actions.sign_in_with_google
+                    }
                   </ButtonWithLoader>
               }
-                {
+              {
                 !showAppleLogin ? null :
                   <ButtonWithLoader
                     disabled={requiredOptionsMissing}
@@ -764,7 +838,11 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--apple"
                   >
                     <ImageIcon icon={AppleLogo} className="login-page__third-party-login__logo" />
-                    Sign In with Apple
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_apple :
+                        rootStore.l10n.login.ory.actions.sign_in_with_apple
+                    }
                   </ButtonWithLoader>
               }
             </div>
@@ -796,7 +874,6 @@ const OryLogin = observer(({
             </div>
         }
       </form>
-      { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
     </div>
   );
 });

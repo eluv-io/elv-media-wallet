@@ -59,7 +59,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   geo = this.GetSessionStorage("geo") || searchParams.get("geo");
   l10n = LocalizationEN;
-  uiLocalizations = ["en", "de", "es", "fr", "it", "pt", "pt-br"];
+  uiLocalizations = ["en", "de", "es", "fj", "fr", "it", "pt", "pt-br", "sm", "to"];
   alertNotification = this.GetSessionStorage("alert-notification");
 
   customDomainPropertyId;
@@ -722,7 +722,7 @@ class RootStore {
 
   InitializeOpenIdClient = flow(function * () {
     const propertyConfig = yield this.LoadPropertyCustomization(
-      this.GetPropertySlugOrId()
+      this.currentPropertyId || this.GetPropertySlugOrId()
     );
 
     if(!propertyConfig?.login?.settings?.use_openid || !propertyConfig?.login?.settings?.openid_endpoint) { return {}; }
@@ -855,7 +855,7 @@ class RootStore {
 
   InitializeAuth0Client = flow(function * () {
     const config = yield this.LoadPropertyCustomization(
-      this.GetPropertySlugOrId()
+      this.currentPropertyId || this.GetPropertySlugOrId()
     );
 
     if(!config?.login?.settings?.use_auth0 || !config?.login?.settings?.auth0_domain) { return; }

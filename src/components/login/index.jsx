@@ -28,7 +28,10 @@ const params = {
   // Redirect path
   next: searchParams.get("next"),
   // Property ID
-  mediaPropertySlugOrId: searchParams.get("pid") || (!rootStore.routeParams.mediaPropertySlugOrId && rootStore.GetSessionStorage("pid")),
+  mediaPropertySlugOrId: searchParams.get("pid") ||
+    (!rootStore.routeParams.mediaPropertySlugOrId && rootStore.GetSessionStorage("pid")) ||
+    rootStore.currentPropertyId ||
+    rootStore.currentPropertySlug,
 
   // Origin URL of the opener
   origin: searchParams.get("origin"),
@@ -127,6 +130,10 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
     use_openid: settings?.use_openid && settings?.openid_endpoint,
     enable_metamask: settings?.enable_metamask,
     disable_third_party_login: settings?.disable_third_party_login || false,
+    disable_google_login: settings?.disable_google_login || false,
+    disable_apple_login: settings?.disable_apple_login || false,
+    // Facebook login defaults false
+    disable_facebook_login: typeof settings?.disable_facebook_login === "boolean" ? settings.disable_facebook_login : true,
     disable_registration: settings?.disable_registration || false
   };
 };

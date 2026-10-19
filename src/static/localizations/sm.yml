@@ -1,0 +1,163 @@
+header:
+  activity: Galuega Faatino
+  collections: Lafoga
+  discover: Saili
+  profile: Faamatalaga
+  store: Teu
+  stores: O Teu
+  items: Aitema
+  notifications: Faasilasilaga
+  gifts: Meaalofa
+  media_wallet: ato tupe o faasalalauga
+  title: ato tupe o faasalalauga
+  subtitle: Faatinoga e ala i le Aano Autu
+  my_items: O a'u aitema
+  details: Faamatalaga o le atotupe
+  preferences: Filifiliga
+  home: Itulau Autu
+login:
+  sign_in: Ulufale
+  sign_up: Resitala i luga ...
+  sign_out: Ulufafo
+  signed_in: Ua e ulufale
+  signed_in_as: Ua ulufale o
+  signed_in_via: Ua ulufale e ala i le
+  powered_by: Fa'aola e
+  select_all_options: Filifili uma
+  accept: Ou te talia
+  terms_and_conditions: Tuutuuga ma Aiaiga
+  terms: O le faia o sau lava itulau po'o le ulufale atu e fa'ailoa mai ai ua e malie i Tu'utu'uga ma Aiaiga
+  email_consent: O le togiina o lenei pusa, ou te tu'uina atu se fa'atagana e teu ai la'u imeli i le ato teu o fa'asalalauga (aiaiga mo le tagata o lo'o fa'aaogaina le ato tau o fa'asalalauga). E ono lafo atu fo'i e Eluvio ni fa'amatalaga ma ni imeli fa'alauiloa i lenei imeli.
+  email_consent_tenant_clause: ma e fa'asoa ma (igoa o le tagata o lo'o fa'aaogaina le ato tupe o fa'asalalauga).
+  login_code: Fa'ailo  fa'amaonia
+  code_auth_success: Ua manuia le ulufale
+  email_confirmed: Ua fa'amaonia lau imeli
+  errors:
+    missing_required_options: Fa'amolemole e talia filifiliga e tatau ona e filifilia i lalo
+    too_many_logins: Ua fa'aaogaina lenei itulau i le tele naua o masini. Fa'amolemole e fa'atali mo le 24 itula ona toe taumafai lea.
+    login_failed: Ua lē manuia le ulufale, fa'amolemole e toe taumafai.
+    forced_logout: Ua fa'aulufafoina oe ona o lo'o iai se isi tagata o lo'o fa'aaogaina lenei itulau.
+    session_expired: Ua muta le taimi o lou auai. Fa'amolemole e toe taumafai e ulufale.
+    email_confirmation_failed: E le mafai ona fa'amaonia lau imeli. Fa'amolemole e toe taumafai.
+  ory:
+    actions:
+      registration: Resitala i luga ...
+      recovery: Ua galo le Upu Fa'alilolilo?
+      back_to_sign_in: Toe fo'i i le ulufale
+      update_password: Fa'afou le Upu Fa'alilolilo
+      proceed: Fa'aauau
+      sign_out: Ulufafo
+    refresh: Faamautinoa Faamatalaga o lou Faasinomaga
+    aal2: Fa'amaoniga e lua la'asaga
+    registration: Resitala lau Itulau
+    recovery: Toe fa'alelei lau itulau
+    verification: Fa'amaonia lau itulau
+    update_password: Sui Upu Fa'alilolilo
+    messages:
+      recovery_prompt: Fa'amolemole e ta le imeli e o faatasi ma lau itulau ina ia talosaga ai le fa'afouina o le upu faalilolilo.
+      recovery_code_prompt: Ua lafo atu se numera fa'amaonia i le imeli sa tu'uina mai. Fa'amolemole e ta le numera fa'amaonia ina ia mafai ona fa'aauau.
+      set_password: Fa'amolemole filifili se upu fa'alilolilo mo lau itulau
+      password_updated: Ua fa'afouina ma le manuia le upu faalilolilo.
+      login_limited: O le numera fa'atapula'a o taimi e te ulufale ai. E te mana'o e fa'amalosi lou ulufafo mai se taimi muamua na e ulufale ai le itulau?
+      third_party_conflict: Sa e taumafai e ulufale mai i le {imeli} lea ae o lea ua iai lenei itulau. Fa'amolemole e ta le upu fa'alilolilo ina ia mafai ai ona fa'atagaina lenei metotia e te ulufale ai i lau oe lava itulau.
+    errors:
+      invalid_credentials: E le o sa'o fa'amatalaga e ulufale ai
+      invalid_verification_code: E le o sa'o le Faailo faamaonia
+      invalid_recovery_email: E le o toe aogā le itulau na e fa'aaogaina. Fa'amolemole e ta lau imeli ina ia maua ai se numera fa'amaonia e toe maua ai lau itulau.
+      invalid_email: E le o sa'o le imeli
+      invalid_password_confirmation: E tatau ona tutusa fa'amaoniga o le Upu faalilolilo ma le upu faalilolilo
+navigation:
+  profile: Itulau o lou talaaga
+  discover: Sailiili
+  items: O a'u aitema
+  activity: O a'u galuega faatino
+  notifications: O Fa'asilasilaga
+  gifts: O Meaalofa
+  wallet_details: Auiliiliga o le ato tupe
+  preferences: Filifiliga tupito
+  home: Fale
+actions:
+  confirm: Faamautinoa
+  continue: Faaauau
+  back: Tua
+  back_to: Toe fo'i {vaega}
+  cancel: Fa'aleaogā
+  close: Tapuni
+  share: Fa'asoa
+  done: Ua mae'a
+  apply: Apalai
+  select: Filifili
+errors:
+  general: Fa'amalie atu, e iai le mea ua sese.
+time_units:
+  day: aso
+  days: aso
+  hour: itulā
+  hours: o itulā
+  minute: minute
+  minutes: o minute
+  second: sekone
+  seconds: o sekone
+time:
+  day: tasi le aso
+  days: o aso
+  hour: tasi le itula
+  hours: o itula
+  minute: tasi le minute
+  minutes: o (minute) minute
+  second: tasi le sekone
+  seconds: o (sekone) sekone
+ago:
+  day: tasi le aso talu ai
+  days: '{aso} aso talu ai'
+  hour: 1 le itula talu ai
+  hours: '{itula} itula talu ai'
+  minute: 1 le minute talu ai
+  minutes: '{minute} minute talu ai'
+  second: 1 le sekone talu ai
+  seconds: '{sekone} sekone talu ai'
+media_properties:
+  media_properties: O Aseta fa'asalalau
+  media_property: Aseta fa'asalalau
+  header:
+    search: Su'e
+    ai_search: Su'e i totonu o mataupu e ala i se fuaitau po o se upu autu.
+    filter: Fa'avasega
+  footer:
+    social_links:
+      text: Tumau feso'otaiga
+  sections:
+    view_all: Vaai uma
+  search:
+    title: Su'e fa'aiuga mo "{mataupu}"
+  page:
+    actions:
+      item_details: Auiliiliga
+  item_details:
+    pages:
+      description: Fa'amatalaga
+      details: Auiliiliga
+      contract: Maliega fa'aletulafono & Lomiga
+    tables:
+      trading: Fefa'ataua'iga
+      offers: Ofo mo fa'atauga
+      rewards: Taui
+  media:
+    live: Tu'usa'o
+    upcoming: O LO'O LOMA
+    select_media: Filifili fa'asalalauga
+    select_streams: Filifili ituaiga
+    description:
+      show: Faitau atili
+      hide: Fa'aitiitia mea e fa'aali
+    sidebar:
+      today: O nei
+      upcoming: O lo'o loma
+      main_view: Va'aiga autu
+      more_content: Nisi mataupu fa'aopopo
+      multiview: Vaaiga e tele
+    errors:
+      default: E lē o avanoa lenei vaega fa'asalalau.
+      not_started: E le'i o'o i le taimi e amata ai lenei fa'atinoga.
+      ended: Ua mae'a lenei fa'atinoga sa fai.
+      unauthorized: E lē o ia te oe se fa'atagana e te vaai ai i lenei vaega

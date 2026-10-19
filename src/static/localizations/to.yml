@@ -1,0 +1,163 @@
+header:
+  activity: Ngaahi ngāue kuo fai, ngaahi ngāue ke fai
+  collections: Ngaahi koloa kuo tānaki, ʻū koloa
+  discover: Fekumi
+  profile: Fakamatala ki he ʻakauni, fakamatala fakafoʻituitui fekauʻaki mo e ʻakauni
+  store: Falekoloa
+  stores: Ngaahi falekoloa, ʻū falekoloa
+  items: Ngaahi meʻa, koloa, ngaahi koloa, ʻū koloa
+  notifications: Ngaahi fanongonongo
+  gifts: Ngaahi meʻaʻofa, meʻaʻofa
+  media_wallet: Ualeti Mītia
+  title: Ualeti Mītia
+  subtitle: ʻOku fakalele ʻe he Content Fabric
+  my_items: ʻKo 'eku ngaahi meʻa
+  details: Ngaahi fakaikiiki ʻo e ualeti
+  preferences: Ngaahi fokotuʻutuʻu ʻoku ou fili, ngaahi fili ʻoku ou saiʻia ai, fili fakafoʻituitui
+  home: Peesi ʻuluaki, peesi kamataʻanga
+login:
+  sign_in: Hū ki he ʻakauni, fakamoʻoni ke hū ʻaki ki he ʻakauni
+  sign_up: Fokotuʻu ha ʻakauni, faʻu haʻo ʻakauni, lēsisita
+  sign_out: Hū ki tuʻa mei he ʻakauni, fakamoʻoni heni ke ke hū ai ki tuʻa mei hoʻo ʻakauni
+  signed_in: Kuo hū ki he ʻakauni, fakamoʻoni heni ke ke lava ʻo hū ai ki hoʻo ʻakauni
+  signed_in_as: Hū ʻaki ʻa e ʻakauni ʻa..., fakamoʻoni pe ko e ʻakauni fē te ke hū ʻaki
+  signed_in_via: Hū ki he ʻakauni ʻo fakafou ʻi he..., hū ki he ʻakauni ʻi he...
+  powered_by: ʻOku fakalele ʻe he...
+  select_all_options: Fili kotoa
+  accept: ʻOku ou tali
+  terms_and_conditions: Ngaahi tuʻutuʻuni mo e makatuʻunga
+  terms: ʻI haʻo fokotuʻu pe lēsisita haʻo ʻakauni, ʻokú ke loto ke muimui ki he ngaahi tuʻutuʻuni mo e makatuʻunga. ʻI heʻeku fokotuʻu pe lēsisita haʻaku ʻakauni, ʻoku ou tali ke u muimui ki he ngaahi tuʻutuʻuni mo e ngaahi makatuʻunga ʻoku ʻomai.
+  email_consent: ʻI hoʻo fakaʻilongaʻi ʻa e puha ni, ʻokú ke loto ke mau tauhi hoʻo tuʻasila ʻīmeili fakataha mo hoʻo tuʻasila ualeti {tenant Clause}. ʻE lava foki ke ʻave ʻe Eluvio ha ngaahi fakamatala mo e ngaahi tuʻuaki ki he tuʻasila ni.
+  email_consent_tenant_clause: Pea vahevahe mo e {tenant Name}
+  login_code: Kouti
+  code_auth_success: Kuo lava lelei hoʻo hū ki he ʻakauni!
+  email_confirmed: Kuo lava hono fakapapauʻi hoʻo tuʻasila ʻīmeili.
+  errors:
+    missing_required_options: Kātaki ʻo tali ʻa e ngaahi fili ʻoku fiemaʻu ʻi lalo.
+    too_many_logins: ʻOku fuʻu lahi ʻa e ngaahi meʻangāue ʻoku hū ki he ʻakauni ʻi he taimi ni. Kātaki ʻo tatali ʻi ha houa ʻe 24 pea toki toe ʻahiʻahi.
+    login_failed: Naʻe ʻikai lava hoʻo hū ki he ʻakauni. Kātaki ʻo toe ʻahiʻahi.
+    forced_logout: Kuo fakangata hoʻo hū ki he ʻakauni, koeʻuhí naʻe fakahū koe ki tuʻa ʻe ha taha kehe ʻokú ne ngāueʻaki ʻa e ʻakauni tatau.
+    session_expired: Kuo ʻosi ʻa e taimi naʻe fakangofua ai ke ke ngāueʻaki hoʻo sēsini. Kātaki ʻo toe fakamoʻoni foʻou ke hū ki hoʻo ʻakauni.
+    email_confirmation_failed: Naʻe ʻikai lava ke fakapapauʻi hoʻo tuʻasila ʻīmeili. Kātaki ʻo toe ʻahiʻahi.
+  ory:
+    actions:
+      registration: Fokotuʻu ha ʻakauni, lēsisita
+      recovery: Ngalo hoʻo lea fakapulipuli?
+      back_to_sign_in: Foki ki he peesi ke ke lava ʻo toe hū ai ki hoʻo ʻakauni
+      update_password: Fakafoʻou ʻa e lea fakapulipuli
+      proceed: Hoko atu
+      sign_out: Hū ki tuʻa mei he ʻakauni
+    refresh: Fakapapauʻi hoʻo ʻakauni
+    aal2: Fakamoʻoni ʻe ua
+    registration: Lēsisita hoʻo ʻakauni
+    recovery: Toe maʻu atu hoʻo ʻakauni
+    verification: Fakapapauʻi hoʻo ʻakauni
+    update_password: Liliu ʻa e lea fakapulipuli
+    messages:
+      recovery_prompt: Kātaki ʻo fakahū ʻa e tuʻasila ʻīmeili ʻoku fekauʻaki mo hoʻo ʻakauni ke kole ai ha liliu ki hoʻo lea fakapulipuli.
+      recovery_code_prompt: Kuo ʻave ha kouti ke toe maʻu ai hoʻo ʻakauni ki he tuʻasila ʻīmeili naʻa ke fakahā mai. Kātaki ʻo fakahū ʻa e kouti ko ia naʻe ʻoatu ke ke lava ʻo hoko atu.
+      set_password: Kātaki ʻo fili ha lea fakapulipuli ki hoʻo ʻakauni.
+      password_updated: Kuo lava lelei hono fakafoʻou hoʻo lea fakapulipuli!
+      login_limited: Kuo lahi ange ʻa e ngaahi feinga ke hū ki hoʻo ʻakauni ʻi he lahi naʻe fakangofuá. ʻOkú ke loto ke fakahū koe ki tuʻa mei he sēsini motuʻa?
+      third_party_conflict: Naʻa ke feinga ke hū ʻaki ʻa e {email}, ka ʻoku ʻosi ʻi ai ʻa e ʻakauni ko ʻení. Kātaki ʻo fakahū hoʻo lea fakapulipuli ke fakangofua ʻa e founga hū ko ʻení ki hoʻo ʻakauni.
+    errors:
+      invalid_credentials: ʻOku ʻikai tonu ʻa e fakamatala ke hū ʻaki ki he ʻakauni.
+      invalid_verification_code: ʻOku ʻikai tonu ʻa e kouti.
+      invalid_recovery_email: ʻOku ʻikai toe ʻaonga ʻa e fehokotakiʻanga naʻa ke ngāueʻakí. Kātaki ʻo fakahū hoʻo tuʻasila ʻīmeili ke maʻu ai ha kouti foʻou.
+      invalid_email: ʻOku ʻikai tonu ʻa e tuʻasila ʻīmeili.
+      invalid_password_confirmation: Kuo pau ke tatau ʻa e lea fakapulipuli naʻa ke toe fakahū mo e lea fakapulipuli ʻuluakí.
+navigation:
+  profile: Fakamatala ki he ʻakauni
+  discover: Fekumi
+  items: Ko 'eku ngaahi meʻa, Ko 'eku ngaahi koloa
+  activity: Ko 'eku ngaahi 'ekitiviti kuo 'osi fai
+  notifications: Ngaahi fanongonongo
+  gifts: Ngaahi meʻaʻofa
+  wallet_details: Ngaahi fakaikiiki ʻo e ualeti
+  preferences: Ngaahi fokotuʻutuʻu ʻoku ou fili
+  home: Peesi ʻuluaki, ʻapi
+actions:
+  confirm: Fakapapauʻi
+  continue: Hoko atu
+  back: Foki
+  back_to: Foki ki he {thing}
+  cancel: Kaniseli
+  close: Tāpuni
+  share: Vahevahe
+  done: Kuo ʻosi
+  apply: Ngāueʻaki
+  select: Filifili, fili
+errors:
+  general: Fakamolemole, ʻoku ʻi ai ha kiʻi palopalema. Kātaki, ʻoku ʻi ai ha kiʻi fehalaaki.
+time_units:
+  day: ʻAho
+  days: Ngaahi ʻaho
+  hour: Houa
+  hours: Ngaahi houa
+  minute: Miniti
+  minutes: Ngaahi miniti
+  second: Sekoni
+  seconds: Ngaahi sekoni
+time:
+  day: ʻAho ʻe 1
+  days: ʻAho ʻe {days}
+  hour: Houa ʻe 1
+  hours: Houa ʻe {hours}
+  minute: Miniti ʻe 1
+  minutes: Miniti ʻe {minutes}
+  second: Sekoni ʻe 1
+  seconds: Sekoni ʻe {seconds}
+ago:
+  day: ʻAho ʻe 1 kuo hili
+  days: ʻAho ʻe {days} kuo hili
+  hour: Houa ʻe 1 kuo hili
+  hours: Houa ʻe {hours} kuo hili
+  minute: Miniti ʻe 1 kuo hili
+  minutes: Miniti ʻe {minutes} kuo hili
+  second: Sekoni ʻe 1 kuo hili
+  seconds: Sekoni ʻe {seconds} kuo hili
+media_properties:
+  media_properties: Ngaahi koloa mītia
+  media_property: Koloa mītia
+  header:
+    search: Fekumi
+    ai_search: Fekumi ʻi he ngaahi fakamatala ʻi heni ʻaki ha kupuʻi lea pe lea mahuʻinga
+    filter: Sivi ʻo filifili
+  footer:
+    social_links:
+      text: Hokohoko atu hoʻo fetuʻutaki
+  sections:
+    view_all: Maʻu kotoa ʻa e fakamatala heni, ko e fakamatala kotoa ʻeni
+  search:
+    title: Ngaahi ola ʻo e fekumi ki he "{query}"
+  page:
+    actions:
+      item_details: Ngaahi fakaikiiki
+  item_details:
+    pages:
+      description: Fakamatala
+      details: Ngaahi fakaikiiki
+      contract: Konituleki aleapau mo hono tatau
+    tables:
+      trading: Fefakatauʻaki
+      offers: Ngaahi fakatau aleapau kuo tuʻuaki atu
+      rewards: Ngaahi pale
+  media:
+    live: Fakahoko hangatonu ʻa e mītia
+    upcoming: ʻE hoko mai, ngaahi meʻa ʻe hoko mai
+    select_media: Fili ha mītia
+    select_streams: Fili mei he ngaahi mītia ko ʻení
+    description:
+      show: Lau heni ki ha toe fakamatala 'oku lahi ange
+      hide: Fakaʻasi siʻi ange
+    sidebar:
+      today: ʻAho ni
+      upcoming: ʻE hoko mai, Teu hoko mai.
+      main_view: Tefitoʻi mītia, faʻunga mītia, sinoʻi mītia
+      more_content: Toe ngaahi mītia mo e fakamatala
+      multiview: Vakai ki ha ngaahi ʻata kehekehe ʻi he taimi taha
+    errors:
+      default: ʻOku ʻikai lava ke maʻu atu ʻa e faiva ni.
+      not_started: ʻOku teʻeki ke kamata ʻa e foʻi faiva ko ʻení.
+      ended: Kuo ʻosi ʻa e faiva.
+      unauthorized: ʻOku ʻikai haʻo ngofua ke ke lava ʻo mamata ki he meʻa ni.
