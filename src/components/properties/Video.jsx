@@ -112,16 +112,6 @@ const Video = forwardRef(function VideoComponent({
       } catch(error) {}
     }
 
-    // TODO: Remove
-    if(showVertical) {
-      mediaPropertyStore.client.SetNodes({
-        fabricURIs: [
-          "https://host-76-74-29-29.contentfabric.io",
-          "https://host-76-74-29-7.contentfabric.io"
-        ]
-      });
-    }
-
     InitializeEluvioPlayer(
       targetRef.current,
       {
