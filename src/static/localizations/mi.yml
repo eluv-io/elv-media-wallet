@@ -1,0 +1,163 @@
+header:
+  activity: Tu'anga Raverave
+  collections: Akaputuputu'anga
+  discover: Tei Kitea'ia
+  profile: Tuatua Tāpapa
+  store: Toa
+  stores: Au Toa
+  items: Au 'apinga
+  notifications: Au Tuatua 'Akakite
+  gifts: Au 'Apinga Aro'a
+  media_wallet: Vairanga tuatua/'apinga pū'apinga roro-uira
+  title: Vairanga tuatua/'apinga pū'apinga roro-uira
+  subtitle: Akatika'ia 'ē te Tuatua Tāpapa'ia (Content Fabric)
+  my_items: Tāku au 'apinga
+  details: Vairanga'anga muna nō te au 'akakitekite'anga
+  preferences: Au 'iki'anga tei anoano'ia
+  home: Ngutu'are
+login:
+  sign_in: Akaō ki roto
+  sign_up: Akaō ki runga
+  sign_out: Kiriti mai ki va'o
+  signed_in: Kua 'Akaō ki roto
+  signed_in_as: Kua 'Akaō ki roto ē ko
+  signed_in_via: Kua 'Akaō ki roto, nā roto 'i te
+  powered_by: Akamana'ia 'ē te
+  select_all_options: Iki 'i te kātoatoa
+  accept: Kua 'Āriki au
+  terms_and_conditions: Te au Kōreromotu 'ē te au Tūranga 'Akateretere'anga
+  terms: Nā roto 'i te 'anga 'anga 'i tēta'i kapi vairanga, mē kore, 'ākaō'anga ki roto, kua 'akatika au ki te au Kōreromotu 'ē te au Tūranga 'Akateretere'anga
+  email_consent: Nā roto 'i te 'iki'anga 'i teia pi'a, tē 'ōronga nei au 'i tāku 'akatika'anga nō tāku 'īmēre, kia 'akapapa'ia ma tōku 'āterēti vairanga'anga {tenant Clause}. Ka rauka katoa 'ia Eluvio 'i te tuku tuatua 'akakitekite'anga, 'ē pērā te au 'īmēre 'oko'oko 'apinga ki teia 'āterēti.
+  email_consent_tenant_clause: ma te tu'a atu kiā {tenant Name}
+  login_code: Nūmero Muna
+  code_auth_success: Kua manuia te 'akaō'anga ki roto
+  email_confirmed: Kua 'akapāpū'ia tō'ou 'īmēre
+  errors:
+    missing_required_options: Āriki 'i te pati'anga nō te au tu'anga 'iki'anga 'i raro nei 'inē.
+    too_many_logins: E ma'ata roa te au 'apinga roro-uira 'i tā'anga'anga ana 'i runga 'i teia kapi vairanga. Tiaki 'ē 24 ora, ka tāmata 'aka'ou atu ei, 'inē.
+    login_failed: Kāre 'i manuia te 'akaō'anga ki roto, tāmata 'aka'ou, 'īnē
+    forced_logout: Kua kōpaea mai koe ki va'o, nō te mea, 'e tu'anga tēta'i 'e tā'anga'anga ra 'i te puka vairanga, tei kōpae mai iā koe ki va'o.
+    session_expired: Kua pāti te tu'anga tei 'akataka'ia nā'au.  'Akaō 'aka'ou ki roto 'inē.
+    email_confirmation_failed: Kāre e rauka te 'akapāpū 'i tō'ou 'īmēre. Tāmata 'aka'ou 'īnē.
+  ory:
+    actions:
+      registration: Ākaō ki runga
+      recovery: Kua ngaropōina te Tuatua-akatika'anga?
+      back_to_sign_in: Oki ki te 'Akaō'anga ki roto
+      update_password: Aka'ōu 'i te Tuatua-'akatika'anga
+      proceed: Aere atu ki mua
+      sign_out: Kiriti mai ki va'o
+    refresh: Akapāpū 'i tō'ou Tūranga Tika'anga Tangata
+    aal2: Rua-Tu'anga Tūranga 'Akataka'anga
+    registration: Rētita 'i tā'au Kapi Vairanga
+    recovery: Aka'oki 'aka'ou mai 'i tā'au Kapi Vairanga
+    verification: Akapāpūi 'i tā'au Kapi Vairanga
+    update_password: Taui i tā'au Tuatua-'Akatika'anga
+    messages:
+      recovery_prompt: Akatomo atu 'i te 'āterēti o te 'īmēre tei kāpiti'ia ki tā'au puka vairanga, nō te pati atu 'i te taui'anga 'i te tuatua-'akatika'anga
+      recovery_code_prompt: Kua tuku 'ia atu tēta'i nūmero muna ki te 'īmēre tei 'akataka'ia. Tuku atu 'i te nūmero muna nō te 'aka'oki mai 'i te au tuatua nō te neke atu'anga ki mua 'inē.
+      set_password: Iki 'i tēta'i tuatua-'akatika'anga nō tā'au kapi vairanga
+      password_updated: Kua manuia te 'aka'ōu'anga 'i te tuatua-'akatika'annga!
+      login_limited: Kua pāti te nūmero tei 'akatika'ia nō te 'akaō'anga ki roto. Ka 'inangaro āinei koe 'i te tūpeke ma te kiriti 'i tēta'i tu'anga taito ki va'o?
+      third_party_conflict: Kua tautā koe 'i te 'akaō ki roto nā roto 'i te tā'anga'anga'anga 'i tēia {email}, 'inārā 'e kapi vairanga takere tēta'i. Tuku atu i tā'au tuatua-'akatika'anga, nō te 'akatika 'i teia rāvenga nō te 'akaō'anga ki roto 'ē tā'au kapi vairanga 'inē.
+    errors:
+      invalid_credentials: Kāre i tika te au Tūranga Tuatua
+      invalid_verification_code: Kāre i tika te 'Akapāpū'anga 'ō te Nūmero Muna
+      invalid_recovery_email: Kāre 'e 'anga'anga 'aka'ou te 'ātuitui'anga kupe-roro-uira tā'au 'i tā'anga'anga. Tuku atu i tō'ou 'īmēre kia rauka 'aka'ou mai tēta'i nūmero muna, 'inē.
+      invalid_email: Kāre te 'īmēre 'i tano
+      invalid_password_confirmation: Kia 'āiteite tikāi te 'akapāpū'anga tuatua-'akatika'anga ki te tuatua-'akatika'anga tikāi.
+navigation:
+  profile: Tuatua Tāpapa
+  discover: Kite/Kitea/Kitea'ia
+  items: Taku au 'apinga
+  activity: Tāku Tu'anga Raverave
+  notifications: Au Tuatua 'Akakite
+  gifts: Au 'Apinga Aro'a
+  wallet_details: Au tu'anga 'akataka'ia 'ō te vairanga tuatua
+  preferences: Au "iki'anga tei anoano'ia
+  home: Kāinga
+actions:
+  confirm: Akapāpū
+  continue: Aere 'ua atu ki mua
+  back: Ki Muri
+  back_to: Oki ki te {thing}
+  cancel: Tākore
+  close: Tōpiri
+  share: Tu'a atu
+  done: Kua Oti
+  apply: Tuku atu
+  select: Iki
+errors:
+  general: Tē Tātara'ara atu nei mātou, kua tārevakē tēta'i 'apinga
+time_units:
+  day: rā
+  days: au rā
+  hour: ora
+  hours: au ora
+  minute: meneti
+  minutes: au meneti
+  second: tēkoni
+  seconds: au tēkoni
+time:
+  day: ta'i rā
+  days: '{days} au rā'
+  hour: ta'i ora
+  hours: '{hours} au ora'
+  minute: ta'i meneti
+  minutes: '{minutes} au meneti'
+  second: ta'i tēkoni
+  seconds: '{seconds} au tēkoni'
+ago:
+  day: ē ta'i rā 'i topa
+  days: '{days} au rā ''i topa'
+  hour: ē ta'i ora 'i topa
+  hours: '{hours} au ora ''i topa'
+  minute: ē ta'i meneti 'i topa
+  minutes: '{minutes} au meneti ''i topa'
+  second: ē ta'i tēkoni 'i topa
+  seconds: '{seconds} au tēkoni ''i topa'
+media_properties:
+  media_properties: Au Tūranga Ngā'i Roro-uira
+  media_property: Tūranga Ngā'i Roro-uira
+  header:
+    search: Kimi
+    ai_search: Kimi nā roto 'i te au tu'anga tākiato tuatua, mē kore, tumu-kupu tuatua
+    filter: Kōpae 'i te au mea kino
+  footer:
+    social_links:
+      text: No'o ma te 'Ātui'ia
+  sections:
+    view_all: Ākara 'i te Kātoatoa
+  search:
+    title: Kimi 'i te au pa'u'anga nō te "{query}"
+  page:
+    actions:
+      item_details: Au Tuatua 'Akapapa
+  item_details:
+    pages:
+      description: Tū 'Akataka'anga
+      details: Au Tuatua 'Akapapa
+      contract: Kōreromotu 'ē te tū
+    tables:
+      trading: Oko'oko'anga
+      offers: Moni 'i te au 'apinga 'oko
+      rewards: Au tūtaki
+  media:
+    live: Nene'i'anga Ora
+    upcoming: E 'AERE MAI NEI
+    select_media: Iki 'i te tu'anga roro-uira
+    select_streams: Iki i tēta'i au tu'anga nene'i'anga roro-uira
+    description:
+      show: Tatau 'ua atu rāi
+      hide: akaIti mai te 'akaariari
+    sidebar:
+      today: Teia Rā
+      upcoming: Tē kā 'aere mai
+      main_view: Tu'anga 'Ākara'anga Tinamou Ma'ata
+      more_content: Kia ma'ata mai te tu'anga 'akakitekite'anga
+      multiview: Ma'ata te tu'anga 'ākarakara'anga
+    errors:
+      default: Kāre teia tu'anga roro-uira 'i vā mai ake
+      not_started: Kāre teia tu'anga nene'i'anga ora 'i 'akamata ake
+      ended: Kua 'akamutu teia tu'anga nene'i'anga ora
+      unauthorized: Kāre ō'ou tika'anga nō te 'ākara 'i teia tu'anga tuatua 'akakitekite'anga

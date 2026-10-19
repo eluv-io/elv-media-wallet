@@ -86,6 +86,7 @@ login:
       continue: Continue
       skip: Skip for now
       back: Back
+      update_preferences: Update Preferences
 
 navigation:
   profile: Profile

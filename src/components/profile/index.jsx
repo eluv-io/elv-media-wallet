@@ -201,7 +201,8 @@ const Profile = observer(() => {
 
   const userInfo = rootStore.walletClient.UserInfo();
   const custodialWallet = userInfo.walletType === "Custodial";
-  const marketplaceId = mediaPropertyStore.MediaProperty({...match.params})?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
+  const mediaProperty = mediaPropertyStore.MediaProperty({...match.params});
+  const marketplaceId = mediaProperty?.metadata?.associated_marketplaces?.[0]?.marketplace_id;
   const marketplace = rootStore.marketplaces[marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
@@ -271,6 +272,15 @@ const Profile = observer(() => {
             </div>
 
             <div className="profile-page__actions profile-page__sign-out">
+              {
+                !mediaProperty?.metadata?.login?.user_questionnaire?.enable ? null :
+                  <ButtonWithLoader
+                    onClick={() => rootStore.SetShowUserQuestionnaire(true)}
+                    className="action action--secondary"
+                  >
+                    { rootStore.l10n.login.user_questionnaire.actions.update_preferences }
+                  </ButtonWithLoader>
+              }
               <ButtonWithLoader
                 onClick={async () => {
                   rootStore.SignOut();

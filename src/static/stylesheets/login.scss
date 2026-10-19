@@ -110,7 +110,6 @@
   justify-content: center;
   margin: 0;
   min-height: 100%;
-  //padding: 50px 30px 75px;
 
   * {
     font-family: var(--login-font-family);
@@ -822,10 +821,10 @@
 }
 
 .user-questionnaire {
-  display: flex;
   align-items: center;
-  justify-content: center;
+  display: flex;
   gap: 10px;
+  justify-content: center;
 
   &__content {
     flex-grow: 1;
@@ -843,9 +842,9 @@
   }
 
   &__description {
+    color: var(--login-text-secondary--color);
     font-size: 14px;
     margin: 10px 0;
-    color: var(--login-text-secondary--color);
   }
 
   &__actions,
@@ -858,15 +857,15 @@
   }
 
   &__multiselect-options {
-    overflow-y: auto;
-    max-height: 250px;
     margin-top: 10px;
+    max-height: 250px;
     min-height: 250px;
+    overflow-y: auto;
   }
 
   &__multiselect-option {
-    display: flex;
     align-items: center;
+    display: flex;
     gap: 10px;
     margin: 5px 0 0 5px;
     user-select: none;
@@ -884,11 +883,11 @@
   }
 
   &__filter-icon {
+    color: var(--login-text-secondary--color);
     height: 20px;
-    width: 40px;
     min-width: 20px;
     padding-inline: 10px;
-    color: var(--login-text-secondary--color);
+    width: 40px;
 
     * {
       color: var(--login-text-secondary--color);
@@ -896,20 +895,20 @@
   }
 
   &__actions {
-    margin-top: 30px;
+    align-items: center;
     display: flex;
     flex-direction: column;
-    width: 100%;
     gap: 10px;
-    align-items: center;
     justify-content: center;
+    margin-top: 30px;
+    width: 100%;
   }
 
   &__button {
     max-width: unset;
   }
 
-  @media screen and (max-width: 850px) {
+  @media screen and (width <= 850px) {
     &__multiselect-options {
       max-height: 150px;
       min-height: 150px;

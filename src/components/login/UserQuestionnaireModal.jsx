@@ -13,6 +13,7 @@ const UserQuestionnaireModal = observer(() => {
   const [answers, setAnswers] = useState({});
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
 
   const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: rootStore.routeParams.mediaPropertySlugOrId});
   const questionnaireInfo = mediaProperty?.metadata.login?.user_questionnaire || {};
@@ -23,10 +24,12 @@ const UserQuestionnaireModal = observer(() => {
 
   useEffect(() => {
     setQuestionIndex(0);
-  }, [rootStore.showUserQuestionnaire])
+  }, [rootStore.showUserQuestionnaire]);
 
   useEffect(() => {
-    if(!questionnaireInfo || !questionnaireInfo.enable) { return; }
+    if(!questionnaireInfo || !questionnaireInfo.enable || !rootStore.loggedIn) { return; }
+
+    setLoading(true);
 
     rootStore.GetUserInfo()
       .then(info => {
@@ -39,17 +42,29 @@ const UserQuestionnaireModal = observer(() => {
           } else {
             initialAnswers[question.key] = info[question.key] || "";
           }
-        })
+        });
 
         setAnswers(initialAnswers);
         setLoading(false);
-      })
-  }, [questionnaireInfo]);
 
-  if(!rootStore.showUserQuestionnaire || !questionnaireInfo.enable) { return null; }
+        if(!submitted && info[`${rootStore.currentPropertyId}-version`] !== (questionnaireInfo.version_key || "default")) {
+          // User has not yet answered questions
+          rootStore.SetShowUserQuestionnaire(true);
+        }
+      })
+      .catch(error => {
+        rootStore.Log(error, true);
+        setAnswers({});
+        setLoading(false);
+      });
+  }, [rootStore.loggedIn, rootStore.showUserQuestionnaire, questionnaireInfo?.enable, rootStore.currentPropertyId]);
+
+  if(!rootStore.loggedIn || !rootStore.showUserQuestionnaire || !questionnaireInfo.enable) { return null; }
 
   const Submit = async () => {
     rootStore.SetShowUserQuestionnaire(false);
+
+    setSubmitted(true);
 
     let submittingAnswers = {};
     questionnaireInfo.questions.map(question => {
@@ -60,12 +75,15 @@ const UserQuestionnaireModal = observer(() => {
       } else {
         submittingAnswers[question.key] = answers[question.key] || "";
       }
-    })
+    });
+
+    // Record questionnaire version
+    submittingAnswers[`${rootStore.currentPropertyId}-version`] = questionnaireInfo.version_key || "default";
 
     await rootStore.SetUserInfo({data: submittingAnswers});
   };
 
-  const currentQuestion = questionnaireInfo.questions?.[questionIndex]
+  const currentQuestion = questionnaireInfo.questions?.[questionIndex];
 
   let content;
   if(loading) {
@@ -123,10 +141,10 @@ const UserQuestionnaireModal = observer(() => {
                           [currentQuestion.key]: checked ?
                             answers[currentQuestion.key].filter(item => item !== option) :
                             [...(answers[currentQuestion.key] || []), option]
-                        })
+                        });
 
                         return (
-                          <div className="user-questionnaire__multiselect-option">
+                          <div key={`option-${option}`} className="user-questionnaire__multiselect-option">
                             <input
                               type="checkbox"
                               name={option}
@@ -146,7 +164,7 @@ const UserQuestionnaireModal = observer(() => {
           }
         </div>
       </>
-    )
+    );
   } else {
     // Confirmation screen
     content = (
@@ -164,7 +182,7 @@ const UserQuestionnaireModal = observer(() => {
             </div>
         }
       </>
-    )
+    );
   }
 
   return (
@@ -173,7 +191,7 @@ const UserQuestionnaireModal = observer(() => {
       centered
       size="auto"
       noBackground
-      closable={false}
+      withCloseButton={false}
     >
       <LoginBox className="user-questionnaire">
         <div key={`content-${questionIndex}`} className={"user-questionnaire__content"}>
@@ -201,8 +219,8 @@ const UserQuestionnaireModal = observer(() => {
               <button
                 className="login-page__button login-page__button--secondary user-questionnaire__button"
                 onClick={() => {
-                  setAnswers({...answers, [currentQuestion.key]: undefined})
-                  setQuestionIndex(questionIndex + 1)
+                  setAnswers({...answers, [currentQuestion.key]: undefined});
+                  setQuestionIndex(questionIndex + 1);
                 }}
               >
                 { rootStore.l10n.login.user_questionnaire.actions.skip }
@@ -220,7 +238,7 @@ const UserQuestionnaireModal = observer(() => {
         </div>
       </LoginBox>
     </Modal>
-  )
+  );
 });
 
 export default UserQuestionnaireModal;
