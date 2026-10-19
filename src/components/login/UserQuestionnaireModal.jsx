@@ -5,8 +5,10 @@ import {mediaPropertyStore, rootStore} from "@/stores/index.js";
 import {useEffect, useState} from "react";
 import {Select, TextInput} from "@mantine/core";
 import ImageIcon from "@/components/common/ImageIcon.jsx";
-import SearchIcon from "@/assets/icons/search.svg";
 import {Loader} from "@/components/common/Loaders.jsx";
+
+import SearchIcon from "@/assets/icons/search.svg";
+import CheckmarkIcon from "@/assets/icons/check-circle.svg";
 
 const UserQuestionnaireModal = observer(() => {
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -169,6 +171,9 @@ const UserQuestionnaireModal = observer(() => {
     // Confirmation screen
     content = (
       <>
+        <div className="user-questionnaire__checkmark-container">
+          <ImageIcon className="user-questionnaire__checkmark" icon={CheckmarkIcon} />
+        </div>
         {
           !questionnaireInfo.confirmation_title ? null :
             <div className={"user-questionnaire__title"}>
@@ -227,7 +232,7 @@ const UserQuestionnaireModal = observer(() => {
               </button>
           }
           {
-            questionIndex === 0 ? null :
+            !currentQuestion || questionIndex === 0 ? null :
               <button
                 className="login-page__button login-page__button--secondary user-questionnaire__button"
                 onClick={() => setQuestionIndex(questionIndex - 1)}

@@ -908,6 +908,22 @@
     max-width: unset;
   }
 
+  &__checkmark-container {
+    aspect-ratio: 1;
+    margin-inline: auto;
+    margin-bottom: 20px;
+    width: 80px;
+
+    * {
+      color: var(--login-action-primary--background);
+    }
+
+    svg {
+      height: auto;
+      width: 100%;
+    }
+  }
+
   @media screen and (width <= 850px) {
     &__multiselect-options {
       max-height: 150px;
