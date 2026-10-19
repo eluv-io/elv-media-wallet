@@ -283,7 +283,7 @@ const OryLogin = observer(({
                       returnToUrl.pathname = decodeURIComponent(next);
                       returnToUrl.searchParams.delete("next");
 
-                      window.location.location = returnToUrl.toString();
+                      window.location = returnToUrl.toString();
                       return;
                     }
                   }
