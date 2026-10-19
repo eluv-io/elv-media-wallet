@@ -662,50 +662,10 @@ const OryLogin = observer(({
   ].filter(m => m);
 
   const disableThirdParty = !!customizationOptions.disable_third_party_login;
-  const showGoogleLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_google_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
-  const showAppleLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_apple_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
-  const showFacebookLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
-  const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
-
-  const thirdPartyConflictMessage = flow?.ui?.messages?.find(message => message.id === 1010016);
-  if(thirdPartyConflictMessage && thirdPartyConflictMessage?.context?.provider) {
-    // Confirm with provider - originally logged in with third party
-    const provider = thirdPartyConflictMessage.context?.provider?.toLowerCase() || "google";
-    return (
-      <div className={S("ory-login")}>
-        <div className="ory-login__message">
-          {thirdPartyConflictMessage.text.split("Please")[0]}
-        </div>
-        <ButtonWithLoader
-          action={false}
-          onClick={async event => await OrySubmit(event, {thirdParty: true, provider})}
-          className={`login-page__third-party-login login-page__third-party-login--${provider}`}
-        >
-          <ImageIcon
-            icon={
-              provider === "google" ? GoogleLogo :
-                provider === "apple" ? AppleLogo :
-                  FacebookLogo
-            }
-            className="login-page__third-party-login__logo"
-          />
-          {`Confirm With ${provider.capitalize()}`}
-        </ButtonWithLoader>
-        <button
-          key="recovery-link"
-          onClick={() => {
-            const returnUrl = new URL(window.location.origin);
-            returnUrl.pathname = rootStore.GetSessionStorage("return_to");
-            rootStore.RemoveSessionStorage("pid");
-            rootStore.SignOut({returnUrl: returnUrl.toString()});
-          }}
-          className="login-page__button login-page__button--link"
-        >
-          {rootStore.l10n.login.ory.actions.sign_out}
-        </button>
-      </div>
-    );
-  }
+  const showGoogleLogin = !disableThirdParty && !customizationOptions.disable_google_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "google");
+  const showAppleLogin = !disableThirdParty && !customizationOptions.disable_apple_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "apple");
+  const showFacebookLogin = !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
+  const showMetamaskLogin = customizationOptions.enable_metamask;
 
   return (
     <div className="ory-login">
@@ -844,7 +804,11 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--facebook"
                   >
                     <ImageIcon icon={FacebookLogo} className="login-page__third-party-login__logo" />
-                    Sign In with Facebook
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_facebook :
+                        rootStore.l10n.login.ory.actions.sign_in_with_facebook
+                    }
                   </ButtonWithLoader>
               }
               {
@@ -857,7 +821,11 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--google"
                   >
                     <ImageIcon icon={GoogleLogo} className="login-page__third-party-login__logo" />
-                    { rootStore.l10n.login.ory.actions.sign_in_with_google }
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_google :
+                        rootStore.l10n.login.ory.actions.sign_in_with_google
+                    }
                   </ButtonWithLoader>
               }
               {
@@ -870,7 +838,11 @@ const OryLogin = observer(({
                     className="login-page__third-party-login login-page__third-party-login--apple"
                   >
                     <ImageIcon icon={AppleLogo} className="login-page__third-party-login__logo" />
-                    { rootStore.l10n.login.ory.actions.sign_in_with_apple }
+                    {
+                      isThirdPartyConflict ?
+                        rootStore.l10n.login.ory.actions.confirm_with_apple :
+                        rootStore.l10n.login.ory.actions.sign_in_with_apple
+                    }
                   </ButtonWithLoader>
               }
             </div>

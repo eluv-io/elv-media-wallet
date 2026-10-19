@@ -28,7 +28,10 @@ const params = {
   // Redirect path
   next: searchParams.get("next"),
   // Property ID
-  mediaPropertySlugOrId: searchParams.get("pid") || (!rootStore.routeParams.mediaPropertySlugOrId && rootStore.GetSessionStorage("pid")),
+  mediaPropertySlugOrId: searchParams.get("pid") ||
+    (!rootStore.routeParams.mediaPropertySlugOrId && rootStore.GetSessionStorage("pid")) ||
+    rootStore.currentPropertyId ||
+    rootStore.currentPropertySlug,
 
   // Origin URL of the opener
   origin: searchParams.get("origin"),
