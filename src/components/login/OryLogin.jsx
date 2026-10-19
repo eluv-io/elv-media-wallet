@@ -282,6 +282,7 @@ const OryLogin = observer(({
                     if(next) {
                       returnToUrl.pathname = decodeURIComponent(next);
                       returnToUrl.searchParams.delete("next");
+                      returnToUrl.searchParams.delete("pid");
 
                       window.location = returnToUrl.toString();
                       return;
@@ -666,14 +667,54 @@ const OryLogin = observer(({
   const showFacebookLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
   const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
+  const thirdPartyConflictMessage = flow?.ui?.messages?.find(message => message.id === 1010018);
+  if(thirdPartyConflictMessage) {
+    // Confirm with provider - originally logged in with third party
+    const provider = thirdPartyConflictMessage.context?.provider?.toLowerCase() || "google";
+    return (
+      <div className={S("ory-login")}>
+        <div className="ory-login__message">
+          {message.text.split("Please")[0]}
+        </div>
+        <ButtonWithLoader
+          action={false}
+          onClick={async event => await OrySubmit(event, {thirdParty: true, provider})}
+          className={`login-page__third-party-login login-page__third-party-login--${provider}`}
+        >
+          <ImageIcon
+            icon={
+              provider === "google" ? GoogleLogo :
+                provider === "apple" ? AppleLogo :
+                  FacebookLogo
+            }
+            className="login-page__third-party-login__logo"
+          />
+          {`Confirm With ${provider.capitalize()}`}
+        </ButtonWithLoader>
+        <button
+          key="recovery-link"
+          onClick={() => {
+            const returnUrl = new URL(window.location.origin);
+            returnUrl.pathname = rootStore.GetSessionStorage("return_to");
+            rootStore.RemoveSessionStorage("pid");
+            rootStore.SignOut({returnUrl: returnUrl.toString()});
+          }}
+          className="login-page__button login-page__button--link"
+        >
+          {rootStore.l10n.login.ory.actions.sign_out}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="ory-login">
       {
         messages.map(message =>
-          <div key={`message-${message.id || message}`} className="ory-login__message">{ message.text || message }</div>
+          <div key={`message-${message.id || message}`} className="ory-login__message">{message.text || message}</div>
         )
       }
-      { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
+      {errorMessage ? <div className="ory-login__error-message">{errorMessage}</div> : null}
       <form
         title={title}
         key={`form-${flowType}-${flow.state}`}
