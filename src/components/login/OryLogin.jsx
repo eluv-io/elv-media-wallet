@@ -273,10 +273,10 @@ const OryLogin = observer(({
                   window.location.href = returnToUrl.toString();
 
                   return;
-                } else if(flow?.data?.ui?.messages?.find(message => message.id === 4000001)) {
+                } else if(data?.ui?.messages?.find(message => message.id === 4000001)) {
                   // Third party login cancelled - redirect to next url
-                  if(flow?.data?.return_to) {
-                    const returnToUrl = new URL(flow.data.return_to);
+                  if(data?.return_to) {
+                    const returnToUrl = new URL(data.return_to);
                     const next = returnToUrl.searchParams.get("next");
 
                     if(next) {
