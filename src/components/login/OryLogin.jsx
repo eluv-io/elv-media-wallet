@@ -273,6 +273,20 @@ const OryLogin = observer(({
                   window.location.href = returnToUrl.toString();
 
                   return;
+                } else if(flow?.data?.ui?.messages?.find(message => message.id === 4000001)) {
+                  // Third party login cancelled - redirect to next url
+                  if(flow?.data?.return_to) {
+                    const returnToUrl = new URL(flow.data.return_to);
+                    const next = returnToUrl.searchParams.get("next");
+
+                    if(next) {
+                      returnToUrl.pathname = decodeURIComponent(next);
+                      returnToUrl.searchParams.delete("next");
+
+                      window.location.pathname = returnToUrl.toString();
+                      return;
+                    }
+                  }
                 }
               }
 
@@ -565,44 +579,19 @@ const OryLogin = observer(({
         setRedirect(nextPath);
       }
     } catch(error) {
-      console.log("in error");
       rootStore.Log(error, true);
 
       if(error.login_limited) {
-        console.log(1)
         setFlows({...flows, login_limited: {}});
         setFlowType("login_limited");
         return;
       }
 
       if(error?.body?.error?.cause?.op?.toLowerCase()?.includes("identity not found")) {
-        console.log(2)
         setErrorMessage(rootStore.l10n.login.ory.errors.unknown_email);
         return;
       }
 
-      console.log(error?.response?.data?.ui);
-
-      if(error?.response?.data?.ui?.messages?.find(message => message.id === 4000001)) {
-        console.log(3)
-        // Third party login cancelled - redirect to next url
-        if(flow?.data?.return_to) {
-          console.log(4)
-          const returnToUrl = new URL(flow.data.return_to);
-          const next = returnToUrl.searchParams.get("next");
-
-          if(next) {
-            console.log(5)
-            returnToUrl.pathname = decodeURIComponent(next);
-            returnToUrl.searchParams.delete("next");
-
-            window.location.pathname = returnToUrl.toString();
-            return;
-          }
-        }
-      }
-
-      console.log(6)
       const errors = error?.response?.data?.ui?.messages
         // Ugly oidc cancel error
         ?.filter(message => message.id === 4000001 ? undefined : message)
@@ -610,7 +599,6 @@ const OryLogin = observer(({
         .filter(message => message)
         .join("\n");
 
-      console.log(7)
       if(errors) {
         setErrorMessage(errors);
         return;
