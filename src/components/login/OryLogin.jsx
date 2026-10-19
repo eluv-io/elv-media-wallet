@@ -667,7 +667,7 @@ const OryLogin = observer(({
   const showFacebookLogin = !isThirdPartyConflict && !disableThirdParty && !customizationOptions.disable_facebook_login && !!flow?.ui?.nodes?.find(node => node.group === "oidc" && node.attributes?.value === "facebook");
   const showMetamaskLogin = !isThirdPartyConflict && customizationOptions.enable_metamask;
 
-  const thirdPartyConflictMessage = flow?.ui?.messages?.find(message => message.id === 1010018);
+  const thirdPartyConflictMessage = flow?.ui?.messages?.find(message => message.id === 1010016);
   if(thirdPartyConflictMessage) {
     // Confirm with provider - originally logged in with third party
     const provider = thirdPartyConflictMessage.context?.provider?.toLowerCase() || "google";
