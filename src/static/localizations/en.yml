@@ -80,7 +80,12 @@ login:
       invalid_email: Invalid Email
       invalid_password_confirmation: Password confirmation must match password
       unknown_email: This email address is not currently associated with an account.
-
+  user_questionnaire:
+    actions:
+      done: Done
+      continue: Continue
+      skip: Skip for now
+      back: Back
 
 navigation:
   profile: Profile

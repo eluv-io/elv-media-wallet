@@ -141,7 +141,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
 // COMPONENTS
 
 // Top logo
-const Logo = ({customizationOptions}) => {
+const LoginLogo = ({customizationOptions}) => {
   if(!customizationOptions) {
     return null;
   }
@@ -347,7 +347,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
   if(codeAuthSet) {
     return (
       <>
-        <Logo customizationOptions={customizationOptions} />
+        <LoginLogo customizationOptions={customizationOptions} />
         <div className="login-page__code-message">
           <ImageIcon icon={CheckIcon} className="login-page__code-message__icon" />
           <div className="login-page__code-message__text">
@@ -362,7 +362,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
   if(customizationOptions.use_ory) {
     return (
       <>
-        <Logo customizationOptions={customizationOptions} />
+        <LoginLogo customizationOptions={customizationOptions} />
         <OryLogin
           loading={loading}
           isThirdPartyCallback={params.isThirdPartyCallback}
@@ -391,7 +391,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
   return (
     <>
-      <Logo customizationOptions={customizationOptions} />
+      <LoginLogo customizationOptions={customizationOptions} />
       <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
         { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
         {
@@ -924,6 +924,39 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           customizationOptions={customizationOptions}
           errorMessage={errorMessage}
         />
+      </div>
+    </div>
+  );
+});
+
+export const LoginBox = observer(({Close, containerClassName="", className="", children}) => {
+  const [customizationOptions, setCustomizationOptions] = useState(undefined);
+
+  useEffect(() => {
+    setCustomizationOptions(undefined);
+
+    if(!rootStore.routeParams.mediaPropertySlugOrId) { return; }
+
+    rootStore.LoadLoginCustomization(rootStore.routeParams.mediaPropertySlugOrId)
+      .then(options => {
+        setCustomizationOptions(ParseDomainCustomization(options?.login, options?.font) || {});
+      });
+  }, [rootStore.routeParams.mediaPropertySlugOrId]);
+
+  if(!customizationOptions) {
+    return null;
+  }
+
+  return (
+    <div
+      style={customizationOptions.styles}
+      className={`login-page ${containerClassName}`}
+    >
+      <Background customizationOptions={customizationOptions} Close={Close} />
+
+      <div className={`login-page__login-box ${className}`}>
+        <LoginLogo customizationOptions={customizationOptions}/>
+        { children }
       </div>
     </div>
   );

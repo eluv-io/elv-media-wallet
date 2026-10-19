@@ -120,6 +120,7 @@ class RootStore {
   loginBackPath;
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
+  showUserQuestionnaire = false;
   showSplash = true;
   splashDelay = 750;
 
@@ -2147,7 +2148,7 @@ class RootStore {
 
           return;
         } else {
-          const logoutUrl = yield openIdClient.buildEndSessionUrl(
+          const logoutUrl = yield openIdClient?.buildEndSessionUrl(
             config,
             {
               post_logout_redirect_uri: returnUrl || this.ReloadURL({signOut: true})
@@ -2759,6 +2760,41 @@ class RootStore {
     this.showSplash = show;
     delete window.initSplashRender;
   }
+
+  SetShowUserQuestionnaire(show) {
+    this.showUserQuestionnaire = show;
+  }
+
+  GetUserInfo = flow(function * () {
+    if(!this.currentPropertyTenantId || !this.loggedIn) {
+      return {};
+    }
+
+    yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "tenant_binding", this.currentPropertyTenantId),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.authToken}`
+        }
+      })
+    );
+  });
+
+  SetUserInfo = flow(function * ({data}) {
+    if(!this.currentPropertyTenantId || !this.loggedIn) {
+      return {};
+    }
+
+    return yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "tenant_binding", this.currentPropertyTenantId),
+      method: "PUT",
+      body: JSON.parse(JSON.stringify(data)),
+      headers: {
+        Authorization: `Bearer ${this.authToken}`
+      }
+    });
+  });
 
   ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
     const mediaProperty = this.mediaPropertyStore.MediaProperty(this.routeParams);
