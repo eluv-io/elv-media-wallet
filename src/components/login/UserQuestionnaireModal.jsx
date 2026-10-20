@@ -223,10 +223,7 @@ const UserQuestionnaireModal = observer(() => {
             !currentQuestion || currentQuestion.required ? null :
               <button
                 className="login-page__button login-page__button--secondary user-questionnaire__button"
-                onClick={() => {
-                  setAnswers({...answers, [currentQuestion.key]: undefined});
-                  setQuestionIndex(questionIndex + 1);
-                }}
+                onClick={() => setQuestionIndex(questionIndex + 1)}
               >
                 { rootStore.l10n.login.user_questionnaire.actions.skip }
               </button>
