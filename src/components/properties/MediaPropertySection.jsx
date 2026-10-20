@@ -923,7 +923,7 @@ const AppLinks = observer(() => {
 });
 
 // This renders the actual items within the section. May be grouped
-const SectionItems = observer(({section, activeFilters, groupBy}) => {
+const SectionItems = observer(({section, displayFormat, activeFilters, groupBy}) => {
   const match = useRouteMatch();
   const [sectionContent, setSectionContent] = useState(undefined);
 
@@ -945,7 +945,7 @@ const SectionItems = observer(({section, activeFilters, groupBy}) => {
   }
 
   let ContentComponent;
-  switch(section.display?.display_format?.toLowerCase()) {
+  switch(displayFormat || section.display?.display_format?.toLowerCase()) {
     case "carousel":
       ContentComponent = SectionContentCarousel;
       break;
@@ -1092,7 +1092,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   return (
     <div
-      key={`section-${JSON.stringify(activeFilters || {})}`}
       data-section-id={sectionId}
       style={style}
       className={[S(
@@ -1273,6 +1272,7 @@ const MediaPropertySectionPage = observer(() => {
         >
           <SectionItems
             section={section}
+            displayFormat="grid"
             activeFilters={activeFilters}
             groupBy={section?.filters?.group_by}
           />
