@@ -110,7 +110,6 @@
   justify-content: center;
   margin: 0;
   min-height: 100%;
-  padding: 50px 30px 75px;
 
   * {
     font-family: var(--login-font-family);
@@ -820,3 +819,116 @@
     width: 500px;
   }
 }
+
+.user-questionnaire {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+
+  &__content {
+    flex-grow: 1;
+  }
+
+  &__title,
+  &__description {
+    text-align: center;
+    white-space: pre-wrap;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  &__description {
+    color: var(--login-text-secondary--color);
+    font-size: 14px;
+    margin: 10px 0;
+  }
+
+  &__actions,
+  &__content {
+    animation: var(--animation-fade-in) 0.5s ease;
+  }
+
+  &__form {
+    margin-top: 20px;
+  }
+
+  &__multiselect-options {
+    margin-top: 10px;
+    max-height: 250px;
+    min-height: 250px;
+    overflow-y: auto;
+  }
+
+  &__multiselect-option {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    margin: 5px 0 0 5px;
+    user-select: none;
+
+    input,
+    label {
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      &:checked {
+        background-color: var(--login-action-primary--background);;
+      }
+    }
+  }
+
+  &__filter-icon {
+    color: var(--login-text-secondary--color);
+    height: 20px;
+    min-width: 20px;
+    padding-inline: 10px;
+    width: 40px;
+
+    * {
+      color: var(--login-text-secondary--color);
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 30px;
+    width: 100%;
+  }
+
+  &__button {
+    max-width: unset;
+  }
+
+  &__checkmark-container {
+    aspect-ratio: 1;
+    margin-inline: auto;
+    margin-bottom: 20px;
+    width: 80px;
+
+    * {
+      color: var(--login-action-primary--background);
+    }
+
+    svg {
+      height: auto;
+      width: 100%;
+    }
+  }
+
+  @media screen and (width <= 850px) {
+    &__multiselect-options {
+      max-height: 150px;
+      min-height: 150px;
+    }
+  }
+}
+

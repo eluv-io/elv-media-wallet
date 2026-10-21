@@ -11,6 +11,7 @@ import {SetHTMLMetaTags} from "@/utils/Utils";
 import PreviewPasswordGate from "@/components/login/PreviewPasswordGate";
 import MediaPropertyPurchaseModal from "@/components/properties/MediaPropertyPurchaseModal";
 import {MediaPropertyVideoModal} from "@/components/properties/Common.jsx";
+import UserQuestionnaireModal from "@/components/login/UserQuestionnaireModal.jsx";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -161,6 +162,7 @@ const PropertyWrapper = observer(({children}) => {
                 <MediaPropertyFooter withCustomBackgroundColor={useCustomBackgroundColor} />
                 <MediaPropertyPurchaseModal />
                 <MediaPropertyVideoModal />
+                <UserQuestionnaireModal />
               </div>
             </LoginGate>
           </PreviewPasswordGate>

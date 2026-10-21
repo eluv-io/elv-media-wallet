@@ -1,0 +1,163 @@
+header:
+  activity: Matagahua
+  collections: Potaaga koloa
+  discover: Kitiaaga
+  profile: Tau talahauaga
+  store: Fale fakafua koloa
+  stores: Tau fale fakafua koloa
+  items: Tau koloa
+  notifications: Tau fakailoaaga
+  gifts: Tau mena fakaalofa
+  media_wallet: Pesi ma e tau koloa hila
+  title: Pesi ma e tau koloa hila
+  subtitle: Fakaatā mai he Content Fabric
+  my_items: Tau koloa haaku
+  details: Tau fakamaamaaga hagaao ke he pesi
+  preferences: Tau manako
+  home: Loto kaina
+login:
+  sign_in: Hū atu ki loto
+  sign_up: Matūtaki atu
+  sign_out: Hū mai ki fafo
+  signed_in: Fitā he hū atu ki loto
+  signed_in_as: Higoa ne fakaaoga ke hū atu ki loto
+  signed_in_via: Puhala ne fakaaoga ke hū atu ki loto
+  powered_by: Kua lagomatai mai e
+  select_all_options: Fifili oti
+  accept: Talia au ki ai
+  terms_and_conditions: Tau hatakiaga mo e tau puipuiaga
+  terms: Ha kua talaga e account mo e hū atu ki loto, kua talia au ke he tau hatakiaga mo e tau puipui
+  email_consent: Ha kua tiki e puha nai, kua talia e au ke toka fakalataha e matahigoa meli hila haaku mo e matahigoa he pesi {tenant Clause}  Maeke foki e matakau Eluvio ke fakafano atu falu fakailoaaga mo e tau meli hila ke he matahigoa nai.
+  email_consent_tenant_clause: mo e fakalataha ai foki mo {tenant Name}
+  login_code: Code
+  code_auth_success: Kua hoko atu tuai ki loto
+  email_confirmed: Kua fakamooli tai e meli hila haau
+  errors:
+    missing_required_options: Fakamolemole talia ke he tau fakatokaaga na i kelekele
+    too_many_logins: Loga e tau koloa hila kua fakaaoga ke hu atu ke he account nai.  Fakamolemole fakatali ke he 24 e tulā.
+    login_failed: Nakai maeke ke hu atu ki loto.  Fakamolemole liu lali foki.
+    forced_logout: Kua oti haau a fakaaoga ha kua fakaoti he taha ne fakaaoga e account haau.
+    session_expired: Kua molea tuai e tau magaaho haau.  Fakamolemole liu hu atu ki loto.
+    email_confirmation_failed: Nakai maeke ke fakamooli e meli hila haau.  Fakamolemole liu lali foki.
+  ory:
+    actions:
+      registration: Matūtaki atu
+      recovery: Nimo e password?
+      back_to_sign_in: Liu ke he kamataaga ke hū atu ki loto
+      update_password: Fakafoou e password.
+      proceed: Fakaholo ki mua
+      sign_out: Hū mai ki fafo
+    refresh: Fakamooliaga kia koe
+    aal2: Puhala ne ua ke moua e fakamooliaga
+    registration: Fakamau hifo e account haau
+    recovery: Liu fakamoui mai e account haau
+    verification: Fakamooli e account haau
+    update_password: Hiki e password
+    messages:
+      recovery_prompt: Fakamolemole fakaaoga e meli hila haau ka ole ke hiki e password
+      recovery_code_prompt: Kua fakafano atu tai e code ke he meli hila haau.  Fakamolemole fakaaoga e code nai to maeke a koe ke matutaki haau a fekau.
+      set_password: Fakamolemole taute taha password ma e account haau.
+      password_updated: Kua fakafoou tuai e password haau!
+      login_limited: Kua molea tuai e tau fafatiaga ne maeke ia koe ke fakaaoga ke hu atu ki loto.  Manako nakai a koe ke fakamamutu e haau a matutakiaga?
+      third_party_conflict: Kua lali a koe ke fakaaoga e meli hila {email} ke hu atu ki loto ka e kua fitā he fai account pehē.  Fakamolemole fakaaoga e password ke maeke ia koe ke fakaaoga e puhala e.
+    errors:
+      invalid_credentials: Nakai hako e tau mena kua fakaaoga
+      invalid_verification_code: Nakai hako e code fakamooli
+      invalid_recovery_email: Kua nakai tuai maeke ke fakaaoga e kupega hila nai.  Fakamolemole fakaaoga e meli hila haau ke moua e code ke liu fakaaoga.
+      invalid_email: Nakai hako e meli hila
+      invalid_password_confirmation: Kua lata ke tatai e password mo e fakamooliaga ke he password
+navigation:
+  profile: Tau talahauaga
+  discover: Kitiaaga
+  items: Tau koloa haaku
+  activity: Tau gahua haaku
+  notifications: Tau fakailoaaga
+  gifts: Tau mena fakaalofa
+  wallet_details: Tau talahauaga ke he pesi
+  preferences: Tau manako
+  home: Kaina
+actions:
+  confirm: Fakamooli
+  continue: Matutaki atu
+  back: Liu
+  back_to: Liu ki tua ke he {thing}
+  cancel: Fakaoti
+  close: Pa
+  share: Folafola atu
+  done: Oti
+  apply: Ole atu
+  select: Fifili
+errors:
+  general: Fakamolemole atu, fai mena kua nakai hako
+time_units:
+  day: Aho
+  days: Tau aho
+  hour: Tulā
+  hours: Tau tulā
+  minute: Minute
+  minutes: Tau minute
+  second: sekone
+  seconds: Tau sekone
+time:
+  day: Taha e aho
+  days: '{days} e aho'
+  hour: Taha e tulā kua mole ki tua
+  hours: '{hours} e tulā'
+  minute: Taha e minute
+  minutes: '{minutes} e tau minute'
+  second: Taha e sekone
+  seconds: '{seconds} e tau sekone'
+ago:
+  day: Taha e aho kua mole ki tua
+  days: '{days} e tau aho kua mole ki tua'
+  hour: Taha e tulā kua mole ki tua
+  hours: '{hours} e tau tulā kua mole ki tua'
+  minute: Taha e minute kua mole ki tua
+  minutes: '{minutes} e tau minute kua mole ki tua'
+  second: Taha e sekone kua mole ki tua
+  seconds: '{seconds} e tau sekone kua mole ki tua'
+media_properties:
+  media_properties: Tau koloa he faahi fakapuloa tala
+  media_property: Koloa he faahi fakapuloa tala
+  header:
+    search: Kumikumi
+    ai_search: Fakaaoga falu tohiaaga po ke kupu ke kumikumi atu
+    filter: Hakahaka
+  footer:
+    social_links:
+      text: Fakatumau ke matutaki atu
+  sections:
+    view_all: Kitekite oti
+  search:
+    title: Tau mena ne moua mai he tau kumikumiaga {query}
+  page:
+    actions:
+      item_details: Tau talahauaga
+  item_details:
+    pages:
+      description: Tau fakamaamaaga
+      details: Tau talahauaga
+      contract: Konotuleke & Numela
+    tables:
+      trading: Fakafuaaga koloa
+      offers: Tau fakailoaaga totogi
+      rewards: Tau palepale
+  media:
+    live: Moui
+    upcoming: ANOIHA
+    select_media: Fifili e faahi fakapuloa tala
+    select_streams: Fifili e tau fakaholoaga
+    description:
+      show: Fakalauka hake e tau mena ke totou
+      hide: Tuku hifo ki lalo e tau mena ke onoono ki ai
+    sidebar:
+      today: Aho nai
+      upcoming: To hoko mai
+      main_view: Matapatu he tau kitekiteaga
+      more_content: Falu a mena kua lalafi ki luga
+      multiview: Loga e tau puhala ke kitekite ki ai
+    errors:
+      default: Nakai maeke ke moua e fakaholoaga nai
+      not_started: Nakai la kamata ia e fakaholoaga moui nai
+      ended: Kua oti tuai e fakaholoaga moui nai.
+      unauthorized: Nakai moua e koe e fakaatāaga ke kitekite e fakaholoaga nai.

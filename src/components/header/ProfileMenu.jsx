@@ -30,13 +30,16 @@ const ProfileMenu = observer(({Hide}) => {
     basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
   }
 
-  const headerLinks = (mediaProperty.metadata?.header_links || [])
-    .filter(link => mediaPropertyStore.ActionVisible({
-      visibility: link.visibility,
-      behavior: link.behavior,
-      permissions: link.permissions
-    }));
-
+  let headerLinks = [];
+  if(rootStore.mobile) {
+    // Only show header links in profile menu on mobile
+    headerLinks = (mediaProperty.metadata?.header_links || [])
+      .filter(link => mediaPropertyStore.ActionVisible({
+        visibility: link.visibility,
+        behavior: link.behavior,
+        permissions: link.permissions
+      }));
+  }
 
   return (
     <HoverMenu className={S("header-menu", "profile-menu")} Hide={Hide}>
