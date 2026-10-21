@@ -556,10 +556,21 @@ const LanguageMenu = observer(() => {
     ...(mediaProperty.metadata.localizations || [])
   ]
     .filter(l => l)
-    .map(key => ({
-      value: key,
-      label: new Intl.DisplayNames([key], {type: "language"}).of(key).capitalize()
-    }));
+    .map(key => {
+      let label = new Intl.DisplayNames([key], {type: "language"}).of(key);
+
+      // Chrome doesn't support these languages
+      if(label === "rar") {
+        label = "Rarotongan";
+      } else if(label === "niu") {
+        label = "Niuean";
+      }
+
+      return {
+        value: key,
+        label: label.capitalize()
+      };
+    });
 
   if(availableLocalizations.length <= 1) {
     return null;
