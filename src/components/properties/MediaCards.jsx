@@ -94,7 +94,7 @@ const MediaItem = observer(({mediaItemId, index, navContext}) => {
               return false;
             }}
             description={mediaItem.description}
-            maxLines={3}
+            maxLines={10}
             className={S("media-list-item__description")}
             indicatorClassName={S("media-list-item__description-expand")}
           />

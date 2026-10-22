@@ -1965,21 +1965,31 @@ class MediaPropertyStore {
         if(!isPreview && metadata.permission_set_links) {
           // Load from links
           await Promise.all(
-            Object.keys(metadata.permission_set_links).map(async permissionSetId =>
-              await this.LoadPermissionSet({
-                permissionSetId,
-                metadata: metadata.permission_set_links[permissionSetId],
-                localizationKey,
-                force
-              })
-            )
+            Object.keys(metadata.permission_set_links).map(async permissionSetId => {
+              try {
+                await this.LoadPermissionSet({
+                  permissionSetId,
+                  metadata: metadata.permission_set_links[permissionSetId],
+                  localizationKey,
+                  force
+                })
+              } catch(error) {
+                this.Log("Unable to load permission set", permissionSetId, true);
+                this.Log(error, true);
+              }
+            })
           );
         } else {
           // Load latest versions
           await Promise.all(
-            (metadata.permission_sets || []).map(async permissionSetId =>
-              await this.LoadPermissionSet({permissionSetId, localizationKey, force})
-            )
+            (metadata.permission_sets || []).map(async permissionSetId => {
+              try {
+                await this.LoadPermissionSet({permissionSetId, localizationKey, force})
+              } catch(error) {
+                this.Log("Unable to load permission set", permissionSetId, true);
+                this.Log(error, true);
+              }
+            })
           );
         }
 
@@ -1990,21 +2000,33 @@ class MediaPropertyStore {
         if(!isPreview && metadata.media_catalog_links) {
           // Load from links
           mediaCatalogContent = await Promise.all(
-            Object.keys(metadata.media_catalog_links).map(async mediaCatalogId =>
-              await this.LoadMediaCatalog({
-                mediaCatalogId,
-                metadata: metadata.media_catalog_links[mediaCatalogId],
-                localizationKey,
-                force
-              })
-            )
+            Object.keys(metadata.media_catalog_links).map(async mediaCatalogId => {
+              try {
+                return await this.LoadMediaCatalog({
+                  mediaCatalogId,
+                  metadata: metadata.media_catalog_links[mediaCatalogId],
+                  localizationKey,
+                  force
+                });
+              } catch(error) {
+                this.Log("Unable to load media catalog", mediaCatalogId, true);
+                this.Log(error, true);
+                return { media: {}, tags: [] };
+              }
+            })
           );
         } else {
           // Load latest versions
           mediaCatalogContent = await Promise.all(
-            (metadata.media_catalogs || []).map(async mediaCatalogId =>
-              await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force})
-            )
+            (metadata.media_catalogs || []).map(async mediaCatalogId => {
+              try {
+                return await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force})
+              } catch(error) {
+                this.Log("Unable to load media catalog", mediaCatalogId, true);
+                this.Log(error, true);
+                return { media: {}, tags: [] };
+              }
+            })
           );
         }
 
