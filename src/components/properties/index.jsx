@@ -65,6 +65,8 @@ const PropertyWrapper = observer(({children}) => {
   }, [mediaProperty]);
 
   useEffect(() => {
+    if(rootStore.authenticating) { return; }
+    
     (async () => {
       setLoading(true);
 
@@ -112,7 +114,7 @@ const PropertyWrapper = observer(({children}) => {
         setTimeout(() => rootStore.SetShowSplash(false), 1000);
       }
     })();
-  }, [mediaPropertySlugOrId, rootStore.currentAddress]);
+  }, [mediaPropertySlugOrId, rootStore.currentAddress, rootStore.authenticating]);
 
   if(isWrongPropertyInCustomDomain){
     return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
