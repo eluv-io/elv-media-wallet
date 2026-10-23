@@ -693,7 +693,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding: 10px;
+    padding: 15px;
   }
 
   &__actions {
@@ -732,27 +732,54 @@
     flex-grow: 1;
   }
 
+  &__text {
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      .hover-card__description {
+        opacity: 0.8;
+      }
+    }
+  }
+
   &__title {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 800;
-    margin: 5px 0;
+    margin: 2px 0;
     white-space: pre-wrap;
   }
 
-  &__headers,
   &__subtitle {
-    color: var(--property-text-faded);
-    font-size: 12px;
+    color: var(--property-text-primary);
+    font-size: 14px;
     white-space: pre-wrap;
   }
 
   &__headers {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
     white-space: pre-wrap;
+  }
+
+  &__header {
+    border: 1px solid var(--property-text-extra-faded);
+    border-radius: 5px;
+    color: var(--property-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 30px;
+    padding: 3px 5px;
+    text-align: center;
   }
 
   &__description {
     color: var(--property-text-faded);
-    margin: 10px 0;
+    margin-top: 10px;
+    padding-bottom: 10px;
 
     * {
       color: var(--property-text-faded);
@@ -770,7 +797,7 @@
   padding-bottom: 20px;
   position: relative;
   transition: all 0.25s ease;
-  width: 800px;
+  width: 900px;
 
   * {
     transition: all 0.5s ease;
@@ -780,7 +807,7 @@
   &__top,
   &__content,
   &__list-header {
-    padding-inline: 20px;
+    padding-inline: 40px;
   }
 
   &__card {
@@ -800,10 +827,6 @@
     .details-modal__top {
       grid-template-columns: 1fr 2fr;
     }
-  }
-
-  &__top-content {
-    padding-right: 30px;
   }
 
   &__content {
@@ -875,8 +898,9 @@
   }
 
   &__title {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
+    line-height: 1.3em;
     margin: 5px 0;
   }
 
@@ -908,13 +932,27 @@
   }
 
   &__headers {
-    color: var(--property-text-faded);
-    font-size: 14px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
     white-space: pre-wrap;
   }
 
+  &__header {
+    border: 1px solid var(--property-text-extra-faded);
+    border-radius: 5px;
+    color: var(--property-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 30px;
+    padding: 3px 5px;
+    text-align: center;
+  }
+
   &__close-header {
-    height: 20px;
+    height: 40px;
     padding-right: 5px;
     position: sticky;
     top: 0;
@@ -925,8 +963,8 @@
   &__close {
     height: 30px;
     position: absolute;
-    right: 5px;
-    top: 50%;
+    right: 7px;
+    top: 10px;
     width: 30px;
 
     * {

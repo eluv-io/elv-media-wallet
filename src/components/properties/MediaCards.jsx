@@ -94,7 +94,7 @@ const MediaItem = observer(({mediaItemId, index, navContext}) => {
               return false;
             }}
             description={mediaItem.description}
-            maxLines={10}
+            maxLines={4}
             className={S("media-list-item__description")}
             indicatorClassName={S("media-list-item__description-expand")}
           />
@@ -182,10 +182,10 @@ const MediaDetailsModal = observer(({
           </div>
           <div className={S("details-modal__top-content")}>
             <div className={S("details-modal__top-text")}>
-              {
+               {
                 (display.headers || []).length === 0 ? null :
                   <div className={S("details-modal__headers")}>
-                    {display.headers?.join?.(HEADER_SEPARATOR)}
+                    { display.headers.map(h => <div key={h} className={S("details-modal__header")}>{h}</div>) }
                   </div>
               }
               {
@@ -231,7 +231,7 @@ const MediaDetailsModal = observer(({
               <ExpandableDescription
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
-                maxLines={5}
+                maxLines={50}
                 className={S("details-modal__description")}
               />
           }
@@ -502,11 +502,20 @@ const MediaHoverCard = observer(({
                 <ImageIcon icon={CaretDownIcon} />
               </Linkish>
             </div>
-            <div className={S("hover-card__text")}>
+            <div
+              onClick={event => {
+                event.preventDefault();
+                event.stopPropagation();
+                ShowDetailsModal();
+                setOpened(false);
+                return true;
+              }}
+              className={S("hover-card__text")}
+            >
               {
                 (display.headers || []).length === 0 ? null :
                   <div className={S("hover-card__headers")}>
-                    {display.headers?.join?.(HEADER_SEPARATOR)}
+                    { display.headers.map(h => <div key={h} className={S("hover-card__header")}>{h}</div>) }
                   </div>
               }
               {
@@ -522,17 +531,12 @@ const MediaHoverCard = observer(({
                   </div>
               }
               {
-                !display.description ? null :
+                !display.short_description && !display.description ? null :
                   <ExpandableDescription
-                    description={display.description}
-                    maxLines={3}
-                    onClick={event => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      ShowDetailsModal();
-                      setOpened(false);
-                      return true;
-                    }}
+                    description={display.short_description || display.description}
+                    hideExpandText
+                    maxLines={8}
+                    expandable={false}
                     className={S("hover-card__description")}
                   />
               }

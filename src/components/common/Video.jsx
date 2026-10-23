@@ -31,6 +31,7 @@ const Video = observer(({posterUrl, videoLink, videoHash, playerOptions={}, clas
           autoplay: EluvioPlayerParameters.autoplay.ON,
           controls: EluvioPlayerParameters.controls.OFF,
           loop: EluvioPlayerParameters.loop.ON,
+          collectVideoAnalytics: EluvioPlayerParameters.collectVideoAnalytics[rootStore.isLocal ? "OFF" : "ON"],
           ...playerOptions
         }
       }

@@ -66,7 +66,7 @@ const PropertyWrapper = observer(({children}) => {
 
   useEffect(() => {
     if(rootStore.authenticating) { return; }
-    
+
     (async () => {
       setLoading(true);
 

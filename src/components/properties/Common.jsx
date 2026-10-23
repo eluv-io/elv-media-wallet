@@ -481,6 +481,7 @@ export const ExpandableDescription = observer(({
   togglePosition="left",
   maxLines,
   expandable=true,
+  hideExpandText=false,
   className="",
   indicatorClassName=""
 }) => {
@@ -582,10 +583,13 @@ export const ExpandableDescription = observer(({
                   ].join(" ")
                 }
               >
-                {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
+                {
+                  hideExpandText ? "" :
+                    mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]
+                }
               </button> :
               <div className={S("expandable-description__ellipsis")}>
-                ...
+                { hideExpandText ? "" : "..." }
               </div>
         }
       </div>

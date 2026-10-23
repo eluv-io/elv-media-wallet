@@ -135,6 +135,7 @@ const Video = forwardRef(function VideoComponent({
           controls: EluvioPlayerParameters.controls[hideControls === "off_with_volume_toggle" ? "OFF_WITH_VOLUME_TOGGLE" : (hideControls ? "OFF" : "AUTO_HIDE")],
           title: EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"],
           maxBitrate: rootStore.isLocal ? 50000 : undefined,
+          collectVideoAnalytics: EluvioPlayerParameters.collectVideoAnalytics[rootStore.isLocal ? "OFF" : "ON"],
           ui: EluvioPlayerParameters.ui.WEB,
           appName: mediaPropertyStore.rootStore.appId,
           backgroundColor: "black",
