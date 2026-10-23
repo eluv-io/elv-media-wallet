@@ -1972,7 +1972,7 @@ class MediaPropertyStore {
                   metadata: metadata.permission_set_links[permissionSetId],
                   localizationKey,
                   force
-                })
+                });
               } catch(error) {
                 this.Log("Unable to load permission set", permissionSetId, true);
                 this.Log(error, true);
@@ -1984,7 +1984,7 @@ class MediaPropertyStore {
           await Promise.all(
             (metadata.permission_sets || []).map(async permissionSetId => {
               try {
-                await this.LoadPermissionSet({permissionSetId, localizationKey, force})
+                await this.LoadPermissionSet({permissionSetId, localizationKey, force});
               } catch(error) {
                 this.Log("Unable to load permission set", permissionSetId, true);
                 this.Log(error, true);
@@ -2020,7 +2020,7 @@ class MediaPropertyStore {
           mediaCatalogContent = await Promise.all(
             (metadata.media_catalogs || []).map(async mediaCatalogId => {
               try {
-                return await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force})
+                return await this.LoadMediaCatalog({mediaCatalogId, localizationKey, force});
               } catch(error) {
                 this.Log("Unable to load media catalog", mediaCatalogId, true);
                 this.Log(error, true);

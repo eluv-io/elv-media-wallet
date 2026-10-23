@@ -124,6 +124,7 @@ class RootStore {
   showSplash = true;
   splashDelay = 750;
 
+  currentAddress = undefined;
   loggedIn = false;
   signingOut = false;
   externalWalletUser = false;
@@ -1095,6 +1096,7 @@ class RootStore {
       }
 
       this.loggedIn = true;
+      this.currentAddress = this.CurrentAddress();
       this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");

@@ -112,13 +112,13 @@ const PropertyWrapper = observer(({children}) => {
         setTimeout(() => rootStore.SetShowSplash(false), 1000);
       }
     })();
-  }, [mediaPropertySlugOrId, rootStore.CurrentAddress()]);
+  }, [mediaPropertySlugOrId, rootStore.currentAddress]);
 
   if(isWrongPropertyInCustomDomain){
     return <Redirect to={rootStore.customDomainPropertySlug || rootStore.customDomainPropertyId} />;
   }
 
-  if(!rootStore.loaded || !itemLoaded || loading) {
+  if(!rootStore.loaded || rootStore.authenticating || !itemLoaded || loading) {
     return null;
   }
 
