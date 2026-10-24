@@ -1930,7 +1930,6 @@ class MediaPropertyStore {
         this.rootStore.SetLanguage(localizationKey);
         this.rootStore.walletClient.localization = localizationKey;
 
-        console.log("calling metadata")
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
@@ -1939,6 +1938,8 @@ class MediaPropertyStore {
           resolveIgnoreErrors: true,
           resolveIncludeSource: true,
           linkDepthLimit: 1,
+          queryParams: !this.rootStore.loggedIn ? undefined :
+            { userAddress: this.rootStore.CurrentAddress() },
           localizationSubtree: !localizationKey ? undefined :
             `/public/asset_metadata/localizations/${localizationKey}/info`
         });
@@ -2192,6 +2193,8 @@ class MediaPropertyStore {
               "tags"
             ],
             produceLinkUrls: true,
+            queryParams: !this.rootStore.loggedIn ? undefined :
+              { userAddress: this.rootStore.CurrentAddress() },
             localizationSubtree: !localizationKey ? null :
               `/public/asset_metadata/localizations/${localizationKey}/info`
           });
@@ -2261,6 +2264,8 @@ class MediaPropertyStore {
             versionHash: permissionSetHash,
             metadataSubtree: "/public/asset_metadata/info/permission_items",
             produceLinkUrls: true,
+            queryParams: !this.rootStore.loggedIn ? undefined :
+              { userAddress: this.rootStore.CurrentAddress() },
             localizationSubtree: !localizationKey ? null :
               `/public/asset_metadata/localizations/${localizationKey}/info/permission_items`
           })) || {};
