@@ -3112,7 +3112,7 @@ class RootStore {
         yield new Promise(resolve => setTimeout(resolve, 500));
       }
 
-      key = `load${key}-${this.CurrentAddress() || "anonymous"}`;
+      key = `load${key}-${this.currentAddress || "anonymous"}`;
     }
 
     if(force || (ttl && this._resources[key]?.[id] && Date.now() - this._resources[key][id].retrievedAt > ttl * 1000)) {

@@ -12,6 +12,7 @@ import PreviewPasswordGate from "@/components/login/PreviewPasswordGate";
 import MediaPropertyPurchaseModal from "@/components/properties/MediaPropertyPurchaseModal";
 import {MediaPropertyVideoModal} from "@/components/properties/Common.jsx";
 import UserQuestionnaireModal from "@/components/login/UserQuestionnaireModal.jsx";
+import {PageLoader} from "@/components/common/Loaders.jsx";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -71,6 +72,9 @@ const PropertyWrapper = observer(({children}) => {
       setLoading(true);
 
       try {
+        // Small delay to ensure any authentication stuff has settled
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
 
         const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
@@ -121,7 +125,7 @@ const PropertyWrapper = observer(({children}) => {
   }
 
   if(!rootStore.loaded || rootStore.authenticating || !itemLoaded || loading) {
-    return null;
+    return <PageLoader />;
   }
 
   if(redirect) {
