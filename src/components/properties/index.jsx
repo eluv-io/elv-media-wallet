@@ -72,9 +72,6 @@ const PropertyWrapper = observer(({children}) => {
       setLoading(true);
 
       try {
-        // Small delay to ensure any authentication stuff has settled
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
 
         const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});

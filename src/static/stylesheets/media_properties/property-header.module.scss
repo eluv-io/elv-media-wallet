@@ -115,6 +115,10 @@
     }
   }
 
+  &--no-border {
+    border: 0;
+  }
+
   &:hover,
   &:focus-visible,
   &--active {

@@ -693,7 +693,7 @@ const HeaderButtons = observer(({basePath, searchDisabled, showSearchBar, setSho
         }
         {customButtons}
         <LanguageMenu/>
-        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+        <button className={S("button", showUserProfileMenu ? "button--active" : "", "button--no-border")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
           <ImageIcon
             icon={
               DefaultProfileImage({
