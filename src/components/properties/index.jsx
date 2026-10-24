@@ -72,8 +72,11 @@ const PropertyWrapper = observer(({children}) => {
       setLoading(true);
 
       try {
+        console.log("properties/index", rootStore.currentAddress, rootStore.client.staticToken)
         // Small delay to ensure any authentication stuff has settled
         await new Promise(resolve => setTimeout(resolve, 500));
+
+        console.log("after delay properties/index", rootStore.currentAddress, rootStore.client.staticToken)
 
         await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
 

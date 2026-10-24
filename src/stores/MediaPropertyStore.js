@@ -1894,6 +1894,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    console.log(new Error("LMP", this.rootStore.currentAddress, this.rootStore.walletClient.staticToken))
     this.loadingProgress = 0;
     yield this.LoadMediaPropertyHashes();
 
@@ -1905,6 +1906,7 @@ class MediaPropertyStore {
       id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       Load: async () => {
+        console.log("LMP IN", this.rootStore.currentAddress, this.rootStore.walletClient.staticToken)
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
 
         let versionHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
