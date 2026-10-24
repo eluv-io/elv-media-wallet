@@ -1894,7 +1894,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    console.log(new Error("LMP", this.rootStore.currentAddress, this.rootStore.walletClient.staticToken))
+    console.log(new Error("LMP"), this.rootStore.currentAddress, this.rootStore.client.staticToken);
     this.loadingProgress = 0;
     yield this.LoadMediaPropertyHashes();
 
@@ -1906,7 +1906,7 @@ class MediaPropertyStore {
       id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       Load: async () => {
-        console.log("LMP IN", this.rootStore.currentAddress, this.rootStore.walletClient.staticToken)
+        console.log("LMP IN", this.rootStore.currentAddress, this.rootStore.client.staticToken)
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
 
         let versionHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
@@ -1930,6 +1930,7 @@ class MediaPropertyStore {
         this.rootStore.SetLanguage(localizationKey);
         this.rootStore.walletClient.localization = localizationKey;
 
+        console.log("calling metadata")
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",

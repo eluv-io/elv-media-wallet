@@ -115,6 +115,9 @@ const PropertyWrapper = observer(({children}) => {
           rootStore.Log("Signing out due to mismatched login provider with property");
           await rootStore.SignOut({reload: false});
         }
+      } catch(error) {
+        rootStore.Log("Failed to load property:", true);
+        rootStore.Log(error, true);
       } finally {
         setLoading(false);
 
