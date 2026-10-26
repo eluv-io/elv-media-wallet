@@ -15,6 +15,7 @@ import ItemsIcon from "@/assets/icons/items.svg";
 import EluvioIcon from "@/assets/icons/eluvio-icon.svg";
 import MarketplaceIcon from "@/assets/icons/marketplace.svg";
 import NotificationsIcon from "@/assets//icons/header/Notification Icon.svg";
+import PreferencesIcon from "@/assets/icons/settings.svg";
 
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
@@ -80,35 +81,48 @@ const ProfileMenu = observer(({Hide}) => {
             />
           )
         }
-        <div className={S("profile-menu__separator")}/>
         {
           !rootStore.loggedIn ? null :
             <>
-            <Linkish
-              to={UrlJoin(basePath, "users", "me", "items")}
-              onClick={Hide}
-              className={S("profile-menu__link")}
-            >
-              <ImageIcon icon={ItemsIcon} label="Items"  className={S("profile-menu__link-icon")}/>
-              {rootStore.l10n.navigation.items}
-            </Linkish>
-            <Linkish
-              to={UrlJoin(basePath, "users", "me", "details")}
-              onClick={Hide}
-              className={S("profile-menu__link")}
-            >
-              <ImageIcon icon={ProfileIcon} label="Items"  className={S("profile-menu__link-icon")}/>
-              {rootStore.l10n.navigation.profile}
-            </Linkish>
-            <Linkish
-              to={UrlJoin(basePath, "users", "me", "notifications")}
-              onClick={Hide}
-              className={S("profile-menu__link")}
-            >
-              <ImageIcon icon={NotificationsIcon} label="Notifications"  className={S("profile-menu__link-icon")}/>
-              {rootStore.l10n.navigation.notifications}
-            </Linkish>
-          </>
+              <div className={S("profile-menu__separator")}/>
+              <Linkish
+                to={UrlJoin(basePath, "users", "me", "items")}
+                onClick={Hide}
+                className={S("profile-menu__link")}
+              >
+                <ImageIcon icon={ItemsIcon} label="Items" className={S("profile-menu__link-icon")}/>
+                {rootStore.l10n.navigation.items}
+              </Linkish>
+              <Linkish
+                to={UrlJoin(basePath, "users", "me", "details")}
+                onClick={Hide}
+                className={S("profile-menu__link")}
+              >
+                <ImageIcon icon={ProfileIcon} label="Items" className={S("profile-menu__link-icon")}/>
+                {rootStore.l10n.navigation.profile}
+              </Linkish>
+              {
+                !mediaProperty?.metadata?.login?.user_questionnaire?.enable ? null :
+                  <Linkish
+                    onClick={() => {
+                      rootStore.SetShowUserQuestionnaire(true);
+                      Hide();
+                    }}
+                    className={S("profile-menu__link")}
+                  >
+                    <ImageIcon icon={PreferencesIcon} label="Items" className={S("profile-menu__link-icon")}/>
+                    { rootStore.l10n.login.user_questionnaire.actions.update_preferences }
+                  </Linkish>
+              }
+              <Linkish
+                to={UrlJoin(basePath, "users", "me", "notifications")}
+                onClick={Hide}
+                className={S("profile-menu__link")}
+              >
+                <ImageIcon icon={NotificationsIcon} label="Notifications" className={S("profile-menu__link-icon")}/>
+                {rootStore.l10n.navigation.notifications}
+              </Linkish>
+            </>
         }
 
         {

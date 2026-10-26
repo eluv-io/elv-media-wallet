@@ -90,7 +90,7 @@ const SocialLinks = observer(() => {
   if(!mediaProperty) { return null; }
 
   const socialLinks = mediaProperty.metadata.footer?.social_links || {};
-  
+
   if(!Object.values(socialLinks).find(l => l)) {
     return null;
   }
