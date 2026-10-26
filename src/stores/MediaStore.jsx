@@ -164,7 +164,7 @@ class MediaStore {
               path: UrlJoin("/tagstore", objectId, "compositions", "tags"),
               queryParams: {
                 channel_key: compositionKey,
-                offering_key: offering,
+                offering_key: compositionKey ? undefined : offering || "",
                 limit: 1000000,
                 track: name,
                 ...clippingParams
