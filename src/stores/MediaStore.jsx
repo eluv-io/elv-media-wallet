@@ -100,9 +100,9 @@ class MediaStore {
     this.playFullVideo = playFullVideo;
   }
 
-  SetPlayer({objectId, player}) {
+  SetPlayer({objectId, player, ready}) {
     this.players[objectId] = player;
-    this.availablePlayers[objectId] = player.id || true;
+    this.availablePlayers[objectId] = `${player.id}-${ready || false}`;
   }
 
   ClearPlayer({objectId}) {
@@ -161,9 +161,7 @@ class MediaStore {
           async ({name}) => (
             await this.QueryAIAPI({
               objectId,
-              path: compositionKey ?
-                UrlJoin("/tagstore", objectId, "compositions", "tags") :
-                UrlJoin("/tagstore", objectId, "tags"),
+              path: UrlJoin("/tagstore", objectId, "compositions", "tags"),
               queryParams: {
                 channel_key: compositionKey,
                 offering_key: offering,

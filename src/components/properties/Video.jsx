@@ -173,6 +173,8 @@ const Video = forwardRef(function VideoComponent({
       player.controls.RegisterVideoEventListener("canplay", event => {
         setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
         readyCallback && readyCallback(player);
+
+        mediaStore.SetPlayer({objectId: contentId, player, ready: true});
       });
 
       if(settingsUpdateCallback) {

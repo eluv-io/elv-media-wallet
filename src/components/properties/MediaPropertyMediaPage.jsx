@@ -1066,7 +1066,7 @@ const MediaPropertyMediaPage = observer(() => {
         versionHash: mediaHash,
         compositionKey
       });
-    } else if(mediaStore.availablePlayers[mediaId]) {
+    } else if(mediaStore.players[mediaId]?.playoutInfo) {
       mediaStore.LoadMediaTags({
         versionHash: mediaHash,
         offering: mediaStore.players[mediaId].playoutInfo?.offering || "default",
