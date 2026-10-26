@@ -7,6 +7,7 @@ import {Linkish} from "@/components/common/UIComponents";
 import {LoaderImage, Modal, RichText} from "@/components/properties/Common";
 import {MediaPropertyBasePath} from "@/utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
+import ImageIcon from "@/components/common/ImageIcon";
 
 import BlueskyIcon from "@/assets/icons/social/bluesky.svg";
 import FacebookIcon from "@/assets/icons/social/facebook.svg";
@@ -14,7 +15,7 @@ import InstagramIcon from "@/assets/icons/social/instagram.svg";
 import LinkedInIcon from "@/assets/icons/social/linkedin.svg";
 import TikTokIcon from "@/assets/icons/social/tiktok.svg";
 import TwitterIcon from "@/assets/icons/social/twitter.svg";
-import ImageIcon from "@/components/common/ImageIcon";
+import RedditIcon from "@/assets/icons/social/reddit.svg";
 
 const icons = {
   bluesky: BlueskyIcon,
@@ -22,6 +23,7 @@ const icons = {
   instagram: InstagramIcon,
   tiktok: TikTokIcon,
   linkedin: LinkedInIcon,
+  reddit: RedditIcon,
   x: TwitterIcon
 };
 
@@ -88,7 +90,7 @@ const SocialLinks = observer(() => {
   if(!mediaProperty) { return null; }
 
   const socialLinks = mediaProperty.metadata.footer?.social_links || {};
-
+  
   if(!Object.values(socialLinks).find(l => l)) {
     return null;
   }

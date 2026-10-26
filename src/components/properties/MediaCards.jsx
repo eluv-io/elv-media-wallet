@@ -481,13 +481,17 @@ const MediaHoverCard = observer(({
           </div>
           <div className={S("hover-card__content")}>
             <div className={S("hover-card__actions")}>
-              <div
-                // This button is fake, the whole card is a link
+              <Linkish
                 title="Go to Content"
+                to={linkPath}
+                onClick={
+                  display.type !== "media" ? null :
+                    event => event.stopPropagation()
+                }
                 className={S("hover-card__action")}
               >
                 <ImageIcon icon={ArrowRightIcon}/>
-              </div>
+              </Linkish>
               <div className={S("hover-card__separator")} />
               <Linkish
                 title="More Info"
@@ -531,9 +535,9 @@ const MediaHoverCard = observer(({
                   </div>
               }
               {
-                !display.short_description && !display.description ? null :
+                !display.synopsis ? null :
                   <ExpandableDescription
-                    description={display.short_description || display.description}
+                    description={display.synopsis}
                     hideExpandText
                     maxLines={8}
                     expandable={false}
@@ -638,7 +642,7 @@ export const MediaCardWithButtonVertical = observer(({
             </div>
         }
         <ExpandableDescription
-          description={display.description}
+          description={display.synopsis || display.description}
           descriptionRichText={display.description_rich_text}
           maxLines={isModal ? 1000 : 6}
           onClick={
@@ -767,7 +771,7 @@ const MediaCardWithButtonHorizontal = observer(({
             </div>
         }
         <ExpandableDescription
-          description={display.description}
+          description={display.synopsis || display.description}
           descriptionRichText={display.description_rich_text}
           maxLines={3}
           onClick={() => {
@@ -1194,9 +1198,21 @@ const MediaCard = observer(({
     authorized = linkInfo?.authorized;
     navContext = navContext || linkInfo.navContext;
 
-    // For collections and lists, show details modal on click
-    if(["collection", "list"].includes(linkInfo.mediaType)) {
-      onClick = () => setShowDetailsModal(true);
+    // For collections and lists, or if set in settings, show details modal on click
+    if(
+      (
+        ["media"].includes(linkInfo.mediaType) &&
+        (
+          hoverCardDisplay?.showDetailsModal === "show" ||
+          (hoverCardDisplay?.showDetailsModal === "mobile" && rootStore.mobile)
+        )
+      ) ||
+      ["collection", "list"].includes(linkInfo.mediaType)
+    ) {
+      onClick = event => {
+        event.preventDefault();
+        setShowDetailsModal(true);
+      };
     }
 
     if(sectionItem?.display?.show_price && linkInfo.purchaseItems && linkInfo.purchaseItems.length > 0) {

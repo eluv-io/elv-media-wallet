@@ -1482,7 +1482,8 @@ class MediaPropertyStore {
       cardTheme: this.cardThemes[cardThemeId],
       hoverCardDisplay: {
         display: hoverCardDisplay,
-        aspectRatio: hoverCardAspectRatio
+        aspectRatio: hoverCardAspectRatio,
+        showDetailsModal: property.show_details_modal
       }
     };
   }
