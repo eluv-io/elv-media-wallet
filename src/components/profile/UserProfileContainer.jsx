@@ -1,91 +1,21 @@
 import UserProfileStyles from "@/assets/stylesheets/user.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
+import {NavLink, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "@/stores";
-import {ButtonWithLoader, CopyButton, DebouncedInput} from "@/components/common/UIComponents";
+import {CopyButton} from "@/components/common/UIComponents";
 import ImageIcon from "@/components/common/ImageIcon";
 import {observer} from "mobx-react";
 import {PageLoader} from "@/components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import Modal from "@/components/common/Modal";
 import {LoginGate} from "@/components/common/LoginGate";
 
 import UserIcon from "@/assets/icons/user.svg";
-import EditIcon from "@/assets/icons/edit listing icon.svg";
 import ProfileBackground from "@/assets/images/BG-Profile.jpg";
 import PreferencesMenu from "@/components/header/PreferencesMenu";
+import {DefaultProfileImage} from "@/components/properties/Common.jsx";
 
 const S = (...classes) => classes.map(c => UserProfileStyles[c] || "").join(" ");
-
-const UsernameModal = observer(({UpdateUsername, Close}) => {
-  const userProfile = rootStore.userProfiles[rootStore.CurrentAddress()];
-
-  if(!userProfile) {
-    return null;
-  }
-
-  const [userName, setUsername] = useState(userProfile.userName || "");
-  const [validating, setValidating] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    setErrorMessage("");
-
-    if(!userName || userName === userProfile.userName) {
-      setValidating(false);
-
-      return;
-    }
-
-    setValidating(true);
-    rootStore.ValidateUserName(userName)
-      .then(errorMessage => {
-        if(errorMessage) {
-          setErrorMessage(errorMessage);
-        }
-
-        setValidating(false);
-      });
-  }, [userName]);
-
-  return (
-    <Modal className="username-modal-container" Toggle={Close}>
-      <div className="username-modal">
-        <div className="username-modal__header">
-          Set Your Username
-        </div>
-        <div className="username-modal__content">
-          <div className="username-modal__inputs">
-            <DebouncedInput
-              value={userName}
-              timeout={500}
-              onImmediateChange={() => setValidating(true)}
-              onChange={value => setUsername(value)}
-              className="username-modal__input"
-            />
-          </div>
-          <div className="username-modal__error-message">
-            { errorMessage }
-          </div>
-          <div className="username-modal__actions">
-            <button className="action" onClick={Close}>
-              Cancel
-            </button>
-            <ButtonWithLoader
-              isLoading={validating}
-              disabled={!userName || errorMessage || validating}
-              onClick={() => UpdateUsername(userName)}
-              className="action action-primary"
-            >
-              Update Username
-            </ButtonWithLoader>
-          </div>
-        </div>
-      </div>
-    </Modal>
-  );
-});
 
 const UserProfileContainer = observer(({includeUserProfile, children}) => {
   const match = useRouteMatch();
@@ -97,15 +27,11 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
   const availableDisplayCurrencies = marketplace?.display_currencies || [];
 
   const [userProfile, setUserProfile] = useState(rootStore.userProfiles[match.params.userId]);
-  const [showUsernameModal, setShowUsernameModal] = useState(false);
-  const [usernameUpdated, setUsernameUpdated] = useState(false);
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
   const currentUser = Utils.EqualAddress(userProfile?.userAddress, rootStore.CurrentAddress());
 
   useEffect(() => {
-    setUsernameUpdated(false);
-
     rootStore.UserProfile({userId: match.params.userId})
       .then(async profile => {
         if(!profile) { return; }
@@ -139,29 +65,8 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
     return <PageLoader />;
   }
 
-  // Username changed and route depends on username
-  if(usernameUpdated && rootStore.userProfiles[match.params.userId].newUserName && match.params.userId !== "me" && !match.params.userId.startsWith("0x")) {
-    return <Redirect to={match.url.replace(`/users/${match.params.userId}`, `/users/${userProfile.newUserName}`)} />;
-  }
-
   return (
     <>
-      {
-        !showUsernameModal ? null :
-          <UsernameModal
-            UpdateUsername={async (userName) => {
-              setUserProfile(
-                await rootStore.UpdateUserProfile({
-                  newUserName: userName
-                })
-              );
-
-              setShowUsernameModal(false);
-              setUsernameUpdated(true);
-            }}
-            Close={() => setShowUsernameModal(false)}
-          />
-      }
       {
         showPreferencesMenu ?
           <PreferencesMenu
@@ -181,48 +86,35 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           <div className={S("profile__image-container")}>
             <ImageIcon
               label="Profile Image"
-              icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800) || UserIcon}
+              icon={
+                DefaultProfileImage({
+                  address: rootStore.userInfo.address,
+                  email: rootStore.userInfo.email,
+                  name: rootStore.userInfo.name
+                })
+              }
               alternateIcon={UserIcon}
               className={S("profile__image")}
             />
           </div>
           <div className={S("profile__details")}>
-            <div className={S("profile__name-container")}>
-              {
-                userProfile.userName ?
+            {
+              !currentUser || !rootStore.userInfo.email ? null :
+                <div className={S("profile__name-container")}>
                   <div className={S("profile__name")}>
-                    {`@${userProfile.userName}`}
-                  </div> :
-                  currentUser ?
-                    <div className={S("profile__username-hint")}>
-                      { rootStore.l10n.profile.set_username }
-                    </div> : null
-              }
-              {
-                currentUser ?
-                  <button onClick={() => setShowUsernameModal(!showUsernameModal)} className={S("profile__edit")}>
-                    <ImageIcon
-                      icon={EditIcon}
-                      title="Set Username"
-                    />
-                  </button> : null
-              }
-            </div>
+                    { rootStore.userInfo.email }
+                  </div>
+                </div>
+            }
             <div className={S("profile__address-container")}>
               <div className={S("profile__address")}>
-                { userProfile.userAddress }
+                { rootStore.CurrentAddress() }
               </div>
               <CopyButton
-                value={userProfile.userAddress}
+                value={rootStore.CurrentAddress()}
                 className={S("profile__address-copy")}
               />
             </div>
-            {
-              currentUser && !userProfile.imageUrl ?
-                <div className={S("profile__image-hint")}>
-                  { rootStore.l10n.profile.set_profile_image }
-                </div> : null
-            }
           </div>
         </div>
         <nav className={S("nav")}>

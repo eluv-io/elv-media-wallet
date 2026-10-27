@@ -561,9 +561,11 @@ const LanguageMenu = observer(() => {
 
       // Chrome doesn't support these languages
       if(label === "rar") {
-        label = "Rarotongan";
+        label = "Cook Islands";
       } else if(label === "niu") {
-        label = "Niuean";
+        label = "Niue";
+      } else if(label === "fj") {
+        label = "Fijian";
       }
 
       return {

@@ -27,6 +27,7 @@ import Hash from "@/utils/Hash.js";
 import LeftArrow from "@/assets/icons/left-arrow.svg";
 import RightArrow from "@/assets/icons/right-arrow.svg";
 import XIcon from "@/assets/icons/x.svg";
+import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -1063,6 +1064,12 @@ export const RenderAction = observer(({
       }
       break;
 
+    case "path":
+      buttonParams = {
+        to: UrlJoin("/", action.path)
+      };
+      break;
+
     case "link":
       buttonParams = {
         href: action.url,
@@ -1142,9 +1149,10 @@ export const DefaultProfileImage = ({name, email, address}={}) => {
     canvas.width = 200;
     canvas.height = 200;
 
-    const gradient = context.createLinearGradient(0, 0, context.canvas.width, 0);
+    const gradient = context.createLinearGradient(0, 0, canvas.width * Math.cos(1), canvas.width * Math.sin(1));
     gradient.addColorStop(0, HSLColor(address, 100, 30));
-    gradient.addColorStop(1, HSLColor(address, 100, 20));
+    gradient.addColorStop(0.3, HSLColor(address, 100, 45));
+    gradient.addColorStop(1, HSLColor(address, 100, 35));
 
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -1153,6 +1161,8 @@ export const DefaultProfileImage = ({name, email, address}={}) => {
     context.fillStyle = "#FFFFFF";
     context.textAlign = "center";
     context.textBaseline = "middle";
+    context.shadowColor = "black";
+    context.shadowBlur = 15;
     context.fillText(name.toUpperCase().charAt(0), canvas.width / 2, canvas.height / 2 + 5);
 
     profileImageUrls[name] = canvas.toDataURL("image/png");

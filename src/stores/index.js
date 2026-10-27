@@ -27,7 +27,6 @@ import MediaStore from "@/stores/MediaStore";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID, parse as ParseUUID} from "uuid";
-import ProfanityFilter from "bad-words";
 import MergeWith from "lodash/mergeWith";
 
 import LocalizationEN from "@/assets/localizations/en.yml";
@@ -1285,33 +1284,6 @@ class RootStore {
     return url.toString();
   }
 
-  async ValidateUserName(userName) {
-    const symbolFilter = new RegExp(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9_]+$/);
-    const profanityFilter = new ProfanityFilter();
-    const invalidUsernames = ["me"];
-
-    let errorMessage;
-    if(userName.length < 3 || userName.length > 30) {
-      errorMessage = "Username must be between 3 and 30 characters";
-    } else if(!symbolFilter.test(userName)) {
-      errorMessage = "Username must consist of alphanumeric characters, numbers, and underscores";
-    } else if(
-      invalidUsernames.includes(userName.toLowerCase()) ||
-      userName.toLowerCase().startsWith("0x") ||
-      profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("_", " "))
-    ) {
-      errorMessage = "Invalid username";
-    } else {
-      const address = await this.walletClient.UserNameToAddress({userName});
-
-      if(address && !Utils.EqualAddress(address, this.CurrentAddress())) {
-        errorMessage = "Username has already been taken";
-      }
-    }
-
-    return errorMessage;
-  }
-
   ValidProfileImageUrl(imageUrl) {
     try {
       const url = new URL(imageUrl);
@@ -1518,41 +1490,6 @@ class RootStore {
       setTimeout(() => this.SetCustomizationOptions("default"), 100);
     }
   }
-
-  LoadEvent = flow(function * ({tenantSlug, eventSlug, eventId, eventHash}) {
-    if(eventSlug) {
-      if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
-
-      const mainSiteId = this.walletClient.mainSiteId;
-      const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
-
-      return (
-        yield this.client.ContentObjectMetadata({
-          versionHash: mainSiteHash,
-          metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug),
-          resolveLinks: true,
-          linkDepthLimit: 2,
-          resolveIncludeSource: true,
-          produceLinkUrls: true,
-          noAuth: true,
-        })
-      );
-    }
-
-    return (
-      yield this.client.ContentObjectMetadata({
-        libraryId: yield this.client.ContentObjectLibraryId({objectId: eventId, versionHash: eventHash}),
-        objectId: eventId,
-        versionHash: eventHash,
-        metadataSubtree: UrlJoin("public", "asset_metadata"),
-        resolveLinks: true,
-        linkDepthLimit: 2,
-        resolveIncludeSource: true,
-        produceLinkUrls: true,
-        noAuth: true,
-      })
-    );
-  });
 
   LoadMarketplace = flow(function * (marketplaceId, localizationKey) {
     if(!this.walletClient.marketplaceLoadingStarted) {
@@ -1967,90 +1904,6 @@ class RootStore {
     return `nft-media-viewed-${contractAddress}-${mediaId}${preview ? "-preview" : ""}`;
   }
 
-  MediaViewed({nft, contractAddress, mediaId, preview}) {
-    if(nft) {
-      contractAddress = nft.details.ContractAddr || contractAddress;
-    }
-
-    return this.viewedMedia[this.MediaViewKey({contractAddress, mediaId, preview})];
-  }
-
-  CheckViewedMedia = flow(function * ({nft, contractAddress, mediaIds, preview}) {
-    if(nft) {
-      contractAddress = nft.details.ContractAddr || contractAddress;
-    }
-
-    let viewedMedia = { ...this.viewedMedia };
-
-    yield Promise.all(
-      mediaIds.map(async mediaId => {
-        const key = this.MediaViewKey({contractAddress, mediaId, preview});
-        if(this.viewedMedia[key]) { return; }
-
-        const viewed = await this.walletClient.ProfileMetadata({
-          type: "app",
-          mode: "private",
-          appId: this.appId,
-          key
-        });
-
-        if(viewed) {
-          viewedMedia[key] = true;
-        }
-      })
-    );
-
-    this.viewedMedia = viewedMedia;
-  });
-
-  SetMediaViewed = flow(function * ({nft, contractAddress, mediaId, preview}) {
-    if(nft) {
-      contractAddress = nft.details.ContractAddr || contractAddress;
-    }
-
-    const key = this.MediaViewKey({contractAddress, mediaId, preview});
-    if(!this.viewedMedia[key] && !preview) {
-      yield this.walletClient.SetProfileMetadata({
-        type: "app",
-        mode: "private",
-        appId: this.appId,
-        key,
-        value: true
-      });
-    }
-
-    this.viewedMedia[key] = true;
-  });
-
-  RemoveMediaViewed = flow(function * (key) {
-    yield this.walletClient.RemoveProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: this.appId,
-      key
-    });
-
-    delete this.viewedMedia[key];
-  });
-
-  UserStats = flow(function * ({userAddress, marketplaceId}) {
-    userAddress = Utils.FormatAddress(userAddress);
-
-    try {
-      if(!this.userStats[userAddress] || (Date.now() - this.userStats[userAddress].retrievedAt) > 60000) {
-        this.userStats[userAddress] = yield this.walletClient.Leaderboard({
-          userAddress,
-          marketplaceParams: marketplaceId ? {marketplaceId: marketplaceId} : undefined
-        });
-        this.userStats[userAddress].retrievedAt = Date.now();
-      }
-    } catch(error) {
-      this.Log(error, true);
-    }
-
-    return this.userStats[userAddress];
-  });
-
   UserItems = flow(function * (params) {
     const response = yield this.walletClient.UserItems(params);
 
@@ -2089,16 +1942,6 @@ class RootStore {
       code,
       includeNTPId: true
     });
-  });
-
-  LoadEventOffer = flow(function * ({tenantSlug, eventSlug, offerId}) {
-    const mainSiteHash = yield this.client.LatestVersionHash({objectId: this.walletClient.mainSiteId});
-    const offers = (yield this.client.ContentObjectMetadata({
-      versionHash: mainSiteHash,
-      metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug, "info", "offers")
-    })) || [];
-
-    return offers.find(offer => offer.id === offerId);
   });
 
   SignOut = flow(function * ({
@@ -2831,27 +2674,8 @@ class RootStore {
     this.hideNavigation = !enabled;
   }
 
-  ToggleMarketplaceNavigation(enabled) {
-    this.hideMarketplaceNavigation = !enabled;
-  }
-
-  ToggleSidePanelMode(enabled) {
-    this.sidePanelMode = enabled;
-  }
-
-  // Used for disabling navigation back to main marketplace page when no items are available
-  SetNoItemsAvailable() {
-    this.noItemsAvailable = true;
-  }
-
   SetTrustedOrigin(origin, trusted=true) {
     this.trustedOrigins[origin] = trusted;
-
-    this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
-  }
-
-  RemoveTrustedOrigin(origin) {
-    delete this.trustedOrigins[origin];
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
   }
