@@ -560,11 +560,11 @@ const LanguageMenu = observer(() => {
       let label = new Intl.DisplayNames([key], {type: "language"}).of(key);
 
       // Chrome doesn't support these languages
-      if(label === "rar") {
+      if(key === "rar") {
         label = "Cook Islands";
-      } else if(label === "niu") {
+      } else if(key === "niu") {
         label = "Niue";
-      } else if(label === "fj") {
+      } else if(key === "fj") {
         label = "Fijian";
       }
 
