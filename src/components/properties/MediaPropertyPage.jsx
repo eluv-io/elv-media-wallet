@@ -2,7 +2,7 @@ import PageStyles from "@/assets/stylesheets/media_properties/property-page.modu
 
 import React from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "@/stores";
+import {mediaPropertyStore, rootStore} from "@/stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {PageContainer} from "@/components/properties/Common";
 import {
@@ -29,6 +29,14 @@ export const MediaPropertyPageContent = observer(({params, sections, isMediaPage
           });
 
           if(!section) { return null; }
+
+
+          if(
+            section.visibility === "authenticated" && !rootStore.loggedIn ||
+            section.visibility === "unauthenticated" && rootStore.loggedIn
+          ) {
+            return null;
+          }
 
           if(section.type === "spacer") {
             return (
