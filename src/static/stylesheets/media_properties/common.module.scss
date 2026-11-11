@@ -794,18 +794,30 @@
   }
 
   &__close {
-    height: 25px;
+    height: 30px;
     opacity: 0;
     position: absolute;
-    right: 10px;
+    border-radius: 100%;
+    left: 10px;
     top: 10px;
     transition: opacity 0.25s ease;
     transition-delay: 0.5s;
-    width: 25px;
+    width: 30px;
     z-index: 1000;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 50%);
+    padding: 0;
+
+    svg {
+      height: 50%;
+      width: 50%;
+    }
 
     * {
-      color: var(--property-text-faded);
+      color: var(--property-text-primary);
     }
   }
 }
