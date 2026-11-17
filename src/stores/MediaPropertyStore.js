@@ -46,6 +46,7 @@ class MediaPropertyStore {
   mediaPlayers = {};
 
   mediaProgress = {};
+  userFeedback = {};
 
   cardThemes = {};
 
@@ -2156,6 +2157,7 @@ class MediaPropertyStore {
         };
 
         this.LoadMediaProgress({mediaPropertySlugOrId: mediaPropertyId});
+        this.LoadUserFeedback({mediaPropertySlugOrId: mediaPropertyId});
         this.LoadAnalytics({mediaPropertySlugOrId: mediaPropertyId});
         this.LoadSearchQueries({mediaPropertySlugOrId: mediaPropertyId});
       }
@@ -2554,6 +2556,7 @@ class MediaPropertyStore {
     }
   }
 
+  // Media Progress
   SetMediaProgress = flow(function * ({mediaPropertySlugOrId, mediaItemId, progress}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
 
@@ -2647,6 +2650,86 @@ class MediaPropertyStore {
     if(!mediaPropertyId) { return; }
 
     return this.mediaProgress[mediaPropertyId]?.[mediaItemId];
+  }
+
+  // User feedback
+  SetUserFeedback = flow(function * ({mediaPropertySlugOrId, mediaItemId, type, rating, comment=""}) {
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
+
+    if(!mediaPropertyId || !this.rootStore.loggedIn) { return; }
+
+    if(!this.userFeedback[mediaPropertyId]) {
+      this.userFeedback[mediaPropertyId] = {};
+    }
+
+    this.userFeedback[mediaPropertyId][mediaItemId] = {
+      type,
+      rating,
+      comment
+    };
+
+    yield this.rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: this.rootStore.appId,
+      key: `user-feedback-${mediaPropertyId}`,
+      value: JSON.stringify(this.userFeedback[mediaPropertyId])
+    });
+  });
+
+  LoadUserFeedback = flow(function * ({mediaPropertySlugOrId}) {
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
+
+    if(!mediaPropertyId || !this.rootStore.loggedIn) { return; }
+
+    yield this.LoadResource({
+      key: "UserFeedback",
+      id: mediaPropertyId,
+      Load: async () => {
+        if(!this.userFeedback[mediaPropertyId]) {
+          this.userFeedback[mediaPropertyId] = {};
+        }
+
+        let userFeedback = {};
+        try {
+          userFeedback = JSON.parse(
+            await this.rootStore.walletClient.ProfileMetadata({
+              type: "app",
+              mode: "private",
+              appId: this.rootStore.appId,
+              key: `user-feedback-${mediaPropertyId}`
+            })
+          );
+        // eslint-disable-next-line no-unused-vars
+        } catch(error) {}
+
+        this.userFeedback[mediaPropertyId] = userFeedback;
+      }
+    });
+  });
+
+  GetUserFeedback({mediaPropertySlugOrId, mediaItemId}) {
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || this.rootStore.currentPropertyId;
+
+    if(!mediaPropertyId) { return; }
+
+    return this.userFeedback[mediaPropertyId]?.[mediaItemId];
+  }
+
+  ClearUserFeedback({mediaPropertySlugOrId}) {
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId;
+
+    if(!mediaPropertyId || !this.rootStore.loggedIn) { return; }
+
+    this.userFeedback[mediaPropertyId] = {};
+
+    this.rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: this.rootStore.appId,
+      key: `user-feedback-${mediaPropertyId}`,
+      value: JSON.stringify(this.userFeedback[mediaPropertyId])
+    });
   }
 
   StartDownloadJob = flow(function * ({

@@ -3,7 +3,7 @@ import MediaStyles from "@/assets/stylesheets/media_properties/property-media.mo
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
-import { Redirect, useRouteMatch} from "react-router-dom";
+import {Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, mediaStore, rootStore} from "@/stores";
 import ImageIcon from "@/components/common/ImageIcon";
 import Countdown from "./Countdown";
@@ -13,7 +13,7 @@ import {
   MediaItemScheduleInfo,
   MediaPropertyLink
 } from "@/utils/MediaPropertyUtils";
-import {Button, Carousel, Description, ExpandableDescription, LoaderImage} from "@/components/properties/Common";
+import {Button, Carousel, Description, ExpandableDescription, LoaderImage, Modal} from "@/components/properties/Common";
 import Video from "./Video";
 import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
@@ -21,7 +21,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {MediaPropertyPageContent} from "@/components/properties/MediaPropertyPage";
 import MediaSidebar, {MediaTagSidebar, MultiviewSelectionModal} from "@/components/properties/MediaSidebar";
 import {CopyableField, Linkish} from "@/components/common/UIComponents";
-import {ActionIcon, Menu} from "@mantine/core";
+import {ActionIcon, Menu, Textarea} from "@mantine/core";
 
 import MediaErrorIcon from "@/assets/icons/media-error-icon.svg";
 import MultiviewIcon from "@/assets/icons/media/multiview.svg";
@@ -31,6 +31,9 @@ import VerticalIcon from "@/assets/icons/media/vertical.svg";
 import AIDescriptionIcon from "@/assets/icons/ai-description.svg?raw";
 import ExitFullscreenIcon from "@/assets/icons/minimize.svg";
 
+import ThumbsUpIcon from "@/assets/icons/thumbs-up.svg";
+import ThumbsDownIcon from "@/assets/icons/thumbs-down.svg";
+import StarIcon from "@/assets//icons/star.svg";
 import XIcon from "@/assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaStyles[c] || "").join(" ");
@@ -74,7 +77,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
       navContext
     })?.linkPath || "";
 
-    return <Redirect to={linkPath} />;
+    return <Redirect to={linkPath}/>;
   }
 
   const display = nextItem?.mediaItem || nextItem?.display || {};
@@ -86,7 +89,7 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
         alt={mediaItem?.title}
         className={S("bumper__background", "bumper__background--cover")}
       />
-      <div className={S("bumper__cover")} />
+      <div className={S("bumper__cover")}/>
       {
         !display ? null :
           <div className={S("next")}>
@@ -141,25 +144,25 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
 });
 
 const MediaVideo = observer(({
-  mediaItem,
-  playFullVideo,
-  playerProfile,
-  display,
-  videoRef,
-  showTitle,
-  hideControls,
-  allowCasting=true,
-  mute,
-  showVertical,
-  saveSettings,
-  noReactiveMute,
-  capLevelToPlayerSize,
-  onClick,
-  onClose,
-  settingsUpdateCallback,
-  className="",
-  containerProps
-}) => {
+                               mediaItem,
+                               playFullVideo,
+                               playerProfile,
+                               display,
+                               videoRef,
+                               showTitle,
+                               hideControls,
+                               allowCasting = true,
+                               mute,
+                               showVertical,
+                               saveSettings,
+                               noReactiveMute,
+                               capLevelToPlayerSize,
+                               onClick,
+                               onClose,
+                               settingsUpdateCallback,
+                               className = "",
+                               containerProps
+                             }) => {
   let primaryMediaItem = mediaItem?.type !== "additional-view" ? mediaItem :
     mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItem.media_item_id});
 
@@ -184,7 +187,12 @@ const MediaVideo = observer(({
     width: rootStore.fullscreenImageWidth
   }) || backgroundImage;
 
-  const {imageUrl, imageHash} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
+  const {imageUrl, imageHash} = MediaItemImageUrl({
+    mediaItem,
+    display: mediaItem,
+    aspectRatio: "square",
+    width: rootStore.fullscreenImageWidth
+  });
 
   const multiviewing =
     // Multiview
@@ -233,7 +241,7 @@ const MediaVideo = observer(({
           alt={primaryMediaItem?.thumbnail_alt_text || primaryMediaItem.title}
           className={S("media__error-image")}
         />
-        <div className={S("media__error-cover")} />
+        <div className={S("media__error-cover")}/>
         {
           icons.length === 0 ? null :
             <div className={S("media__error-content-icons")}>
@@ -255,7 +263,7 @@ const MediaVideo = observer(({
             </div>
         }
         <div className={S("media__error-title")}>
-          { display.title }
+          {display.title}
         </div>
         <Countdown
           displayTime={scheduleInfo.startTime}
@@ -266,7 +274,7 @@ const MediaVideo = observer(({
         {
           !onClose ? null :
             <button onClick={() => onClose()} className={S("media__error-close")}>
-              <ImageIcon icon={XIcon} />
+              <ImageIcon icon={XIcon}/>
             </button>
         }
       </div>
@@ -275,15 +283,16 @@ const MediaVideo = observer(({
 
   if(error) {
     return (
-      <div onClick={onClick} className={[S("media__error", multiviewing ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
-        <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
+      <div onClick={onClick}
+           className={[S("media__error", multiviewing ? "media__error--multiview" : ""), className].join(" ")} {...containerProps}>
+        <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")}/>
         <LoaderImage
           src={backgroundImage || imageUrl}
           hash={backgroundImageHash || imageHash}
           alt={mediaItem.thumbnail_alt_text || mediaItem.title}
           className={S("media__error-image")}
         />
-        <div className={S("media__error-cover")} />
+        <div className={S("media__error-cover")}/>
         <div className={S("media__error-message")}>
           {
             error?.permission_message ||
@@ -305,7 +314,7 @@ const MediaVideo = observer(({
   if(mediaItem.media_link_info) {
     if(mediaItem.media_link_info.type === "composition") {
       playoutParameters.channel = mediaItem.media_link_info.composition_key;
-    } else if(!mediaItem.live_video){
+    } else if(!mediaItem.live_video) {
       playoutParameters.clipStart = mediaItem.media_link_info.clip_start_time;
       playoutParameters.clipEnd = mediaItem.media_link_info.clip_end_time;
     }
@@ -384,7 +393,7 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
     return (
       <div className={S("media-with-sidebar__video", "media", "media_video")}>
         <div className={S("media__empty")}>
-          { rootStore.l10n.media_properties.media.select_media }
+          {rootStore.l10n.media_properties.media.select_media}
         </div>
       </div>
     );
@@ -448,19 +457,19 @@ const PIPContent = observer(({mediaInfo, showVertical}) => {
 
   return (
     <>
-      { primaryVideo }
-      { secondaryVideo }
+      {primaryVideo}
+      {secondaryVideo}
     </>
   );
 });
 
 let exitFullscreenButtonVisibilityTimeout;
 const MediaVideoWithSidebar = observer(({
-  mediaItem,
-  display,
-  showVertical,
-  textContent
-}) => {
+                                          mediaItem,
+                                          display,
+                                          showVertical,
+                                          textContent
+                                        }) => {
   const [mediaGridRef, setMediaGridRef] = useState(undefined);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showFullscreenCloseButton, setShowFullscreenCloseButton] = useState(true);
@@ -499,7 +508,9 @@ const MediaVideoWithSidebar = observer(({
     }
   }, [mediaStore.multiviewMode]);
 
-  if(!mediaItem) { return <div className={S("media")} />; }
+  if(!mediaItem) {
+    return <div className={S("media")}/>;
+  }
 
   const mediaInfo = mediaStore.displayedContent
     .map(item => {
@@ -532,7 +543,7 @@ const MediaVideoWithSidebar = observer(({
 
         const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
 
-        return { id: item.id, type: "media-item", mediaItem, display };
+        return {id: item.id, type: "media-item", mediaItem, display};
       }
     })
     .filter(item => item)
@@ -541,8 +552,9 @@ const MediaVideoWithSidebar = observer(({
   let media;
   if(mediaStore.multiviewMode === "pip") {
     media = (
-      <div ref={setMediaGridRef} className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
-        <PIPContent showVertical={showVertical} mediaInfo={mediaInfo} />
+      <div ref={setMediaGridRef}
+           className={S("media-with-sidebar__media-container", isFullscreen ? "media-with-sidebar__media-container--fullscreen" : "")}>
+        <PIPContent showVertical={showVertical} mediaInfo={mediaInfo}/>
         {
           !isFullscreen ? null :
             <button
@@ -569,7 +581,8 @@ const MediaVideoWithSidebar = observer(({
         }
         className={S("media-with-sidebar__media-grid-container", isFullscreen ? "media-with-sidebar__media-grid-container--fullscreen" : "", mediaInfo.length <= 1 ? "media-with-sidebar__media-grid-container--single" : "")}
       >
-        <div ref={setMediaGridRef} className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
+        <div ref={setMediaGridRef}
+             className={S("media-with-sidebar__media-grid", `media-with-sidebar__media-grid--${mediaInfo.length}`, isFullscreen ? "media-with-sidebar__media-grid--fullscreen" : "")}>
           {
             mediaInfo.map((item, index) =>
               <MediaVideo
@@ -597,7 +610,7 @@ const MediaVideoWithSidebar = observer(({
                 }
                 className={S("media-with-sidebar__video")}
                 containerProps={{
-                  style: { gridArea: `video-${index + 1}` }
+                  style: {gridArea: `video-${index + 1}`}
                 }}
               />
             )
@@ -629,7 +642,8 @@ const MediaVideoWithSidebar = observer(({
   }
 
   return (
-    <div className={S("media-with-sidebar", mediaStore.showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
+    <div
+      className={S("media-with-sidebar", mediaStore.showSidebar && rootStore.pageWidth >= 800 ? "media-with-sidebar--sidebar-visible" : "media-with-sidebar--sidebar-hidden")}>
       <div className={S("media-with-sidebar__media")}>
         {media}
         {
@@ -640,7 +654,7 @@ const MediaVideoWithSidebar = observer(({
       {
         rootStore.pageWidth < 850 && mediaStore.displayedContent.length > 1 ? null :
           mediaStore.showTagSidebar ?
-            <MediaTagSidebar mediaItem={mediaItem} /> :
+            <MediaTagSidebar mediaItem={mediaItem}/> :
             <MediaSidebar
               showActions
               mediaItem={mediaItem}
@@ -703,31 +717,36 @@ const MediaGallery = observer(({mediaItem}) => {
     }, 15);
   }, [textRef, carouselRef, activeIndex]);
 
-  if(!mediaItem || !mediaItem.gallery) { return null; }
+  if(!mediaItem || !mediaItem.gallery) {
+    return null;
+  }
 
   const activeItem = mediaItem.gallery[activeIndex];
 
-  if(!activeItem) { return null; }
+  if(!activeItem) {
+    return null;
+  }
 
   return (
     <div className={S("media", "gallery")}>
       <div key={`gallery-content-${activeItem.id}`} style={{height: contentHeight}} className={S("gallery__content")}>
-        <GalleryContent galleryItem={activeItem} />
+        <GalleryContent galleryItem={activeItem}/>
       </div>
       <div key={`gallery-text-${activeItem.id}`} ref={textRef} className={S("gallery__text")}>
         {
           !activeItem.title ? null :
-            <h1 className={S("gallery__title")}>{ activeItem.title }</h1>
+            <h1 className={S("gallery__title")}>{activeItem.title}</h1>
         }
         {
           !activeItem.subtitle ? null :
-            <h2 className={S("gallery__subtitle")}>{ activeItem.subtitle }</h2>
+            <h2 className={S("gallery__subtitle")}>{activeItem.subtitle}</h2>
         }
         {
           !activeItem.description ? null :
             <div className={S("gallery__description-block")}>
-              <div className={S("gallery__description-placeholder")} />
-              <Description expandable maxLines={3} description={activeItem.description} className={S("gallery__description")} />
+              <div className={S("gallery__description-placeholder")}/>
+              <Description expandable maxLines={3} description={activeItem.description}
+                           className={S("gallery__description")}/>
             </div>
         }
       </div>
@@ -780,7 +799,9 @@ const SectionNavButtons = observer(() => {
       ));
   }, []);
 
-  if(!sectionContent || sectionContent?.length === 0) { return null; }
+  if(!sectionContent || sectionContent?.length === 0) {
+    return null;
+  }
 
   const currentItemIndex = sectionContent.findIndex(item =>
     item.mediaItem?.id === match.params.mediaItemSlugOrId ||
@@ -803,7 +824,7 @@ const SectionNavButtons = observer(() => {
             Previous
           </Linkish>
       }
-            {
+      {
         !nextItemId ? null :
           <Linkish
             className={S("media-nav-button", "media-nav-button--next")}
@@ -858,7 +879,7 @@ const DownloadButton = observer(({mediaItem, title}) => {
         size={30}
         className={S("icon-button")}
       >
-        <ImageIcon icon={DownloadIcon} />
+        <ImageIcon icon={DownloadIcon}/>
       </ActionIcon>
     );
   }
@@ -906,14 +927,14 @@ const DownloadButton = observer(({mediaItem, title}) => {
 
                   setShowMenu(false);
                 }}
-               rightSection={
-                 <ImageIcon
-                   icon={DownloadIcon}
-                   style={{height: 22, width: 22, marginLeft: 10}}
-                 />
-               }
+                rightSection={
+                  <ImageIcon
+                    icon={DownloadIcon}
+                    style={{height: 22, width: 22, marginLeft: 10}}
+                  />
+                }
               >
-                { rep.resolution }
+                {rep.resolution}
               </Menu.Item>
             )
         }
@@ -923,12 +944,14 @@ const DownloadButton = observer(({mediaItem, title}) => {
 });
 
 const Media = observer(({
-  mediaItem,
-  showVertical,
-  display,
-  textContent
-}) => {
-  if(!mediaItem) { return <div className={S("media")} />; }
+                          mediaItem,
+                          showVertical,
+                          display,
+                          textContent
+                        }) => {
+  if(!mediaItem) {
+    return <div className={S("media")}/>;
+  }
 
   if(mediaItem.media_type === "Video") {
     return (
@@ -940,7 +963,7 @@ const Media = observer(({
       />
     );
   } else if(mediaItem.media_type === "Gallery") {
-    return <MediaGallery mediaItem={mediaItem} />;
+    return <MediaGallery mediaItem={mediaItem}/>;
   } else if(mediaItem.media_type === "Image") {
     let {imageUrl, imageHash} = MediaItemImageUrl({
       mediaItem,
@@ -963,7 +986,7 @@ const Media = observer(({
           loaderWidth="100%"
           className={S("media__image")}
         />
-        <SectionNavButtons />
+        <SectionNavButtons/>
       </div>
     );
   } else if(["Ebook", "HTML"].includes(mediaItem.media_type)) {
@@ -992,9 +1015,193 @@ const Media = observer(({
     );
   } else {
     return (
-      <div className={S("media", "unknown")} />
+      <div className={S("media", "unknown")}/>
     );
   }
+});
+
+const UserFeedbackComment = observer(({mediaItemId, text, maxCharacters = 300}) => {
+  const match = useRouteMatch();
+  const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+  const [showModal, setShowModal] = useState(false);
+  const [input, setInput] = useState("");
+
+  useEffect(() => {
+    mediaPropertyStore.LoadUserFeedback({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+  }, []);
+
+  const options = mediaProperty.metadata?.user_feedback || {};
+
+  if(!rootStore.loggedIn || !options.type) {
+    return;
+  }
+
+  const currentFeedback = mediaPropertyStore.GetUserFeedback({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    mediaItemId
+  }) || {};
+
+  const SetComment = comment => mediaPropertyStore.SetUserFeedback({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    mediaItemId,
+    type: options.type,
+    rating: options.rating,
+    comment: comment || "",
+  });
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setInput(currentFeedback?.comment || "");
+          setShowModal(true);
+        }}
+        className={S("user-comment__button", currentFeedback.comment ? "user-comment__button--active" : "")}
+      >
+        {text}
+      </button>
+      {
+        !showModal ? null :
+          <Modal
+            opened
+            centered
+            size="auto"
+            noBackground
+            onClose={() => setShowModal(false)}
+          >
+            <div className={S("user-comment__form")}>
+              <div className={S("user-comment__header")}>
+                {rootStore.l10n.media_properties.media.feedback.comment.header}
+              </div>
+              <div className={S("user-comment__input-container")}>
+                <Textarea
+                  value={input}
+                  max={maxCharacters}
+                  autosize
+                  minRows={6}
+                  onChange={event => setInput(event.target.value.slice(0, maxCharacters))}
+                  classNames={{
+                    input: S("user-comment__input")
+                  }}
+                />
+                <div className={S("user-comment__input-count")}>
+                  {input.length} / {maxCharacters}
+                </div>
+              </div>
+              <div className={S("user-comment__actions")}>
+                <Button variant="subtle" className={S("user-comment__action")} onClick={() => setShowModal(false)}>
+                  {rootStore.l10n.media_properties.media.feedback.comment.cancel}
+                </Button>
+                <Button
+                  className={S("user-comment__action", "user-comment__action--submit")}
+                  onClick={() => {
+                    SetComment(input);
+                    setShowModal(false);
+                  }}
+                >
+                  {rootStore.l10n.media_properties.media.feedback.comment.submit}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+      }
+    </>
+  );
+});
+
+const UserFeedback = observer(({mediaItemId}) => {
+  const match = useRouteMatch();
+  const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+  const [hoveredRating, setHoveredRating] = useState(undefined);
+
+  useEffect(() => {
+    mediaPropertyStore.LoadUserFeedback({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+  }, []);
+
+  const options = mediaProperty.metadata?.user_feedback || {};
+
+  if(!rootStore.loggedIn || !options.type) {
+    return;
+  }
+
+  const currentFeedback = mediaPropertyStore.GetUserFeedback({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    mediaItemId
+  }) || {};
+
+  const SetRating = rating => mediaPropertyStore.SetUserFeedback({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    mediaItemId,
+    type: options.type,
+    comment: currentFeedback.comment || "",
+    rating
+  });
+
+  switch("stars") {
+    case "thumbs":
+      return (
+        <div className={S("user-feedback")}>
+          <button
+            onClick={() => SetRating(false)}
+            className={
+              S(
+                "user-feedback__button",
+                "user-feedback__button--thumb",
+                typeof currentFeedback.rating === "boolean" && !currentFeedback.rating ? "user-feedback__button--active" : ""
+              )
+            }
+          >
+            <ImageIcon icon={ThumbsDownIcon}/>
+          </button>
+          <button
+            onClick={() => SetRating(true)}
+            className={
+              S(
+                "user-feedback__button",
+                "user-feedback__button--thumb",
+                typeof currentFeedback.rating === "boolean" && currentFeedback.rating ? "user-feedback__button--active" : ""
+              )
+            }
+          >
+            <ImageIcon icon={ThumbsUpIcon}/>
+          </button>
+        </div>
+      );
+    case "stars":
+      const currentRating =
+        typeof hoveredRating !== "undefined" ? hoveredRating :
+          typeof currentFeedback.rating === "number" ? currentFeedback.rating : undefined;
+
+      return (
+        <div className={S("user-feedback")}>
+          {
+            [1, 2, 3, 4, 5].map(rating =>
+              <button
+                key={`${rating}-stars`}
+                onMouseMove={() => setHoveredRating(rating)}
+                onMouseLeave={() => setHoveredRating(undefined)}
+                onClick={() => SetRating(rating)}
+                className={
+                  S(
+                    "user-feedback__button",
+                    "user-feedback__button--star",
+                    currentRating && currentRating >= rating ? "user-feedback__button--active" : ""
+                  )
+                }
+              >
+                <ImageIcon icon={StarIcon}/>
+              </button>
+            )
+          }
+        </div>
+      );
+  }
+
+  return (
+    <div className={S("user-feedback")}>
+
+    </div>
+  );
 });
 
 let updateTimeout;
@@ -1016,7 +1223,9 @@ const MediaPropertyMediaPage = observer(() => {
   const mediaId = mediaHash && rootStore.client.utils.DecodeVersionHash(mediaHash)?.objectId;
 
   useEffect(() => {
-    if(!mediaItem) { return; }
+    if(!mediaItem) {
+      return;
+    }
 
     mediaStore.Reset();
     mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
@@ -1038,7 +1247,9 @@ const MediaPropertyMediaPage = observer(() => {
   useEffect(() => {
     clearTimeout(updateTimeout);
 
-    if(!mediaStore.sidebarContent.nextLiveAt) { return; }
+    if(!mediaStore.sidebarContent.nextLiveAt) {
+      return;
+    }
 
     const next = Math.max(
       // Set min to prevent excessive reloading
@@ -1058,7 +1269,9 @@ const MediaPropertyMediaPage = observer(() => {
   }, [mediaStore.sidebarContent]);
 
   useEffect(() => {
-    if(!mediaHash) { return; }
+    if(!mediaHash) {
+      return;
+    }
 
     const compositionKey = mediaItem.media_link_info?.composition_key;
     if(compositionKey) {
@@ -1077,7 +1290,7 @@ const MediaPropertyMediaPage = observer(() => {
   }, [mediaHash, mediaStore.availablePlayers[mediaId], mediaStore.playFullVideo]);
 
   if(!mediaItem) {
-    return <Redirect to={rootStore.backPath} />;
+    return <Redirect to={rootStore.backPath}/>;
   }
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
@@ -1099,12 +1312,18 @@ const MediaPropertyMediaPage = observer(() => {
 
   let content;
   if(!permissions.authorized) {
-    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullscreenImageWidth});
+    const {imageUrl} = MediaItemImageUrl({
+      mediaItem,
+      display: mediaItem,
+      aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait",
+      width: mediaPropertyStore.rootStore.fullscreenImageWidth
+    });
     content = (
       <div className={S("media-page")}>
         <div className={S("media__error", "media__error--full")}>
-          <img src={imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem?.title} className={S("media__error-image")} />
-          <div className={S("media__error-cover")} />
+          <img src={imageUrl} alt={mediaItem?.thumbnail_alt_text || mediaItem?.title}
+               className={S("media__error-image")}/>
+          <div className={S("media__error-cover")}/>
           {
             permissions.purchaseGate ? null :
               <div className={S("media__error-message")}>
@@ -1148,6 +1367,9 @@ const MediaPropertyMediaPage = observer(() => {
                   </div>
 
                   <div className={S("media-text__title--right")}>
+                    <UserFeedbackComment text={rootStore.l10n.media_properties.media.feedback.comment.button}
+                                         mediaItemId={primaryMediaItem.id}/>
+                    <UserFeedback mediaItemId={primaryMediaItem.id}/>
                     {
                       mediaItem.show_vertical_video !== "toggle" ? null :
                         rootStore.pageWidth < 850 ?
@@ -1164,7 +1386,7 @@ const MediaPropertyMediaPage = observer(() => {
                             size={30}
                             className={S("icon-button", "icon-button--dark")}
                           >
-                            <ImageIcon icon={VerticalIcon} />
+                            <ImageIcon icon={VerticalIcon}/>
                           </ActionIcon> :
                           <Button
                             title={mediaStore.showVertical ? "Show Full Aspect Ratio" : "Show Vertical Video"}
@@ -1191,7 +1413,7 @@ const MediaPropertyMediaPage = observer(() => {
                             size={30}
                             className={S("icon-button", "icon-button--dark")}
                           >
-                            <ImageIcon icon={PlayIcon} />
+                            <ImageIcon icon={PlayIcon}/>
                           </ActionIcon> :
                           <Button
                             title={mediaStore.playFullVideo ? "Play Clip" : "Play Full Length"}
@@ -1200,7 +1422,7 @@ const MediaPropertyMediaPage = observer(() => {
                             variant="outline"
                             className={S("download-menu__button", mediaStore.playFullVideo ? "download-menu__button--active" : "")}
                           >
-                            { mediaStore.playFullVideo ? "PLAY CLIP" : "PLAY FULL LENGTH"}
+                            {mediaStore.playFullVideo ? "PLAY CLIP" : "PLAY FULL LENGTH"}
                           </Button>
                     }
                     {
@@ -1219,7 +1441,7 @@ const MediaPropertyMediaPage = observer(() => {
                             size={30}
                             className={S("icon-button", "icon-button--dark")}
                           >
-                            <ImageIcon icon={AIDescriptionIcon} />
+                            <ImageIcon icon={AIDescriptionIcon}/>
                           </ActionIcon> :
                           <Button
                             title="In This Video"
@@ -1233,7 +1455,7 @@ const MediaPropertyMediaPage = observer(() => {
                     }
                     {
                       !rootStore.loggedIn || mediaItem.live_video || !mediaItem.allow_download || !mediaItem.media_link_info?.downloadable ? null :
-                        <DownloadButton title={display.title} mediaItem={mediaItem} />
+                        <DownloadButton title={display.title} mediaItem={mediaItem}/>
                     }
                     {
                       !mediaStore.sidebarContent?.anyMultiview || rootStore.pageWidth >= 850 ? null :
@@ -1246,7 +1468,7 @@ const MediaPropertyMediaPage = observer(() => {
                           size={30}
                           className={S("icon-button", "icon-button--light")}
                         >
-                          <ImageIcon icon={MultiviewIcon} />
+                          <ImageIcon icon={MultiviewIcon}/>
                         </ActionIcon>
                     }
                   </div>
@@ -1308,7 +1530,7 @@ const MediaPropertyMediaPage = observer(() => {
 
   return (
     <>
-      { content }
+      {content}
       {
         !contentElement ? null :
           <MediaPropertyPageContent

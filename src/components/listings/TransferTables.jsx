@@ -8,20 +8,21 @@ import ImageIcon from "@/components/common/ImageIcon";
 import {ButtonWithLoader, FormatPriceString, LocalizeString} from "@/components/common/UIComponents";
 import Table, {FilteredTable} from "@/components/common/Table";
 import UrlJoin from "url-join";
+import Confirm from "@/components/common/Confirm";
+import OfferModal from "@/components/listings/OfferModal";
+import {Link, useRouteMatch} from "react-router-dom";
+import {Button} from "@/components/properties/Common";
+import NFTCard from "@/components/nft/NFTCard";
 
 import UpCaret from "@/assets/icons/up-caret.svg";
 import DownCaret from "@/assets/icons/down-caret.svg";
 import USDCIcon from "@/assets/icons/crypto/USDC-icon.svg";
 import USDIcon from "@/assets/icons/crypto/USD icon.svg";
 
-import AcceptIcon from "@/assets/icons/thumbs up.svg";
-import RejectIcon from "@/assets/icons/thumbs down.svg";
+import AcceptIcon from "@/assets/icons/thumbs-up.svg";
+import RejectIcon from "@/assets/icons/thumbs-down.svg";
 import EditIcon from "@/assets/icons/edit listing icon.svg";
-import Confirm from "@/components/common/Confirm";
-import OfferModal from "@/components/listings/OfferModal";
-import {Link, useRouteMatch} from "react-router-dom";
-import {Button} from "@/components/properties/Common";
-import NFTCard from "@/components/nft/NFTCard";
+
 import ListingIcon from "@/assets/icons/listings icon.svg";
 import LinkedIcon from "@/assets/icons/linked wallet icon (r).svg";
 

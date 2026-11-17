@@ -1484,3 +1484,116 @@
     width: 100%;
   }
 }
+
+
+.user-feedback {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+
+  &__button {
+    height: 25px;
+    position: relative;
+    width: 25px;
+
+    * {
+      color: var(--property-text-faded);
+      transition: all 0.25s ease;
+      transition-delay: 0.1s;
+    }
+
+    svg {
+      fill: transparent;
+      height: 100%;
+      width: 100%;
+    }
+
+
+    &:hover,
+    &--active, {
+      * {
+        color: var(--property-text-secondary);
+        fill: var(--property-text-secondary);
+      }
+    }
+  }
+
+  @media screen and (width < 850px) {
+    gap: 5px;
+    position: absolute;
+    right: 100%;
+    top: 0;
+
+    &__button {
+      height: 20px;
+      width: 20px;
+    }
+  }
+}
+
+.user-comment {
+  &__button {
+    font-size: 12px;
+
+    &--active {
+      text-decoration: underline;
+    }
+  }
+
+  &__form {
+    animation: var(--animation-fade-in) 0.75s ease;
+    background: var(--property-background-secondary);
+    border-radius: 15px;
+    box-shadow: 5px 5px 5px rgb(0 0 0 / 30%);
+    margin: 10px;
+    padding: 30px 30px 20px;
+    width: 500px;
+  }
+
+  &__header {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  &__input-container {
+    position: relative;
+  }
+
+  &__input {
+    background: transparent;
+    color: var(--property-text-primary);
+    font-size: 16px;
+  }
+
+  &__input-count {
+    bottom: 5px;
+    color: var(--property-text-faded);
+    font-size: 12px;
+    position: absolute;
+    right: 10px;
+    text-align: right;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 25px;
+  }
+
+  @media screen and (width <= 850px) {
+    &__form {
+      border-radius: 0;
+      height: calc(100 * var(--vh));
+      margin: 0;
+      padding: 16px;
+      width: 100%;
+    }
+
+    &__header {
+      font-size: 14px;
+    }
+  }
+}

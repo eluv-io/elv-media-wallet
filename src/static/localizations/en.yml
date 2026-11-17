@@ -787,6 +787,12 @@ media_properties:
       main_view: Main View
       more_content: More Content
       multiview: Multiview
+    feedback:
+      comment:
+        button: Leave a Comment
+        header: "Provide feedback about this content"
+        cancel: Cancel
+        submit: Send Feedback
     errors:
       default: This media is not available
       not_started: This live content has not yet started

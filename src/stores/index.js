@@ -331,7 +331,7 @@ class RootStore {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         // Only update VH if height has changed significantly enough
-        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 50) {
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 0) {
           SetVH();
           this.originalViewportHeight = window.innerHeight;
         }
