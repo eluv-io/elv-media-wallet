@@ -779,7 +779,7 @@ media_properties:
     select_media: Select Media
     select_streams: Select Streams
     description:
-      show: Read More
+      show: Show More
       hide: Show Less
     sidebar:
       today: Today

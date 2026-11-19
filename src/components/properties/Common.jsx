@@ -442,7 +442,7 @@ export const Description = ({
   if(maxLines) {
     let content = (
       <ResponsiveEllipsis
-        ellipsis={!expandable ? "..." : <div style={{color: "gray", marginTop: 20}}>READ MORE</div>}
+        ellipsis={!expandable ? "..." : <div style={{color: "gray", marginTop: 20}}>SHOW MORE</div>}
         className={[S("description", expandable ? "description--expandable" : ""), props.className || ""].join(" ")}
         text={description}
         maxLine={expanded ? "999" : maxLines.toString()}
