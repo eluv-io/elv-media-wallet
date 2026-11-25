@@ -14,7 +14,7 @@ import {useRouteMatch} from "react-router-dom";
 import {Button, LoaderImage, Modal} from "@/components/properties/Common";
 import {Linkish} from "@/components/common/UIComponents";
 import ImageIcon from "@/components/common/ImageIcon";
-import {LinkTargetHash, SetImageUrlDimensions} from "@/utils/Utils";
+import {LinkTargetHash, ScrollParent, SetImageUrlDimensions} from "@/utils/Utils";
 import {TextInput} from "@mantine/core";
 import {useIsVisible} from "@/components/common/Hooks";
 import UrlJoin from "url-join";
@@ -32,6 +32,8 @@ import SearchIcon from "@/assets/icons/search.svg";
 const S = (...classes) => classes.map(c => StyledCardStyles[c] || SidebarStyles[c] || "").join(" ");
 
 const Item = observer(({
+  collectionSlugOrId,
+  listSlugOrId,
   imageUrl,
   imageHash,
   title,
@@ -58,26 +60,26 @@ const Item = observer(({
   const [hovering, setHovering] = useState(false);
   const [element, setElement] = useState(null);
 
-  useEffect(() => {
-    const container = element?.closest(`.${S("content")}`);
-
-    if(!container) { return; }
-
-    container.scrollTo({
-      top:
-        element.getBoundingClientRect().top -
-        container.getBoundingClientRect().top
-    });
-  }, [element]);
-
   const isActive = !!(displayedContent || []).find(item => item.type === contentItem.type && item.id === contentItem.id);
   const isPrimary = (displayedContent || []).findIndex(item => item.type === contentItem.type && item.id === contentItem.id) === 0;
+
+  useEffect(() => {
+    if(!isActive || !element) { return; }
+
+    const container = ScrollParent(element);
+
+    setTimeout(() => {
+      container.scrollTop = element.offsetTop - container.offsetTop;
+    }, 10);
+  }, [element]);
 
   let linkPath;
   if(!toggleOnClick && !onClick && contentItem.type === "media-item" && contentItem.id !== primaryMediaId) {
     const navContext = new URLSearchParams(location.search).get("ctx");
     linkPath = MediaPropertyLink({
       match,
+      collectionSlugOrId,
+      listSlugOrId,
       mediaItem: mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: contentItem.id}),
       navContext
     })?.linkPath || "";
@@ -425,6 +427,8 @@ const MediaSidebar = observer(({
                   return (
                     <>
                       <Item
+                        collectionSlugOrId={item.collectionSlugOrId}
+                        listSlugOrId={item.listSlugOrId}
                         noBorder={index === 0}
                         imageUrl={imageUrl}
                         imageHash={imageHash}
@@ -444,6 +448,8 @@ const MediaSidebar = observer(({
                             {
                               additionalViews.map((view, index) =>
                                 <Item
+                                  collectionSlugOrId={item.collectionSlugOrId}
+                                  listSlugOrId={item.listSlugOrId}
                                   imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}
                                   hash={view.image_url}
                                   title={view.label}
@@ -603,6 +609,8 @@ export const MultiviewSelectionModal = observer(({
                     return (
                       <>
                         <Item
+                          collectionSlugOrId={item.collectionSlugOrId}
+                          listSlugOrId={item.listSlugOrId}
                           noBorder={index === 0}
                           imageUrl={imageUrl}
                           imageHash={imageHash}
@@ -625,6 +633,8 @@ export const MultiviewSelectionModal = observer(({
                               {
                                 additionalViews.map((view, index) =>
                                   <Item
+                                    collectionSlugOrId={item.collectionSlugOrId}
+                                    listSlugOrId={item.listSlugOrId}
                                     noBorder={index === 0}
                                     toggleOnClick
                                     imageUrl={SetImageUrlDimensions({url: view.image?.url, width: 400})}

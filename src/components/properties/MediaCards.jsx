@@ -25,7 +25,7 @@ const S = (...classes) => classes.map(c => StyledCardStyles[c] || MediaCardStyle
 
 const HEADER_SEPARATOR = " · ";
 
-const MediaItem = observer(({mediaItemId, index, navContext}) => {
+const MediaItem = observer(({collectionSlugOrId, listSlugOrId, mediaItemId, index, navContext}) => {
   const match = useRouteMatch();
   const [hovering, setHovering] = useState(false);
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem({mediaItemSlugOrId: mediaItemId});
@@ -36,7 +36,14 @@ const MediaItem = observer(({mediaItemId, index, navContext}) => {
 
   if(permissions.hide) { return null; }
 
-  const linkInfo = MediaPropertyLink({match, mediaItem, navContext});
+  const linkInfo = MediaPropertyLink({
+    match,
+    collectionSlugOrId,
+    listSlugOrId,
+    mediaItem,
+    navContext
+  });
+
   const imageInfo = MediaItemImageUrl({
     mediaItem,
     display: mediaItem,
@@ -270,6 +277,18 @@ const MediaDetailsModal = observer(({
                         <MediaItem
                           key={mediaItemId}
                           index={index}
+                          collectionSlugOrId={
+                            display?.type === "collection" ?
+                              display.slug || display.id :
+                              null
+                          }
+                          listSlugOrId={
+                            display?.type === "collection" ?
+                              selectedMediaList.slug || selectedMediaList.id :
+                              display?.type === "list" ?
+                                display.slug || display.id :
+                                null
+                          }
                           mediaItemId={mediaItemId}
                           navContext={navContext}
                         />

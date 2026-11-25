@@ -70,6 +70,8 @@ const EndScreen = observer(({mediaItem, nextItem}) => {
     const linkPath = MediaPropertyLink({
       match,
       sectionItem: nextItem,
+      collectionSlugOrId: nextItem?.collectionSlugOrId,
+      listSlugOrId: nextItem?.listSlugOrId,
       mediaItem: nextItem?.mediaItem,
       navContext
     })?.linkPath || "";
@@ -1019,7 +1021,7 @@ const MediaPropertyMediaPage = observer(() => {
     if(!mediaItem) { return; }
 
     mediaStore.Reset();
-    mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem.id}]);
+    mediaStore.SetDisplayedContent([{type: "media-item", id: primaryMediaItem?.id}]);
 
     if(context === "search" || primaryMediaItem.isSearchResult) {
       mediaStore.SetSidebarContent(mediaPropertyStore.SearchSidebarContent());

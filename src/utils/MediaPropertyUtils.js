@@ -183,7 +183,14 @@ export const PurchaseParamsToItems = (params, secondaryEnabled) => {
   return items;
 };
 
-export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
+export const MediaPropertyLink = ({
+  match,
+  collectionSlugOrId,
+  listSlugOrId,
+  sectionItem,
+  mediaItem,
+  navContext
+}) => {
   if(sectionItem?.type === "visual_only") {
     return {
       authorized: true
@@ -199,38 +206,55 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url, purchaseItems, mediaType;
+  let url, purchaseItems, mediaType, mediaItemSlugOrId;
   if(mediaItem || sectionItem?.type === "media") {
-    if(match.params.mediaCollectionSlugOrId) {
-      //linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
-    }
-
-    if(match.params.mediaListSlugOrId) {
-      //linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
-    }
-
-    const mediaId = mediaItem?.id || sectionItem?.media_id;
+    mediaItemSlugOrId = mediaItem?.slug || mediaItem?.id || sectionItem?.media_id;
 
     if((mediaItem?.type || sectionItem?.media_type) === "collection") {
-      //linkPath = UrlJoin(linkPath, "c", mediaId);
-      linkPath = undefined;
+      const firstList = mediaPropertyStore.MediaPropertyMediaItem({
+        mediaItemSlugOrId: mediaItem.media_lists?.[0]
+      });
+
+      if(firstList) {
+        const firstMedia = mediaPropertyStore.MediaPropertyMediaItem({
+          mediaItemSlugOrId: firstList.media?.[0]
+        });
+
+        if(firstMedia) {
+          collectionSlugOrId = mediaItemSlugOrId;
+          listSlugOrId = firstList.slug || firstList.id;
+          mediaItemSlugOrId = firstMedia.slug || firstMedia.id;
+          //linkPath = UrlJoin(linkPath, "c", mediaId, "l", firstList.id, "m", firstMediaId);
+        }
+      }
+
       mediaType = "collection";
     } else if((mediaItem?.type || sectionItem?.media_type) === "list") {
-      //linkPath = UrlJoin(linkPath, "l", mediaId);
-      linkPath = undefined;
+      const firstMedia = mediaPropertyStore.MediaPropertyMediaItem({
+        mediaItemSlugOrId: mediaItem.media?.[0]
+      });
+
+      if(firstMedia) {
+        listSlugOrId = mediaItemSlugOrId;
+        mediaItemSlugOrId = firstMedia.slug || firstMedia.id;
+      }
+
       mediaType = "list";
     } else if((mediaItem?.type || sectionItem?.media_type) === "media") {
       mediaType = "media";
-      const listParam = new URLSearchParams(location.search).get("l");
-
-      if(listParam) {
-        linkPath = UrlJoin(linkPath, "l", listParam);
-      }
-
-      linkPath = UrlJoin(linkPath, "m", mediaId);
 
       url = ["Link", "HTML"].includes(mediaItem?.media_type) && MediaItemMediaUrl(mediaItem);
     }
+
+    if(collectionSlugOrId) {
+      linkPath = UrlJoin(linkPath, "c", collectionSlugOrId);
+    }
+
+    if(listSlugOrId) {
+      linkPath = UrlJoin(linkPath, "l", listSlugOrId);
+    }
+
+    linkPath = UrlJoin(linkPath, "m", mediaItemSlugOrId);
   } else if(sectionItem?.type === "item_purchase") {
     linkPath = match.url;
     // Preserve params

@@ -315,7 +315,6 @@ export const MediaPropertyHeroSection = observer(({section}) => {
                 </button>
             }
             <PageHeader
-              active={activeIndex === index}
               display={heroItem.display}
               className={S("hero-section__header")}
             >

@@ -1156,3 +1156,10 @@ export const CardThemeProperties = ({theme, noMobile}) => {
     variants
   };
 };
+
+export const ScrollParent = el =>
+  !(el instanceof HTMLElement) || typeof window.getComputedStyle !== "function"
+    ? null
+    : el.scrollHeight >= el.clientHeight && !/^(visible|hidden)/.test(window.getComputedStyle(el).overflowY || "visible")
+      ? el
+      : ScrollParent(el.parentElement) || document.body;
